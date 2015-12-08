@@ -19,3 +19,5 @@ RUN		npm install -g bower
 #EXPOSE  80
 
 #CMD     ["node", "/src/server.js"]
+FROM 
+MAINTAINER Chris Perry, byndcivilization@gmail.com
