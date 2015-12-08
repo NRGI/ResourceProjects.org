@@ -1,0 +1,44 @@
+'use strict';
+var express 		= require('express'),
+    stylus 			= require('stylus'),
+    logger 			= require('morgan'),
+    bodyParser 		= require('body-parser'),
+    cookieParser 	= require('cookie-parser'),
+    session 		= require('express-session'),
+    passport 		= require('passport'),
+    SESSION_SECRET	= process.env.SESSION_SECRET;
+
+module.exports = function(app, config) {
+	// function for use by stylus middleware
+	function compile(str, path) {
+		return stylus(str).set('filename', path);
+	}
+	// set up view engine
+	app.set('views', config.rootPath + '/server/views');
+	app.set('view engine', 'jade');
+	// set up logger
+	app.use(logger('dev'));
+	// authentication cofigs
+	app.use(cookieParser());
+    app.use(bodyParser.urlencoded({
+        extended: true,
+        limit: '50mb'
+    }));
+    app.use(bodyParser.json({limit: '50mb'}));
+    app.use(session({
+        secret: SESSION_SECRET,
+        resave: true,
+        saveUninitialized: true
+    }));
+	app.use(passport.initialize());
+	app.use(passport.session());
+
+	// stylus middleware implementation - routes to anything in public directory
+	app.use(stylus.middleware(
+	{
+		src: config.rootPath + '/public',
+		compile: compile
+    }
+    ));
+    app.use(express.static(config.rootPath + '/public'));
+}

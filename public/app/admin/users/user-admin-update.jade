@@ -1,0 +1,84 @@
+.container.top-padding-med
+	.well
+		form.form-horizontal(name='profile_form')
+			fieldset
+				legend {{user.first_name}} {{user.last_name}}'s Profile
+				.form-group
+					label.col-md-2.control-label(form="") First Name
+					.col-md-10
+						input.form-control(
+						name="first_name"
+						type="text"
+						ng-model="user.first_name"
+						required)
+				.form-group
+					label.col-md-2.control-label(form="last_name") Last Name
+					.col-md-10
+						input.form-control(
+						name="last_name"
+						type="text"
+						ng-model="user.last_name"
+						required)
+				.form-group
+					label.col-md-2.control-label(form="username") Username
+					.col-md-10
+						input.form-control(
+						name="username"
+						type="text"
+						ng-model="user.username"
+						readonly)
+				.form-group
+					label.col-md-2.control-label(form="email") Email
+					.col-md-10
+						input.form-control(
+						name="email"
+						type="email"
+						ng-model="user.email"
+						required)
+				.form-group
+					label.col-md-2.control-label(form="roles") Roles
+					.col-md-10
+						input.form-control(
+						name="roles"
+						type="text"
+						ng-model="user.roles"
+						readonly)
+				.form-group
+					label.col-md-2.control-label(form="address") Address
+					.col-md-10
+						input.form-control(
+						name="address"
+						type="text"
+						ng-model="user.address"
+						required)
+				.form-group
+					label.col-md-2.control-label(form="language") Language
+					.col-md-10
+						input.form-control(
+						name="language"
+						type="text"
+						ng-model="user.language"
+						required)
+				.form-group
+					label.col-md-2.control-label(form="password") Password
+					.col-md-10
+						input.form-control(
+						name="password"
+						type="password"
+						ng-model="password")
+				.form-group
+					label.col-md-2.control-label(form="password") Repeat Password
+					.col-md-10
+						input.form-control(
+						name="password"
+						type="password"
+						ng-model="password_rep")
+				.form-group
+					.col-md-10.col-md-offset-2
+						.pull-right
+							//- button.btn.btn-primary(ng-click="userUpdate()", ng-disabled="signupFormm.$invalid") Submit
+							button.btn.btn-primary(ng-click="userUpdate()", ng-disabled="") Submit
+							| &nbsp;
+							button.btn.btn-danger(ng-click="userDelete()", ng-disabled="") Delete
+							| &nbsp;
+							a.btn.btn-default(href="/") Cancel
