@@ -1,6 +1,8 @@
-// query users or get user by id and return only first and last name and email
-angular.module('app').factory('nrgiUserListSrvc', function($resource) {
-	var UserResource = $resource('/api/user-list/:_id', {_id: "@id"}, {});
+'use strict';
 
-	return UserResource;
-});
+angular.module('app')
+    .factory('nrgiUserListSrvc', function($resource) {
+        var UserResource = $resource('/api/user-list/:_id', {_id: "@id"}, {});
+
+        return UserResource;
+    });
