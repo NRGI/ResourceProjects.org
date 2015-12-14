@@ -1,0 +1,9 @@
+.container(ng-controller="nrgiMapCtrl")
+  .page-header
+     h1 Projects
+        =' '
+        small Map
+  .row
+     .col-md-12
+       #map
+         leaflet#projectMap(center="sidney",controls="controls",markers="markers",tiles="tiles")

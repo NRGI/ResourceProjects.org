@@ -1,0 +1,23 @@
+.container
+   .page-header
+      .row
+         .col-md-4
+            h1 Company Groups
+               small
+         .col-md-3
+            .btn-group(role='group', aria-label='...')
+               button.btn.btn-default(type='button')
+                  a(href='/companies') Switch to Companies view
+   table.table.table-striped(ts-wrapper)
+      thead
+         tr
+            th.tablesort-sortable-th(ts-criteria='name') Name
+            th.tablesort-sortable-th(ts-criteria='numberCompanies|parseInt') No. Companies
+            th.tablesort-sortable-th(ts-criteria='numberProject|parseInt') No. Projects
+      tbody
+         tr(ng-repeat='group in groups',ts-repeat)
+            td
+               a(href='group/{{group.id}}') {{group.name}}
+            td {{group.numberCompanies}}
+            td {{group.numberProject}}
+

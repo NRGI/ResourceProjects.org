@@ -6,11 +6,47 @@ script(type="text/javascript", src="/vendor/angular/angular.js")
 script(type="text/javascript", src="/vendor/angular-resource/angular-resource.js")
 script(type="text/javascript", src="/vendor/angular-route/angular-route.js")
 script(type="text/javascript", src="/vendor/ngDialog/js/ngDialog.js")
+//script(type="text/javascript", src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/Leaflet.fullscreen.min.js")
+
+
+
+
+script(type="text/javascript", src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.13.3/jquery.tablesorter.min.js")
+script(type="text/javascript", src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.13.3/jquery.tablesorter.widgets.min.js")
+script(src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js")
+script(type = "text/javascript", src = "/vendor/bootstrap-typeahead.js")
+script(type='text/javascript').
+    $(document).ready(function(){
+        $('.typeahead').typeahead({
+            source: function (query, process) {
+                $('.typeahead').addClass('wait');
+                return $.get('/search/'+encodeURIComponent(query), { }, function (data) {
+                    $('.typeahead').removeClass('wait');
+                    return process(data);
+                }, 'json');
+            },
+            afterSelect: function (obj) {
+                $('.typeahead').attr('disabled', true);
+                window.location = obj.uri;
+            },
+            displayText: function(item){ return item.value;}
+        });
+    });
 
 //- MAIN APP
 script(type="text/javascript", src="/app/app.js")
 script(type="text/javascript", src="/app/common/nrgiNotifier.js")
 script(type="text/javascript", src="/app/main/nrgiMainCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiProjectsCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiProjectCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiMapCtrl.js")
+script(type="text/javascript", src="/app/sources/nrgiSourcesCtrl.js")
+script(type="text/javascript", src="/app/countries/nrgiCountriesCtrl.js")
+script(type="text/javascript", src="/app/countries/nrgiCountryCtrl.js")
+script(type="text/javascript", src="/app/companies/nrgiCompaniesCtrl.js")
+script(type="text/javascript", src="/app/companies/nrgiCompanyCtrl.js")
+script(type="text/javascript", src="/app/companies/nrgiGroupsCtrl.js")
+script(type="text/javascript", src="/app/companies/nrgiGroupCtrl.js")
 
 //- SERVICES
 script(type="text/javascript", src="/app/services/nrgiAuthSrvc.js")
@@ -29,11 +65,9 @@ script(type="text/javascript", src="/app/services/nrgiUserListSrvc.js")
 //- script(type="text/javascript", src="/app/nrgiAnswerCtrl.js")
 //- script(type="text/javascript", src="/app/boliviaCtrl.js")
 //- script(type="text/javascript", src="/app/services/ApiSrvc.js")
-
 //- ACCT CTRLS
 script(type="text/javascript", src="/app/account/nrgiNavBarLoginCtrl.js")
 script(type="text/javascript", src="/app/account/nrgiProfileCtrl.js")
-
 //- ADMIN CTRLS
 script(type="text/javascript", src="/app/admin/users/nrgiUserAdminCreateCtrl.js")
 script(type="text/javascript", src="/app/admin/users/nrgiUserAdminCtrl.js")
@@ -45,8 +79,11 @@ script(type="text/javascript", src="/app/admin/users/nrgiUserAdminUpdateCtrl.js"
 //- script(type="text/javascript", src="/app/admin/assessments/nrgiAssessmentAdminUpdateCtrl.js")
 //- script(type="text/javascript", src="/app/admin/assessments/nrgiAssessmentDashboardCtrl.js")
 //- script(type="text/javascript", src="/app/admin/assessments/nrgiAssessmentDashboardDetailCtrl.js")
-
 //- USER CTRLS
 //- script(type="text/javascript", src="/app/user/assessments/nrgiAssessmentsListCtrl.js")
 //- script(type="text/javascript", src="/app/user/assessments/nrgiAssessmentDetailCtrl.js")
 //- script(type="text/javascript", src="/app/user/assessments/nrgiAnswerCtrl.js")
+script(type="text/javascript", src="/vendor/angular-leaflet-directive/dist/angular-leaflet-directive.min.js")
+script(type="text/javascript", src="/vendor/esri-leaflet/dist/esri-leaflet.js")
+script(type="text/javascript", src="/app/component/angular-tablesort.js")
+script(src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.4/Leaflet.fullscreen.min.js')

@@ -6,7 +6,7 @@ var express 		= require('express'),
     cookieParser 	= require('cookie-parser'),
     session 		= require('express-session'),
     passport 		= require('passport'),
-    SESSION_SECRET	= process.env.SESSION_SECRET;
+    SESSION_SECRET	= "whatever you want";
 
 module.exports = function(app, config) {
 	// function for use by stylus middleware

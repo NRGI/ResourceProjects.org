@@ -1,0 +1,49 @@
+.container
+   .page-header
+      .row
+         .col-md-3
+            h1 Companies
+               small
+         .col-md-3
+            .btn-group(role='group', aria-label='...')
+               button.btn.btn-default(type='button')
+                  a(href='/groups') Switch to Company Groups view
+   .dropdown
+      | Showing {{page}} to {{count}} of {{companies.length}} companies. Number of records per page:
+      =' '
+      form.inline
+         select(name='limit', ng-model='limit',ng-change="count = limit;page = 0")
+            option(selected='') 50
+            option 200
+            option 1000
+         noscript &lt;input type=&quot;submit&quot; value=&quot;Submit&quot; /&gt;
+   .row
+      .col-md-12
+         .pager
+            ul.inline
+               li.previous(ng-if="page!=0")
+                  a(href='',ng-click='prev(page,count)') previous
+               li.next(ng-if="count<companies.length")
+                  a(href='',ng-click='next(page,count)') next
+         table.table.table-striped(about='http://resourceprojects.org/company',ts-wrapper)
+            thead
+               tr
+                  th.tablesort-sortable-th(ts-criteria='name') Company
+                  th.tablesort-sortable-th(ts-criteria='group') Group
+                  th.tablesort-sortable-th(ts-criteria='numberProject|parseInt') No. Projects
+            tbody
+               tr(ng-repeat='company in companies.slice(page) | limitTo: limit',ts-repeat)
+                  td
+                     a(href='company/{{company.id}}') {{company.name}}
+                  td
+                     a(href='company/{{company.id_group}}') {{company.group}}
+                  td {{company.numberProject}}
+         .pager
+            ul.inline
+               li.previous(ng-if="page!=0")
+                  a(href='',ng-click='prev(page,count)') previous
+               li.next(ng-if="count<companies.length")
+                  a(href='',ng-click='next(page,count)') next
+
+   // end row
+

@@ -1,0 +1,28 @@
+.container
+	.page-header
+		h1 Sources
+		p This website is built up through user contributions, transforming company reports and filings into accessible open data. Find out
+			=' '
+			a(href='/contribute') how you can contribute here
+			=' .'
+		p The site currently incorporates 76 sources
+		table.table.table-striped.tablesorter.tablesorter-default(about='http://resourceprojects.org/source')
+			thead
+				tr.tablesorter-headerRow
+					th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+						.tablesorter-header-inner Source
+					th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+						.tablesorter-header-inner Source type
+					th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+						.tablesorter-header-inner Source date
+					th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+						.tablesorter-header-inner Details
+			tbody
+				tr(ng-repeat='source in sources')
+					td
+						//a(href='source/{{ source.id }}')
+						| {{source.name}}
+					td {{source.type}}
+					td {{source.date}}
+					td
+						a(href='source/{{ source.id }}') Details

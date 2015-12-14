@@ -1,0 +1,86 @@
+.container
+   .page-header
+      h1 Anglogold Ashanti
+         =' '
+         small Group of Companies
+   .row
+      .col-md-12
+         leaflet(center="groupCountry",controls="controls",markers="groupMarkers",tiles="tiles", height='240px')
+   .row
+      .col-md-6
+         .info-box
+            h2 Company Group Info
+            table#group-info
+               tbody
+                  tr
+                     td.project-label(style='width:200px') Our Company Group ID:
+                     td AnglogoldAshanti
+      .col-md-6
+         h2 Companies
+         table.table.table-striped.companies.tablesorter.tablesorter-default
+            thead
+               tr.tablesorter-headerRow
+                  th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+                     .tablesorter-header-inner Name
+            tbody
+         .download
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+               |  Download:
+               =' '
+               a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fname+%3Fcompany+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fgroup%2FAnglogoldAshanti%3E+rp%3AgroupMember+%3Fmembers+.%0A++++%3Fmembers+rp%3Aorganisation+%3Fcompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fname+%7D%0A%7D+LIMIT+1000%0A&format=text%2Fcsv&timeout=0&debug=on') Companies CSV
+   h2 Projects
+   table.table.table-striped.projects.tablesorter.tablesorter-default
+      thead
+         tr.tablesorter-headerRow
+            th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Name
+            th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Country
+            th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Commodity Type
+      tbody
+   .download
+      span.glyphicon.glyphicon-download(aria-hidden='true')
+      span
+         |  Download:
+         =' '
+         a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+%3Fproject+%3Fname+%3Fcountry_name+%3FcommodityType+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fgroup%2FAnglogoldAshanti%3E+rp%3AgroupMember+%3Fmembers+.%0A++++%3Fmembers+rp%3Aorganisation+%3Fcompany+.%0A++++%3Fcompany+rp%3AholdsStake+%3Fstakes+.%0A++++%3Fstakes+rp%3AisStakeIn+%3Fproject+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos_%3AprefLabel+%3Fname+.%0A++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++%3Fcountry+a+rp%3ACountry+.%0A++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasCommodity+%3Fcommodity+.%0A+++++++++++++++%3Fcommodity+rp%3AcommodityType+%3FcommodityType+%0A++++%7D%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV
+   h2 Payments
+   table.table.table-striped.payments.tablesorter.tablesorter-default
+      thead
+         tr.tablesorter-headerRow
+            th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Year
+            th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Paid by
+            th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Paid to
+            th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Payment Type
+            th.tablesorter-header(data-column='4', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Currency
+            th.tablesorter-header(data-column='5', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Value
+            th.tablesorter-header(data-column='6', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Payment or receipt?
+            th.tablesorter-header(data-column='7', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner ID
+     tbody
+   .download
+      span.glyphicon.glyphicon-download(aria-hidden='true')
+      span
+         |  Download:
+         =' '
+         a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+DISTINCT+%3FcompanyPayment+%3Fcompany+%3Fcompany_name+%3FpaymentOrReceipt+%3Fpayee+%3Fpayee_name+%3Fcurrency+%28replace%28%3Famount%2C%22%2C%22%2C%22%22%29+as+%3Famount%29+%3Fdate+%3Fyear+%3Ftype+WHERE+%7B%0A++++%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fgroup%2FAnglogoldAshanti%3E+rp%3AgroupMember+%3Fmembers+.%0A++++%3Fmembers+rp%3Aorganisation+%3Fcompany+.%0A++++%3FcompanyPayment+rp%3Apayer+%3Fcompany+.%0A++++%3FcompanyPayment+a+%3FpaymentOrReceipt%0A++++OPTIONAL+%7B+%3FcompanyPayment+rp%3Apayee+%3Fpayee+.%0A++++++++++++++%3Fpayee+skos_%3AprefLabel+%3Fpayee_name%0A++++++++++++++%7D%0A++++OPTIONAL+%7B+%3Fcompany+skos_%3AprefLabel+%3Fcompany_name%0A++++++++++++++%7D%0A++++OPTIONAL+%7B+%3FcompanyPayment+rp%3Acurrency+%3Fcurrency+%7D%0A++++OPTIONAL+%7B+%3FcompanyPayment+rp%3Avalue+%3Famount+%7D+%0A++++OPTIONAL+%7B+%3FcompanyPayment+rp%3Adate+%3Fdate+%7D+%0A++++OPTIONAL+%7B+%3FcompanyPayment+rp%3Ayear+%3Fyear+%7D%0A++++OPTIONAL+%7B+%3FcompanyPayment+rp%3ApaymentType+%3FpaymentType.%0A+++++++++++++++%3FpaymentType+skos_%3AprefLabel+%3Ftype.%0A++++%7D%0A%7D%0A&format=text%2Fcsv&timeout=0&debug=on') Payments CSV
+   .advanced-links
+      .container
+         h3
+            | Links
+            =' '
+            small Advanced
+         ul
+            li
+               a(href='group/AnglogoldAshanti') Triples View
+            li
+               a(href='group/AnglogoldAshanti') Sources

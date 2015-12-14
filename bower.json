@@ -23,5 +23,9 @@
   ],
   "resolutions": {
     "angular": "~1.3.2"
+  },
+  "devDependencies": {
+    "esri-leaflet": "~1.0.1",
+    "angular-leaflet-directive": "angular-leaflet#~0.10.0"
   }
 }

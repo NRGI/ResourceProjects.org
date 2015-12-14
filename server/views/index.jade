@@ -1,14 +1,70 @@
-
 extend ../includes/layout
-
 block main-content
-	.navbar.navbar-inverse.navbar-fixed-top
-		.container
-			.navbar-header
-				a.navbar-brand(href="/") Resource Projects
-			.navbar-collapse.collapse
-				div(ng-include="'/partials/account/navbar-login'")
+	.navbar.navbar-fixed-top
+		.navbar-inner
+			.container
+				a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+					span.icon-bar
+					span.icon-bar
+					span.icon-bar
+				a.brand(href='/')
+					img(src='http://staging.nrgi-sandbox.net/img/print-logo.jpg', width='185', height='65', alt='Natural Resource Governance Institute Logo')
+				.nav-collapse
+					ul.nav.list-inline
+						li
+							a(href='/about') About
+						li
+							a(href='/projects') Projects
+						li
+							a(href='/countries') Countries
+						li
+							a(href='/companies') Companies
+						li
+							a(href='/commodities') Commodities
+						li
+							a(href='/sources') Sources
+						li
+							a(href='/glossary') Glossary
+						li
+							a(href='/contracts') Contracts
+						li
+							a(href='/concessions') Concessions
+					form.navbar-search.pull-left(action='')
+						input.typeahead.search-query.span2(type='text', data-provide='typeahead', placeholder='Search')
 	section.content
 		div(ng-view)
-	footer.container.text-center
-		p &copy; 2014 NRGI
+	footer
+		.container
+			.strapline
+				p.
+					The Natural Resource Governance Institute promotes the effective, transparent and accountable management of oil, gas and mineral resources for the public good.
+				.row
+					.col-md-4
+						h4.block-title ResourceProjects.org
+						p.
+							This site is a prototype, based on under-contributed data. No warranty of the accuracy or completeness of data is provided, and users should always check against original sources before making decisions based upon the data presented here.
+						p.
+							Unless otherwise stated, all data on the the site is available as open data under Creative Commons License CC-BY-SA.
+						p Errors and omissions can be reported to:
+							a(href='mailto:apedersen@resourcegovernance.org') apedersen@resourcegovernance.org
+					.col-md-4
+						h4.block-title Technical Details
+						ul.list-unstyled
+							li
+								a(href='/contribute') Contribution Template
+							li
+								a(href='/model') Data Model
+							li
+								a(href='/classes') Classes
+							li
+								a(href='/namedGraphs') Named Graphs
+							li
+								a(href='/sparql') SPARQL
+					.col-lg-4
+						h4.block-title Links
+						ul.list-unstyled
+							li
+								a(href='http://www.resourcegovernance.org/') Natural Resource Governance Institute (Main Website)
+						ul.list-unstyled
+							li
+								a(href='http://www.resourcecontracts.org/') ResourceContracts.org

@@ -1,0 +1,154 @@
+.container(ng-controller="nrgiMapCtrl")
+   .page-header
+      .row
+         .col-md-12
+            h1 {{project.name}}
+               =' '
+               small Project
+   .row
+      .col-md-12
+            leaflet(center="projectCountry",controls="controls",markers="projectMarkers",tiles="tiles", height='240px')
+   .row
+      .col-md-6
+         .info-box
+            h2 Project Info
+            table#project-info
+               tbody
+                  tr
+                     td.project-label ID:
+                     td. {{project.id}}
+                  tr
+                     td.project-label Country:
+                     td
+                        a(href='country/{{project.id_country}}') {{project.country}}
+                  tr
+                     td.project-label Aliases:
+                     td.aliases {{project.aliases}}
+                  tr
+                     td.project-label Commodity Type(s):
+                     td.commodity-types(ng-repeat='type in project.types')
+                        | {{type.type}}
+                        span(ng-if='!$last') ,
+                  tr
+                     td.project-label Commodities:
+                     td.commodities(ng-repeat='commodity in project.commodities')
+                        a(href='commodity/{{commodity.id}}')
+                           | {{commodity.name}}
+                        span(ng-if='!$last') ,
+                  tr
+                     td.project-label Status:
+                     td.status {{project.status}}
+                  tr
+                     td.project-label Associated Contracts:
+                     td
+                        ul
+                  tr
+                     td.project-label Associated Concessions:
+                     | &#x9;
+                     td
+                        ul
+                  tr
+                     td.project-label(colspan='2')
+                        | Location(s)
+                        table.table.table-striped.locations
+                           tbody
+                              tr
+                                 th Name
+                                 th Lat
+                                 th Lng
+                              tr
+                                 td {{project.name}}
+                                 td {{project.lat}}
+                                 td {{project.lng}}
+         // info-box
+      // col-md-6
+      .col-md-6
+         h2 Companies
+         table.table.table-striped.companies.tablesorter.tablesorter-default
+            thead
+               tr.tablesorter-headerRow
+                  th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+                     .tablesorter-header-inner Name
+                  th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+                     .tablesorter-header-inner Group
+                  // <th>Share</th>
+            tbody
+         .download
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+               |  Download:
+               =' '
+               a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
+                  | Companies CSV
+      // col-md-6
+   // row
+   h2 Production Stats
+   table.table.table-striped.production_stats.tablesorter.tablesorter-default
+      thead
+         tr.tablesorter-headerRow
+            th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Year
+            th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Volume
+            th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Unit
+            th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Commodity
+            th.tablesorter-header(data-column='4', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Price
+            th.tablesorter-header(data-column='5', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Price per unit
+            th.tablesorter-header(data-column='6', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner ID
+      tbody
+   .download
+      span.glyphicon.glyphicon-download(aria-hidden='true')
+      span
+         |  Download:
+      =' '
+         a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
+            | Production Stats CSV
+   //p No data available
+
+   h2 Payments
+
+   table.table.table-striped.payments.tablesorter.tablesorter-default
+      thead
+         tr.tablesorter-headerRow
+            th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Year
+            th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Paid by
+            th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Paid to
+            th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Payment Type
+            th.tablesorter-header(data-column='4', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Currency
+            th.tablesorter-header(data-column='5', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Value
+            th.tablesorter-header(data-column='6', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner Payment or receipt?
+            th.tablesorter-header(data-column='7', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
+               .tablesorter-header-inner ID
+      tbody
+   .download
+      span.glyphicon.glyphicon-download(aria-hidden='true')
+      span
+         | Download:
+         =' '
+         a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
+            | Payments CSV
+   //p No data available
+
+   .advanced-links
+      .container
+         h3
+            | Links
+            =' '
+            small Advanced
+         ul
+            li
+               a(href='project/MX/adar-gok3sd') Triples View
+            li
+               a(href='project/MX/adar-gok3sd') Sources

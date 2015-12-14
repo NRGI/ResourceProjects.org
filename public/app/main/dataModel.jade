@@ -1,0 +1,43 @@
+.container
+   .page-header
+      h1 Data Model
+   p
+      | To be able to rapidly iterate on the data model for ResourceProjects.org we have built on a
+      =' '
+      a(href='http://linkeddata.org/') linked data
+      =' model. Our data is therefore an extensible '
+      a(href='https://en.wikipedia.org/wiki/Graph_(abstract_data_type)') graph structure
+      =' , with a set of core entities and properties defined by an ontology.'
+   p
+      | The draft ontology
+      =' '
+      a(href='https://github.com/NRGI/resource-projects-etl/blob/master/ontology/resource-projects-ontology.rdf') can be found here
+      =' (RDF).'
+   p A couple of initial notes that might help you exploring the data.
+
+   h2#namespaces-mapping Namespaces &amp; mapping
+   p
+      | Core properties are all in the
+      =' '
+      a(href='http://resourceprojects.org/def/') http://resourceprojects.org/def/
+      =' namespace. We use the prefix rp for this.'
+   p
+      | If we encounter properties in incoming files that are not declared in our ontology we mint URIs for these under
+      =' '
+      a(href='http://resourceprojects.org/def/misc/') http://resourceprojects.org/def/misc/
+      =' in order to keep track of them, and consider them for inclusion in the full ontology later. We use the prefix rp_misc for this.'
+   p We have tried to use pattern from existing ontologies where possible.
+
+   h3#stakeholding-memberships Stakeholding &amp; memberships
+
+   p One of the common modelling issues we need to deal with in resource projects data is the association between a company and a project, or between companies and groups.
+   p Because these are subject to change over time, we model the relationship with an intermediate entity, either a rp:Stake, or rp:Membership.
+   p Properties subject to change over time, such as percentage share, or status as operator of a project, attach to the Stake, rather than the company or project directly.
+
+   h4#stakeholding-relationships Stakeholding relationships
+
+   p The relationship between a project and company via Stake looks as follows:
+
+   .figure
+      img(src='/img/model-stakes.png', alt='Project, Companies and Stakes model')
+      p.caption Project, Companies and Stakes model

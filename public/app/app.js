@@ -1,4 +1,4 @@
-angular.module('app', ['ngResource', 'ngRoute', 'ngDialog']);
+angular.module('app', ['ngResource', 'ngRoute', 'ngDialog','leaflet-directive','tableSort']);
 
 angular.module('app')
     .config(function($routeProvider, $locationProvider) {
@@ -45,7 +45,83 @@ angular.module('app')
                 templateUrl: '/partials/account/profile',
                 controller: 'nrgiProfileCtrl',
                 resolve: routeRoleChecks.user
-            });
+            })
+            .when('/about', {
+                templateUrl: '/partials/main/about'
+            })
+            .when('/projects', {
+                templateUrl: '/partials/projects/projects',
+                controller: 'nrgiProjectsCtrl'
+            })
+            .when('/project/:id_country/:id', {
+                templateUrl: '/partials/projects/project',
+                controller: 'nrgiProjectCtrl'
+            })
+            .when('/countries', {
+                templateUrl: '/partials/countries/countries',
+                controller: 'nrgiCountriesCtrl'
+            })
+            .when('/country/:id', {
+                templateUrl: '/partials/countries/country',
+                controller: 'nrgiCountryCtrl'
+            })
+            .when('/commodities', {
+                templateUrl: '/partials/main/commodities'
+            })
+            .when('/commodity/:id', {
+                templateUrl: '/partials/main/commodity'
+            })
+            .when('/companies', {
+                templateUrl: '/partials/companies/companies',
+                controller: 'nrgiCompaniesCtrl'
+
+            })
+            .when('/company/:id', {
+                templateUrl: '/partials/companies/company',
+                controller: 'nrgiCompanyCtrl'
+            })
+            .when('/groups', {
+                templateUrl: '/partials/companies/groups',
+                controller: 'nrgiGroupsCtrl'
+            })
+            .when('/group/:id', {
+                templateUrl: '/partials/companies/group',
+                controller: 'nrgiGroupCtrl'
+            })
+            .when('/governmentReceipt/:id', {
+                templateUrl: '/partials/main/receipt'
+            })
+            .when('/sources', {
+                templateUrl: '/partials/sources/sources',
+                controller: 'nrgiSourcesCtrl'
+            })
+            .when('/source/:id', {
+                templateUrl: '/partials/sources/source'
+            })
+            .when('/glossary', {
+                templateUrl: '/partials/main/glossary'
+            })
+            .when('/contribute', {
+                templateUrl: '/partials/main/contribute'
+            })
+            .when('/model', {
+                templateUrl: '/partials/main/dataModel'
+            })
+            .when('/classes', {
+                templateUrl: '/partials/main/classes'
+            })
+            .when('/instances/:id', {
+                templateUrl: '/partials/main/instances'
+            })
+            .when('/namedGraphs', {
+                templateUrl: '/partials/main/namedGraphs'
+            })
+            .when('/map', {
+                templateUrl: '/partials/projects/map'
+            })
+
+
+
 //    .when('/admin/question-admin', {
 //        templateUrl: '/partials/admin/questions/question-admin',
 //        controller: 'nrgiQuestionAdminCtrl',
