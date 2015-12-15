@@ -46,9 +46,12 @@ angular.module('app')
                 controller: 'nrgiProfileCtrl',
                 resolve: routeRoleChecks.user
             })
-            .when('/about', {
-                templateUrl: '/partials/main/about'
-            })
+
+
+
+
+
+
             .when('/projects', {
                 templateUrl: '/partials/projects/projects',
                 controller: 'nrgiProjectsCtrl'
@@ -56,6 +59,12 @@ angular.module('app')
             .when('/project/:id_country/:id', {
                 templateUrl: '/partials/projects/project',
                 controller: 'nrgiProjectCtrl'
+            })
+            .when('/map', {
+                templateUrl: '/partials/projects/map'
+            })
+            .when('/production/:id_country/:id', {
+                templateUrl: '/partials/common/production'
             })
             .when('/countries', {
                 templateUrl: '/partials/countries/countries',
@@ -66,10 +75,12 @@ angular.module('app')
                 controller: 'nrgiCountryCtrl'
             })
             .when('/commodities', {
-                templateUrl: '/partials/main/commodities'
+                templateUrl: '/partials/commodities/commodities',
+                controller: 'nrgiCommoditiesCtrl'
             })
             .when('/commodity/:id', {
-                templateUrl: '/partials/main/commodity'
+                templateUrl: '/partials/commodities/commodity',
+                controller: 'nrgiCommodityCtrl'
             })
             .when('/companies', {
                 templateUrl: '/partials/companies/companies',
@@ -89,36 +100,40 @@ angular.module('app')
                 controller: 'nrgiGroupCtrl'
             })
             .when('/governmentReceipt/:id', {
-                templateUrl: '/partials/main/receipt'
+                templateUrl: '/partials/common/receipt'
             })
             .when('/sources', {
                 templateUrl: '/partials/sources/sources',
                 controller: 'nrgiSourcesCtrl'
             })
             .when('/source/:id', {
-                templateUrl: '/partials/sources/source'
+                templateUrl: '/partials/sources/source',
+                controller: 'nrgiSourceCtrl'
             })
             .when('/glossary', {
-                templateUrl: '/partials/main/glossary'
+                templateUrl: '/partials/common/glossary'
             })
             .when('/contribute', {
-                templateUrl: '/partials/main/contribute'
+                templateUrl: '/partials/common/contribute'
+            })
+            .when('/about', {
+                templateUrl: '/partials/common/about'
             })
             .when('/model', {
-                templateUrl: '/partials/main/dataModel'
-            })
-            .when('/classes', {
-                templateUrl: '/partials/main/classes'
-            })
-            .when('/instances/:id', {
-                templateUrl: '/partials/main/instances'
+                templateUrl: '/partials/common/dataModel'
             })
             .when('/namedGraphs', {
-                templateUrl: '/partials/main/namedGraphs'
+                templateUrl: '/partials/common/namedGraphs'
             })
-            .when('/map', {
-                templateUrl: '/partials/projects/map'
+            .when('/governmentreceipt/:id_country/:id', {
+                templateUrl: '/partials/common/governmentreceipt'
             })
+            //.when('/classes', {
+            //    templateUrl: '/partials/main/classes'
+            //})
+            //.when('/instances/:id', {
+            //    templateUrl: '/partials/main/instances'
+            //})
 
 
 
@@ -188,8 +203,13 @@ angular.module('app')
 
 angular.module('app').run(function($rootScope, $location) {
     $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
         if(rejection === 'not authorized') {
             $location.path('/');
         }
+    });
+    $rootScope.$on('$routeChangeSuccess', function() {
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+
     })
 });

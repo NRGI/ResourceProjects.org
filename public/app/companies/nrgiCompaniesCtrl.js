@@ -65,6 +65,14 @@ angular.module('app')
             {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
             {id:'e78a24ef78c0b90a',name:'Aa Mine Holding',group:'',id_group:'',numberProject:'1'}
         ];
+        $scope.select = function(limit){
+            $scope.page = 0;
+            if($scope.companies.length<limit){
+                $scope.count=$scope.companies.length;
+            }else{
+                $scope.count=limit;
+            }
+        };
         $scope.next = function(page,count){
             count = parseInt(count);
             $scope.page = count;

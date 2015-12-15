@@ -4,10 +4,9 @@ angular.module('app')
     .controller('nrgiCountriesCtrl', function (
         $scope,
         nrgiAuthSrvc,
-        nrgiIdentitySrvc
+        nrgiIdentitySrvc,
+        $sce
     ) {
-        $scope.param =='-name';
-        // bring in current user data to customize front page
         $scope.countries = [
             {id:'AO',name:'Angola',count:'15'},
             {id:'CG',name:'Congo',count:'1'},

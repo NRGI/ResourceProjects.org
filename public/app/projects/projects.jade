@@ -12,11 +12,10 @@
       | Showing {{page}} to {{count}} of {{projects.length}} projects. Number of records per page:
       =' '
       form.inline
-         select(name='limit',ng-model='limit',ng-change="count = limit;page = 0")
+         select(name='limit',ng-model='limit',ng-change="select(limit)")
             option(selected='') 50
             option 200
             option 1000
-         //noscript &lt;input type=&quot;submit&quot; value=&quot;Submit&quot; /&gt;
    .pager
       ul.inline
          li.previous(ng-if="page!=0")
@@ -33,9 +32,11 @@
       tbody
          tr(ng-repeat='project in projects.slice(page) | limitTo: limit',ts-repeat)
             td
-               a(href='/project/{{project.id}}') {{project.name}}
+               a(href='/project/{{project.id}}')
+                  span(ng-bind-html="project.name|sanitize")
             td
-               a(href='/country/{{project.id_country}}') {{project.country}}
+               a(href='/country/{{project.id_country}}')
+                  span(ng-bind-html="project.country|sanitize")
             td {{project.type}}
             td {{project.number}}
    .pager

@@ -6,22 +6,18 @@
 			a(href='/contribute') how you can contribute here
 			=' .'
 		p The site currently incorporates 76 sources
-		table.table.table-striped.tablesorter.tablesorter-default(about='http://resourceprojects.org/source')
+		table.table.table-striped(about='http://resourceprojects.org/source',ts-wrapper)
 			thead
-				tr.tablesorter-headerRow
-					th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-						.tablesorter-header-inner Source
-					th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-						.tablesorter-header-inner Source type
-					th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-						.tablesorter-header-inner Source date
-					th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-						.tablesorter-header-inner Details
+				tr
+					th.tablesort-sortable-th(ts-criteria='name') Source
+					th.tablesort-sortable-th(ts-criteria='type') Source type
+					th.tablesort-sortable-th(ts-criteria='date') Source date
+					th.tablesort-sortable-th(ts-criteria='id') Details
 			tbody
-				tr(ng-repeat='source in sources')
+				tr(ng-repeat='source in sources', ts-repeat)
 					td
-						//a(href='source/{{ source.id }}')
-						| {{source.name}}
+						a(href='source/{{ source.id }}')
+							span(ng-bind-html="source.name|sanitize")
 					td {{source.type}}
 					td {{source.date}}
 					td

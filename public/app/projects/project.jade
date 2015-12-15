@@ -2,12 +2,13 @@
    .page-header
       .row
          .col-md-12
-            h1 {{project.name}}
+            h1
+               span(ng-bind-html="project.name|sanitize")
                =' '
                small Project
    .row
       .col-md-12
-            leaflet(center="projectCountry",controls="controls",markers="projectMarkers",tiles="tiles", height='240px')
+            leaflet(center="project.countryMap",controls="controls",markers="project.projectMarkers",tiles="tiles", height='240px')
    .row
       .col-md-6
          .info-box
@@ -20,24 +21,32 @@
                   tr
                      td.project-label Country:
                      td
-                        a(href='country/{{project.id_country}}') {{project.country}}
+                        a(href='country/{{project.id_country}}')
+                           span(ng-bind-html="project.country|sanitize")
                   tr
                      td.project-label Aliases:
-                     td.aliases {{project.aliases}}
+                     td.aliases
+                        span(ng-repeat='alias in project.aliases')
+                           span(ng-bind-html="alias.name|sanitize")
+                           span(ng-if='!$last') ,
+                           =' '
                   tr
                      td.project-label Commodity Type(s):
-                     td.commodity-types(ng-repeat='type in project.types')
-                        | {{type.type}}
-                        span(ng-if='!$last') ,
+                     td.commodity-types
+                        span(ng-repeat='type in project.types')
+                           span(ng-bind-html="type.type|sanitize")
+                           span(ng-if='!$last') ,
+                           =' '
                   tr
                      td.project-label Commodities:
                      td.commodities(ng-repeat='commodity in project.commodities')
                         a(href='commodity/{{commodity.id}}')
-                           | {{commodity.name}}
+                           span(ng-bind-html="commodity.name|sanitize")
                         span(ng-if='!$last') ,
                   tr
                      td.project-label Status:
-                     td.status {{project.status}}
+                     td.status
+                        span(ng-bind-html="project.status|sanitize")
                   tr
                      td.project-label Associated Contracts:
                      td
@@ -56,23 +65,31 @@
                                  th Name
                                  th Lat
                                  th Lng
-                              tr
-                                 td {{project.name}}
-                                 td {{project.lat}}
-                                 td {{project.lng}}
+                              tr(ng-repeat='marker in project.projectMarkers')
+                                 td
+                                    span(ng-bind-html="marker.message|sanitize")
+                                 td
+                                    span(ng-if='marker.lat!=0') {{marker.lat}}
+                                 td
+                                    sapn(ng-if='marker.lng!=0') {{marker.lng}}
          // info-box
       // col-md-6
       .col-md-6
          h2 Companies
-         table.table.table-striped.companies.tablesorter.tablesorter-default
+         table.table.table-striped.companies(ts-wrapper)
             thead
-               tr.tablesorter-headerRow
-                  th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-                     .tablesorter-header-inner Name
-                  th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-                     .tablesorter-header-inner Group
+               tr
+                  th.tablesort-sortable-th(ts-criteria='name') Name
+                  th.tablesort-sortable-th(ts-criteria='group') Group
                   // <th>Share</th>
             tbody
+               tr(ng-repeat='company in project.companies',ts-repeat)
+                  td
+                     a(href='company/{{company.idCompany}}')
+                        span(ng-bind-html="company.name|sanitize")
+                  td
+                     a(href='group/{{company.idGroup}}')
+                        span(ng-bind-html="company.group|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span
@@ -83,24 +100,30 @@
       // col-md-6
    // row
    h2 Production Stats
-   table.table.table-striped.production_stats.tablesorter.tablesorter-default
+   table.table.table-striped.production_stats(ng-if='project.productionStats.length!=0',ts-wrapper)
       thead
-         tr.tablesorter-headerRow
-            th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Year
-            th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Volume
-            th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Unit
-            th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Commodity
-            th.tablesorter-header(data-column='4', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Price
-            th.tablesorter-header(data-column='5', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Price per unit
-            th.tablesorter-header(data-column='6', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner ID
+         tr
+            th.tablesort-sortable-th(ts-criteria='year') Year
+            th.tablesort-sortable-th(ts-criteria='volume|parseFloat') Volume
+            th.tablesort-sortable-th(ts-criteria='unit') Unit
+            th.tablesort-sortable-th(ts-criteria='commodity') Commodity
+            th.tablesort-sortable-th(ts-criteria='price|parseInt') Price
+            th.tablesort-sortable-th(ts-criteria='pricePerUnit') Price per unit
+            th.tablesort-sortable-th(ts-criteria='id') ID
       tbody
+         tr(ng-repeat='stats in project.productionStats',ts-repeat)
+            td {{stats.year}}
+            td {{stats.volume}}
+            td {{stats.unit}}
+            td
+               a(href='commodity/{{stats.commodityId}}')
+                  span(ng-bind-html="stats.commodity|sanitize")
+            td {{stats.price}}
+            td {{stats.pricePerUnit}}
+            td
+               a(href='production/{{stats.id}}')
+                  span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
+
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
       span
@@ -108,30 +131,37 @@
       =' '
          a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
             | Production Stats CSV
-   //p No data available
+   p(ng-if='project.productionStats.length==0') No data available
 
    h2 Payments
 
-   table.table.table-striped.payments.tablesorter.tablesorter-default
+   table.table.table-striped.payments(ts-wrapper,ng-if='project.payments.length!=0')
       thead
-         tr.tablesorter-headerRow
-            th.tablesorter-header(data-column='0', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Year
-            th.tablesorter-header(data-column='1', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Paid by
-            th.tablesorter-header(data-column='2', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Paid to
-            th.tablesorter-header(data-column='3', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Payment Type
-            th.tablesorter-header(data-column='4', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Currency
-            th.tablesorter-header(data-column='5', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Value
-            th.tablesorter-header(data-column='6', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner Payment or receipt?
-            th.tablesorter-header(data-column='7', tabindex='0', unselectable='on', style='-webkit-user-select: none;')
-               .tablesorter-header-inner ID
+         tr
+            th.tablesort-sortable-th(ts-criteria='year|parseInt') Year
+            th.tablesort-sortable-th(ts-criteria='paidBy') Paid by
+            th.tablesort-sortable-th(ts-criteria='paidTo') Paid to
+            th.tablesort-sortable-th(ts-criteria='type') Payment Type
+            th.tablesort-sortable-th(ts-criteria='currency') Currency
+            th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
+            th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?
+            th.tablesort-sortable-th(ts-criteria='id') ID
       tbody
+         tr(ng-repeat='payment in project.payments',ts-repeat)
+            td {{payment.year}}
+            td
+               a(href='country/{{payment.paidById}}')
+                  span(ng-bind-html="payment.paidBy|sanitize")
+            td
+               a(href='country/{{payment.paidToId}}')
+                  span(ng-bind-html="payment.paidTo|sanitize")
+            td {{payment.type}}
+            td {{payment.currency}}
+            td {{payment.value}}
+            td {{payment.receipt}}
+            td
+               a(href='governmentreceipt/{{payment.id}}')
+                  span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
       span
@@ -139,7 +169,7 @@
          =' '
          a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
             | Payments CSV
-   //p No data available
+   p(ng-if='project.payments.length==0') No data available
 
    .advanced-links
       .container

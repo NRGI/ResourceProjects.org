@@ -395,3 +395,9 @@ table .tablesort-desc {
   background-color: #fff !important;
   border-bottom: 2px solid #000 !important;
 }
+.leaflet-popup-content {
+  font-weight: bold;
+}
+.type {
+  width: 35%;
+}

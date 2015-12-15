@@ -6,8 +6,6 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc
     ) {
-
-        // bring in current user data to customize front page
         $scope.sources = [
             {id:'AGNICOEAGLEMINESLIMITED-qgl67j',name:'AGNICO-EAGLE MINES LIMITED',type:'Extractive company report',details:'AGNICOEAGLEMINESLIMITED-qgl67j',date:''},
             {id:'ALAMOSGOLDINC-1dsz22',name:'ALAMOS GOLD INC',type:'',details:'ALAMOSGOLDINC-1dsz22',date:''},

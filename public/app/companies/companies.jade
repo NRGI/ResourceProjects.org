@@ -12,11 +12,10 @@
       | Showing {{page}} to {{count}} of {{companies.length}} companies. Number of records per page:
       =' '
       form.inline
-         select(name='limit', ng-model='limit',ng-change="count = limit;page = 0")
+         select(name='limit', ng-model='limit',ng-change="select(limit)")
             option(selected='') 50
             option 200
             option 1000
-         noscript &lt;input type=&quot;submit&quot; value=&quot;Submit&quot; /&gt;
    .row
       .col-md-12
          .pager
@@ -34,9 +33,11 @@
             tbody
                tr(ng-repeat='company in companies.slice(page) | limitTo: limit',ts-repeat)
                   td
-                     a(href='company/{{company.id}}') {{company.name}}
+                     a(href='company/{{company.id}}')
+                        span(ng-bind-html="company.name|sanitize")
                   td
-                     a(href='company/{{company.id_group}}') {{company.group}}
+                     a(href='group/{{company.id_group}}')
+                        span(ng-bind-html="company.group|sanitize")
                   td {{company.numberProject}}
          .pager
             ul.inline
@@ -44,6 +45,4 @@
                   a(href='',ng-click='prev(page,count)') previous
                li.next(ng-if="count<companies.length")
                   a(href='',ng-click='next(page,count)') next
-
-   // end row
 

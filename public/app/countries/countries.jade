@@ -10,6 +10,7 @@
       tbody
          tr(ng-repeat="country in countries",ts-repeat)
             td
-               a(href='country/{{ country.id }}') {{country.name}}
+               a(href='country/{{ country.id }}')
+                  span(ng-bind-html="country.name|sanitize")
             td {{country.count}}
             td

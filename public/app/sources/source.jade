@@ -1,0 +1,32 @@
+.container
+   .page-header
+      h1
+         span(ng-bind-html="source.name|sanitize")
+         =' '
+         small Source
+   table.table.table-striped
+      tbody
+         tr
+            th Description
+            td
+               span(ng-bind-html="source.description|sanitize")
+         tr
+            th Type
+            td
+               span(ng-bind-html="source.type|sanitize")
+         tr
+            th Source date
+            td {{source.sourceDate}}
+         tr
+            th Retrieved date
+            td {{source.retrievedDate}}
+         tr
+            th Access source
+            td
+               a(href='{{source.accessLink}}') Link
+               |  (Direct link to data in PDF report)
+               =' '
+               a(href='{{source.archiveCopy}}') Archive copy
+         tr
+            th Found in graph
+            td {{source.graph}}

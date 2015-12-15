@@ -1,0 +1,63 @@
+'use strict';
+
+angular.module('app')
+    .controller('nrgiCommoditiesCtrl', function (
+        $scope,
+        nrgiAuthSrvc,
+        nrgiIdentitySrvc
+    ) {
+        $scope.commodities = [
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'1'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'},
+            {id:'Antimony',name:'Antimony',numberProject:'0'}
+        ];
+    });
+

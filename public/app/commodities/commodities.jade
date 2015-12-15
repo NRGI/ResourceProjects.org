@@ -1,0 +1,16 @@
+.container
+   .page-header
+      .row
+         .col-md-4
+            h1 Commodities
+   table#commodities.table.table-striped(ts-wrapper)
+      thead
+         tr
+            th.tablesort-sortable-th(ts-criteria='name') Name
+            th.tablesort-sortable-th(ts-criteria='numberProject|parseInt') No. Projects
+      tbody
+         tr(ng-repeat='commodity in commodities',ts-repeat)
+            td
+               a(href='commodity/{{commodity.id}}')
+                  span(ng-bind-html="commodity.name|sanitize")
+            td {{commodity.numberProject}}
