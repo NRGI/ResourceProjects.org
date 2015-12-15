@@ -6,11 +6,6 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc
     ) {
-        $scope.headers = ['Project', 'Country', 'Commodity Types', 'No.Companies'];
-        $scope.columnSort = { sortColumn: 'Project', reverse: false };
-        $scope.limit = 50;
-        $scope.count = 50;
-        $scope.page = 0;
         $scope.projects = [
             {id:'MX/adar-gok3sd',name:'Adargas',country:'Mexico',id_country:'MX',type:'Mining',number:'1'},
             {id:'MX/adel-asbdtui',name:'Andrea (Michoacán)',country:'Mexico',id_country:'MX',type:'Mining',number:'1'},
@@ -1327,6 +1322,12 @@ angular.module('app')
 
 
         ];
+
+        //TODO
+
+        $scope.limit = 50;
+        $scope.count = 50;
+        $scope.page = 0;
         $scope.next = function(page,count){
             count = parseInt(count);
             $scope.page = count;

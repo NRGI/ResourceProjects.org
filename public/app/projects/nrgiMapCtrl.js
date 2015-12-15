@@ -4,22 +4,13 @@ angular.module('app')
     .controller('nrgiMapCtrl', function (
         $scope
     ) {
-
-        var tilesDict = {
-            openstreetmap: {
-                url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-                options: {
-                    attribution: 'Tiles: &copy; Esri'
-                }
-            }
-        };
-       $scope.sidney={
+        $scope.map ={
+            'center': {
                 lat: 23,
                 lng: 258,
                 zoom: 2
-            };
-
-        $scope.markers={
+            },
+            markers:{
                 m1: {
                     lat: 23,
                     lng: 258,
@@ -60,15 +51,20 @@ angular.module('app')
                     lng: 258,
                     message: "I'm a static marker"
                 }
-            };
-
-            $scope.tiles=tilesDict.openstreetmap;
-            $scope.defaults= {
-                scrollWheelZoom: false
-            };
-            $scope.controls= {
+            },
+            controls: {
                 fullscreen: {
                     position: 'topleft'
                 }
-            };
+            },
+            tiles:{
+                url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+                options: {
+                    attribution: 'Tiles: &copy; Esri'
+                }
+            },
+            defaults: {
+                scrollWheelZoom: false
+            }
+        };
     });

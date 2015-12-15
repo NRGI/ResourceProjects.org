@@ -36,7 +36,7 @@
                         a(href='{{company.openCorporates}}') {{company.openCorporates}}
       .col-md-6
          h2 Projects
-         table.table.table-striped.projects(ts-wrapper)
+         table.table.table-striped.projects(ts-wrapper,ng-if='company.projects.length!=0')
             thead
                tr
                   th.tablesort-sortable-th(ts-criteria='name') Name
@@ -57,8 +57,9 @@
                |  Download:
                =' '
                a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%3Fcountry+%3Fcountry_name+%3FcommodityType+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fcompany%2F2f2508fdb642e947%3E+rp%3AholdsStake+%3Fstakes+.%0A++++%3Fstakes+rp%3AisStakeIn+%3Fproject+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos_%3AprefLabel+%3Fname+.%0A++++%0A++++OPTIONAL+%7B%0A%0A++++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++++%3Fcountry+a+rp%3ACountry+.%0A++++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A++++++OPTIONAL+%7B+%3Fproject+rp%3AhasCommodity+%3Fcommodity+.%0A++++++++++++++++%3Fcommodity+rp%3AcommodityType+%3FcommodityType+%0A++++++%7D%0A++++++%0A++++%7D%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV
+         p(ng-if='company.projects.length==0') No data available
    h2 Payments
-   table.table.table-striped.payments(ts-wrapper)
+   table.table.table-striped.payments(ts-wrapper,ng-if='company.payments.length!=0')
       thead
          tr
             th.tablesort-sortable-th(ts-criteria='year|parseInt') Year
@@ -81,7 +82,7 @@
             td
                a(href="governmentreceipt/{{payment.id}}")
                   span.glyphicon.glyphicon-info-sign(data-toggle="tooltip", data-placement="left", title="9c82db15d194a2c2", aria-hidden="true")
-
+   p(ng-if='company.payments.length==0') No data available
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
       span
