@@ -11,18 +11,18 @@ module.exports	= function(app) {
 	///// USERS CRUD ////////
 	/////////////////////////
 	// GET
-	app.get('/api/users', auth.requiresApiLogin, users.getUsers);
-	app.get('/api/users/:id', auth.requiresRole('supervisor'), users.getUsersByID);
-	app.get('/api/user-list/:id', users.getUsersListByID);
+	app.get('/api/users', auth.requiresRole('admin'), users.getUsers);
+	app.get('/api/users/:id', auth.requiresRole('admin'), users.getUsersByID);
+	app.get('/api/user-list/:id', auth.requiresRole('admin'), users.getUsersListByID);
 
 	// POST
-	app.post('/api/users', auth.requiresApiLogin, auth.requiresRole('supervisor'), users.createUser);
+	app.post('/api/users', auth.requiresApiLogin, auth.requiresRole('admin'), users.createUser);
 
 	// PUT
-	app.put('/api/users', users.updateUser);
+	app.put('/api/users', auth.requiresRole('admin'), users.updateUser);
 
 	// DELETE
-	app.delete('/api/users/:id', auth.requiresRole('supervisor'), users.deleteUser);
+	app.delete('/api/users/:id', auth.requiresRole('admin'), users.deleteUser);
 
 	// /////////////////////////////
 	// ///// QUESTIONS CRUD ////////

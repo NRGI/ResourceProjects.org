@@ -1,16 +1,16 @@
 .container
-   .page-header
-      h1 Countries
-         small
-   table.table.table-striped(about='http://resourceprojects.org/country',ts-wrapper)
-      thead
-         tr
-            th.tablesort-sortable-th(ts-criteria='name') Country
-            th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Projects
-      tbody
-         tr(ng-repeat="country in countries",ts-repeat)
-            td
-               a(href='country/{{ country.id }}')
-                  span(ng-bind-html="country.name|sanitize")
-            td {{country.count}}
-            td
+    .page-header
+        h1 Countries
+            small
+    table.table.table-striped(about='http://resourceprojects.org/country',ts-wrapper)
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='name') Country
+                th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Projects
+        tbody
+            tr(ng-repeat="country in countries",ts-repeat)
+                td
+                    a(href='country/{{ country.id }}') {{country.id | isoCountry}}
+                        //span(ng-bind-html="country.id | sanitize")
+                td {{country.count}}
+                td

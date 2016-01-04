@@ -2,11 +2,10 @@ var User 		= require('mongoose').model('User'),
 	encrypt 	= require('../utilities/encryption');
 
 exports.getUsers = function(req, res) {
-	// console.log(req.query);
-	if(req.user.hasRole('supervisor')) {
+	if(req.user.hasRole('admin')) {
 		var query = User.find(req.query);
 	}else{
-		var query = User.find(req.query).select({ "firstName": 1,"lastName":1});
+		var query = User.find(req.query).select({ "first_name": 1,"last_name":1});
 	}
 	query.exec(function(err, collection) {
 		res.send(collection);
@@ -20,7 +19,7 @@ exports.getUsersByID = function(req, res) {
 };
 
 exports.getUsersListByID = function(req, res) {
-	var query = User.findOne({_id:req.params.id}).select({ "firstName": 1,"lastName":1, "email":1});
+	var query = User.findOne({_id:req.params.id}).select({ "first_name": 1,"last_name":1, "email":1});
 	query.exec(function(err, user) {
 		res.send(user);
 	});
@@ -62,19 +61,12 @@ exports.updateUser = function(req, res) {
 			res.status(400);
 			return res.send({ reason: err.toString() });
 		}
-		user.firstName = userUpdates.firstName;
-		user.lastName = userUpdates.lastName;
+		user.first_name = userUpdates.first_name;
+		user.last_name = userUpdates.last_name;
 		user.email = userUpdates.email;
 		user.salt = userUpdates.salt;
 		user.hashed_pwd = userUpdates.hashed_pwd;
 		user.language = userUpdates.language;
-		user.assessments = userUpdates.assessments;
-		if(user.modified) {
-			user.modified.push({modifiedBy: req.user._id});
-		}else{
-			user.modified = {modifiedBy: req.user._id};
-		}
-		// user.address = userUpdates.address;
 		user.save(function(err) {
 			if(err)
 				return res.send({ reason: err.toString() });

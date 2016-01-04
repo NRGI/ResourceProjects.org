@@ -3,6 +3,7 @@
 angular.module('app')
     .controller('nrgiCountriesCtrl', function (
         $scope,
+        ISO3166,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         $sce
@@ -19,4 +20,6 @@ angular.module('app')
             {id:'MG',name:'Madagascar',count:'1'},
             {id:'MR',name:'Mauritania',count:'3'}
         ];
+        console.log(ISO3166.isCountryCode('FR'));
+        console.log(ISO3166.getCountryName('FR'));
     });

@@ -1,4 +1,14 @@
-angular.module('app', ['ngResource', 'ngRoute', 'ngDialog','leaflet-directive','tableSort']);
+'use strict';
+angular.module('app', [
+    'iso-3166-country-codes',
+    'leaflet-directive',
+    'ngDialog',
+    'ngResource',
+    'ngRoute',
+    'tableSort'
+]);
+
+angular.module('app')
 
 angular.module('app')
     .config(function($routeProvider, $locationProvider) {
