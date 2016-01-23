@@ -1,6 +1,6 @@
 var User 		= require('mongoose').model('User'),
 	encrypt 	= require('../utilities/encryption');
-
+//.populate('comments.author', 'firstName lastName role')
 exports.getUsers = function(req, res) {
 	if(req.user.hasRole('admin')) {
 		var query = User.find(req.query);

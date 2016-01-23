@@ -40,6 +40,7 @@ function createDefaultUsers() {
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'jcust');
             User.create({
+                _id: "569976c21dad48f614cc8125",
                 first_name: 'Jim',
                 last_name: 'Cust',
                 username: 'jcust',
@@ -50,6 +51,7 @@ function createDefaultUsers() {
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'cperry');
             User.create({
+                _id: "569976c21dad48f614cc8126",
                 first_name: 'Chris',
                 last_name: 'Perry',
                 username: 'cperry',
@@ -60,6 +62,7 @@ function createDefaultUsers() {
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'apederson');
             User.create({
+                _id: "569976c21dad48f614cc8127",
                 first_name: 'Anders',
                 last_name: 'Pedersen',
                 username: 'apedersen',
@@ -70,6 +73,7 @@ function createDefaultUsers() {
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'dmihalyi');
             User.create({
+                _id: "569976c21dad48f614cc8128",
                 first_name: 'David',
                 last_name: 'Mihalyi',
                 username: 'dmihalyi',
@@ -77,9 +81,10 @@ function createDefaultUsers() {
                 salt:salt,
                 hashed_pwd: hash,
                 role: 'admin'});
+
+            console.log('***Users Added');
         }
     })
 };
-
 
 exports.createDefaultUsers = createDefaultUsers;

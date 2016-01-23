@@ -4,9 +4,13 @@ var mongoose 		    = require('mongoose'),
     companyModel 	    = require('../models/Companies'),
     companyGroupModel 	= require('../models/CompanyGroups'),
     concessionModel 	= require('../models/Concessions'),
-    contractModel 	    = require('../models/Contracts'),
-    contributorModel 	= require('../models/Contributors'),
-    countryModel        = require('../models/Countries'),
+    //contractModel 	    = require('../models/Contracts'),
+    //contributorModel 	= require('../models/Contributors'),
+    //countryModel        = require('../models/Countries'),
+    //licenseModel        = require('../models/Licenses'),
+    //productionModel     = require('../models/Production'),
+    //reservesModel       = require('../models/Reserves'),
+    //transferModel       = require('../models/Transfers'),
     sourceModel 	    = require('../models/Sources'),
     userModel 		    = require('../models/Users'),
     model_load          = ['Links', 'Aliases'];
@@ -23,15 +27,16 @@ module.exports 	= function(config) {
     db.once('open', function callback() {
         console.log('Resource Projects db opened');
     });
-
-    commodityModel.createDefaultCommodities();
-    companyModel.createDefaultCompanies();
-    companyGroupModel.createDefaultCompanyGroups();
-    concessionModel.createDefaultConcessions();
-    contractModel.createDefaultContracts();
-    contributorModel.createDefaultContributors();
-    countryModel.createDefaultCountries();
     userModel.createDefaultUsers();
     sourceModel.createDefaultSources();
+    companyModel.createDefaultCompanies();
+    commodityModel.createDefaultCommodities();
+    companyGroupModel.createDefaultCompanyGroups();
+    concessionModel.createDefaultConcessions();
+    //contractModel.createDefaultContracts();
+    //contributorModel.createDefaultContributors();
+    //countryModel.createDefaultCountries();
+
+
 
 };
