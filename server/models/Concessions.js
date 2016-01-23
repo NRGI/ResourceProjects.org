@@ -1,6 +1,6 @@
-/////////////////
-///CONCESSIONS///
-/////////////////
+////////////////////////
+///CONCESSIONS SCHEMA///
+////////////////////////
 'use strict';
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
@@ -48,13 +48,11 @@ concessionSchema = new Schema ({
     oo_source_date: Date,
     oo_details: mixedSchema,
 
-    ////Links
+    //Links
     sources: [source],
     commodities: [links],
     companies: [links],
-
-
-    //contracts: [links],
+    contracts: [links],
     //projects: [links],
     //sources: [ObjectId]
 });
@@ -107,6 +105,9 @@ function createDefaultConcessions() {
                 ],
                 companies: [
                     {company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entity:'company'}
+                ],
+                contracts: [
+                    {contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entity:'contract'}
                 ]
             });
             Concession.create({
@@ -135,6 +136,9 @@ function createDefaultConcessions() {
                 ],
                 companies: [
                     {company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee5',entity:'company'}
+                ],
+                contracts: [
+                    {contract:'56a2eb4345d114c30439ec22',source:'56747e060e8cc07115200ee5',entity:'contract'}
                 ]
             });
             console.log('***Concessions Added');

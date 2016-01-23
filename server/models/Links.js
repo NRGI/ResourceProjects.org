@@ -2,15 +2,15 @@
 //LINK SCHEMA///
 ////////////////
 'use strict';
-var linkSchema,
+var linkSchema, Link,
     mongoose    = require('mongoose'),
     Schema      = mongoose.Schema,
     ObjectId    = Schema.Types.ObjectId,
     //Sources     = mongoose.model('Sources'),
     //MixedSchema = Schema.Types.Mixed,
     entity_enu  = {
-        values: 'commodity company company_group concession'.split(' '),
-        //values: 'contract project '.split(' '),
+        values: 'commodity company company_group concession contract'.split(' '),
+        //values: ' project '.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
     };
 
@@ -35,3 +35,17 @@ linkSchema = new Schema({
 });
 
 module.exports = linkSchema;
+
+//Link = mongoose.model('Link', linkSchema);
+//
+//function createDefaultLinks() {
+//    Link.find({}).exec(function(err, links) {
+//        if(links.length === 0) {
+//            Link.create({
+//
+//            });
+//        };
+//    });
+//};
+//
+//exports.createDefaultLinks = createDefaultLinks;

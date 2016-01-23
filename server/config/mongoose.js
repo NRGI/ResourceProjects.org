@@ -4,7 +4,7 @@ var mongoose 		    = require('mongoose'),
     companyModel 	    = require('../models/Companies'),
     companyGroupModel 	= require('../models/CompanyGroups'),
     concessionModel 	= require('../models/Concessions'),
-    //contractModel 	    = require('../models/Contracts'),
+    contractModel 	    = require('../models/Contracts'),
     //contributorModel 	= require('../models/Contributors'),
     //countryModel        = require('../models/Countries'),
     //licenseModel        = require('../models/Licenses'),
@@ -33,7 +33,7 @@ module.exports 	= function(config) {
     commodityModel.createDefaultCommodities();
     companyGroupModel.createDefaultCompanyGroups();
     concessionModel.createDefaultConcessions();
-    //contractModel.createDefaultContracts();
+    contractModel.createDefaultContracts();
     //contributorModel.createDefaultContributors();
     //countryModel.createDefaultCountries();
 

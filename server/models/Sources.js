@@ -47,9 +47,9 @@ sourceSchema = new Schema({
     companies: [{type: ObjectId, ref: 'Companies'}],
     company_groups: [{type: ObjectId, ref: 'CompanyGroups'}],
     concessions: [{type: ObjectId, ref: 'Concessions'}],
+    contracts: [{type: ObjectId, ref: 'Contracts'}],
 
     //LINKAGES SIMPLE ARRAYS FOR QUERYING
-    //contracts: [String],
     //transfers: [ObjectId],
     //reserves: [ObjectId],
     //production: [ObjectId],
@@ -78,7 +78,6 @@ function createDefaultSources() {
                 companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376c'],
                 company_groups: ['56a14d8ee47b92f110ce9a57'],
                 concessions: ['56a2b8236e585b7316655794'],
-                //contracts: [String],
                 //transfers: [ObjectId],
                 //reserves: [ObjectId],
                 //production: [ObjectId],
@@ -97,6 +96,7 @@ function createDefaultSources() {
                 countries: ['AF','BG','NG'],
                 companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376e'],
                 concessions: ['56a2b8236e585b7316655794'],
+                contracts: ['56a2eb4345d114c30439ec22'],
                 //licensees: [ObjectId],
             });
             Source.create({
@@ -111,6 +111,7 @@ function createDefaultSources() {
                 commodities: ['56a13e9942c8bef50ec2e9e8','56a13e9942c8bef50ec2e9eb','56a13e9942c8bef50ec2e9f1'],
                 companies: ['56a13a758f224f670e6a376e', '56a13a758f224f670e6a376a','56a13a758f224f670e6a376c'],
                 concessions: ['56a2b8236e585b7316655794'],
+                contracts: ['56a2eb4345d114c30439ec20'],
                 //licensee's: [ObjectId],
             });
             Source.create({

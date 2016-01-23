@@ -1,6 +1,6 @@
-///////////////
-///COMPANIES///
-///////////////
+//////////////////////
+///COMPANIES SCHEMA///
+//////////////////////
 'use strict';
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
@@ -53,12 +53,12 @@ companySchema = new Schema({
     open_corporates_id: String,
     companies_house_id: String,
 
-    ////Links
+    //Links
     sources: [source],
     commodities: [links],
     company_groups: [links],
     concessions: [links],
-    //contracts: [links],
+    contracts: [links],
     //company_groups: [links],
     //countries: [links],
     //projects: [links],
@@ -95,20 +95,12 @@ Company = mongoose.model('Company', companySchema);
 function createDefaultCompanies() {
     Company.find({}).exec(function(err, companies) {
         if(companies.length === 0) {
-            //var timestamp = new Date();
             Company.create({
                 _id: '56a13a758f224f670e6a376e',
                 company_name: 'company 1 a',
                 company_aliases: [
                     {alias: 'company one aaa',language: 'en',source: '56747e060e8cc07115200ee5'}
                 ],
-                //company_established_source: source,
-                //description: htmlSettings,
-                //country_of_incorporation: [sourceSchema],
-                //countries_of_operation: [sourceSchema],
-                //company_start_date: [sourceSchema],
-                //company_end_date: [sourceSchema],
-                //company_website: [sourceSchema],
                 company_established_source: '56747e060e8cc07115200ee5',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee5', string: 'AF'}],
                 countries_of_operation: [{source: '56747e060e8cc07115200ee5', string: 'AF'}, {source: '56747e060e8cc07115200ee5', string: 'BG'}],
@@ -156,10 +148,6 @@ function createDefaultCompanies() {
                 //External mapping
                 open_corporates_id: 'junkid',
                 companies_house_id: 'junkid2',
-                //'company_country': 'BG',
-                //'company_start_date': Date(),
-                //'company_end_date': Date(),
-                //'company_website_URL': 'google.com',
 
                 //Display specifific lists
                 display_commodities: ['56a13e9942c8bef50ec2e9e8'],
@@ -172,6 +160,9 @@ function createDefaultCompanies() {
                 concessions: [
                     {concession:'56a2b8236e585b7316655794', source:'56747e060e8cc07115200ee5', entity:'concession'}
                 ],
+                contracts: [
+                    {contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entity:'contract'}
+                ]
                 //contracts: [links],
                 //countries: [links],
                 //projects: [links],
@@ -194,10 +185,6 @@ function createDefaultCompanies() {
                 //External mapping
                 open_corporates_id: 'junkid',
                 companies_house_id: 'junkid2',
-                //'company_country': 'GH',
-                //'company_start_date': Date(),
-                //'company_end_date': Date(),
-                //'company_website_URL': 'google.com',
 
                 //Display specifific lists
                 display_commodities: ['56a13e9942c8bef50ec2e9e8'],
