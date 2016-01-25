@@ -1,10 +1,13 @@
 'use strict';
 var mongoose 		    = require('mongoose'),
+    linkModel           = require('../models/Links'),
+    aliasModel          = require('../models/Aliases'),
     commodityModel      = require('../models/Commodities'),
-    companyModel 	    = require('../models/Companies'),
-    companyGroupModel 	= require('../models/CompanyGroups'),
+    companyModel        = require('../models/Companies'),
+    companyGroupModel   = require('../models/CompanyGroups'),
     concessionModel 	= require('../models/Concessions'),
     contractModel 	    = require('../models/Contracts'),
+    projectModel        = require('../models/Projects'),
     //contributorModel 	= require('../models/Contributors'),
     //countryModel        = require('../models/Countries'),
     //licenseModel        = require('../models/Licenses'),
@@ -12,12 +15,12 @@ var mongoose 		    = require('mongoose'),
     //reservesModel       = require('../models/Reserves'),
     //transferModel       = require('../models/Transfers'),
     sourceModel 	    = require('../models/Sources'),
-    userModel 		    = require('../models/Users'),
-    model_load          = ['Links', 'Aliases'];
+    userModel 		    = require('../models/Users');
+    //model_load          = ['Aliases'];
 
-model_load.forEach(function(model_name) {
-    require('../models/' + model_name);
-});
+//model_load.forEach(function(model_name) {
+//    require('../models/' + model_name);
+//});
 
 module.exports 	= function(config) {
     // connect to mongodb
@@ -34,6 +37,9 @@ module.exports 	= function(config) {
     companyGroupModel.createDefaultCompanyGroups();
     concessionModel.createDefaultConcessions();
     contractModel.createDefaultContracts();
+    projectModel.createDefaultProjects();
+    linkModel.createDefaultLinks();
+    //console.log(linkModel);
     //contributorModel.createDefaultContributors();
     //countryModel.createDefaultCountries();
 

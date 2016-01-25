@@ -1,24 +1,68 @@
-var projectSchema, Project,
-    Schema = mongoose.Schema,
-    mongoose 	= require('mongoose');
+/////////////////////
+///PROJECTS SCHEMA///
+/////////////////////
+'use strict';
+var mongoose = require('mongoose');
+require('mongoose-html-2').loadType(mongoose);
 
-projectSchema = Schema({
-//    first_name: {type:String, required:'{PATH} is required!'},
-//    last_name: {type:String, required:'{PATH} is required!'},
-//    username: {
-//        type:String,
-//        required: '{PATH} is required!',
-//        unique:true
-//    },
-//    email: {type: String, required:'{PATH} is required'},
-//    salt: {type:String, required:'{PATH} is required!'},
-//    hashed_pwd: {type:String, required:'{PATH} is required!'},
-//    roles: [{type:String, required:'{PATH} is required!', default:'None'}],
-//    createdBy: String,
-//    creationDate: {type: Date, default:Date.now},
-//    address: String
-//    // language: [String]
-//    // groups: [String]
+var sourceSchema, projectSchema, Project,
+    Schema          = mongoose.Schema,
+    aliases         = mongoose.model('Alias'),
+    links           = mongoose.model('Link'),
+    ObjectId        = Schema.Types.ObjectId,
+    source          = {type: ObjectId, ref: 'Sources'},
+    HTML            = mongoose.Types.Html,
+    htmlSettings    = {
+        type: HTML,
+        setting: {
+            allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'del'],
+            allowedAttributes: {
+                'a': ['href']
+            }
+        }
+    },
+    mongooseHistory = require('mongoose-history'),
+    hst_options     = {customCollectionName: 'proj_hst'};
+    //type_enu  = {
+    //    values: 'mining oil'.split(' '),
+    //    //values: ' project '.split(' '),
+    //    message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
+    //};
+
+//var aliasSchema, sourceSchema, companySchema, Company,
+
+sourceSchema = new Schema({
+    source: source,
+    //approved: Boolean,
+    string: String,
+    number: Number,
+    date: Date,
+    loc: {
+        type: [Number],  // [<longitude>, <latitude>]
+        index: '2d'      // create the geospatial index
+    }
+});
+
+projectSchema = new Schema({
+    proj_name: String,
+    proj_aliases: [aliases],
+    proj_established_source: source,
+    country: [sourceSchema],
+    proj_type: [sourceSchema],
+    proj_site_name: [sourceSchema],
+    proj_address: [sourceSchema],
+    proj_coordinates: [sourceSchema],
+    proj_status: [sourceSchema],
+
+
+    description: htmlSettings,
+
+    //Links
+    sources: [source],
+    commodities: [links],
+    concessions: [links],
+    companies: [links],
+    contracts: [links]
 });
 
 projectSchema.methods = {
@@ -30,78 +74,31 @@ projectSchema.methods = {
 //    }
 };
 
+projectSchema.plugin(mongooseHistory, hst_options);
+
 Project = mongoose.model('Project', projectSchema);
 
 function createDefaultProjects() {
     Project.find({}).exec(function(err, projects) {
         if(projects.length === 0) {
-            Project.create({
-
-            });
-            Project.create({
-
-            });
-            Project.create({
-
-            });
-            Project.create({
-
-            });
-            Project.create({
-
-            });
+            console.log('No Projects...');
+            //Project.create({
+            //
+            //});
+            //Project.create({
+            //
+            //});
+            //Project.create({
+            //
+            //});
+            //Project.create({
+            //
+            //});
+            //Project.create({
+            //
+            //});
         }
     });
 };
 
 exports.createDefaultProjects = createDefaultProjects;
-
-
-
-
-///////////
-//PROJECTS
-///////////
-//  - Source
-//  - project name
-//  - Project id
-//  - Country
-//  - notes
-//  - Mine site or oil field name
-//  - Address
-//  - country
-//  - coordinates
-//  - location note
-//  - project status - wiht time stamp
-//  - aliases
-//  - companies - name, share, is operator, notes
-//  - contracts - title, rc link, id, notes
-//  - concessions - name, country, country code, concessions id, notes
-//  - commodities - commodity, type, note
-
-
-//project aliases
-//    - Source (#source)
-//    - Project (#project)
-//    - Alias (Language 1) (#project+skos:altLabel+1)
-//    - Alias (Language 2) (#project+skos:altLabel+1)
-//    - Alias (Language 3) (#project+skos:altLabel+2)
-//    - Alias notes (#project+aliasNotes)
-//
-//Location, Commodity & Status
-//Source
-// Project
-// Mine site or oil field name
-// Address
-// Country
-// Country
-// Code
-// Latitute	Longitude
-// Location note
-// Commodity Type	Commodity	Commodity note
-// Project Status
-// Sample date
-// Start Date (optional)
-// End Date (optional)
-// Status notes
-//#source	#project	#project+site	#project+site+address	#-	#project+site+country+identifier	#project+site+lat	#project+site+long	#project+locationNotes	#commodity+commodityType	#commodity	#project+commodityNotes	#status+statusType	#status+trueAt	#status+startDate	#status+endDate	#project+statusNoteieies;

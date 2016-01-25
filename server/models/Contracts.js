@@ -7,7 +7,7 @@ var mongoose = require('mongoose');
 
 var sourceSchema, contractSchema, Contract,
     Schema   = mongoose.Schema,
-    links    = require('./Links'),
+    links    = mongoose.model('Link'),
     ObjectId = Schema.Types.ObjectId,
     source   = {type: ObjectId, ref: 'Sources'};
 
@@ -26,9 +26,7 @@ contractSchema = new Schema ({
     commodities: [links],
     companies: [links],
     concessions: [links],
-    //countries: [links],
     //projects: [links],
-    //sources: [ObjectId]
 });
 
 Contract = mongoose.model('Contract', contractSchema);

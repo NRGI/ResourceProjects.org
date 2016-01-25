@@ -7,8 +7,8 @@ require('mongoose-html-2').loadType(mongoose);
 
 var aliasSchema, sourceSchema, companySchema, Company,
     Schema          = mongoose.Schema,
-    aliases         = require('./Aliases'),
-    links           = require('./Links'),
+    aliases         = mongoose.model('Alias'),
+    links           = mongoose.model('Link'),
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Sources'},
     HTML            = mongoose.Types.Html,
@@ -59,10 +59,7 @@ companySchema = new Schema({
     company_groups: [links],
     concessions: [links],
     contracts: [links],
-    //company_groups: [links],
-    //countries: [links],
     //projects: [links],
-    //sources: [ObjectId]
 });
 //TranModel
 //    .find({ quantityout: 1 },

@@ -7,7 +7,7 @@ require('mongoose-html-2').loadType(mongoose);
 
 var sourceSchema, Source,
     Schema          = mongoose.Schema,
-    //links           = require('./Links'),
+    //links           = mongoose.model('Link'),
     ObjectId        = Schema.Types.ObjectId,
     HTML            = mongoose.Types.Html,
     htmlSettings    = {

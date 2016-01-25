@@ -7,8 +7,8 @@ require('mongoose-html-2').loadType(mongoose);
 
 var companyGroupSchema, CompanyGroup,
     Schema          = mongoose.Schema,
-    aliases         = require('./Aliases'),
-    //links           = require('./Links'),
+    aliases         = mongoose.model('Alias'),
+    //links           = mongoose.model('Link'),
     ObjectId        = mongoose.Schema.Types.ObjectId,
     HTML            = mongoose.Types.Html,
     htmlSettings    = {

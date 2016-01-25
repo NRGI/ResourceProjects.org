@@ -7,8 +7,8 @@ require('mongoose-html-2').loadType(mongoose);
 
 var sourceSchema, concessionSchema, Concession,
     Schema          = mongoose.Schema,
-    aliases         = require('./Aliases'),
-    links           = require('./Links'),
+    aliases         = mongoose.model('Alias'),
+    links           = mongoose.model('Link'),
     ObjectId        = Schema.Types.ObjectId,
     mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Sources'},
@@ -54,7 +54,6 @@ concessionSchema = new Schema ({
     companies: [links],
     contracts: [links],
     //projects: [links],
-    //sources: [ObjectId]
 });
 
 ////Open Oil pull
