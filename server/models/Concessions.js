@@ -35,6 +35,9 @@ concessionSchema = new Schema ({
     //Metadata
     concession_name: String,
     concession_aliases: [aliases],
+    //concession_aliases: [{
+    //    type: ObjectId,
+    //    ref: 'Alias'}],
     concession_established_source: source,
     description: htmlSettings,
     concession_country: [sourceSchema],
@@ -73,10 +76,7 @@ function createDefaultConcessions() {
             Concession.create({
                 _id: '56a2b8236e585b7316655794',
                 concession_name: 'Block A',
-                concession_aliases: [
-                    {alias: 'Block aye',language: 'en',source: '56747e060e8cc07115200ee4'},
-                    {alias: 'Block no way',language: 'fr',source: '56747e060e8cc07115200ee5'}
-                ],
+                concession_aliases: ['56a7d75bd9caddb614ab02b3','56a7d75bd9caddb614ab02b4'],
                 concession_established_source: '56747e060e8cc07115200ee6',
                 description: '<p>yes</p><p>no</p>',
                 concession_country: [{source: '56747e060e8cc07115200ee6', string: 'BG'}],
@@ -112,9 +112,7 @@ function createDefaultConcessions() {
             Concession.create({
                 _id: '56a2b8236e585b731665579d',
                 concession_name: 'Block B',
-                concession_aliases: [
-                    {alias: 'Block BBBBB',language: 'en',source: '56747e060e8cc07115200ee3'}
-                ],
+                concession_aliases: ['56a7d75bd9caddb614ab02b5'],
                 concession_established_source: '56747e060e8cc07115200ee5',
                 description: '<p>yes</p><p>no</p>',
                 concession_country: [{source: '56747e060e8cc07115200ee5', string: 'BG'}],
@@ -140,7 +138,7 @@ function createDefaultConcessions() {
                     {contract:'56a2eb4345d114c30439ec22',source:'56747e060e8cc07115200ee5',entity:'contract'}
                 ]
             });
-            console.log('***Concessions Added');
+            console.log('Concessions created...');
         }
     });
 };
