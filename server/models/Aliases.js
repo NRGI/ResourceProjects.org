@@ -6,13 +6,21 @@ var mongoose = require('mongoose');
 
 var aliasSchema, Alias,
     Schema   = mongoose.Schema,
-    ObjectId = mongoose.Schema.Types.ObjectId;
+    ObjectId = mongoose.Schema.Types.ObjectId,
+    model_enu  = {
+        values: 'commodity'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select commodity,  or .'
+    };
 
 aliasSchema = new Schema({
     alias: String,
     code: String,
     language: String,
     reference: String,
+    model: { //linked model
+        type: String,
+        required:'{PATH} is required!',
+        enum: model_enu},
     source: {
         type: ObjectId,
         ref: 'Sources'} //source._id
@@ -25,7 +33,23 @@ Alias = mongoose.model('Alias', aliasSchema);
 function createDefaultAliases() {
     Alias.find({}).exec(function(err, aliases) {
         if(aliases.length === 0) {
-            console.log('No aliases...');
+            //commodity aliases
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae27988', code: 'alu', reference:'wb', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae27989', code: 'alum', reference:'imf', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae2798a', alias: 'Aluminium', language:'fr', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae2798d', code: 'gol', reference:'wb', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae2798e', code: 'au', reference:'imf', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae2798f', code: 'hyd', reference:'wb', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae27990', code: 'hydro', reference:'imf', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae27991', code: 'diam', reference:'wb', model: 'commodity'});
+            //Alias.create({_id: '56a6ac8f6c1ac5811ae27992', code: 'dmnd', reference:'imf', model: 'commodity'});
+
+            //company group aliases
+            Alias.create({_id:'56a7d2e642074281134a60f3', alias:'Dutch Shell', language:'en', model:'commodity', source:'56747e060e8cc07115200ee6'});
+            Alias.create({_id:'56a7d3bf64a708b1136ba7a5', alias:'Dutch Shell', language:'en', model:'commodity', source:'56747e060e8cc07115200ee3'});
+            Alias.create({_id:'56a7d2e642074281134a60f4', alias:'black gold', language:'en', model:'commodity', source:'56747e060e8cc07115200ee3'});
+
+            console.log('Aliases created...')
         }
     });
 };

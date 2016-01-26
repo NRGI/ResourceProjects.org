@@ -39,6 +39,7 @@ module.exports 	= function(config) {
     contractModel.createDefaultContracts();
     projectModel.createDefaultProjects();
     linkModel.createDefaultLinks();
+    aliasModel.createDefaultAliases();
     //console.log(linkModel);
     //contributorModel.createDefaultContributors();
     //countryModel.createDefaultCountries();
