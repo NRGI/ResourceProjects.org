@@ -8,7 +8,7 @@ var aliasSchema, Alias,
     Schema   = mongoose.Schema,
     ObjectId = mongoose.Schema.Types.ObjectId,
     model_enu  = {
-        values: 'commodity'.split(' '),
+        values: 'commodity company_group company'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select commodity,  or .'
     };
 
@@ -45,9 +45,15 @@ function createDefaultAliases() {
             //Alias.create({_id: '56a6ac8f6c1ac5811ae27992', code: 'dmnd', reference:'imf', model: 'commodity'});
 
             //company group aliases
-            Alias.create({_id:'56a7d2e642074281134a60f3', alias:'Dutch Shell', language:'en', model:'commodity', source:'56747e060e8cc07115200ee6'});
-            Alias.create({_id:'56a7d3bf64a708b1136ba7a5', alias:'Dutch Shell', language:'en', model:'commodity', source:'56747e060e8cc07115200ee3'});
-            Alias.create({_id:'56a7d2e642074281134a60f4', alias:'black gold', language:'en', model:'commodity', source:'56747e060e8cc07115200ee3'});
+            //Alias.create({_id:'56a7d2e642074281134a60f3', alias:'Dutch Shell', language:'en', model:'company_group', source:'56747e060e8cc07115200ee6'});
+            //Alias.create({_id:'56a7d3bf64a708b1136ba7a5', alias:'Dutch Shell', language:'en', model:'company_group', source:'56747e060e8cc07115200ee3'});
+            //Alias.create({_id:'56a7d2e642074281134a60f4', alias:'black gold', language:'en', model:'company_group', source:'56747e060e8cc07115200ee3'});
+
+            //companies
+            Alias.create({_id:'56a7d55eb04a1f2214b7b1dd', alias:'company one aaa', language:'en', model:'company', source:'56747e060e8cc07115200ee5'});
+            Alias.create({_id:'56a7d55eb04a1f2214b7b1de', alias:'company two bbb', language:'en', model:'company', source:'56747e060e8cc07115200ee6'});
+            Alias.create({_id:'56a7d55eb04a1f2214b7b1df', alias:'company three ccc', language:'en', model:'company', source:'56747e060e8cc07115200ee6'});
+            Alias.create({_id:'56a7d55eb04a1f2214b7b1e0', alias:'BP ccc', language:'fr', model:'company', source:'56747e060e8cc07115200ee4'});
 
             console.log('Aliases created...')
         }

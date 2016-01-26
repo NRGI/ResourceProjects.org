@@ -35,7 +35,9 @@ sourceSchema = new Schema({
 companySchema = new Schema({
     //Metadata
     company_name: String,
-    company_aliases: [aliases],
+    company_aliases: [{
+        type: ObjectId,
+        ref: 'Alias'}],
     company_established_source: source,
     country_of_incorporation: [sourceSchema],
     countries_of_operation: [sourceSchema],
@@ -95,9 +97,7 @@ function createDefaultCompanies() {
             Company.create({
                 _id: '56a13a758f224f670e6a376e',
                 company_name: 'company 1 a',
-                company_aliases: [
-                    {alias: 'company one aaa',language: 'en',source: '56747e060e8cc07115200ee5'}
-                ],
+                company_aliases: ['56a7d55eb04a1f2214b7b1dd'],
                 company_established_source: '56747e060e8cc07115200ee5',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee5', string: 'AF'}],
                 countries_of_operation: [{source: '56747e060e8cc07115200ee5', string: 'AF'}, {source: '56747e060e8cc07115200ee5', string: 'BG'}],
@@ -132,9 +132,7 @@ function createDefaultCompanies() {
             Company.create({
                 _id: '56a13a758f224f670e6a376a',
                 company_name: 'company 2 b',
-                company_aliases: [
-                    {alias: 'company two bbb',language: 'en',source: '56747e060e8cc07115200ee6'}
-                ],
+                company_aliases: ['56a7d55eb04a1f2214b7b1de'],
                 company_established_source: '56747e060e8cc07115200ee4',
                 description: '<p>yes</p><p>no</p>',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee4', string: 'BG'}],
@@ -168,10 +166,7 @@ function createDefaultCompanies() {
             Company.create({
                 _id: '56a13a758f224f670e6a376c',
                 company_name: 'company 3 c',
-                company_aliases: [
-                    {'alias': 'company three ccc','language': 'en', 'source': '56747e060e8cc07115200ee6'},
-                    {'alias': 'BP ccc','language': 'fr', 'source': '56747e060e8cc07115200ee4'}
-                ],
+                company_aliases: ['56a7d55eb04a1f2214b7b1e0','56a7d55eb04a1f2214b7b1df'],
                 company_established_source: '56747e060e8cc07115200ee3',
                 description: '<p>yes</p><p>no</p>',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee3', string: 'GH'}],
