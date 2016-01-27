@@ -3,24 +3,25 @@ var mongoose 		    = require('mongoose'),
     linkModel           = require('../models/Links'),
     aliasModel          = require('../models/Aliases'),
     commodityModel      = require('../models/Commodities'),
-    companyModel        = require('../models/Companies'),
     companyGroupModel   = require('../models/CompanyGroups'),
+    countryModel        = require('../models/Countries'),
+    sourceModel 	    = require('../models/Sources'),
+    userModel 		    = require('../models/Users'),
+
+    companyModel        = require('../models/Companies'),
     concessionModel 	= require('../models/Concessions'),
     contractModel 	    = require('../models/Contracts'),
     projectModel        = require('../models/Projects'),
     //contributorModel 	= require('../models/Contributors'),
-    //countryModel        = require('../models/Countries'),
-    //licenseModel        = require('../models/Licenses'),
-    //productionModel     = require('../models/Production'),
-    //reservesModel       = require('../models/Reserves'),
-    //transferModel       = require('../models/Transfers'),
-    sourceModel 	    = require('../models/Sources'),
-    userModel 		    = require('../models/Users');
-    //model_load          = ['Aliases'];
+    //licenseModel      = require('../models/Licenses'),
+    //productionModel   = require('../models/Production'),
+    //reservesModel     = require('../models/Reserves'),
+    //transferModel     = require('../models/Transfers'),
+    model_load          = ['Facts'];
 
-//model_load.forEach(function(model_name) {
-//    require('../models/' + model_name);
-//});
+model_load.forEach(function(model_name) {
+    require('../models/' + model_name);
+});
 
 module.exports 	= function(config) {
     // connect to mongodb
@@ -40,9 +41,8 @@ module.exports 	= function(config) {
     projectModel.createDefaultProjects();
     linkModel.createDefaultLinks();
     aliasModel.createDefaultAliases();
-    //console.log(linkModel);
+    countryModel.createDefaultCountries();
     //contributorModel.createDefaultContributors();
-    //countryModel.createDefaultCountries();
 
 
 

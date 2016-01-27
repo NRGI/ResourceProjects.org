@@ -5,10 +5,9 @@
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
-var sourceSchema, projectSchema, Project,
+var projectSchema, Project,
     Schema          = mongoose.Schema,
-    aliases         = mongoose.model('Alias'),
-    links           = mongoose.model('Link'),
+    fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Sources'},
     HTML            = mongoose.Types.Html,
@@ -29,40 +28,26 @@ var sourceSchema, projectSchema, Project,
     //    message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
     //};
 
-//var aliasSchema, sourceSchema, companySchema, Company,
-
-sourceSchema = new Schema({
-    source: source,
-    //approved: Boolean,
-    string: String,
-    number: Number,
-    date: Date,
-    loc: {
-        type: [Number],  // [<longitude>, <latitude>]
-        index: '2d'      // create the geospatial index
-    }
-});
-
 projectSchema = new Schema({
     proj_name: String,
-    proj_aliases: [aliases],
+    proj_aliases: [{
+        type: ObjectId,
+        ref: 'Alias'}],
     proj_established_source: source,
-    country: [sourceSchema],
-    proj_type: [sourceSchema],
-    proj_site_name: [sourceSchema],
-    proj_address: [sourceSchema],
-    proj_coordinates: [sourceSchema],
-    proj_status: [sourceSchema],
-
-
+    country: [fact],
+    proj_type: [fact],
+    proj_site_name: [fact],
+    proj_address: [fact],
+    proj_coordinates: [fact],
+    proj_status: [fact],
     description: htmlSettings,
 
-    //Links
-    sources: [source],
-    commodities: [links],
-    concessions: [links],
-    companies: [links],
-    contracts: [links]
+    ////Links
+    //sources: [source],
+    //commodities: [links],
+    //concessions: [links],
+    //companies: [links],
+    //contracts: [links]
 });
 
 projectSchema.methods = {
@@ -81,7 +66,7 @@ Project = mongoose.model('Project', projectSchema);
 function createDefaultProjects() {
     Project.find({}).exec(function(err, projects) {
         if(projects.length === 0) {
-            console.log('No Projects...');
+            console.log('***No Projects...');
             //Project.create({
             //
             //});

@@ -7,8 +7,7 @@ require('mongoose-html-2').loadType(mongoose);
 
 var sourceSchema, concessionSchema, Concession,
     Schema          = mongoose.Schema,
-    aliases         = mongoose.model('Alias'),
-    links           = mongoose.model('Link'),
+    fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
     mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Sources'},
@@ -25,24 +24,17 @@ var sourceSchema, concessionSchema, Concession,
     mongooseHistory = require('mongoose-history'),
     hst_options         = {customCollectionName: 'concession_hst'};
 
-sourceSchema = new Schema({
-    source: source,
-    //approved: Boolean,
-    value: String
-});
-
 concessionSchema = new Schema ({
     //Metadata
     concession_name: String,
-    concession_aliases: [aliases],
-    //concession_aliases: [{
-    //    type: ObjectId,
-    //    ref: 'Alias'}],
+    concession_aliases: [{
+        type: ObjectId,
+        ref: 'Alias'}],
     concession_established_source: source,
     description: htmlSettings,
-    concession_country: [sourceSchema],
-    concession_status: [sourceSchema], //status i.e. exploration, production, etc.
-    concession_type: [sourceSchema], //geographic type i.e. onshore, off shore, etc.
+    concession_country: [fact],
+    concession_status: [fact], //status i.e. exploration, production, etc.
+    concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
 
     //External Links
     oo_concession_id: String,
@@ -52,11 +44,19 @@ concessionSchema = new Schema ({
     oo_details: mixedSchema,
 
     //Links
-    sources: [source],
-    commodities: [links],
-    companies: [links],
-    contracts: [links],
-    //projects: [links],
+    //sources: [source],
+    commodities: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    companies: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    contracts: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    projects: [{
+        type: ObjectId,
+        ref: 'Link'}],
 });
 
 ////Open Oil pull
@@ -79,7 +79,7 @@ function createDefaultConcessions() {
                 concession_aliases: ['56a7d75bd9caddb614ab02b3','56a7d75bd9caddb614ab02b4'],
                 concession_established_source: '56747e060e8cc07115200ee6',
                 description: '<p>yes</p><p>no</p>',
-                concession_country: [{source: '56747e060e8cc07115200ee6', string: 'BG'}],
+                concession_country: [{source: '56747e060e8cc07115200ee6', string: '56a7e6c02302369318e16bb8'}],
                 concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
 
@@ -96,18 +96,11 @@ function createDefaultConcessions() {
                     'Vencimento1\u00ba': '20.01.2012'
                 },
 
-                ////Links
-                sources: ['56747e060e8cc07115200ee4','56747e060e8cc07115200ee5','56747e060e8cc07115200ee6'],
-                commodities: [
-                    {commodity: '56a13e9942c8bef50ec2e9f1',source:'56747e060e8cc07115200ee6',entity:'commodity'},
-                    {commodity: '56a13e9942c8bef50ec2e9eb',source:'56747e060e8cc07115200ee6',entity:'commodity'}
-                ],
-                companies: [
-                    {company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entity:'company'}
-                ],
-                contracts: [
-                    {contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entity:'contract'}
-                ]
+                //////Links
+                //sources: ['56747e060e8cc07115200ee4','56747e060e8cc07115200ee5','56747e060e8cc07115200ee6'],
+                commodities: ['56a8e778c052957008a847a7','56a8e778c052957008a847a8'],
+                companies: ['56a8e4acf77930f50708881e'],
+                contracts: ['56a8e91f514d14b5080599e0']
             });
             Concession.create({
                 _id: '56a2b8236e585b731665579d',
@@ -115,7 +108,7 @@ function createDefaultConcessions() {
                 concession_aliases: ['56a7d75bd9caddb614ab02b5'],
                 concession_established_source: '56747e060e8cc07115200ee5',
                 description: '<p>yes</p><p>no</p>',
-                concession_country: [{source: '56747e060e8cc07115200ee5', string: 'BG'}],
+                concession_country: [{source: '56747e060e8cc07115200ee5', string: '56a7e6c02302369318e16bb8'}],
                 concession_status: [{source: '56747e060e8cc07115200ee5', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee5', string: 'offshore'}],
 
@@ -125,18 +118,11 @@ function createDefaultConcessions() {
                 oo_url_wiki: 'http://repository.openoil.net/wiki/Brazil',
                 oo_source_date: new Date(),
 
-                ////Links
-                sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee3'],
-                commodities: [
-                    {commodity: '56a13e9942c8bef50ec2e9f1',source:'56747e060e8cc07115200ee5',entity:'commodity'},
-                    {commodity: '56a13e9942c8bef50ec2e9eb',source:'56747e060e8cc07115200ee5',entity:'commodity'}
-                ],
-                companies: [
-                    {company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee5',entity:'company'}
-                ],
-                contracts: [
-                    {contract:'56a2eb4345d114c30439ec22',source:'56747e060e8cc07115200ee5',entity:'contract'}
-                ]
+                //////Links
+                //sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee3'],
+                commodities: ['56a8e834bd760b92085829de','56a8e834bd760b92085829df'],
+                companies: ['56a8e5320fa7dd0d0817beff'],
+                contracts: ['56a8e9408c2925be086967b6']
             });
             console.log('Concessions created...');
         }

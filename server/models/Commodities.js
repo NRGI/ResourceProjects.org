@@ -6,7 +6,6 @@ var mongoose = require('mongoose');
 
 var commoditySchema, Commodity,
     Schema   = mongoose.Schema,
-    aliases  = mongoose.model('Alias'),
     ObjectId = Schema.Types.ObjectId;
 
 commoditySchema = new Schema ({

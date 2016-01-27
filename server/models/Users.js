@@ -82,7 +82,7 @@ function createDefaultUsers() {
                 hashed_pwd: hash,
                 role: 'admin'});
 
-            console.log('***Users Added');
+            console.log('Users created...');
         }
     })
 };

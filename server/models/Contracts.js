@@ -7,26 +7,28 @@ var mongoose = require('mongoose');
 
 var sourceSchema, contractSchema, Contract,
     Schema   = mongoose.Schema,
-    links    = mongoose.model('Link'),
     ObjectId = Schema.Types.ObjectId,
     source   = {type: ObjectId, ref: 'Sources'};
 
-sourceSchema = new Schema({
-    source: source,
-    //approved: Boolean,
-    value: String
-});
 
 contractSchema = new Schema ({
     //Metadata
     contract_id: String, //from rc.org
 
     //Links
-    sources: [source],
-    commodities: [links],
-    companies: [links],
-    concessions: [links],
-    //projects: [links],
+    //sources: [source],
+    commodities: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    companies: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    concessions: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    projects: [{
+        type: ObjectId,
+        ref: 'Link'}],
 });
 
 Contract = mongoose.model('Contract', contractSchema);
@@ -37,32 +39,22 @@ function createDefaultContracts() {
             Contract.create({
                 _id: '56a2eb4345d114c30439ec20'
 ,               contract_id: 'junkid',
-                sources: ['56747e060e8cc07115200ee6'],
-                //commodities: [],
-                companies: [
-                    {company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entity:'company'}
-                ],
-                concessions: [
-                    {concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee6',entity:'concession'}
-                ]
+                //sources: ['56747e060e8cc07115200ee6'],\
+                companies: ['56a8e66f405f534508e8586f'],
+                concessions: ['56a8e91f514d14b5080599e0']
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec22',
                 contract_id: 'junkid',
-                sources: ['56747e060e8cc07115200ee5'],
-                concessions: [
-                    {concession:'56a2b8236e585b731665579d',source:'56747e060e8cc07115200ee5',entity:'concession'}
-                ]
+                //sources: ['56747e060e8cc07115200ee5'],
+                concessions: ['56a8e9408c2925be086967b6']
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec21',
                 contract_id: 'junkid',
                 //sources: [''],
-                //commodities: [],
-                //companies: [],
-                //concessions: [],
             });
-            console.log('***Contracts Added');
+            console.log('Contracts created...');
         }
     });
 };

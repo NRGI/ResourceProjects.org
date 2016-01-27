@@ -5,12 +5,11 @@
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
-var aliasSchema, sourceSchema, companySchema, Company,
+var factSchema, aliasSchema, companySchema, Company,
     Schema          = mongoose.Schema,
-    aliases         = mongoose.model('Alias'),
-    links           = mongoose.model('Link'),
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Sources'},
+    fact            = require("./Facts"),
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
         type: HTML,
@@ -24,10 +23,12 @@ var aliasSchema, sourceSchema, companySchema, Company,
     mongooseHistory = require('mongoose-history'),
     hst_options     = {customCollectionName: 'company_hst'};
 
-sourceSchema = new Schema({
+factSchema = new Schema({
     source: source,
     //approved: Boolean,
-    string: String,
+    country: {
+        type: ObjectId,
+        ref: 'Country'},
     number: Number,
     date: Date
 });
@@ -39,28 +40,31 @@ companySchema = new Schema({
         type: ObjectId,
         ref: 'Alias'}],
     company_established_source: source,
-    country_of_incorporation: [sourceSchema],
-    countries_of_operation: [sourceSchema],
-    company_start_date: [sourceSchema],
-    company_end_date: [sourceSchema],
-    company_website: [sourceSchema],
+    country_of_incorporation: [fact],
+    countries_of_operation: [fact],
+    company_start_date: [fact],
+    company_end_date: [fact],
+    company_website: [fact],
     description: htmlSettings,
-    //country_of_incorporation: [String],
-    //countries_of_operation: [String],
-    //company_start_date: Date,
-    //company_end_date: Date,
-    //company_website: String,
 
     //External mapping
     open_corporates_id: String,
     companies_house_id: String,
 
-    //Links
-    sources: [source],
-    commodities: [links],
-    company_groups: [links],
-    concessions: [links],
-    contracts: [links],
+    ////Links
+    //sources: [source],
+    commodities: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    company_groups: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    concessions: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    contracts: [{
+        type: ObjectId,
+        ref: 'Link'}],
     //projects: [links],
 });
 //TranModel
@@ -99,8 +103,8 @@ function createDefaultCompanies() {
                 company_name: 'company 1 a',
                 company_aliases: ['56a7d55eb04a1f2214b7b1dd'],
                 company_established_source: '56747e060e8cc07115200ee5',
-                country_of_incorporation: [{source: '56747e060e8cc07115200ee5', string: 'AF'}],
-                countries_of_operation: [{source: '56747e060e8cc07115200ee5', string: 'AF'}, {source: '56747e060e8cc07115200ee5', string: 'BG'}],
+                country_of_incorporation: [{source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb9'}],
+                countries_of_operation: [{source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb9'}, {source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb8'}],
                 company_start_date: [{source: '56747e060e8cc07115200ee5', date: new Date()}],
                 company_end_date: [{source: '56747e060e8cc07115200ee5', date: new Date()}],
                 company_website: [{source: '56747e060e8cc07115200ee5', string: 'http://google.com'}],
@@ -109,25 +113,14 @@ function createDefaultCompanies() {
                 open_corporates_id: 'junkid',
                 companies_house_id: 'junkid2',
 
-                //Display specifific lists
-                display_commodities: ['56a13e9942c8bef50ec2e9e8', '56a13e9942c8bef50ec2e9eb'],
+                ////Display specifific lists
+                //display_commodities: ['56a13e9942c8bef50ec2e9e8', '56a13e9942c8bef50ec2e9eb'],
 
                 //LINKS
-                sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee4','56747e060e8cc07115200ee6'],
-                commodities: [
-                    {commodity: '56a13e9942c8bef50ec2e9e8',source:'56747e060e8cc07115200ee6',entity:'commodity'},
-                    {commodity: '56a13e9942c8bef50ec2e9eb',source:'56747e060e8cc07115200ee6',entity:'commodity'}
-                ],
-                company_groups: [
-                    {company_group: '56747e060e8cc07115200ee4',source:'56747e060e8cc07115200ee5',entity:'company_group',company_group_start_date: new Date(), company_group_end_date: new Date()}
-                ],
-                concessions: [
-                    {concession:'56a2b8236e585b7316655794', source:'56747e060e8cc07115200ee6', entity:'concession'}
-                ],
-                //contracts: [links],
-                //countries: [links],
-                //projects: [links],
-                //sources: [ObjectId]
+                //sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee4','56747e060e8cc07115200ee6'],
+                commodities: ['56a8def185d9580a07c58280','56a8def185d9580a07c58281'],
+                company_groups: ['56a8e342b9a34fbb07013c5f'],
+                concessions: ['56a8e4acf77930f50708881e'],
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376a',
@@ -135,8 +128,8 @@ function createDefaultCompanies() {
                 company_aliases: ['56a7d55eb04a1f2214b7b1de'],
                 company_established_source: '56747e060e8cc07115200ee4',
                 description: '<p>yes</p><p>no</p>',
-                country_of_incorporation: [{source: '56747e060e8cc07115200ee4', string: 'BG'}],
-                countries_of_operation: [{source: '56747e060e8cc07115200ee4', string: 'BG'}, {source: '56747e060e8cc07115200ee5', string: 'NG'}],
+                country_of_incorporation: [{source: '56747e060e8cc07115200ee4', country: '56a7e6c02302369318e16bb8'}],
+                countries_of_operation: [{source: '56747e060e8cc07115200ee4', country: '56a7e6c02302369318e16bb8'}, {source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bba'}],
                 company_start_date: [{source: '56747e060e8cc07115200ee4', date: new Date()}],
                 company_end_date: [{source: '56747e060e8cc07115200ee4', date: new Date()}],
                 company_website: [{source: '56747e060e8cc07115200ee4', string: 'http://google.com'}],
@@ -144,24 +137,14 @@ function createDefaultCompanies() {
                 open_corporates_id: 'junkid',
                 companies_house_id: 'junkid2',
 
-                //Display specifific lists
-                display_commodities: ['56a13e9942c8bef50ec2e9e8'],
-
+                ////Display specifific lists
+                //display_commodities: ['56a13e9942c8bef50ec2e9e8'],
+                //
                 //LINKS
-                sources: ['56747e060e8cc07115200ee4', '56747e060e8cc07115200ee6','56747e060e8cc07115200ee5'],
-                commodities: [
-                    {commodity: '56a13e9942c8bef50ec2e9e8',source:'56747e060e8cc07115200ee4',entity:'commodity'}
-                ],
-                concessions: [
-                    {concession:'56a2b8236e585b7316655794', source:'56747e060e8cc07115200ee5', entity:'concession'}
-                ],
-                contracts: [
-                    {contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entity:'contract'}
-                ]
-                //contracts: [links],
-                //countries: [links],
-                //projects: [links],
-                //sources: [ObjectId]
+                //sources: ['56747e060e8cc07115200ee4', '56747e060e8cc07115200ee6','56747e060e8cc07115200ee5'],
+                commodities: ['56a8dfbfee9e493007085bce'],
+                concessions: ['56a8e5320fa7dd0d0817beff'],
+                contracts: ['56a8e66f405f534508e8586f']
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376c',
@@ -169,8 +152,8 @@ function createDefaultCompanies() {
                 company_aliases: ['56a7d55eb04a1f2214b7b1e0','56a7d55eb04a1f2214b7b1df'],
                 company_established_source: '56747e060e8cc07115200ee3',
                 description: '<p>yes</p><p>no</p>',
-                country_of_incorporation: [{source: '56747e060e8cc07115200ee3', string: 'GH'}],
-                countries_of_operation: [{source: '56747e060e8cc07115200ee3', string: 'GH'}],
+                country_of_incorporation: [{source: '56747e060e8cc07115200ee3', country: '56a8d7d08e7079da05d6b542'}],
+                countries_of_operation: [{source: '56747e060e8cc07115200ee3', country: '56a8d7d08e7079da05d6b542'}],
                 company_start_date: [{source: '56747e060e8cc07115200ee3', date: new Date()}],
                 company_end_date: [{source: '56747e060e8cc07115200ee3', date: new Date()}],
                 company_website: [{source: '56747e060e8cc07115200ee3', string: 'http://google.com'}],
@@ -178,21 +161,14 @@ function createDefaultCompanies() {
                 open_corporates_id: 'junkid',
                 companies_house_id: 'junkid2',
 
-                //Display specifific lists
-                display_commodities: ['56a13e9942c8bef50ec2e9e8'],
-
+                ////Display specifific lists
+                //display_commodities: ['56a13e9942c8bef50ec2e9e8'],
+                //
                 //LINKS
-                sources: ['56747e060e8cc07115200ee6', '56747e060e8cc07115200ee4', '56747e060e8cc07115200ee3'],
-                commodities: [
-                    {commodity: '56a13e9942c8bef50ec2e9e8',source:'56747e060e8cc07115200ee3',entity:'commodity'}
-                ],
-                //concessions: [links],
-                //contracts: [links],
-                //countries: [links],
-                //projects: [links],
-                //sources: [ObjectId]
+                //sources: ['56747e060e8cc07115200ee6', '56747e060e8cc07115200ee4', '56747e060e8cc07115200ee3'],
+                commodities: ['56a8e070121b00500792c2eb'],
             });
-            console.log('***Companies Added');
+            console.log('Companies created...');
         }
     });
 };

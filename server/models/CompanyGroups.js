@@ -7,8 +7,6 @@ require('mongoose-html-2').loadType(mongoose);
 
 var companyGroupSchema, CompanyGroup,
     Schema          = mongoose.Schema,
-    aliases         = mongoose.model('Alias'),
-    //links           = mongoose.model('Link'),
     ObjectId        = mongoose.Schema.Types.ObjectId,
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
@@ -57,9 +55,7 @@ function createDefaultCompanyGroups() {
             CompanyGroup.create({
                 _id: '56a14d8ee47b92f110ce9a58',
                 company_group_name: 'Exxon',
-                commodity_aliases: [
-                    {alias: 'Dutch Shell',language: 'en',source: '56747e060e8cc07115200ee6'}
-                ],
+                commodity_aliases: ['56a7d2e642074281134a60f3'],
                 company_group_record_established: '56747e060e8cc07115200ee3',
                 description: "<p>yes</p><p>no</p>",
                 open_corporates_group_ID: 'junkid'
@@ -67,8 +63,6 @@ function createDefaultCompanyGroups() {
             CompanyGroup.create({
                 _id: '56a14d8ee47b92f110ce9a56',
                 company_group_name: 'Petrobras',
-                commodity_aliases: [
-                ],
                 company_group_record_established: '56747e060e8cc07115200ee6',
                 description: "<p>yes</p><p>no</p>",
                 open_corporates_group_ID: 'junkid'

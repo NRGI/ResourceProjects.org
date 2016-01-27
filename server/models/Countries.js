@@ -5,17 +5,15 @@
 var countrySchema, Country,
     links    = require('./Links'),
     mongoose = require('mongoose'),
-    Schema   = mongoose.Schema;
+    Schema   = mongoose.Schema,
+    ObjectId = Schema.Types.ObjectId;
 
 countrySchema = new Schema({
-    country_ID: {
-        type: String,
-        required:'{PATH} is required!',
-        indexed: true,
-        unique: true},
-    companies: [links],
-    concessions: [links],
-    commodities: [links]
+    iso2: String,
+    name: String,
+    country_aliases: [{
+        type: ObjectId,
+        ref: 'Alias'}]
 });
 
 //countrySchema.plugin(mongooseHistory, options);
@@ -25,22 +23,11 @@ Country = mongoose.model('Country', countrySchema);
 function createDefaultCountries() {
     Country.find({}).exec(function(err, countries) {
         if(countries.length === 0) {
-            console.log('no countries');
-            //Country.create({
-            //
-            //});
-            //Country.create({
-            //
-            //});
-            //Country.create({
-            //
-            //});
-            //Country.create({
-            //
-            //});
-            //Country.create({
-            //
-            //});
+            Country.create({_id:'56a7e6c02302369318e16bb8', iso2:'BG', name:'Bulgarian'});
+            Country.create({_id:'56a7e6c02302369318e16bb9', iso2:'AF', name:'Afghanistan'});
+            Country.create({_id:'56a7e6c02302369318e16bba', iso2:'NG', name:'Nigeria'});
+            Country.create({_id:'56a8d7d08e7079da05d6b542', iso2:'GH', name:'Ghana'});
+            console.log('Countries created...');
         }
     });
 };
