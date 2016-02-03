@@ -62,7 +62,7 @@ sourceSchema = new Schema({
         ref: 'Contracts'}],
     projects: [{
         type: ObjectId,
-        ref: 'Contracts'}],
+        ref: 'Projects'}],
     //transfers: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],

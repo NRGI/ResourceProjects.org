@@ -48,17 +48,17 @@
                      td.status
                         span(ng-bind-html="project.status|sanitize")
                   tr
-                     td.project-label Associated Contracts:
+                     td.project-label Contracts:
                      td
                         ul
                   tr
-                     td.project-label Associated Concessions:
+                     td.project-label Concessions:
                      | &#x9;
                      td
                         ul
                   tr
                      td.project-label(colspan='2')
-                        | Location(s)
+                        | Location(s):
                         table.table.table-striped.locations
                            tbody
                               tr
@@ -109,7 +109,7 @@
             th.tablesort-sortable-th(ts-criteria='commodity') Commodity
             th.tablesort-sortable-th(ts-criteria='price|parseInt') Price
             th.tablesort-sortable-th(ts-criteria='pricePerUnit') Price per unit
-            th.tablesort-sortable-th(ts-criteria='id') ID
+            //th.tablesort-sortable-th(ts-criteria='id') ID
       tbody
          tr(ng-repeat='stats in project.productionStats',ts-repeat)
             td {{stats.year}}
@@ -120,9 +120,9 @@
                   span(ng-bind-html="stats.commodity|sanitize")
             td {{stats.price}}
             td {{stats.pricePerUnit}}
-            td
-               a(href='production/{{stats.id}}')
-                  span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
+            //td
+            //   a(href='production/{{stats.id}}')
+            //      span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
 
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -145,7 +145,7 @@
             th.tablesort-sortable-th(ts-criteria='currency') Currency
             th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
             th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?
-            th.tablesort-sortable-th(ts-criteria='id') ID
+            //th.tablesort-sortable-th(ts-criteria='id') ID
       tbody
          tr(ng-repeat='payment in project.payments',ts-repeat)
             td {{payment.year}}
@@ -159,9 +159,9 @@
             td {{payment.currency}}
             td {{payment.value}}
             td {{payment.receipt}}
-            td
-               a(href='governmentreceipt/{{payment.id}}')
-                  span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
+            //td
+            //   a(href='governmentreceipt/{{payment.id}}')
+            //      span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
       span
@@ -174,11 +174,10 @@
    .advanced-links
       .container
          h3
-            | Links
-            =' '
-            small Advanced
-         ul
-            li
-               a(href='project/MX/adar-gok3sd') Triples View
-            li
-               a(href='project/MX/adar-gok3sd') Sources
+            a(href='project/MX/adar-gok3sd') Sources
+            //small Advanced
+         //ul
+         //   li
+         //      a(href='project/MX/adar-gok3sd') Triples View
+         //   li
+         //      a(href='project/MX/adar-gok3sd') Sources

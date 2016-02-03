@@ -4,9 +4,25 @@ angular.module('app')
     .controller('nrgiCompanyCtrl', function (
         $scope,
         nrgiAuthSrvc,
-        nrgiIdentitySrvc
+        nrgiIdentitySrvc,
+        nrgiCompaniesSrvc,
+        $routeParams,
+        nrgiCountriesSrvc
     ) {
-
+        nrgiCountriesSrvc.getAllCountries().then(function(countries) {
+            $scope.countries=countries;
+        });
+        //nrgiCompaniesSrvc.getCompanyById($routeParams.id).then(function(success) {
+        //    angular.forEach(success.countries_of_operation,function(item){
+        //        var countries_of_operation = item.country;
+        //        angular.forEach($scope.countries,function(country){
+        //            if(country._id == countries_of_operation){
+        //                item.name=country.name;
+        //            }
+        //        })
+        //    })
+        //    $scope.company=success;
+        //});
             $scope.company =
         {id:'92dc0bd39f65ed90',name:'Gold Fields Ghana Limited',openCorporates:'https://opencorporates.com/companies/au/153067639',website:'https://www.goldfields.com/',group:'Gold Fields',groupId:'Gold Fields',country:'South Africa',countryMap:{lat:-5.35,lng:12,zoom: 5},
             countryId:'MX',

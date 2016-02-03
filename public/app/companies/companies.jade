@@ -9,7 +9,7 @@
                button.btn.btn-default(type='button')
                   a(href='/groups') Switch to Company Groups view
    .dropdown
-      | Showing {{page}} to {{count}} of {{companies.length}} companies. Number of records per page:
+      | Showing {{page}} to {{show_count}} of {{count}} companies. Number of records per page:
       =' '
       form.inline
          select(name='limit', ng-model='limit',ng-change="select(limit)")
@@ -21,28 +21,28 @@
          .pager
             ul.inline
                li.previous(ng-if="page!=0")
-                  a(href='',ng-click='prev(page,count)') previous
-               li.next(ng-if="count<companies.length")
-                  a(href='',ng-click='next(page,count)') next
-         table.table.table-striped(about='http://resourceprojects.org/company',ts-wrapper)
+                  a(href='',ng-click='prev(page)') previous
+               li.next(ng-if="show_count<count")
+                  a(href='',ng-click='next(page,show_count)') next
+         table.table.table-striped(about='http://resourceprojects.org/company',ts-wrapper,ng-show="show_count!=0")
             thead
                tr
-                  th.tablesort-sortable-th(ts-criteria='name') Company
-                  th.tablesort-sortable-th(ts-criteria='group') Group
-                  th.tablesort-sortable-th(ts-criteria='numberProject|parseInt') No. Projects
+                  th.tablesort-sortable-th(ts-criteria='company_name') Company
+                  th.tablesort-sortable-th(ts-criteria='company_groups.name') Group
+                  th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
             tbody
-               tr(ng-repeat='company in companies.slice(page) | limitTo: limit',ts-repeat)
+               tr(ng-repeat='company in companies',ts-repeat)
                   td
-                     a(href='company/{{company.id}}')
-                        span(ng-bind-html="company.name|sanitize")
+                     a(href='company/{{company._id}}')
+                        span(ng-bind-html="company.company_name|sanitize")
                   td
-                     a(href='group/{{company.id_group}}')
-                        span(ng-bind-html="company.group|sanitize")
-                  td {{company.numberProject}}
+                     a(href='group/{{company.company_groups._id}}')
+                        span(ng-bind-html="company.company_groups.name|sanitize")
+                  td {{company.projects}}
          .pager
             ul.inline
                li.previous(ng-if="page!=0")
-                  a(href='',ng-click='prev(page,count)') previous
-               li.next(ng-if="count<companies.length")
-                  a(href='',ng-click='next(page,count)') next
+                  a(href='',ng-click='prev(page)') previous
+               li.next(ng-if="show_count<count")
+                  a(href='',ng-click='next(page,show_count)') next
 

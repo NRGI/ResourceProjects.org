@@ -13,7 +13,25 @@ countrySchema = new Schema({
     name: String,
     country_aliases: [{
         type: ObjectId,
-        ref: 'Alias'}]
+        ref: 'Alias'}],
+    ////Links
+    //sources: [source],
+    commodities: [{
+        type: ObjectId,
+        ref: 'Commodities'}],
+    company_groups: [{
+        type: ObjectId,
+        ref: 'CompanyGroups'}],
+    concessions: [{
+        type: ObjectId,
+        ref: 'Concessions'}],
+    contracts: [{
+        type: ObjectId,
+        ref: 'Contracts'}],
+    projects: [{
+        type: ObjectId,
+        ref: 'Projects'}]
+
 });
 
 //countrySchema.plugin(mongooseHistory, options);
@@ -23,7 +41,7 @@ Country = mongoose.model('Country', countrySchema);
 function createDefaultCountries() {
     Country.find({}).exec(function(err, countries) {
         if(countries.length === 0) {
-            Country.create({_id:'56a7e6c02302369318e16bb8', iso2:'BG', name:'Bulgarian'});
+            Country.create({_id:'56a7e6c02302369318e16bb8', iso2:'BG', name:'Bulgarian', commodities: ['56a7e6c02302369318e16bb8'], company_groups: ['56a7e6c02302369318e16bb8'], concessions: ['56a7e6c02302369318e16bb8'], contracts: ['56a7e6c02302369318e16bb8'], projects: ['56a7e6c02302369318e16bb8']});
             Country.create({_id:'56a7e6c02302369318e16bb9', iso2:'AF', name:'Afghanistan'});
             Country.create({_id:'56a7e6c02302369318e16bba', iso2:'NG', name:'Nigeria'});
             Country.create({_id:'56a8d7d08e7079da05d6b542', iso2:'GH', name:'Ghana'});

@@ -6,11 +6,11 @@
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='name') Country
-                th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Projects
+                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
         tbody
             tr(ng-repeat="country in countries",ts-repeat)
                 td
-                    a(href='country/{{ country.id }}') {{country.id | isoCountry}}
+                    a(href='country/{{ country._id }}') {{country.name | isoCountry}}
                         //span(ng-bind-html="country.id | sanitize")
-                td {{country.count}}
+                td {{country.projects}}
                 td

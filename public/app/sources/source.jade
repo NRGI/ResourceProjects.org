@@ -1,7 +1,7 @@
 .container
    .page-header
       h1
-         span(ng-bind-html="source.name|sanitize")
+         span(ng-bind-html="source.source_name|sanitize")
          =' '
          small Source
    table.table.table-striped
@@ -9,24 +9,24 @@
          tr
             th Description
             td
-               span(ng-bind-html="source.description|sanitize")
+               span(ng-bind-html="source.source_notes|sanitize")
          tr
             th Type
             td
-               span(ng-bind-html="source.type|sanitize")
+               span(ng-bind-html="source.source_type|sanitize")
          tr
             th Source date
-            td {{source.sourceDate}}
+            td {{source.source_date| date:'yyyy-MM-dd'}}
          tr
             th Retrieved date
-            td {{source.retrievedDate}}
+            td {{source.retrieve_date| date:'yyyy-MM-dd'}}
          tr
             th Access source
             td
-               a(href='{{source.accessLink}}') Link
+               a(ng-href='{{source.source_url}}', target='_blank') Link
                |  (Direct link to data in PDF report)
                =' '
-               a(href='{{source.archiveCopy}}') Archive copy
+               a(href='{{source.source_archive_url}}', target='_blank') Archive copy
          tr
             th Found in graph
-            td {{source.graph}}
+            td {{source.source_type_id}}

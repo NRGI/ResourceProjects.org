@@ -4,60 +4,13 @@ angular.module('app')
     .controller('nrgiGroupsCtrl', function (
         $scope,
         nrgiAuthSrvc,
-        nrgiIdentitySrvc
+        nrgiIdentitySrvc,
+        nrgiCompaniesSrvc
     ) {
-        $scope.groups = [
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Aa Mine Holding',numberCompanies:'1',numberProject:'1'}
-        ];
+        nrgiCompaniesSrvc.getAllCompanyGroups().then(function(response) {
+            $scope.groups =response;
+        });
+        //$scope.groups = [s
+        //    {id:'e78a24ef78c0b90a',name:'Aa Mine Holding',numberCompanies:'1',numberProject:'1'}
+        //];
     });
