@@ -55,7 +55,9 @@ companySchema = new Schema({
     contracts: [{
         type: ObjectId,
         ref: 'Link'}],
-    //projects: [links],
+    projects: [{
+        type: ObjectId,
+        ref: 'Link'}]
 });
 //TranModel
 //    .find({ quantityout: 1 },
@@ -111,6 +113,7 @@ function createDefaultCompanies() {
                 commodities: ['56a8def185d9580a07c58280','56a8def185d9580a07c58281'],
                 company_groups: ['56a8e342b9a34fbb07013c5f'],
                 concessions: ['56a8e4acf77930f50708881e'],
+                projects: ['56a8e4acf77930f50708881e']
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376a',

@@ -1,24 +1,28 @@
 .container
 	.page-header
 		h1 Sources
-		p This website is built up through user contributions, transforming company reports and filings into accessible open data. Find out
-			=' '
-			a(href='/contribute') how you can contribute here
-			=' .'
-		p The site currently incorporates 76 sources
-		table.table.table-striped(about='http://resourceprojects.org/source',ts-wrapper)
-			thead
-				tr
-					th.tablesort-sortable-th(ts-criteria='name') Source
-					th.tablesort-sortable-th(ts-criteria='type') Source type
-					th.tablesort-sortable-th(ts-criteria='date') Source date
-					th.tablesort-sortable-th(ts-criteria='id') Details
-			tbody
-				tr(ng-repeat='source in sources', ts-repeat)
-					td
-						a(href='source/{{ source.id }}')
-							span(ng-bind-html="source.name|sanitize")
-					td {{source.type}}
-					td {{source.date}}
-					td
-						a(href='source/{{ source.id }}') Details
+	p This website is built up through user contributions, transforming company reports and filings into accessible open data. Find out
+		=' '
+		a(href='/contribute') how you can contribute here
+		='.'
+	p The site currently incorporates {{count}} sources
+
+	navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
+	table.table.table-striped(about='http://resourceprojects.org/source',ts-wrapper)
+		thead
+			tr
+				th.tablesort-sortable-th(ts-criteria='source_name') Source
+				th.tablesort-sortable-th(ts-criteria='source_type') Source type
+				th.tablesort-sortable-th(ts-criteria='create_date') Source date
+				th.tablesort-sortable-th(ts-criteria='_id') No. Projects
+		tbody
+			tr(ng-repeat='source in sources', ts-repeat)
+				td
+					a(href='source/{{ source._id }}')
+						span(ng-bind-html="source.source_name|sanitize")
+				td {{source.source_type}}
+				td {{source.create_date| date:'yyyy-MM-dd'}}
+				td {{source.projects.length}}
+
+	navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

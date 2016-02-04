@@ -4,109 +4,39 @@ angular.module('app')
     .controller('nrgiCompaniesCtrl', function (
         $scope,
         nrgiAuthSrvc,
-        nrgiIdentitySrvc
+        nrgiIdentitySrvc,
+        nrgiCompaniesSrvc
     ) {
-        $scope.headers = ['Project', 'Country', 'Commodity Types', 'No.Companies'];
-        $scope.columnSort = { sortColumn: 'Project', reverse: false };
-        $scope.limit = 50;
-        $scope.count = 50;
-        $scope.page = 0;
-        $scope.companies = [
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'BP',group:'BP',id_group:'BP',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Aa Mine Holding',group:'',id_group:'',numberProject:'1'}
-        ];
-        $scope.select = function(limit){
-            $scope.page = 0;
-            if($scope.companies.length<limit){
-                $scope.count=$scope.companies.length;
-            }else{
-                $scope.count=limit;
-            }
+        $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
+        var loadCompanies = function(limit,page){
+            nrgiCompaniesSrvc.getAllCompanies(limit,page).then(function(success) {
+                $scope.count = success.count;
+                $scope.limit = limit;
+                $scope.page = page;
+                $scope.companies=success.data;
+                $scope.show_count = success.data.length+$scope.page;
+            });
+        };
+        loadCompanies($scope.limit,$scope.page);
+        $scope.select = function(changeLimit){
+            loadCompanies(changeLimit,0);
         };
         $scope.next = function(page,count){
-            count = parseInt(count);
-            $scope.page = count;
-            var limit = parseInt($scope.limit);
-            count = count + limit;
-            if(count>$scope.companies.length){
-                $scope.count = $scope.companies.length;
-            }else{
-                $scope.count = count;
-            }
-
+            loadCompanies($scope.limit,count);
         };
-        $scope.prev = function(page,count){
-            count = parseInt(count);
-            page = parseInt(page);
-            var limit = parseInt($scope.limit);
-            page = page-limit;
-            if(page<limit){
-                $scope.page = 0;
-                $scope.count = limit;
-            }else{
-                $scope.page = page;
-                if(count-page>limit){
-                    $scope.count = count - ((count-page)-limit);
-                }else if(count>$scope.companies.length){
-                    $scope.count = $scope.companies.length;
-                }
-                else{
-                    $scope.count = count-limit;
-                }
-
+        $scope.prev = function(page){
+            loadCompanies($scope.limit,page-$scope.limit);
+        };
+        $scope.first = function(){
+            loadCompanies($scope.limit,0);
+        };
+        $scope.last = function(page){
+            if($scope.count%$scope.limit!=0){
+                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
+                loadCompanies($scope.limit,page);
+            }else {
+                loadCompanies($scope.limit,page-$scope.limit);
             }
-
-
         }
     });
 

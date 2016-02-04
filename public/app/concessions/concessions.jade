@@ -1,0 +1,19 @@
+.container
+    .page-header
+        h1 Concessions
+            small
+
+    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
+    table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='concession_name') Contract
+                th.tablesort-sortable-th(ts-criteria='projects.length|parseInt') No. Projects
+        tbody
+            tr(ng-repeat="concession in concessions",ts-repeat)
+                td
+                    a(href='concession/{{ concession._id }}') {{concession.concession_name}}
+                td {{concession.projects.length}}
+                td
+    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

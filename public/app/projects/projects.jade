@@ -7,41 +7,28 @@
        .col-md-3
          .btn-group(role='group', aria-label='...')
             button.btn.btn-default(type='button')
-               a(href='/map') Projects Map
-   .dropdown
-      | Showing {{page}} to {{count}} of {{projects.length}} projects. Number of records per page:
-      =' '
-      form.inline
-         select(name='limit',ng-model='limit',ng-change="select(limit)")
-            option(selected='') 50
-            option 200
-            option 1000
-   .pager
-      ul.inline
-         li.previous(ng-if="page!=0")
-            a(href='',ng-click='prev(page,count)') previous
-         li.next(ng-if="count<projects.length")
-            a(href='',ng-click='next(page,count)') next
+               a(href='/map') Map View
+
+   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
    table#projects.table.table-striped(about='http://resourceprojects.org/project',ts-wrapper)
       thead
          tr
-            th.tablesort-sortable-th(ts-criteria='name') Project
+            th.tablesort-sortable-th(ts-criteria='name') Name
             th.tablesort-sortable-th(ts-criteria='country') Country
-            th.tablesort-sortable-th(ts-criteria='type') Commodity Types
+            th.tablesort-sortable-th(ts-criteria='type') Commodity Type
+            th.tablesort-sortable-th(ts-criteria='commodity') Commodity
+            th.tablesort-sortable-th(ts-criteria='status') Status
             th.tablesort-sortable-th(ts-criteria="number|parseInt") No.Companies
       tbody
-         tr(ng-repeat='project in projects.slice(page) | limitTo: limit',ts-repeat)
+         tr(ng-repeat='project in projects',ts-repeat)
             td
-               a(href='/project/{{project.id}}')
-                  span(ng-bind-html="project.name|sanitize")
-            td
-               a(href='/country/{{project.id_country}}')
-                  span(ng-bind-html="project.country|sanitize")
+               a(href='/project/MX/{{project._id}}')
+                  span(ng-bind-html="project.proj_name|sanitize")
+            td {{project.countries}}
             td {{project.type}}
+            td {{project.commodity}}
+            td {{project.status}}
             td {{project.number}}
-   .pager
-      ul.inline
-         li.previous(ng-if="page!=0")
-            a(href='',ng-click='prev(page,count)') previous
-         li.next(ng-if="count<projects.length")
-            a(href='',ng-click='next(page,count)') next
+
+   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

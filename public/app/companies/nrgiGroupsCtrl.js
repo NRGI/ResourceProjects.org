@@ -4,60 +4,36 @@ angular.module('app')
     .controller('nrgiGroupsCtrl', function (
         $scope,
         nrgiAuthSrvc,
-        nrgiIdentitySrvc
+        nrgiIdentitySrvc,
+        nrgiCompaniesSrvc
     ) {
-        $scope.groups = [
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'0'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Anglogold Ashanti',numberCompanies:'1',numberProject:'1'},
-            {id:'e78a24ef78c0b90a',name:'Aa Mine Holding',numberCompanies:'1',numberProject:'1'}
-        ];
+        $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
+        var loadCompanyGroups = function(limit,page){
+            nrgiCompaniesSrvc.getAllCompanyGroups(limit,page).then(function(response) {
+                $scope.count = response.count;$scope.limit = limit;$scope.page = page;
+                $scope.groups=response.data;
+                $scope.show_count = response.data.length+$scope.page;
+            });
+        };
+        loadCompanyGroups($scope.limit,$scope.page);
+        $scope.select = function(changeLimit){
+            loadCompanyGroups(changeLimit,0);
+        };
+        $scope.next = function(page,count){
+            loadCompanyGroups($scope.limit,count);
+        };
+        $scope.prev = function(page){
+            loadCompanyGroups($scope.limit,page-$scope.limit);
+        };
+        $scope.first = function(){
+            loadCompanyGroups($scope.limit,0);
+        };
+        $scope.last = function(page){
+            if($scope.count%$scope.limit!=0){
+                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
+                loadCompanyGroups($scope.limit,page);
+            }else {
+                loadCompanyGroups($scope.limit,page-$scope.limit);
+            }
+        }
     });

@@ -1,32 +1,43 @@
 .container
    .page-header
       h1
-         span(ng-bind-html="source.name|sanitize")
+         span(ng-bind-html="source.source_name|sanitize")
          =' '
          small Source
-   table.table.table-striped
-      tbody
-         tr
-            th Description
-            td
-               span(ng-bind-html="source.description|sanitize")
-         tr
-            th Type
-            td
-               span(ng-bind-html="source.type|sanitize")
-         tr
-            th Source date
-            td {{source.sourceDate}}
-         tr
-            th Retrieved date
-            td {{source.retrievedDate}}
-         tr
-            th Access source
-            td
-               a(href='{{source.accessLink}}') Link
-               |  (Direct link to data in PDF report)
-               =' '
-               a(href='{{source.archiveCopy}}') Archive copy
-         tr
-            th Found in graph
-            td {{source.graph}}
+   .row
+      .col-md-6
+         .info-box
+            table#project-info
+               tbody
+                  tr
+                     td.project-label.our-id Type:
+                     td {{source.source_type}}
+                  tr
+                     td.project-label.website Source date:
+                     td {{source.source_date| date:'yyyy-MM-dd'}}
+                  tr
+                     td.project-label.website Retrieved date:
+                     td {{source.retrieve_date| date:'yyyy-MM-dd'}}
+                  tr
+                     td.project-label.part-of Access source:
+                     td
+                        a(ng-href='{{source.source_url}}', target='_blank') Link
+                        =' '
+                        | (Direct link to data in HTML report)
+                  tr
+                     td.project-label.part-of Access archive:
+                     td
+                        a(href='{{source.source_archive_url}}', target='_blank') Link
+                        =' '
+                        | (Google sheet)
+                  tr
+                     td.project-label.open-corporates Created:
+                     td {{created}} on {{source.create_date| date:'yyyy-MM-dd'}}
+      .col-md-6
+         .info-box
+            table#project-info
+               tbody
+                  tr
+                     td.project-label.our-id Desctiption:
+                     td
+                        span(ng-bind-html="source.source_notes|sanitize")

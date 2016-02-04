@@ -1,5 +1,13 @@
 var auth 		= require('./auth'),
-	users 		= require('../controllers/users');
+	users 		= require('../controllers/users'),
+	commodities = require('../controllers/commodities'),
+	concessions = require('../controllers/concessions'),
+	companies 	= require('../controllers/companies'),
+	projects 	= require('../controllers/projects'),
+	contracts 	= require('../controllers/contracts'),
+	companyGroups 	= require('../controllers/companyGroups'),
+	countries 	= require('../controllers/countries'),
+	sources 	= require('../controllers/sources');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
 	// assessments = require('../controllers/assessments');
@@ -7,10 +15,43 @@ var auth 		= require('./auth'),
 	// User 		= mongoose.model('User');
 
 module.exports	= function(app) {
+
+	// GET
+
+
+	//CONTRACTS
+	app.get('/api/contracts', contracts.getContracts);
+	app.get('/api/contract/:id', contracts.getContractByID);
+
+	//CONCESSIONS
+	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
+	app.get('/api/concessions/:id', concessions.getConcessionByID);
+
+	//PROJECTS
+	app.get('/api/projects/:limit/:skip', projects.getProjects);
+	app.get('/api/projects/:id', projects.getProjectByID);
+
+	//COMPANIES and COMPANYGROUPS
+	app.get('/api/companies/:limit/:skip', companies.getCompanies);
+	app.get('/api/companies/:id', companies.getCompanyByID);
+	app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
+	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupByID);
+
+	//COMMODITIES
+	app.get('/api/commodities', commodities.getCommodities);
+	app.get('/api/commodities/:id', commodities.getCommodityByID);
+
+	//COUNTRIES
+	app.get('/api/countries/:limit/:skip', countries.getCountries);
+	app.get('/api/countries/:id', countries.getCountryByID);
+
+	//SOURCES
+	app.get('/api/sources/:limit/:skip', sources.getSources);
+	app.get('/api/source/:id', sources.getSourceByID);
+
 	/////////////////////////
 	///// USERS CRUD ////////
 	/////////////////////////
-	// GET
 	app.get('/api/users', auth.requiresRole('admin'), users.getUsers);
 	app.get('/api/users/:id', auth.requiresRole('admin'), users.getUsersByID);
 	app.get('/api/user-list/:id', auth.requiresRole('admin'), users.getUsersListByID);

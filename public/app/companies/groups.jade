@@ -8,16 +8,65 @@
             .btn-group(role='group', aria-label='...')
                button.btn.btn-default(type='button')
                   a(href='/companies') Switch to Companies view
+   .dropdown
+      .col-md-12
+         .pager
+            ul.inline
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='first()') <<
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='prev(page)') <
+               li
+               =' '
+                  | Showing {{page}} to {{show_count}} of {{count}} company groups. Number of records per page:
+               =' '
+                  form.inline
+                     select(name='limit', ng-model='limit',ng-change="select(limit)")
+                        option(selected='') 50
+                        option 200
+                        option 1000
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='next(page,show_count)') >
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='last(count)') >>
    table.table.table-striped(ts-wrapper)
       thead
          tr
-            th.tablesort-sortable-th(ts-criteria='name') Name
+            th.tablesort-sortable-th(ts-criteria='company_group_name') Name
             th.tablesort-sortable-th(ts-criteria='numberCompanies|parseInt') No. Companies
             th.tablesort-sortable-th(ts-criteria='numberProject|parseInt') No. Projects
       tbody
          tr(ng-repeat='group in groups',ts-repeat)
             td
-               a(href='group/{{group.id}}') {{group.name}}
-            td {{group.numberCompanies}}
-            td {{group.numberProject}}
-
+               a(href='group/{{group._id}}') {{group.company_group_name}}
+            td {{group.companies.length}}
+            td {{group.projects.length}}
+   .dropdown
+      .col-md-12
+         .pager
+            ul.inline
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='first()') <<
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='prev(page)') <
+               li
+               =' '
+                  | Showing {{page}} to {{show_count}} of {{count}} company groups. Number of records per page:
+               =' '
+                  form.inline
+                     select(name='limit', ng-model='limit',ng-change="select(limit)")
+                        option(selected='') 50
+                        option 200
+                        option 1000
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='next(page,show_count)') >
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='last(count)') >>

@@ -61,7 +61,22 @@ angular.module('app')
 
 
 
-
+            .when('/contracts', {
+                templateUrl: '/partials/contracts/contracts',
+                controller: 'nrgiContractsCtrl'
+            })
+            .when('/contract/:id', {
+                templateUrl: '/partials/contracts/contract',
+                controller: 'nrgiContractCtrl'
+            })
+            .when('/concessions', {
+                templateUrl: '/partials/concessions/concessions',
+                controller: 'nrgiConcessionsCtrl'
+            })
+            .when('/concession/:id', {
+                templateUrl: '/partials/concessions/concession',
+                controller: 'nrgiConcessionCtrl'
+            })
             .when('/projects', {
                 templateUrl: '/partials/projects/projects',
                 controller: 'nrgiProjectsCtrl'
@@ -211,7 +226,7 @@ angular.module('app')
 //    });
     });
 
-angular.module('app').run(function($rootScope, $location) {
+angular.module('app').run(function($rootScope, $location,$http) {
     $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
         if(rejection === 'not authorized') {
@@ -220,6 +235,20 @@ angular.module('app').run(function($rootScope, $location) {
     });
     $rootScope.$on('$routeChangeSuccess', function() {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
-
+        //$http.get('/api/countries').then(function (response) {
+        //    console.log(response);
+        //})
+        //$http.get('/api/commodities').then(function (response) {
+        //    console.log(response);
+        //})
+        //$http.get('/api/companies').then(function (response) {
+        //    console.log(response);
+        //})
+        //$http.get('/api/concessions').then(function (response) {
+        //    console.log(response);
+        //})
+        //$http.get('/api/projects').then(function (response) {
+        //    console.log(response);
+        //})
     })
 });

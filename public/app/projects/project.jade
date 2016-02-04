@@ -19,6 +19,9 @@
                      td.project-label ID:
                      td. {{project.id}}
                   tr
+                     td.project-label Project site name:
+                     td. {{project.site}}
+                  tr
                      td.project-label Country:
                      td
                         a(href='country/{{project.id_country}}')
@@ -48,23 +51,29 @@
                      td.status
                         span(ng-bind-html="project.status|sanitize")
                   tr
-                     td.project-label Associated Contracts:
+                     td.project-label Contracts:
                      td
                         ul
                   tr
-                     td.project-label Associated Concessions:
+                     td.project-label Concessions:
+                     | &#x9;
+                     td
+                        ul
+                  tr
+                     td.project-label Address:
                      | &#x9;
                      td
                         ul
                   tr
                      td.project-label(colspan='2')
-                        | Location(s)
+                        p Location(s):
                         table.table.table-striped.locations
                            tbody
                               tr
                                  th Name
                                  th Lat
                                  th Lng
+                                 th
                               tr(ng-repeat='marker in project.projectMarkers')
                                  td
                                     span(ng-bind-html="marker.message|sanitize")
@@ -72,21 +81,33 @@
                                     span(ng-if='marker.lat!=0') {{marker.lat}}
                                  td
                                     sapn(ng-if='marker.lng!=0') {{marker.lng}}
-         // info-box
-      // col-md-6
+                                 td
+                                    sapn(ng-if='marker.lng!=0') {{marker.lng}}
       .col-md-6
+         .info-box
+            h2
+               | &nbsp;
+            table#project-info
+               tbody
+                  tr
+                     td.project-label.our-id Desctiption:
+                     td
+                        span(ng-bind-html="company.description|sanitize")
          h2 Companies
          table.table.table-striped.companies(ts-wrapper)
             thead
                tr
                   th.tablesort-sortable-th(ts-criteria='name') Name
                   th.tablesort-sortable-th(ts-criteria='group') Group
-                  // <th>Share</th>
+                  th.tablesort-sortable-th(ts-criteria='group') Stake
             tbody
                tr(ng-repeat='company in project.companies',ts-repeat)
                   td
                      a(href='company/{{company.idCompany}}')
                         span(ng-bind-html="company.name|sanitize")
+                  td
+                     a(href='group/{{company.idGroup}}')
+                        span(ng-bind-html="company.group|sanitize")
                   td
                      a(href='group/{{company.idGroup}}')
                         span(ng-bind-html="company.group|sanitize")
@@ -97,8 +118,6 @@
                =' '
                a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
                   | Companies CSV
-      // col-md-6
-   // row
    h2 Production Stats
    table.table.table-striped.production_stats(ng-if='project.productionStats.length!=0',ts-wrapper)
       thead
@@ -109,7 +128,7 @@
             th.tablesort-sortable-th(ts-criteria='commodity') Commodity
             th.tablesort-sortable-th(ts-criteria='price|parseInt') Price
             th.tablesort-sortable-th(ts-criteria='pricePerUnit') Price per unit
-            th.tablesort-sortable-th(ts-criteria='id') ID
+            //th.tablesort-sortable-th(ts-criteria='id') ID
       tbody
          tr(ng-repeat='stats in project.productionStats',ts-repeat)
             td {{stats.year}}
@@ -120,15 +139,11 @@
                   span(ng-bind-html="stats.commodity|sanitize")
             td {{stats.price}}
             td {{stats.pricePerUnit}}
-            td
-               a(href='production/{{stats.id}}')
-                  span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
-
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
       span
          |  Download:
-      =' '
+         =' '
          a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
             | Production Stats CSV
    p(ng-if='project.productionStats.length==0') No data available
@@ -141,11 +156,10 @@
             th.tablesort-sortable-th(ts-criteria='year|parseInt') Year
             th.tablesort-sortable-th(ts-criteria='paidBy') Paid by
             th.tablesort-sortable-th(ts-criteria='paidTo') Paid to
-            th.tablesort-sortable-th(ts-criteria='type') Payment Type
+            th.tablesort-sortable-th(ts-criteria='type') Payment type
             th.tablesort-sortable-th(ts-criteria='currency') Currency
             th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
             th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?
-            th.tablesort-sortable-th(ts-criteria='id') ID
       tbody
          tr(ng-repeat='payment in project.payments',ts-repeat)
             td {{payment.year}}
@@ -159,13 +173,10 @@
             td {{payment.currency}}
             td {{payment.value}}
             td {{payment.receipt}}
-            td
-               a(href='governmentreceipt/{{payment.id}}')
-                  span.glyphicon.glyphicon-info-sign(data-toggle='tooltip', data-placement='left', title='127434e6d53d5b8e', aria-hidden='true')
    .download
       span.glyphicon.glyphicon-download(aria-hidden='true')
       span
-         | Download:
+         |  Download:
          =' '
          a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
             | Payments CSV
@@ -174,11 +185,4 @@
    .advanced-links
       .container
          h3
-            | Links
-            =' '
-            small Advanced
-         ul
-            li
-               a(href='project/MX/adar-gok3sd') Triples View
-            li
-               a(href='project/MX/adar-gok3sd') Sources
+            a(href='project/MX/adar-gok3sd') Sources
