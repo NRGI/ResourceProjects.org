@@ -2,13 +2,15 @@ var Country 		= require('mongoose').model('Country'),
 	encrypt 	= require('../utilities/encryption');
 //.populate('comments.author', 'firstName lastName role')
 exports.getCountries = function(req, res) {
-	var countries =[];
+	var countries =[];	var count;
 	var query = Country.find(req.query);
 	query.exec(function(err, collection) {
+		count = collection.length;
 		collection.forEach(function(item){
 			countries.push({_id: item._id, name: item.name,projects: item.projects.length})
 		});
-		res.send(countries);
+		countries =countries.slice(req.params.skip,Number(req.params.limit)+Number(req.params.skip));
+		res.send({data:countries,count:count});
 	});
 };
 exports.getCountryByID = function(req, res) {

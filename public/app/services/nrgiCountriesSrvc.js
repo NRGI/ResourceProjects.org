@@ -3,9 +3,9 @@
 angular.module('app')
     .factory('nrgiCountriesSrvc', function($http,$q) {
         return {
-            getAllCountries:function() {
+            getAllCountries:function(limit,skip) {
                 var dfd = $q.defer();
-                $http.get('/api/countries').then(function (response) {
+                $http.get('/api/countries/'+limit +'/'+skip).then(function (response) {
                     if(response.data) {
                         dfd.resolve(response.data);
                     } else {

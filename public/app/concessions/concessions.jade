@@ -2,6 +2,9 @@
     .page-header
         h1 Concessions
             small
+
+    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
@@ -11,6 +14,6 @@
             tr(ng-repeat="concession in concessions",ts-repeat)
                 td
                     a(href='concession/{{ concession._id }}') {{concession.concession_name}}
-                        //span(ng-bind-html="country.id | sanitize")
                 td {{concession.projects.length}}
                 td
+    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

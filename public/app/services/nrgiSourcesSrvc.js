@@ -5,7 +5,7 @@ angular.module('app')
         return {
             getAllSources: function (limit, skip) {
                 var dfd = $q.defer();
-                $http.get('/api/sources').then(function (response) {
+                $http.get('/api/sources/'+limit +'/'+skip).then(function (response) {
                     if (response.data) {
                         dfd.resolve(response.data);
                     } else {

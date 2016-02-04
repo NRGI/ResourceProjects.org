@@ -1,4 +1,4 @@
-.container
+.container(ng-controller="nrgiCompaniesCtrl")
    .page-header
       .row
          .col-md-3
@@ -7,24 +7,12 @@
          .col-md-3
             .btn-group(role='group', aria-label='...')
                button.btn.btn-default(type='button')
-                  a(href='/groups') Switch to Company Groups view
-   .dropdown
-      | Showing {{page}} to {{show_count}} of {{count}} companies. Number of records per page:
-      =' '
-      form.inline
-         select(name='limit', ng-model='limit',ng-change="select(limit)")
-            option(selected='') 50
-            option 200
-            option 1000
+                  a(href='/groups') View Company Groups
+   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
    .row
       .col-md-12
-         .pager
-            ul.inline
-               li.previous(ng-if="page!=0")
-                  a(href='',ng-click='prev(page)') previous
-               li.next(ng-if="show_count<count")
-                  a(href='',ng-click='next(page,show_count)') next
-         table.table.table-striped(about='http://resourceprojects.org/company',ts-wrapper,ng-show="show_count!=0")
+         table.table.table-striped(about='http://resourceprojects.org/company',ts-wrapper)
             thead
                tr
                   th.tablesort-sortable-th(ts-criteria='company_name') Company
@@ -39,10 +27,5 @@
                      a(href='group/{{company.company_groups._id}}')
                         span(ng-bind-html="company.company_groups.name|sanitize")
                   td {{company.projects}}
-         .pager
-            ul.inline
-               li.previous(ng-if="page!=0")
-                  a(href='',ng-click='prev(page)') previous
-               li.next(ng-if="show_count<count")
-                  a(href='',ng-click='next(page,show_count)') next
 
+   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

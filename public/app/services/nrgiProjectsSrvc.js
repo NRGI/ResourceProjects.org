@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('app')
-    .factory('nrgiConcessionsSrvc', function($http,$q) {
+    .factory('nrgiProjectsSrvc', function($http,$q) {
         return {
-            getAllConcessions:function(limit,skip) {
+            getAllProjects:function(limit,skip) {
                 var dfd = $q.defer();
-                $http.get('/api/concessions/'+limit+"/"+skip).then(function (response) {
+                $http.get('/api/projects/'+limit +'/'+skip).then(function (response) {
                     if(response.data) {
                         dfd.resolve(response.data);
                     } else {
@@ -14,9 +14,9 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
-            getConcessionById:function(id) {
+            getProjectById:function(id) {
                 var dfd = $q.defer();
-                $http.get('/api/concession/'+id).then(function (response) {
+                $http.get('/api/project/'+id).then(function (response) {
                     if(response.data) {
                         dfd.resolve(response.data);
                     } else {

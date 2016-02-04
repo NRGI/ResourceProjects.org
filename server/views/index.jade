@@ -2,7 +2,7 @@ extend ../includes/layout
 block main-content
 	.navbar.navbar-fixed-top
 		.navbar-inner
-			.container
+			.container-fluid
 				a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
 					span.icon-bar
 					span.icon-bar
@@ -16,19 +16,19 @@ block main-content
 						li
 							a(href='/projects') Projects
 						li
-							a(href='/countries') Countries
+							a(href='/concessions') Concessions
 						li
 							a(href='/companies') Companies
+						li
+							a(href='/contracts') Contracts
+						li
+							a(href='/countries') Countries
 						li
 							a(href='/commodities') Commodities
 						li
 							a(href='/sources') Sources
 						li
 							a(href='/glossary') Glossary
-						li
-							a(href='/contracts') Contracts
-						li
-							a(href='/concessions') Concessions
 					form.navbar-search.pull-left(action='')
 						input.typeahead.search-query.span2(type='text', data-provide='typeahead', placeholder='Search')
 	section.content

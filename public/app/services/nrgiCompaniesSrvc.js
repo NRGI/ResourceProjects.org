@@ -25,9 +25,9 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
-            getAllCompanyGroups:function() {
+            getAllCompanyGroups:function(limit,skip) {
                 var dfd = $q.defer();
-                $http.get('/api/companyGroups').then(function (response) {
+                $http.get('/api/companyGroups/'+limit +'/'+skip).then(function (response) {
                     if(response.data) {
                         dfd.resolve(response.data);
                     } else {

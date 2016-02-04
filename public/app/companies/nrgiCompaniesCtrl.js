@@ -19,14 +19,24 @@ angular.module('app')
         };
         loadCompanies($scope.limit,$scope.page);
         $scope.select = function(changeLimit){
-            $scope.page = 0;
-            loadCompanies(changeLimit,$scope.page);
+            loadCompanies(changeLimit,0);
         };
         $scope.next = function(page,count){
             loadCompanies($scope.limit,count);
         };
         $scope.prev = function(page){
             loadCompanies($scope.limit,page-$scope.limit);
+        };
+        $scope.first = function(){
+            loadCompanies($scope.limit,0);
+        };
+        $scope.last = function(page){
+            if($scope.count%$scope.limit!=0){
+                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
+                loadCompanies($scope.limit,page);
+            }else {
+                loadCompanies($scope.limit,page-$scope.limit);
+            }
         }
     });
 

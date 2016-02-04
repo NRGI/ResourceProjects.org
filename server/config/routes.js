@@ -24,17 +24,17 @@ module.exports	= function(app) {
 	app.get('/api/contract/:id', contracts.getContractByID);
 
 	//CONCESSIONS
-	app.get('/api/concessions', concessions.getConcessions);
+	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
 	app.get('/api/concessions/:id', concessions.getConcessionByID);
 
 	//PROJECTS
-	app.get('/api/projects', projects.getProjects);
+	app.get('/api/projects/:limit/:skip', projects.getProjects);
 	app.get('/api/projects/:id', projects.getProjectByID);
 
 	//COMPANIES and COMPANYGROUPS
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyByID);
-	app.get('/api/companyGroups', companyGroups.getCompanyGroups);
+	app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
 	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupByID);
 
 	//COMMODITIES
@@ -42,11 +42,11 @@ module.exports	= function(app) {
 	app.get('/api/commodities/:id', commodities.getCommodityByID);
 
 	//COUNTRIES
-	app.get('/api/countries', countries.getCountries);
+	app.get('/api/countries/:limit/:skip', countries.getCountries);
 	app.get('/api/countries/:id', countries.getCountryByID);
 
 	//SOURCES
-	app.get('/api/sources', sources.getSources);
+	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/source/:id', sources.getSourceByID);
 
 	/////////////////////////

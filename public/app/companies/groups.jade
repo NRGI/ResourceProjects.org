@@ -8,6 +8,31 @@
             .btn-group(role='group', aria-label='...')
                button.btn.btn-default(type='button')
                   a(href='/companies') Switch to Companies view
+   .dropdown
+      .col-md-12
+         .pager
+            ul.inline
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='first()') <<
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='prev(page)') <
+               li
+               =' '
+                  | Showing {{page}} to {{show_count}} of {{count}} company groups. Number of records per page:
+               =' '
+                  form.inline
+                     select(name='limit', ng-model='limit',ng-change="select(limit)")
+                        option(selected='') 50
+                        option 200
+                        option 1000
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='next(page,show_count)') >
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='last(count)') >>
    table.table.table-striped(ts-wrapper)
       thead
          tr
@@ -20,4 +45,28 @@
                a(href='group/{{group._id}}') {{group.company_group_name}}
             td {{group.companies.length}}
             td {{group.projects.length}}
-
+   .dropdown
+      .col-md-12
+         .pager
+            ul.inline
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='first()') <<
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="page==0",ng-click='prev(page)') <
+               li
+               =' '
+                  | Showing {{page}} to {{show_count}} of {{count}} company groups. Number of records per page:
+               =' '
+                  form.inline
+                     select(name='limit', ng-model='limit',ng-change="select(limit)")
+                        option(selected='') 50
+                        option 200
+                        option 1000
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='next(page,show_count)') >
+               li
+               =' '
+                  button(class='btn btn-link navigate',ng-disabled="show_count>=count",ng-click='last(count)') >>
