@@ -21,6 +21,18 @@ factSchema = new Schema({
     loc: {
         type: [Number],  // [<longitude>, <latitude>]
         index: '2d'      // create the geospatial index
+    },
+    poly: {
+        type: {
+            type: String,
+            enum: ['LineString', 'Polygon'],
+            default: 'Polygon'
+        },
+        coordinates: [
+            { type: [
+                { type: [ Number ] }
+            ] }
+        ]
     }
 });
 
