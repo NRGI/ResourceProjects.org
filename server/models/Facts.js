@@ -22,18 +22,18 @@ factSchema = new Schema({
         type: [Number],  // [<longitude>, <latitude>]
         index: '2d'      // create the geospatial index
     },
-    poly: {
-        type: {
-            type: String,
-            enum: ['LineString', 'Polygon'],
-            default: 'Polygon'
-        },
-        coordinates: [
-            { type: [
-                { type: [ Number ] }
-            ] }
-        ]
-    }
+    //poly: {
+    //    type: {
+    //        type: String,
+    //        enum: ['LineString', 'Polygon'],
+    //        default: 'Polygon'
+    //    },
+    //    coordinates: [
+    //        { type: [
+    //            { type: [ Number ] }
+    //        ] }
+    //    ]
+    //}
 });
 
 module.exports = factSchema;
