@@ -36,25 +36,26 @@ Contract = mongoose.model('Contract', contractSchema);
 function createDefaultContracts() {
     Contract.find({}).exec(function(err, contracts) {
         if(contracts.length === 0) {
-            Contract.create({
-                _id: '56a2eb4345d114c30439ec20'
-,               contract_id: 'junkid1',
-                //sources: ['56747e060e8cc07115200ee6'],\
-                companies: ['56a8e66f405f534508e8586f'],
-                concessions: ['56a8e91f514d14b5080599e0']
-            });
-            Contract.create({
-                _id: '56a2eb4345d114c30439ec22',
-                contract_id: 'junkid2',
-                //sources: ['56747e060e8cc07115200ee5'],
-                concessions: ['56a8e9408c2925be086967b6']
-            });
-            Contract.create({
-                _id: '56a2eb4345d114c30439ec21',
-                contract_id: 'junkid3',
-                //sources: [''],
-            });
-            console.log('Contracts created...');
+            console.log('***No contracts')
+//            Contract.create({
+//                _id: '56a2eb4345d114c30439ec20'
+//,               contract_id: 'junkid1',
+//                //sources: ['56747e060e8cc07115200ee6'],\
+//                companies: ['56a8e66f405f534508e8586f'],
+//                concessions: ['56a8e91f514d14b5080599e0']
+//            });
+//            Contract.create({
+//                _id: '56a2eb4345d114c30439ec22',
+//                contract_id: 'junkid2',
+//                //sources: ['56747e060e8cc07115200ee5'],
+//                concessions: ['56a8e9408c2925be086967b6']
+//            });
+//            Contract.create({
+//                _id: '56a2eb4345d114c30439ec21',
+//                contract_id: 'junkid3',
+//                //sources: [''],
+//            });
+//            console.log('Contracts created...');
         }
     });
 };

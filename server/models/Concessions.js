@@ -73,58 +73,59 @@ Concession = mongoose.model('Concession', concessionSchema);
 function createDefaultConcessions() {
     Concession.find({}).exec(function(err, concessions) {
         if(concessions.length === 0) {
-            Concession.create({
-                _id: '56a2b8236e585b7316655794',
-                concession_name: 'Block A',
-                concession_aliases: ['56a7d75bd9caddb614ab02b3','56a7d75bd9caddb614ab02b4'],
-                concession_established_source: '56747e060e8cc07115200ee6',
-                description: '<p>yes</p><p>no</p>',
-                concession_country: [{source: '56747e060e8cc07115200ee6', string: '56a7e6c02302369318e16bb8'}],
-                concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
-                concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
-
-                //External Links
-                oo_concession_id: 'junkid',
-                oo_url_api: 'http://api.openoil.net/concession/BR/ES-M-525',
-                oo_url_wiki: 'http://repository.openoil.net/wiki/Brazil',
-                oo_source_date: new Date(),
-                oo_details: {
-                    'Concession\u00e1rios': '*Petrobras - 65%, Inpex - 15%, PTTEP Brasil - 20%',
-                    'Contrato': 'BM-ES-23',
-                    'Observacao': '',
-                    'Operador': 'Petrobras',
-                    'Vencimento1\u00ba': '20.01.2012'
-                },
-
-                //////Links
-                //sources: ['56747e060e8cc07115200ee4','56747e060e8cc07115200ee5','56747e060e8cc07115200ee6'],
-                commodities: ['56a8e778c052957008a847a7','56a8e778c052957008a847a8'],
-                companies: ['56a8e4acf77930f50708881e'],
-                contracts: ['56a8e91f514d14b5080599e0']
-            });
-            Concession.create({
-                _id: '56a2b8236e585b731665579d',
-                concession_name: 'Block B',
-                concession_aliases: ['56a7d75bd9caddb614ab02b5'],
-                concession_established_source: '56747e060e8cc07115200ee5',
-                description: '<p>yes</p><p>no</p>',
-                concession_country: [{source: '56747e060e8cc07115200ee5', string: '56a7e6c02302369318e16bb8'}],
-                concession_status: [{source: '56747e060e8cc07115200ee5', string: 'exploration'}],
-                concession_type: [{source: '56747e060e8cc07115200ee5', string: 'offshore'}],
-
-                //External Links
-                oo_concession_id: 'junkid',
-                oo_url_api: 'http://api.openoil.net/concession/BR/ES-M-525',
-                oo_url_wiki: 'http://repository.openoil.net/wiki/Brazil',
-                oo_source_date: new Date(),
-
-                //////Links
-                //sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee3'],
-                commodities: ['56a8e834bd760b92085829de','56a8e834bd760b92085829df'],
-                companies: ['56a8e5320fa7dd0d0817beff'],
-                contracts: ['56a8e9408c2925be086967b6']
-            });
-            console.log('Concessions created...');
+            console.log('***No concessions')
+            //Concession.create({
+            //    _id: '56a2b8236e585b7316655794',
+            //    concession_name: 'Block A',
+            //    concession_aliases: ['56a7d75bd9caddb614ab02b3','56a7d75bd9caddb614ab02b4'],
+            //    concession_established_source: '56747e060e8cc07115200ee6',
+            //    description: '<p>yes</p><p>no</p>',
+            //    concession_country: [{source: '56747e060e8cc07115200ee6', string: '56a7e6c02302369318e16bb8'}],
+            //    concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
+            //    concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
+            //
+            //    //External Links
+            //    oo_concession_id: 'junkid',
+            //    oo_url_api: 'http://api.openoil.net/concession/BR/ES-M-525',
+            //    oo_url_wiki: 'http://repository.openoil.net/wiki/Brazil',
+            //    oo_source_date: new Date(),
+            //    oo_details: {
+            //        'Concession\u00e1rios': '*Petrobras - 65%, Inpex - 15%, PTTEP Brasil - 20%',
+            //        'Contrato': 'BM-ES-23',
+            //        'Observacao': '',
+            //        'Operador': 'Petrobras',
+            //        'Vencimento1\u00ba': '20.01.2012'
+            //    },
+            //
+            //    //////Links
+            //    //sources: ['56747e060e8cc07115200ee4','56747e060e8cc07115200ee5','56747e060e8cc07115200ee6'],
+            //    commodities: ['56a8e778c052957008a847a7','56a8e778c052957008a847a8'],
+            //    companies: ['56a8e4acf77930f50708881e'],
+            //    contracts: ['56a8e91f514d14b5080599e0']
+            //});
+            //Concession.create({
+            //    _id: '56a2b8236e585b731665579d',
+            //    concession_name: 'Block B',
+            //    concession_aliases: ['56a7d75bd9caddb614ab02b5'],
+            //    concession_established_source: '56747e060e8cc07115200ee5',
+            //    description: '<p>yes</p><p>no</p>',
+            //    concession_country: [{source: '56747e060e8cc07115200ee5', string: '56a7e6c02302369318e16bb8'}],
+            //    concession_status: [{source: '56747e060e8cc07115200ee5', string: 'exploration'}],
+            //    concession_type: [{source: '56747e060e8cc07115200ee5', string: 'offshore'}],
+            //
+            //    //External Links
+            //    oo_concession_id: 'junkid',
+            //    oo_url_api: 'http://api.openoil.net/concession/BR/ES-M-525',
+            //    oo_url_wiki: 'http://repository.openoil.net/wiki/Brazil',
+            //    oo_source_date: new Date(),
+            //
+            //    //////Links
+            //    //sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee3'],
+            //    commodities: ['56a8e834bd760b92085829de','56a8e834bd760b92085829df'],
+            //    companies: ['56a8e5320fa7dd0d0817beff'],
+            //    contracts: ['56a8e9408c2925be086967b6']
+            //});
+            //console.log('Concessions created...');
         }
     });
 };
