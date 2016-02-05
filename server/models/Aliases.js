@@ -8,7 +8,7 @@ var aliasSchema, Alias,
     Schema   = mongoose.Schema,
     ObjectId = mongoose.Schema.Types.ObjectId,
     model_enu  = {
-        values: 'commodity company_group company concession'.split(' '),
+        values: 'commodity company_group company concession project'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select commodity,  or .'
     };
 
@@ -59,6 +59,12 @@ function createDefaultAliases() {
             Alias.create({_id:'56a7d75bd9caddb614ab02b3', alias:'Block aye', language:'en', model:'concession', source:'56747e060e8cc07115200ee4'});
             Alias.create({_id:'56a7d75bd9caddb614ab02b4', alias:'Block no way', language:'fr', model:'concession', source:'56747e060e8cc07115200ee5'});
             Alias.create({_id:'56a7d75bd9caddb614ab02b5', alias:'Block BBBBB', language:'en', model:'concession', source:'56747e060e8cc07115200ee3'});
+
+            //projects
+            Alias.create({_id:'56a939e649434cfc1354d64b', alias: 'project aye', language:'en', model: 'project', source:'56747e060e8cc07115200ee4'});
+            Alias.create({_id:'56a939e649434cfc1354d64c', alias: 'project aaaa', language:'fr', model: 'project', source:'56747e060e8cc07115200ee6'});
+            Alias.create({_id:'56a939e649434cfc1354d64d', alias: 'project bbb', language:'en', model: 'project', source:'56747e060e8cc07115200ee4'});
+            Alias.create({_id:'56a939e649434cfc1354d64e', alias: 'project ccc', language:'en', model: 'project', source:'56747e060e8cc07115200ee3'});
 
             console.log('Aliases created...')
         }

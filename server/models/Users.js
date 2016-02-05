@@ -2,7 +2,12 @@
 var userSchema, User,
     mongoose 	= require('mongoose'),
     Schema      = mongoose.Schema,
-    encrypt		= require('../utilities/encryption');
+    ObjectId    = Schema.Types.ObjectId,
+    encrypt		= require('../utilities/encryption'),
+    role_enu  = {
+        values: 'admin'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
+    };
 
 userSchema = new Schema({
     first_name: {type:String, required: '{PATH} is required!'},
@@ -15,9 +20,13 @@ userSchema = new Schema({
     email: {type: String, required: '{PATH} is required'},
     salt: {type:String, required: '{PATH} is required!'},
     hashed_pwd: {type:String, required: '{PATH} is required!'},
-    role: {type:String, required: '{PATH} is required!', default: 'admin'},
-    createdBy: String,
-    creationDate: {type: Date, default:Date.now}
+    role: [{
+        type: String,
+        required:'{PATH} is required!',
+        default: 'admin',
+        enum: role_enu}],
+    created_by: {type: ObjectId, ref: 'Users'},
+    creation_date: {type: Date, default:Date.now}
     // language: [String]
     // groups: [String]
 });
@@ -47,7 +56,8 @@ function createDefaultUsers() {
                 email: 'jcust@resourcegovernance.org',
                 salt:salt,
                 hashed_pwd: hash,
-                role: 'admin'});
+                role: 'admin',
+                created_by: '569976c21dad48f614cc8125'});
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'cperry');
             User.create({
@@ -58,7 +68,8 @@ function createDefaultUsers() {
                 email: 'cperry@resourcegovernance.org',
                 salt:salt,
                 hashed_pwd: hash,
-                role: 'admin'});
+                role: 'admin',
+                created_by: '569976c21dad48f614cc8125'});
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'apederson');
             User.create({
@@ -69,7 +80,8 @@ function createDefaultUsers() {
                 email: 'apedersen@resourcegovernance.org',
                 salt:salt,
                 hashed_pwd: hash,
-                role: 'admin'});
+                role: 'admin',
+                created_by: '569976c21dad48f614cc8125'});
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'dmihalyi');
             User.create({
@@ -80,7 +92,8 @@ function createDefaultUsers() {
                 email: 'dmihalyi@resourcegovernance.org',
                 salt:salt,
                 hashed_pwd: hash,
-                role: 'admin'});
+                role: 'admin',
+                created_by: '569976c21dad48f614cc8125'});
 
             console.log('Users created...');
         }

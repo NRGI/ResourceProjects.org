@@ -3,12 +3,12 @@
       .row
          .col-md-12
             h1
-               span(ng-bind-html="project.name|sanitize")
+               span(ng-bind-html="project.proj_name|sanitize")
                =' '
                small Project
    .row
       .col-md-12
-            leaflet(center="project.countryMap",controls="controls",markers="project.projectMarkers",tiles="tiles", height='240px')
+         leaflet(center="center",controls="controls",markers="projectMarkers",tiles="tiles", height='240px')
    .row
       .col-md-6
          .info-box
@@ -17,72 +17,70 @@
                tbody
                   tr
                      td.project-label ID:
-                     td. {{project.id}}
+                     td {{project._id}}
                   tr
                      td.project-label Project site name:
-                     td. {{project.site}}
+                     td {{project.proj_site_name[0].string}}
                   tr
                      td.project-label Country:
                      td
-                        a(href='country/{{project.id_country}}')
-                           span(ng-bind-html="project.country|sanitize")
+                        a(href='country/{{project.country[0]._id}}')
+                           span(ng-bind-html="project.country[0].name|sanitize")
                   tr
                      td.project-label Aliases:
                      td.aliases
-                        span(ng-repeat='alias in project.aliases')
-                           span(ng-bind-html="alias.name|sanitize")
-                           span(ng-if='!$last') ,
+                        span(ng-repeat='alias in project.proj_aliases')
+                           span {{alias.name}}
+                           span(ng-if="!$last") ,
                            =' '
                   tr
                      td.project-label Commodity Type(s):
-                     td.commodity-types
-                        span(ng-repeat='type in project.types')
-                           span(ng-bind-html="type.type|sanitize")
-                           span(ng-if='!$last') ,
-                           =' '
+                     td.commodity_type {{project.proj_type[0].string}}
                   tr
                      td.project-label Commodities:
                      td.commodities(ng-repeat='commodity in project.commodities')
-                        a(href='commodity/{{commodity.id}}')
+                        a(href='commodity/{{commodity._id}}')
                            span(ng-bind-html="commodity.name|sanitize")
                         span(ng-if='!$last') ,
                   tr
                      td.project-label Status:
-                     td.status
-                        span(ng-bind-html="project.status|sanitize")
+                     td.commodity_type {{project.proj_status[0].string}}
+                        =' '
+                        span(ng-if="project.proj_status!='' || project.proj_status[0].string!=''") (True at: {{project.proj_status[0].date|date:'yyyy-MM-dd'}})
                   tr
                      td.project-label Contracts:
-                     td
-                        ul
+                     td(ng-repeat='contract in project.contracts')
+                        a(href='contract/{{contract._id}}')
+                           span(ng-bind-html="contract.name|sanitize")
+                        span(ng-if='!$last') ,
                   tr
                      td.project-label Concessions:
-                     | &#x9;
-                     td
-                        ul
+                     td(ng-repeat='concession in project.concessions')
+                        a(href='concession/{{concession._id}}')
+                           span(ng-bind-html="concession.name|sanitize")
+                        span(ng-if='!$last') ,
                   tr
                      td.project-label Address:
-                     | &#x9;
-                     td
-                        ul
+                     td {{project.proj_address[0].string}}
                   tr
                      td.project-label(colspan='2')
                         p Location(s):
-                        table.table.table-striped.locations
+                        table.table.table-striped.locations(ts-wrapper)
                            tbody
                               tr
-                                 th Name
-                                 th Lat
-                                 th Lng
+                                 th.tablesort-sortable-th(ts-criteria='name') Name
+                                 th.tablesort-sortable-th(ts-criteria='loc[0]') Lat
+                                 th.tablesort-sortable-th(ts-criteria='loc[1]') Lng
                                  th
-                              tr(ng-repeat='marker in project.projectMarkers')
+                              tr(ng-repeat='marker in project.proj_coordinates',ts-repeat)
                                  td
-                                    span(ng-bind-html="marker.message|sanitize")
+                                    span(ng-bind-html="project.proj_name|sanitize")
                                  td
-                                    span(ng-if='marker.lat!=0') {{marker.lat}}
+                                    span(ng-if='marker.loc[0]!=0') {{marker.loc[0]}}
                                  td
-                                    sapn(ng-if='marker.lng!=0') {{marker.lng}}
+                                    span(ng-if='marker.loc[1]!=0') {{marker.loc[1]}}
                                  td
-                                    sapn(ng-if='marker.lng!=0') {{marker.lng}}
+                                    span(ng-if='marker.loc[0]!=0') True at: {{marker.date|date:'yyyy-MM-dd'}}
       .col-md-6
          .info-box
             h2
@@ -92,7 +90,7 @@
                   tr
                      td.project-label.our-id Desctiption:
                      td
-                        span(ng-bind-html="company.description|sanitize")
+                        span(ng-bind-html="project.description|sanitize")
          h2 Companies
          table.table.table-striped.companies(ts-wrapper)
             thead
@@ -103,14 +101,14 @@
             tbody
                tr(ng-repeat='company in project.companies',ts-repeat)
                   td
-                     a(href='company/{{company.idCompany}}')
+                     a(href='company/{{company._id}}')
                         span(ng-bind-html="company.name|sanitize")
                   td
                      a(href='group/{{company.idGroup}}')
-                        span(ng-bind-html="company.group|sanitize")
+                        //span(ng-bind-html="company.group|sanitize")
                   td
                      a(href='group/{{company.idGroup}}')
-                        span(ng-bind-html="company.group|sanitize")
+                        //span(ng-bind-html="company.group|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span
@@ -136,7 +134,7 @@
             td {{stats.unit}}
             td
                a(href='commodity/{{stats.commodityId}}')
-                  span(ng-bind-html="stats.commodity|sanitize")
+                  //span(ng-bind-html="stats.commodity|sanitize")
             td {{stats.price}}
             td {{stats.pricePerUnit}}
    .download
@@ -165,10 +163,10 @@
             td {{payment.year}}
             td
                a(href='country/{{payment.paidById}}')
-                  span(ng-bind-html="payment.paidBy|sanitize")
+                  //span(ng-bind-html="payment.paidBy|sanitize")
             td
                a(href='country/{{payment.paidToId}}')
-                  span(ng-bind-html="payment.paidTo|sanitize")
+                  //span(ng-bind-html="payment.paidTo|sanitize")
             td {{payment.type}}
             td {{payment.currency}}
             td {{payment.value}}
@@ -185,4 +183,4 @@
    .advanced-links
       .container
          h3
-            a(href='project/MX/adar-gok3sd') Sources
+            a(href='source/{{project.proj_established_source}}') Sources

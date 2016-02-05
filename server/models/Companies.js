@@ -5,7 +5,7 @@
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
-var factSchema, aliasSchema, companySchema, Company,
+var aliasSchema, companySchema, Company,
     Schema          = mongoose.Schema,
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Sources'},
@@ -22,16 +22,6 @@ var factSchema, aliasSchema, companySchema, Company,
     },
     mongooseHistory = require('mongoose-history'),
     hst_options     = {customCollectionName: 'company_hst'};
-
-factSchema = new Schema({
-    source: source,
-    //approved: Boolean,
-    country: {
-        type: ObjectId,
-        ref: 'Country'},
-    number: Number,
-    date: Date
-});
 
 companySchema = new Schema({
     //Metadata

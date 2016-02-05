@@ -16,7 +16,7 @@ angular.module('app')
             },
             getProjectById:function(id) {
                 var dfd = $q.defer();
-                $http.get('/api/project/'+id).then(function (response) {
+                $http.get('/api/projects/'+id).then(function (response) {
                     if(response.data) {
                         dfd.resolve(response.data);
                     } else {

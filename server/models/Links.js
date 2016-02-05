@@ -8,7 +8,7 @@ var linkSchema, Link,
     ObjectId    = Schema.Types.ObjectId,
     //MixedSchema = Schema.Types.Mixed,
     entity_enu  = {
-        values: 'commodity company company_group concession contract'.split(' '),
+        values: 'commodity company company_group concession contract project'.split(' '),
         //values: ' project '.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
     };
@@ -25,11 +25,11 @@ linkSchema = new Schema({
         type: String,
         required:'{PATH} is required!',
         enum: entity_enu}],
-    //company group specific
-    company_group_start_date: Date,
-    company_group_end_date: Date,
-    //licensee specific
-    ownership_stake: Number
+    ////company group specific
+    //company_group_start_date: Date,
+    //company_group_end_date: Date,
+    ////licensee specific
+    //ownership_stake: Number
 
 });
 

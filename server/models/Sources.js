@@ -36,33 +36,32 @@ sourceSchema = new Schema({
     retrieve_date: {
         type: Date,
         default: Date.now},
-    description: htmlSettings,
     create_author: ObjectId,
     create_date: {
         type: Date,
         default: Date.now},
-    //TODO figure out maintenance of these references
-    countries: [{
-        type: ObjectId,
-        ref: 'Country'}],
-    commodities: [{
-        type: ObjectId,
-        ref: 'Commodities'}],
-    companies: [{
-        type: ObjectId,
-        ref: 'Companies'}],
-    company_groups: [{
-        type: ObjectId,
-        ref: 'CompanyGroups'}],
-    concessions: [{
-        type: ObjectId,
-        ref: 'Concessions'}],
-    contracts: [{
-        type: ObjectId,
-        ref: 'Contracts'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Projects'}],
+    ////TODO figure out maintenance of these references
+    //countries: [{
+    //    type: ObjectId,
+    //    ref: 'Country'}],
+    //commodities: [{
+    //    type: ObjectId,
+    //    ref: 'Commodities'}],
+    //companies: [{
+    //    type: ObjectId,
+    //    ref: 'Companies'}],
+    //company_groups: [{
+    //    type: ObjectId,
+    //    ref: 'CompanyGroups'}],
+    //concessions: [{
+    //    type: ObjectId,
+    //    ref: 'Concessions'}],
+    //contracts: [{
+    //    type: ObjectId,
+    //    ref: 'Contracts'}],
+    //projects: [{
+    //    type: ObjectId,
+    //    ref: 'Contracts'}],
     //transfers: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],
@@ -98,11 +97,11 @@ function createDefaultSources() {
                 companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376c'],
                 company_groups: ['56a14d8ee47b92f110ce9a57'],
                 concessions: ['56a2b8236e585b7316655794'],
-                ////transfers: [ObjectId],
-                ////reserves: [ObjectId],
-                ////production: [ObjectId],
-                ////projects: [String],
-                ////contributors: [ObjectId]
+                //transfers: [ObjectId],
+                //reserves: [ObjectId],
+                //production: [ObjectId],
+                //projects: [String],
+                //contributors: [ObjectId]
             });
             Source.create({
                 _id: '56747e060e8cc07115200ee5',
@@ -113,10 +112,10 @@ function createDefaultSources() {
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
                 create_author: '569976c21dad48f614cc8126',
-                countries: ['56a7e6c02302369318e16bb9','56a7e6c02302369318e16bb8','56a7e6c02302369318e16bba'],
-                companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376e'],
-                concessions: ['56a2b8236e585b7316655794'],
-                contracts: ['56a2eb4345d114c30439ec22'],
+                //countries: ['56a7e6c02302369318e16bb9','56a7e6c02302369318e16bb8','56a7e6c02302369318e16bba'],
+                //companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376e'],
+                //concessions: ['56a2b8236e585b7316655794'],
+                //contracts: ['56a2eb4345d114c30439ec22'],
                 ////licensees: [ObjectId],
             });
             Source.create({
@@ -128,10 +127,10 @@ function createDefaultSources() {
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
                 create_author: '569976c21dad48f614cc8126',
-                commodities: ['56a13e9942c8bef50ec2e9e8','56a13e9942c8bef50ec2e9eb','56a13e9942c8bef50ec2e9f1'],
-                companies: ['56a13a758f224f670e6a376e', '56a13a758f224f670e6a376a','56a13a758f224f670e6a376c'],
-                concessions: ['56a2b8236e585b7316655794'],
-                contracts: ['56a2eb4345d114c30439ec20'],
+                //commodities: ['56a13e9942c8bef50ec2e9e8','56a13e9942c8bef50ec2e9eb','56a13e9942c8bef50ec2e9f1'],
+                //companies: ['56a13a758f224f670e6a376e', '56a13a758f224f670e6a376a','56a13a758f224f670e6a376c'],
+                //concessions: ['56a2b8236e585b7316655794'],
+                //contracts: ['56a2eb4345d114c30439ec20'],
                 ////licensee's: [ObjectId],
             });
             Source.create({
@@ -142,10 +141,10 @@ function createDefaultSources() {
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
-                create_author: '569976c21dad48f614cc8128',
-                commodities: ['56a13e9942c8bef50ec2e9e8'],
-                companies: ['56a13a758f224f670e6a376c'],
-                ////licensees: [ObjectId],
+                //create_author: '569976c21dad48f614cc8128',
+                //commodities: ['56a13e9942c8bef50ec2e9e8'],
+                //companies: ['56a13a758f224f670e6a376c'],
+                //////licensees: [ObjectId],
             });
             console.log('Sources created...');
         }
