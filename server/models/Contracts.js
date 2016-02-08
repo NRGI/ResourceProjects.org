@@ -26,8 +26,8 @@ function createDefaultContracts() {
     Contract.find({}).exec(function(err, contracts) {
         if(contracts.length === 0) {
             Contract.create({
-                _id: '56a2eb4345d114c30439ec20'
-,               contract_id: 'ocds-591adf-PE6396832160RC',
+                _id: '56a2eb4345d114c30439ec20',
+               contract_id: 'ocds-591adf-PE6396832160RC',
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec22',

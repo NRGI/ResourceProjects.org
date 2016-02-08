@@ -111,19 +111,11 @@
             tbody
                tr(ng-repeat='company in project.companies',ts-repeat)
                   td
-<<<<<<< 05f966bb4e241e9757dff97559f90c1ef9ec09fd
-                     a(href='company/{{company.idCompany}}')
-                        span(ng-bind-html="company.name|sanitize")
-                  td
-                     a(href='group/{{company.idGroup}}')
-                        span(ng-bind-html="company.group|sanitize")
-=======
                      a(href='company/{{company.company._id}}')
                         span(ng-bind-html="company.company.name|sanitize")
                   td
                      a(href='group/{{company.companyGroup._id}}')
                         span(ng-bind-html="company.companyGroup.name|sanitize")
->>>>>>> change server controllers
                   td
                      a(href='group/{{company.idGroup}}')
                         span(ng-bind-html="company.group|sanitize")
