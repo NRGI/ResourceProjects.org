@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 
 var sourceSchema, contractSchema, Contract,
     Schema   = mongoose.Schema,
+    fact            = require("./Facts"),
     ObjectId = Schema.Types.ObjectId,
     source   = {type: ObjectId, ref: 'Sources'};
 
@@ -14,6 +15,9 @@ var sourceSchema, contractSchema, Contract,
 contractSchema = new Schema ({
     //Metadata
     contract_id: String //from rc.org
+    //contract_name: String, //from rc.org
+    //contract_type: [fact], //geographic type i.e. onshore, off shore, etc.
+    //country: [fact]
 });
 
 Contract = mongoose.model('Contract', contractSchema);

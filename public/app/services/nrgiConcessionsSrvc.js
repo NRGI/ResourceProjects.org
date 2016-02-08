@@ -16,7 +16,7 @@ angular.module('app')
             },
             getConcessionById:function(id) {
                 var dfd = $q.defer();
-                $http.get('/api/concession/'+id).then(function (response) {
+                $http.get('/api/concessions/'+id).then(function (response) {
                     if(response.data) {
                         dfd.resolve(response.data);
                     } else {

@@ -1,7 +1,7 @@
 .container
    .page-header
       h1
-         span(ng-bind-html="commodity.name|sanitize")
+         span(ng-bind-html="commodity.commodity_name|sanitize")
          =' '
          small Commodity
    .row
@@ -13,16 +13,21 @@
          tbody
             tr
                td.project-label(style='width:200px') Code:
-               td {{commodity.id}}
+               td.text-uppercase {{commodity.commodity_code}}
             tr
                td.project-label(style='width:200px') Commodity name:
                td
                   a(href='commodity/{{commodity._id}}')
-                     span(ng-bind-html="commodity.name|sanitize")
+                     span(ng-bind-html="commodity.commodity_name|sanitize")
             tr
                td.project-label(style='width:200px') Aliases:
-               td
-                  span(ng-bind-html="commodity.aliases|sanitize")
+               td.commodity_type
+                  span(ng-repeat="alias in commodity.commodity_aliases")
+                     span {{alias.code}}
+                        span.text-uppercase  ({{alias.reference}})
+                     span(ng-if="!$last") ,
+                     =" "
+
    .row
       .col-md-3
          h2 Projects
@@ -34,11 +39,11 @@
             tbody
                tr(ng-repeat='project in commodity.projects',ts-repeat)
                   td
-                     a(href='project/{{project.id}}')
-                        span(ng-bind-html="project.name|sanitize")
+                     a(href='project/{{project._id}}')
+                        span(ng-bind-html="project.proj_name|sanitize")
                   td
-                     a(href='country/{{project.countryId}}')
-                        span(ng-bind-html="project.country|sanitize")
+                     a(href='country/{{project.country._id}}')
+                        span(ng-bind-html="project.country.iso2|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             | Download:
@@ -55,38 +60,39 @@
             tbody
                tr(ng-repeat='contract in commodity.contracts',ts-repeat)
                   td
-                     a(href='contract/{{contract.id}}')
-                        span(ng-bind-html="contract.name|sanitize")
+                     a(href='contract/{{contract._id}}')
+                        span(ng-bind-html="contract.contract_name|sanitize")
                   td
-                     a(href='country/{{contract.countryId}}')
-                        span(ng-bind-html="contract.country|sanitize")
+                     a(href='country/{{contract.country._id}}')
+                        span(ng-bind-html="contract.country.iso2|sanitize")
                   td
-                     span(ng-bind-html="contract.rc|sanitize")
+                     a(href='contract/{{contract._id}}')
+                        span(ng-bind-html="contract.contract_id|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             | Download:
-         =' '
+            =' '
             a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+%3Fproject+%3Fname+%3Fcountry_name+WHERE+%7B%0A+++%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos%3AprefLabel+%3Fname+.%0A++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++%3Fcountry+a+rp%3ACountry+.%0A++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Contracts CSV
       .col-md-3
          h2 Concessions
          table.table.table-striped.companies(ts-wrapper)
             thead
                tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='group') Country
+                  th.tablesort-sortable-th(ts-criteria='concession_name') Name
+                  th.tablesort-sortable-th(ts-criteria='concession_country.iso2') Country
             tbody
                tr(ng-repeat='concession in commodity.concessions',ts-repeat)
                   td
-                     a(href='concession/{{concession.idCompany}}')
-                        span(ng-bind-html="company.name|sanitize")
+                     a(href='concession/{{concession._id}}')
+                        span(ng-bind-html="concession.concession_name|sanitize")
                   td
-                     a(href='country/{{company.country_id}}')
-                        span(ng-bind-html="company.country|sanitize")
+                     a(href='country/{{concession.concession_country._id}}')
+                        span(ng-bind-html="concession.concession_country.iso2|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             | Download:
-      =' '
-         a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3Fgroup_name+WHERE+%7B%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject++rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3Fgroup_name%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on') Concessions CSV
+            =' '
+            a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3Fgroup_name+WHERE+%7B%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject++rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3Fgroup_name%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on') Concessions CSV
 
       .col-md-3
          h2 Companies
@@ -94,15 +100,15 @@
             thead
                tr
                   th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='group') Group
+                  //th.tablesort-sortable-th(ts-criteria='group') Group
             tbody
                tr(ng-repeat='company in commodity.companies',ts-repeat)
                   td
-                     a(href='company/{{company.idCompany}}')
-                        span(ng-bind-html="company.name|sanitize")
-                  td
-                     a(href='group/{{company.idGroup}}')
-                        span(ng-bind-html="company.group|sanitize")
+                     a(href='company/{{company._id}}')
+                        span(ng-bind-html="company.company_name|sanitize")
+                  //td
+                  //   a(href='group/{{company.idGroup}}')
+                  //      span(ng-bind-html="company.group|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             |  Download:

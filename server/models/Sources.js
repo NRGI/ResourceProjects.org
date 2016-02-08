@@ -59,9 +59,9 @@ sourceSchema = new Schema({
     //contracts: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],
-    //projects: [{
-    //    type: ObjectId,
-    //    ref: 'Contracts'}],
+    projects: [{
+        type: ObjectId,
+        ref: 'Link'}]
     //transfers: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],

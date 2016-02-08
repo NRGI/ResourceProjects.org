@@ -42,23 +42,31 @@
                            =' '
                   tr
                      td.project-label Commodities:
-                     td.commodities(ng-repeat='commodity in project.commodities')
-                        a(href='commodity/{{commodity.id}}')
-                           span(ng-bind-html="commodity.name|sanitize")
-                        span(ng-if='!$last') ,
+                     td.commodities
+                        span(ng-repeat='commodity in project.commodities')
+                           a(href='commodity/{{commodity._id}}')
+                              span(ng-bind-html="commodity.name|sanitize")
+                           span(ng-if='!$last') ,
                   tr
                      td.project-label Status:
-                     td.status
-                        span(ng-bind-html="project.status|sanitize")
+                     td.commodity_type {{project.proj_status[0].string}}
+                        =' '
+                        span(ng-if="project.proj_status.length!=0") (True at: {{project.proj_status[0].date|date:'yyyy-MM-dd'}})
                   tr
                      td.project-label Contracts:
                      td
-                        ul
+                        span(ng-repeat='contract in project.contracts')
+                           a(href='contract/{{contract._id}}')
+                              span(ng-bind-html="contract.name|sanitize")
+                           span(ng-if='!$last') ,
+                           =' '
                   tr
                      td.project-label Concessions:
-                     | &#x9;
                      td
-                        ul
+                        span(ng-repeat='concession in project.concessions')
+                           a(href='concession/{{concession._id}}')
+                              span(ng-bind-html="concession.name|sanitize")
+                           span(ng-if='!$last') ,
                   tr
                      td.project-label Address:
                      | &#x9;
@@ -103,11 +111,19 @@
             tbody
                tr(ng-repeat='company in project.companies',ts-repeat)
                   td
+<<<<<<< 05f966bb4e241e9757dff97559f90c1ef9ec09fd
                      a(href='company/{{company.idCompany}}')
                         span(ng-bind-html="company.name|sanitize")
                   td
                      a(href='group/{{company.idGroup}}')
                         span(ng-bind-html="company.group|sanitize")
+=======
+                     a(href='company/{{company.company._id}}')
+                        span(ng-bind-html="company.company.name|sanitize")
+                  td
+                     a(href='group/{{company.companyGroup._id}}')
+                        span(ng-bind-html="company.companyGroup.name|sanitize")
+>>>>>>> change server controllers
                   td
                      a(href='group/{{company.idGroup}}')
                         span(ng-bind-html="company.group|sanitize")

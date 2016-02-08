@@ -1,7 +1,7 @@
 .container
    .page-header
       h1
-         span(ng-bind-html="country.name|sanitize")
+         span(ng-bind-html="concession.concession_name|sanitize")
          =' '
          small Concession
    .row
@@ -9,14 +9,72 @@
          leaflet(center="country.countryMap",controls="controls",markers="country.projectMarkers",tiles="tiles",height='240px')
    .row
       .col-md-6
+         .info-box
+            h2 Concession Info
+            table#project-info
+               tbody
+                  tr
+                     td.project-label ID:
+                     td {{concession._id}}
+                  tr
+                     td.project-label Aliases:
+                     td.aliases
+                        span(ng-repeat='alias in concession.concession_aliases')
+                           span {{alias.name}}
+                           span(ng-if="!$last") ,
+                           =' '
+                  tr
+                     td.project-label Country:
+                     td
+                        a(href='country/{{concession.concession_country[0]._id}}')
+                           span(ng-bind-html="concession.concession_country[0].name|sanitize")
+                  tr
+                     td.project-label Status:
+                     td.commodity_type {{concession.concession_status[0].string}}
+                        =' '
+                        span(ng-if="concession.concession_status!=[]") (True at: {{concession.concession_status[0].date|date:'yyyy-MM-dd'}})
+                  tr
+                     td.project-label Commodities:
+                     td.commodities
+                        span(ng-repeat='commodity in concession.commodities')
+                           a(href='commodity/{{commodity._id}}')
+                              span(ng-bind-html="commodity.name|sanitize")
+                           span(ng-if='!$last') ,
+                           =' '
+                 tr
+                     td.project-label Open Oil ID:
+                     td
+                        a(href='contract/{{concession.oo_concession_id}}')
+                           | {{concession.oo_concession_id}}
+                  tr
+                     td.project-label Contract:
+                     td
+                        span(ng-repeat='contract in concession.contracts')
+                           a(href='contract/{{contract._id}}')
+                              span(ng-bind-html="contract.name|sanitize")
+                           span(ng-if='!$last') ,
+                           =' '
+      .col-md-6
+         .info-box
+            h2
+               | &nbsp;
+            table#project-info
+               tbody
+                  tr
+                     td.project-label.our-id Desctiption:
+                     td
+                        span(ng-bind-html="concession.description|sanitize")
+   .row
+      .col-md-6
          h2 Projects
          table.table.table-striped.projects(ts-wrapper)
             thead
                tr
                   th.tablesort-sortable-th(ts-criteria='name') Name
+                  th.tablesort-sortable-th(ts-criteria='name') Country
+                  th.tablesort-sortable-th(ts-criteria='commodity') Commodity Type
                   th.tablesort-sortable-th(ts-criteria='commodity') Commodity
                   th.tablesort-sortable-th(ts-criteria='status') Status
-                  th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Companies
             tbody
                tr(ng-repeat='project in country.projects',ts-repeat)
                   td
@@ -24,6 +82,7 @@
                         span(ng-bind-html="project.name|sanitize")
                   td {{project.commodity}}
                   td {{project.status}}
+                  td {{project.count}}
                   td {{project.count}}
          .download
             span.glyphicon.glyphicon-download(aria-hidden="true")
