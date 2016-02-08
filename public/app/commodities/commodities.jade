@@ -3,14 +3,26 @@
       .row
          .col-md-4
             h1 Commodities
+
+   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
    table#commodities.table.table-striped(ts-wrapper)
       thead
          tr
-            th.tablesort-sortable-th(ts-criteria='name') Name
-            th.tablesort-sortable-th(ts-criteria='numberProject|parseInt') No. Projects
+            th.tablesort-sortable-th(ts-criteria='commodity_name') Name
+            th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+            th.tablesort-sortable-th(ts-criteria='contracts|parseInt') No. Contracts
+            th.tablesort-sortable-th(ts-criteria='concessions|parseInt') No. Concessions
       tbody
          tr(ng-repeat='commodity in commodities',ts-repeat)
             td
-               a(href='commodity/{{commodity.id}}')
-                  span(ng-bind-html="commodity.name|sanitize")
-            td {{commodity.numberProject}}
+               a(href='commodity/{{commodity._id}}')
+                  span(ng-bind-html="commodity.commodity_name|sanitize")
+            td
+               span(ng-if="commodity.projects!=0") {{commodity.projects}}
+            td
+               span(ng-if="commodity.contracts!=0") {{commodity.contracts}}
+            td
+               span(ng-if="commodity.concessions!=0") {{commodity.concessions}}
+
+   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

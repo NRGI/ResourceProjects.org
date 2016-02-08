@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 
 var sourceSchema, contractSchema, Contract,
     Schema   = mongoose.Schema,
+    fact            = require("./Facts"),
     ObjectId = Schema.Types.ObjectId,
     source   = {type: ObjectId, ref: 'Sources'};
 
@@ -14,8 +15,10 @@ var sourceSchema, contractSchema, Contract,
 contractSchema = new Schema ({
     //Metadata
     contract_id: String, //from rc.org
-
-    //Links
+    contract_name: String, //from rc.org
+    contract_type: [fact], //geographic type i.e. onshore, off shore, etc.
+    country: [fact],
+    // Links
     //sources: [source],
     commodities: [{
         type: ObjectId,
@@ -37,8 +40,9 @@ function createDefaultContracts() {
     Contract.find({}).exec(function(err, contracts) {
         if(contracts.length === 0) {
             Contract.create({
-                _id: '56a2eb4345d114c30439ec20'
-,               contract_id: 'junkid1',
+                _id: '56a2eb4345d114c30439ec20',
+                contract_id: 'junkid1',
+                contract_name: 'junkid1',
                 //sources: ['56747e060e8cc07115200ee6'],\
                 companies: ['56a8e66f405f534508e8586f'],
                 concessions: ['56a8e91f514d14b5080599e0']

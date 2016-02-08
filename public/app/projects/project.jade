@@ -38,27 +38,31 @@
                      td.commodity_type {{project.proj_type[0].string}}
                   tr
                      td.project-label Commodities:
-                     td.commodities(ng-repeat='commodity in project.commodities')
-                        a(href='commodity/{{commodity._id}}')
-                           span(ng-bind-html="commodity.name|sanitize")
-                        span(ng-if='!$last') ,
+                     td.commodities
+                        span(ng-repeat='commodity in project.commodities')
+                           a(href='commodity/{{commodity._id}}')
+                              span(ng-bind-html="commodity.name|sanitize")
+                           span(ng-if='!$last') ,
                   tr
                      td.project-label Status:
                      td.commodity_type {{project.proj_status[0].string}}
                         =' '
-                        span(ng-if="project.proj_status!='' || project.proj_status[0].string!=''") (True at: {{project.proj_status[0].date|date:'yyyy-MM-dd'}})
+                        span(ng-if="project.proj_status.length!=0") (True at: {{project.proj_status[0].date|date:'yyyy-MM-dd'}})
                   tr
                      td.project-label Contracts:
-                     td(ng-repeat='contract in project.contracts')
-                        a(href='contract/{{contract._id}}')
-                           span(ng-bind-html="contract.name|sanitize")
-                        span(ng-if='!$last') ,
+                     td
+                        span(ng-repeat='contract in project.contracts')
+                           a(href='contract/{{contract._id}}')
+                              span(ng-bind-html="contract.name|sanitize")
+                           span(ng-if='!$last') ,
+                           =' '
                   tr
                      td.project-label Concessions:
-                     td(ng-repeat='concession in project.concessions')
-                        a(href='concession/{{concession._id}}')
-                           span(ng-bind-html="concession.name|sanitize")
-                        span(ng-if='!$last') ,
+                     td
+                        span(ng-repeat='concession in project.concessions')
+                           a(href='concession/{{concession._id}}')
+                              span(ng-bind-html="concession.name|sanitize")
+                           span(ng-if='!$last') ,
                   tr
                      td.project-label Address:
                      td {{project.proj_address[0].string}}
@@ -101,11 +105,11 @@
             tbody
                tr(ng-repeat='company in project.companies',ts-repeat)
                   td
-                     a(href='company/{{company._id}}')
-                        span(ng-bind-html="company.name|sanitize")
+                     a(href='company/{{company.company._id}}')
+                        span(ng-bind-html="company.company.name|sanitize")
                   td
-                     a(href='group/{{company.idGroup}}')
-                        //span(ng-bind-html="company.group|sanitize")
+                     a(href='group/{{company.companyGroup._id}}')
+                        span(ng-bind-html="company.companyGroup.name|sanitize")
                   td
                      a(href='group/{{company.idGroup}}')
                         //span(ng-bind-html="company.group|sanitize")

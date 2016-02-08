@@ -8,12 +8,26 @@
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='concession_name') Contract
-                th.tablesort-sortable-th(ts-criteria='projects.length|parseInt') No. Projects
+                th.tablesort-sortable-th(ts-criteria='concession_name') Name
+                th.tablesort-sortable-th(ts-criteria='country.name') Country
+                th.tablesort-sortable-th(ts-criteria='concession_type') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='commodities_name') Commodity
+                th.tablesort-sortable-th(ts-criteria='concession_status') Status
+                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
         tbody
             tr(ng-repeat="concession in concessions",ts-repeat)
                 td
-                    a(href='concession/{{ concession._id }}') {{concession.concession_name}}
-                td {{concession.projects.length}}
+                    a(href='/concession/{{concession._id}}')
+                        span(ng-bind-html="concession.concession_name|sanitize")
                 td
+                    a(href='/country/{{concession.country._id}}')
+                        span(ng-bind-html="concession.country.name|sanitize")
+                td.commodity_type {{concession.concession_type}}
+                td {{concession.commodities_name}}
+                td.status {{concession.concession_status}}
+                    =' '
+                    span(ng-if="concession.concession_status!=''") (True at: {{concession.concession_status_date|date:'yyyy-MM-dd'}})
+                td
+                    span(ng-if="concession.projects!=0") {{concession.projects}}
+
     navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

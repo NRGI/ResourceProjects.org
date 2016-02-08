@@ -3,6 +3,7 @@ var Project 		= require('mongoose').model('Project'),
 	Source 			= require('mongoose').model('Source'),
 	Alias 			= require('mongoose').model('Alias'),
 	Company 		= require('mongoose').model('Company'),
+	CompanyGroup 	= require('mongoose').model('CompanyGroup'),
 	Commodity 		= require('mongoose').model('Commodity'),
 	Concession 		= require('mongoose').model('Concession'),
 	Contract 		= require('mongoose').model('Contract'),
@@ -56,12 +57,15 @@ exports.getProjects = function(req, res) {
 	});
 };
 exports.getProjectByID = function(req, res) {
-	var country=[];var project=[];var source=[];var alias=[];var companies=[];var contracts=[];var commodities=[];var concessions=[];
+	var country=[];var project=[];var source=[];var alias=[];var companies=[];var contracts=[];var commodities=[];var concessions=[];var companyGroup=[];
 	Commodity.find(req.query).exec(function(err, collection) {
 		commodities = collection;
 	});
 	Company.find(req.query).exec(function(err, collection) {
 		companies = collection;
+	});
+	CompanyGroup.find(req.query).exec(function(err, collection) {
+		companyGroup = collection;
 	});
 	Alias.find(req.query).exec(function(err, collection) {
 		alias = collection;
@@ -159,12 +163,32 @@ exports.getProjectByID = function(req, res) {
 					collection.companies.forEach(function (company, i) {
 						companies.forEach(function (company_item) {
 							if (company_item._id.toString() == company.toString()) {
-								project.companies[i] = {
-									_id: company,
-									name: company_item.company_name
-								};
-							}
+								if (company_item.company_groups.length != 0) {
+									companyGroup.forEach(function (companyGroup_item) {
+										if (companyGroup_item._id.toString() == company_item.company_groups.toString())
+											project.companies[i] = {
+												company: {
+													_id: company,
+													name: company_item.company_name
+												},
+												companyGroup: {
+													_id: company_item.company_groups,
+													name: companyGroup_item.company_group_name
+												}
+											};
+									})
 
+								}
+								else {
+									project.companies[i] = {
+										company: {
+											_id: company,
+											name: company_item.company_name
+										},
+										companyGroup: {}
+									};
+								}
+							}
 						})
 					})
 				}
@@ -187,6 +211,6 @@ exports.getProjectByID = function(req, res) {
 			} else {
 				res.send(collection);
 			}
-		},100)
+		},200)
 	});
 };

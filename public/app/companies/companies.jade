@@ -26,6 +26,7 @@
                   td
                      a(href='group/{{company.company_groups._id}}')
                         span(ng-bind-html="company.company_groups.name|sanitize")
-                  td {{company.projects}}
+                  td
+                     span(ng-if="company.projects!=0") {{company.projects}}
 
    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

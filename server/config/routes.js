@@ -20,7 +20,7 @@ module.exports	= function(app) {
 
 
 	//CONTRACTS
-	app.get('/api/contracts', contracts.getContracts);
+	app.get('/api/contracts/:limit/:skip', contracts.getContracts);
 	app.get('/api/contract/:id', contracts.getContractByID);
 
 	//CONCESSIONS
@@ -38,7 +38,7 @@ module.exports	= function(app) {
 	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupByID);
 
 	//COMMODITIES
-	app.get('/api/commodities', commodities.getCommodities);
+	app.get('/api/commodities/:limit/:skip', commodities.getCommodities);
 	app.get('/api/commodities/:id', commodities.getCommodityByID);
 
 	//COUNTRIES

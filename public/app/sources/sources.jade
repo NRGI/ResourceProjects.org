@@ -14,15 +14,16 @@
 			tr
 				th.tablesort-sortable-th(ts-criteria='source_name') Source
 				th.tablesort-sortable-th(ts-criteria='source_type') Source type
-				th.tablesort-sortable-th(ts-criteria='create_date') Source date
-				th.tablesort-sortable-th(ts-criteria='_id') No. Projects
+				th.tablesort-sortable-th(ts-criteria='source_date') Source date
+				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
 		tbody
 			tr(ng-repeat='source in sources', ts-repeat)
 				td
 					a(href='source/{{ source._id }}')
 						span(ng-bind-html="source.source_name|sanitize")
 				td {{source.source_type}}
-				td {{source.create_date| date:'yyyy-MM-dd'}}
-				td {{source.projects.length}}
+				td {{source.source_date| date:'yyyy-MM-dd'}}
+				td
+					span(ng-if="source.projects!=0") {{source.projects}}
 
 	navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

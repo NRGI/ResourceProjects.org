@@ -2,15 +2,28 @@
     .page-header
         h1 Contracts
             small
+
+    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='contract_id') Contract
-                th.tablesort-sortable-th(ts-criteria='projects.length|parseInt') No. Projects
+                th.tablesort-sortable-th(ts-criteria='name') RC-ID
+                th.tablesort-sortable-th(ts-criteria='country.name') Country
+                th.tablesort-sortable-th(ts-criteria='contract_type') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='commodities_name') Commodity
+                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
         tbody
             tr(ng-repeat="contract in contracts",ts-repeat)
                 td
-                    a(href='contract/{{ contract._id }}') {{contract.contract_id}}
-                        //span(ng-bind-html="country.id | sanitize")
-                td {{contract.projects.length}}
+                    a(href='contract/{{ contract._id }}')
+                        span(ng-bind-html="contract.name | sanitize")
                 td
+                    a(href='country/{{ contract.country._id }}')
+                        span(ng-bind-html="contract.country.name | sanitize")
+                td.commodity_type {{contract.contract_type}}
+                td {{contract.commodities_name}}
+                td
+                    span(ng-if="contract.projects!=0") {{contract.projects}}
+
+    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
