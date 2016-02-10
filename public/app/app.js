@@ -6,7 +6,9 @@ angular.module('app', [
     'ngDialog',
     'ngResource',
     'ngRoute',
-    'tableSort'
+    'tableSort',
+    'angular-underscore',
+    'restangular'
 ]);
 
 angular.module('app')
