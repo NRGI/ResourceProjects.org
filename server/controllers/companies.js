@@ -122,6 +122,7 @@ exports.getCompanyByID = function(req, res) {
             .populate('company_group','_id company_group_name')
             .populate('commodity')
             .populate('contract')
+            .populate('concession', 'concession_name concession_country concession_type commodities')
             .deepPopulate('project project.proj_country.country project.proj_commodity.commodity')
             .exec(function(err, links) {
                 link_len = links.length;
@@ -144,6 +145,9 @@ exports.getCompanyByID = function(req, res) {
                                 _id: link.company_group._id,
                                 company_group_name: link.company_group.company_group_name
                             });
+                            break;
+                        case 'concession':
+                            console.log(link);
                             break;
                         case 'contract':
                             company.contracts.push(link);
