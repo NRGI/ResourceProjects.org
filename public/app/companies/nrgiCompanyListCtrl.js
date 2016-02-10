@@ -5,8 +5,7 @@ angular.module('app')
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiCompaniesSrvc,
-        nrgiCompaniesMethodSrvc
+        nrgiCompaniesSrvc
     ) {
         $scope.limit = 50;
         $scope.page = 0;

@@ -23,7 +23,7 @@
 
     .row
         .col-md-12
-            table.table.table-striped(about='http://resourceprojects.org/company',ts-wrapper)
+            table.table.table-striped(about='http://resourceprojects.org/company' ts-wrapper)
                 thead
                     tr
                         th.tablesort-sortable-th(ts-criteria='company_name')
@@ -44,4 +44,14 @@
                                 | {{$last ? '' : ', '}}
                         td {{company.projects}}
 
-    nrgi-list-nav(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
