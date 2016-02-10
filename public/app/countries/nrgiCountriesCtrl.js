@@ -12,6 +12,7 @@ angular.module('app')
         $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
         var loadCountries = function(limit,page){
             nrgiCountriesSrvc.getAllCountries(limit,page).then(function(response) {
+                console.log(response);
                 $scope.count = response.count;
                 $scope.limit = limit;
                 $scope.page = page;

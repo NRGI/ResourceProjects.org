@@ -44,18 +44,18 @@ projectSchema = new Schema({
 
     //Links
     //sources: [source],
-    commodities: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    concessions: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    companies: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    contracts: [{
-        type: ObjectId,
-        ref: 'Link'}]
+    //commodities: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //concessions: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //companies: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //contracts: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}]
 });
 
 projectSchema.methods = {
@@ -74,88 +74,55 @@ Project = mongoose.model('Project', projectSchema);
 function createDefaultProjects() {
     Project.find({}).exec(function(err, projects) {
         if(projects.length === 0) {
-            console.log('***No projects')
-            //Project.create({
-            //    _id:'56a930f41b5482a31231ef42',
-            //    proj_name: 'Procect A',
-            //    proj_aliases: ['56a939e649434cfc1354d64b','56a939e649434cfc1354d64c'],
-            //    proj_established_source: '56747e060e8cc07115200ee3',
-            //    country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'},{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
-            //    proj_type: [{source: '56747e060e8cc07115200ee3', string: 'mining'}],
-            //    proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name a'}],
-            //    proj_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
-            //    proj_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [11.15392307, 17.50168983]}],
-            //    proj_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
-            //    description: '<p>yes</p><p>no</p>',
-            //
-            //    //Links
-            //    commodities: [''],
-            //    concessions: [''],
-            //    companies: [''],
-            //    contracts: ['']
-            //});
-            ////Company.create({
-            ////
-            ////    //LINKS
-            ////    //sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee4','56747e060e8cc07115200ee6'],
-            ////    commodities: ['56a8def185d9580a07c58280','56a8def185d9580a07c58281'],
-            ////    company_groups: ['56a8e342b9a34fbb07013c5f'],
-            ////    concessions: ['56a8e4acf77930f50708881e'],
-            ////});
-            //Project.create({
-            //    _id:'56a930f41b5482a31231ef43',
-            //    proj_name: 'Procect B',
-            //    proj_aliases: ['56a939e649434cfc1354d64d'],
-            //    proj_established_source: '56747e060e8cc07115200ee6',
-            //    country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
-            //    proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
-            //    proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],
-            //    proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [79.22885591,  -44.84381911]}],
-            //    proj_status: [{source: '56747e060e8cc07115200ee6', string: 'discovery'}],
-            //    description: '<p>yes</p><p>no</p>',
-            //
-            //    //Links
-            //    commodities: [''],
-            //    concessions: [''],
-            //    companies: [''],
-            //    contracts: ['']
-            //});
-            //Project.create({
-            //    _id:'56a930f41b5482a31231ef44',
-            //    proj_name: 'Procect C',
-            //    proj_aliases: ['56a939e649434cfc1354d64e'],
-            //    proj_established_source: '56747e060e8cc07115200ee5',
-            //    country: [{source: '56747e060e8cc07115200ee5', country: '56a8d7d08e7079da05d6b542'}],
-            //    proj_type: [{source: '56747e060e8cc07115200ee5', string: 'mining'}],
-            //    proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name c'}],
-            //    proj_coordinates: [{source: '56747e060e8cc07115200ee5', loc: [25.17521251, -13.32094082]}],
-            //    proj_status: [{source: '56747e060e8cc07115200ee5', string: 'discovery'}],
-            //    description: '<p>yes</p><p>no</p>',
-            //
-            //    //Links
-            //    commodities: [''],
-            //    concessions: [''],
-            //    companies: [''],
-            //    contracts: ['']
-            //});
-            //Project.create({
-            //    _id:'56a930f41b5482a31231ef45',
-            //    proj_name: 'Procect D',
-            //    proj_established_source: '56747e060e8cc07115200ee6',
-            //    country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
-            //    proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
-            //    proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name d'}],
-            //    proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [-154.09667961, -43.52395855]}],
-            //    proj_status: [{source: '56747e060e8cc07115200ee6', string: 'spent'}],
-            //    description: '<p>yes</p><p>no</p>',
-            //
-            //    //Links
-            //    commodities: [''],
-            //    concessions: [''],
-            //    companies: [''],
-            //    contracts: ['']
-            //});
-            //console.log('Projects created...');
+            Project.create({
+                _id:'56a930f41b5482a31231ef42',
+                proj_name: 'Procect A',
+                proj_aliases: ['56a939e649434cfc1354d64b','56a939e649434cfc1354d64c'],
+                proj_established_source: '56747e060e8cc07115200ee3',
+                country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'},{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
+                proj_type: [{source: '56747e060e8cc07115200ee3', string: 'mining'}],
+                proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name a'}],
+                proj_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
+                proj_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [11.15392307, 17.50168983]}],
+                proj_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
+                description: '<p>yes</p><p>no</p>'
+            });
+            Project.create({
+                _id:'56a930f41b5482a31231ef43',
+                proj_name: 'Procect B',
+                proj_aliases: ['56a939e649434cfc1354d64d'],
+                proj_established_source: '56747e060e8cc07115200ee6',
+                country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
+                proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
+                proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],
+                proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [79.22885591,  -44.84381911]}],
+                proj_status: [{source: '56747e060e8cc07115200ee6', string: 'discovery'}],
+                description: '<p>yes</p><p>no</p>',
+            });
+            Project.create({
+                _id:'56a930f41b5482a31231ef44',
+                proj_name: 'Procect C',
+                proj_aliases: ['56a939e649434cfc1354d64e'],
+                proj_established_source: '56747e060e8cc07115200ee5',
+                country: [{source: '56747e060e8cc07115200ee5', country: '56a8d7d08e7079da05d6b542'}],
+                proj_type: [{source: '56747e060e8cc07115200ee5', string: 'mining'}],
+                proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name c'}],
+                proj_coordinates: [{source: '56747e060e8cc07115200ee5', loc: [25.17521251, -13.32094082]}],
+                proj_status: [{source: '56747e060e8cc07115200ee5', string: 'discovery'}],
+                description: '<p>yes</p><p>no</p>'
+            });
+            Project.create({
+                _id:'56a930f41b5482a31231ef45',
+                proj_name: 'Procect D',
+                proj_established_source: '56747e060e8cc07115200ee6',
+                country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
+                proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
+                proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name d'}],
+                proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [-154.09667961, -43.52395855]}],
+                proj_status: [{source: '56747e060e8cc07115200ee6', string: 'spent'}],
+                description: '<p>yes</p><p>no</p>'
+            });
+            console.log('Projects created...');
         }
     });
 };

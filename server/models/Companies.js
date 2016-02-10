@@ -38,25 +38,7 @@ companySchema = new Schema({
 
     //External mapping
     open_corporates_id: String,
-    companies_house_id: String,
-
-    //////Links
-    ////sources: [source],
-    //commodities: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //company_groups: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //concessions: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //contracts: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //projects: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}]
+    companies_house_id: String
 });
 //TranModel
 //    .find({ quantityout: 1 },
@@ -114,17 +96,7 @@ function createDefaultCompanies() {
                 description: '<p>yes</p><p>no</p>',
                 //External mapping
                 open_corporates_id: 'junkid',
-                companies_house_id: 'junkid2',
-
-                //Display specifific lists
-                display_commodities: ['56a13e9942c8bef50ec2e9e8', '56a13e9942c8bef50ec2e9eb'],
-
-                ////LINKS
-                ////sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee4','56747e060e8cc07115200ee6'],
-                //commodities: ['56a8def185d9580a07c58280','56a8def185d9580a07c58281'],
-                //company_groups: ['56a8e342b9a34fbb07013c5f'],
-                //concessions: ['56a8e4acf77930f50708881e'],
-                //projects: ['56a8e4acf77930f50708881e']
+                companies_house_id: 'junkid2'
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376a',
@@ -138,15 +110,6 @@ function createDefaultCompanies() {
                 //External mapping
                 open_corporates_id: 'junkid',
                 companies_house_id: 'junkid2',
-
-                ////Display specifific lists
-                //display_commodities: ['56a13e9942c8bef50ec2e9e8'],
-                //
-                ////LINKS
-                ////sources: ['56747e060e8cc07115200ee4', '56747e060e8cc07115200ee6','56747e060e8cc07115200ee5'],
-                //commodities: ['56a8dfbfee9e493007085bce'],
-                //concessions: ['56a8e5320fa7dd0d0817beff'],
-                //contracts: ['56a8e66f405f534508e8586f']
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376c',
@@ -159,14 +122,7 @@ function createDefaultCompanies() {
                 company_website: {source: '56747e060e8cc07115200ee3', string: 'http://google.com'},
                 //External mapping
                 open_corporates_id: 'junkid',
-                companies_house_id: 'junkid2',
-
-                //////Display specifific lists
-                ////display_commodities: ['56a13e9942c8bef50ec2e9e8'],
-                ////
-                ////LINKS
-                ////sources: ['56747e060e8cc07115200ee6', '56747e060e8cc07115200ee4', '56747e060e8cc07115200ee3'],
-                //commodities: ['56a8e070121b00500792c2eb'],
+                companies_house_id: 'junkid2'
             });
             console.log('Companies created...');
         }

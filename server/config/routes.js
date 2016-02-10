@@ -32,6 +32,7 @@ module.exports	= function(app) {
 	app.get('/api/projects/:id', projects.getProjectByID);
 
 	//COMPANIES and COMPANYGROUPS
+	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyByID);
 	app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
