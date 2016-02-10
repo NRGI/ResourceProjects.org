@@ -93,8 +93,76 @@ exports.getCompanies = function(req, res) {
 
 
 exports.getCompanyByID = function(req, res) {
-    Company.findOne({_id:req.params.id})
-        .exec(function(err, company) {
-            res.send(company);
-        });
+    var link_counter, link_len;
+
+    async.waterfall([
+        getCompany,
+        getCompanyLinks,
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        }
+    });
+
+    function getCompany(callback) {
+        Company.findOne({_id:req.params.id})
+            .populate('company_aliases', ' _id alias')
+            .populate('company_group','_id company_group_name')
+            .lean()
+            .exec(function(err, company) {
+                if(company) {
+                    callback(null, company);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+    function getCompanyLinks(company, callback) {
+        Link.find({company: company._id})
+            .populate('company_group','_id company_group_name')
+            .populate('project')
+            .populate('commodity')
+            .exec(function(err, links) {
+                link_len = links.length;
+                link_counter = 0;
+                company.company_groups = [];
+                company.commodities = {};
+                company.projects = [];
+                links.forEach(function(link) {
+                    ++link_counter;
+                    switch (link.entities.pop('company')) {
+                        case 'company_group':
+                            //company_array[company_array.length - 1].company_groups.push('YES');
+                            company.company_groups.push({
+                                _id: link.company_group._id,
+                                company_group_name: link.company_group.company_group_name
+                            });
+                            break;
+                        case 'project':
+                            company.projects.push(link);
+                            company.projects[company.projects.length -1].proj_commodities = [];
+                            Link.find({project: link.project._id, entities: 'commodity'})
+                                .populate('commodity')
+                                .exec(function(err, commodity_links) {
+                                    commodity_links.forEach(function (commodity_link) {
+                                        company.projects[company.projects.length -1].proj_commodities.push(commodity_link.commodity.commodity_name);
+                                        //console.log(commodity_link.commodity.commodity_name);
+                                    });
+                                });
+                            break;
+                        case 'commodity':
+                            if (!company.commodities.hasOwnProperty(link.commodity_code)) {
+                                company.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+                            }
+                            break;
+
+                        default:
+                            console.log('error');
+                    }
+                    if(link_counter == link_len) {
+                        res.send(company);
+                    }
+                });
+            });
+    }
 };

@@ -1,5 +1,6 @@
 'use strict';
 angular.module('app', [
+    'angular.filter',
     'iso-3166-country-codes',
     'leaflet-directive',
     'ngDialog',
@@ -91,10 +92,10 @@ angular.module('app')
                 templateUrl: '/partials/companies/company-list',
                 controller: 'nrgiCompanyListCtrl'
             })
-            //.when('/companies/:id', {
-            //    templateUrl: '/partials/companies/company',
-            //    controller: 'nrgiCompanyCtrl'
-            //})
+            .when('/companies/:id', {
+                templateUrl: '/partials/companies/company-detail',
+                controller: 'nrgiCompanyDetailCtrl'
+            })
             //
             ////Helper groups
             //.when('/countries', {

@@ -45,10 +45,14 @@ function createDefaultLinks() {
             Link.create({_id:'56b92074a836fc16182ed7de',project:'56a930f41b5482a31231ef42',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','project']});
             Link.create({_id:'56b92074a836fc16182ed7e0',project:'56a930f41b5482a31231ef43',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','project']});
             Link.create({_id:'56b92074a836fc16182ed7df',project:'56a930f41b5482a31231ef44',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entities:['company','project']});
-            //Link.create({_id:'56a8def185d9580a07c58280',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','commodity']});
-            //Link.create({_id:'56a8def185d9580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','commodity']});
-            //Link.create({_id:'56a8dfbfee9e493007085bce',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
-            //Link.create({_id:'56a8e070121b00500792c2eb',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376c',source:'56747e060e8cc07115200ee3',entities:['company','commodity']});
+            Link.create({_id:'56a8def185d9580a07c58280',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','commodity']});
+            Link.create({_id:'56a8def185d9580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','commodity']});
+            Link.create({_id:'56a8def666d9580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
+            Link.create({_id:'56a8dfbfee9e493007085bce',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
+            Link.create({_id:'56a8e070121b00500792c2eb',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376c',source:'56747e060e8cc07115200ee3',entities:['company','commodity']});
+
+            Link.create({_id:'56a8de666666580a07c58280',commodity:'56a13e9942c8bef50ec2e9e8',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
+            Link.create({_id:'56a8def16666580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',project:'56a930f41b5482a31231ef43',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
             //Link.create({_id:'56a8e4acf77930f50708881e',concession:'56a2b8236e585b7316655794',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','concession']});
             //Link.create({_id:'56a8e5320fa7dd0d0817beff',concession:'56a2b8236e585b7316655794',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee5',entities:['company','concession']});
             //Link.create({_id:'56a8e66f405f534508e8586f',contract:'56a2eb4345d114c30439ec20',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entities:['company','contract']});
