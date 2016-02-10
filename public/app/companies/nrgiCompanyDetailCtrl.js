@@ -9,6 +9,8 @@ angular.module('app')
         //nrgiIdentitySrvc,
         //nrgiCountriesSrvc
     ) {
+        $scope.proj_table_sort = {sort_type: 'project.project.proj_name', sort_reverse: false, search_text: ''};
+
         nrgiCompaniesSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.company = success;
             console.log(success);

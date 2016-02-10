@@ -15,9 +15,15 @@ factSchema = new Schema({
     country: {
         type: ObjectId,
         ref: 'Country'},
+    commodity: {
+        type: ObjectId,
+        ref: 'Commodity'},
     string: String,
     number: Number,
     date: Date,
+    timestamp: {
+        type: Date,
+        default: Date.now()},
     loc: {
         type: [Number],  // [<longitude>, <latitude>]
         index: '2d'      // create the geospatial index

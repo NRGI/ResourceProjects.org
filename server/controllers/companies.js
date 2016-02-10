@@ -67,7 +67,6 @@ exports.getCompanies = function(req, res) {
                         ++link_counter;
                         switch (link.entities.pop('company')) {
                             case 'company_group':
-                                //company_array[company_array.length - 1].company_groups.push('YES');
                                 c.company_groups.push({
                                     _id: link.company_group._id,
                                     company_group_name: link.company_group.company_group_name
@@ -108,6 +107,7 @@ exports.getCompanyByID = function(req, res) {
         Company.findOne({_id:req.params.id})
             .populate('company_aliases', ' _id alias')
             .populate('company_group','_id company_group_name')
+            .populate('country.country')
             .lean()
             .exec(function(err, company) {
                 if(company) {
@@ -120,17 +120,24 @@ exports.getCompanyByID = function(req, res) {
     function getCompanyLinks(company, callback) {
         Link.find({company: company._id})
             .populate('company_group','_id company_group_name')
-            .populate('project')
             .populate('commodity')
+            .populate('contract')
+            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity')
             .exec(function(err, links) {
                 link_len = links.length;
                 link_counter = 0;
                 company.company_groups = [];
                 company.commodities = {};
                 company.projects = [];
+                company.contracts = [];
                 links.forEach(function(link) {
                     ++link_counter;
                     switch (link.entities.pop('company')) {
+                        case 'commodity':
+                            if (!company.commodities.hasOwnProperty(link.commodity_code)) {
+                                company.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+                            }
+                            break;
                         case 'company_group':
                             //company_array[company_array.length - 1].company_groups.push('YES');
                             company.company_groups.push({
@@ -138,22 +145,11 @@ exports.getCompanyByID = function(req, res) {
                                 company_group_name: link.company_group.company_group_name
                             });
                             break;
+                        case 'contract':
+                            company.contracts.push(link);
+                            break;
                         case 'project':
                             company.projects.push(link);
-                            company.projects[company.projects.length -1].proj_commodities = [];
-                            Link.find({project: link.project._id, entities: 'commodity'})
-                                .populate('commodity')
-                                .exec(function(err, commodity_links) {
-                                    commodity_links.forEach(function (commodity_link) {
-                                        company.projects[company.projects.length -1].proj_commodities.push(commodity_link.commodity.commodity_name);
-                                        //console.log(commodity_link.commodity.commodity_name);
-                                    });
-                                });
-                            break;
-                        case 'commodity':
-                            if (!company.commodities.hasOwnProperty(link.commodity_code)) {
-                                company.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
-                            }
                             break;
 
                         default:

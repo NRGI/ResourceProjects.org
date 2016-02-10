@@ -2,12 +2,15 @@
 //LINK SCHEMA///
 ////////////////
 'use strict';
+var mongoose = require('mongoose');
+require('mongoose-html-2').loadType(mongoose);
+
 var linkSchema, Link,
-    mongoose    = require('mongoose'),
-    Schema      = mongoose.Schema,
-    ObjectId    = Schema.Types.ObjectId,
-    //MixedSchema = Schema.Types.Mixed,
-    entity_enu  = {
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
+    Schema          = mongoose.Schema,
+    ObjectId        = Schema.Types.ObjectId,
+    //MixedSchema     = Schema.Types.Mixed,
+    entity_enu      = {
         values: 'commodity company company_group concession contract project'.split(' '),
         //values: ' project '.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
@@ -34,7 +37,7 @@ linkSchema = new Schema({
 });
 
 //linkSchema.plugin(mongooseHistory, hst_options);
-
+linkSchema.plugin(deepPopulate);
 Link = mongoose.model('Link', linkSchema);
 
 function createDefaultLinks() {
@@ -50,12 +53,15 @@ function createDefaultLinks() {
             Link.create({_id:'56a8def666d9580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
             Link.create({_id:'56a8dfbfee9e493007085bce',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
             Link.create({_id:'56a8e070121b00500792c2eb',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376c',source:'56747e060e8cc07115200ee3',entities:['company','commodity']});
+            Link.create({_id:'56a8e66f405f534508e8586f',contract:'56a2eb4345d114c30439ec20',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entities:['company','contract']});
+            Link.create({_id:'56a8e000000f534508e8586f',contract:'56a2eb4345d114c30439ec20',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','contract']});
 
-            Link.create({_id:'56a8de666666580a07c58280',commodity:'56a13e9942c8bef50ec2e9e8',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
-            Link.create({_id:'56a8def16666580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',project:'56a930f41b5482a31231ef43',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
+            //
+            //Link.create({_id:'56a8de666666580a07c58280',commodity:'56a13e9942c8bef50ec2e9e8',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
+            //Link.create({_id:'56a8def16666580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',project:'56a930f41b5482a31231ef43',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
             //Link.create({_id:'56a8e4acf77930f50708881e',concession:'56a2b8236e585b7316655794',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','concession']});
             //Link.create({_id:'56a8e5320fa7dd0d0817beff',concession:'56a2b8236e585b7316655794',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee5',entities:['company','concession']});
-            //Link.create({_id:'56a8e66f405f534508e8586f',contract:'56a2eb4345d114c30439ec20',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entities:['company','contract']});
+
             //Link.create({_id:'56a8e778c052957008a847a7',concession:'56a2b8236e585b7316655794',commodity:'56a13e9942c8bef50ec2e9f1',source:'56747e060e8cc07115200ee6',entities:['concession','commodity']});
             //Link.create({_id:'56a8e778c052957008a847a8',concession:'56a2b8236e585b7316655794',commodity:'56a13e9942c8bef50ec2e9eb',source:'56747e060e8cc07115200ee6',entities:['concession','commodity']});
             //Link.create({_id:'56a8e834bd760b92085829de',concession:'56a2b8236e585b731665579d',commodity:'56a13e9942c8bef50ec2e9f1',source:'56747e060e8cc07115200ee5',entities:['commodity','concession']});
