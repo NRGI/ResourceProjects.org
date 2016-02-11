@@ -6,10 +6,10 @@ require('mongoose-html-2').loadType(mongoose);
 
 var transferSchema, Transfer,
     Schema          = mongoose.Schema,
-//    fact            = require("./Facts"),
+    fact            = require("./Facts"),
 //    ObjectId        = Schema.Types.ObjectId,
 //    mixedSchema     = Schema.Types.Mixed,
-//    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Sources'},
 //    HTML            = mongoose.Types.Html,
 //    htmlSettings    = {
 //        type: HTML,
@@ -21,27 +21,36 @@ var transferSchema, Transfer,
 //        }
 //    },
     mongooseHistory = require('mongoose-history'),
-    hst_options         = {customCollectionName: 'transfer_hst'};
+    hst_options         = {customCollectionName: 'transfer_hst'},
+    transfer_audit_type_enu      = {
+        values: 'government_receipt company_payment'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select government_receipt or company_payment.'
+    };
 
 transferSchema = new Schema ({
-    ////Metadata
-    //concession_name: String,
-    //concession_aliases: [{
-    //    type: ObjectId,
-    //    ref: 'Alias'}],
-    //concession_established_source: source,
-    //description: htmlSettings,
-    //concession_country: [fact],
-    //concession_status: [fact], //status i.e. exploration, production, etc.
-    //concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
-    //concession_commodity: [fact],
-    //
-    ////External Links
-    //oo_concession_id: String,
-    //oo_url_api: String,
-    //oo_url_wiki: String,
-    //oo_source_date: Date,
-    //oo_details: mixedSchema
+    transfer_type: String,
+    source: source,
+    transfer_audit_type: {
+        type: String,
+        required:'{PATH} is required!',
+        enum: transfer_audit_type_enu},
+    transfer_year: Number,
+    transfer_unit: String,
+    transfer_value: Number,
+    //transfer_note: htmlSettings,
+    //transfer_note: String,
+    tranfer_gov_entity: String,
+    tranfer_gov_entity_id: String,
+
+    //links
+    //country
+    //companies
+    //project
+
+//    - Report Line Item
+//    - transfer Level - country or project
+//    - Accounting Basis
+
 });
 
 transferSchema.plugin(mongooseHistory, hst_options);
@@ -49,22 +58,7 @@ transferSchema.plugin(mongooseHistory, hst_options);
 Transfer = mongoose.model('Transfer', transferSchema);
 
 
-//    - Payment Type - payment or reciept
-//    - Type Code
-//    - Source
-//    - Country
-//    - Country Code
-//    - Company Name
-//    - Report Line Item
-//    - Project Name
-//    - transfer Year
-//    - transfer Level - country or project
-//    - transfer Unit / Currency
-//    - Accounting Basis
-//    - transfer Value
-//    - transfer note
-//    - Government entity
-//    - Government entity identifier
+
 
 
 // Year
