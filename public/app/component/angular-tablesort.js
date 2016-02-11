@@ -2,7 +2,7 @@
  angular-tablesort v1.1.1
  (c) 2013-2015 Mattias Holmlund, http://mattiash.github.io/angular-tablesort
  License: MIT
-*/
+ */
 
 var tableSortModule = angular.module( 'tableSort', [] );
 
@@ -92,7 +92,7 @@ tableSortModule.directive('tsWrapper', ['$log', '$parse', function( $log, $parse
                         aval = "";
                     }
                     if( bval === undefined || bval === null ) {
-                       bval = "";
+                        bval = "";
                     }
                     descending = $scope.sortExpression[i][2];
                     if( aval > bval ) {
@@ -167,7 +167,7 @@ tableSortModule.directive("tsRepeat", ['$compile', function($compile) {
             var ngRepeatDirective = repeatAttrs[0];
             var tsRepeatDirective = "ts-repeat";
             for (i = 0; i < repeatAttrs.length; i++) {
-                 if (angular.isDefined(element.attr(repeatAttrs[i]))) {
+                if (angular.isDefined(element.attr(repeatAttrs[i]))) {
                     ngRepeatDirective = repeatAttrs[i];
                     tsRepeatDirective = ngRepeatDirective.replace(/^(data-)?ng/, '$1ts');
                     break;

@@ -1,0 +1,30 @@
+div.dropdown
+   div.col-md-12
+      div.pager
+         ul.inline
+            li: glyphicon.glyphicon.glyphicon-fast-backward(
+            ng-disabled="page===0"
+            ng-click="firstPage()")
+            | &nbsp;
+            li: glyphicon.glyphicon.glyphicon-backward(
+            ng-disabled="page===0"
+            ng-click="prevPage(page)")
+            | &nbsp;
+            li.right-padding-med.left-padding-med Showing {{page}} to {{show}} of {{count}} {{type}}. Number of records per page:
+               | &nbsp;
+               form.inline
+                  select(
+                  name="limit"
+                  ng-model="limit"
+                  ng-change="selectLimit(limit)")
+                     option(selected="") 50
+                     option 200
+                     option 1000
+            | &nbsp;
+            li: glyphicon.glyphicon.glyphicon-forward(
+            ng-disabled="show>=count"
+            ng-click="nextPage(page, show)")
+            | &nbsp;
+            li: glyphicon.glyphicon.glyphicon-fast-forward(
+            ng-disabled="show>=count"
+            ng-click="lastPage()")

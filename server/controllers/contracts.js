@@ -26,7 +26,8 @@ exports.getContracts = function(req, res) {
 			var contract_type='';var commodities_name='';
 			if(item.contract_type.length!=0){
 				contract_type = item.contract_type[0].string;
-			}if(item.commodities.length!=0) {
+			}
+			if(item.commodities.length!=0) {
 				commodities.forEach(function (commodity_item) {
 					if (commodity_item._id == item.commodities[0].toString()) {
 						commodities_name = commodity_item.commodity_name;
@@ -35,12 +36,13 @@ exports.getContracts = function(req, res) {
 			}
 			if(item.country.length!=0) {
 				country.forEach(function (country_item) {
-					if (country_item._id == item.country[0].toString()) {
+					if (country_item._id.toString() == item.country[0].string.toString()) {
 						contracts.push({_id: item._id,name:item.contract_id, contract_type:contract_type,commodities_name:commodities_name, projects: item.projects.length, country: {_id:country_item._id,name:country_item.name,iso2:country_item.iso2}})
 					}
+
+
 				})
-			}
-			else{
+			} else{
 				contracts.push({_id: item._id,name:item.contract_id, contract_type:contract_type,commodities_name:commodities_name, projects: item.projects.length, country: {_id:'',name:'',iso2:''}})
 			}
 		});

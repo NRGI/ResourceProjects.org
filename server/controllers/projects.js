@@ -21,39 +21,61 @@ exports.getProjects = function(req, res) {
 	});
 	var query = Project.find(req.query);
 	query.exec(function(err, collection) {
-		count = collection.length;
-		collection =collection.slice(req.params.skip,Number(req.params.limit)+Number(req.params.skip));
-		collection.forEach(function(item){
-			var proj_status='';var proj_type='';var proj_status_date='';var commodities_name='';
-			if(item.proj_status.length!=0){
-				proj_status = item.proj_status[0].string;
-				source.forEach(function (source_item) {
-					if (source_item._id.toString()==item.proj_status[0].source.toString()) {
-						proj_status_date = source_item.source_date;
-					}
-				})
-			}
-			if(item.proj_type.length!=0){
-				proj_type = item.proj_type[0].string;
-			}if(item.commodities.length!=0) {
-				commodities.forEach(function (commodity_item) {
-					if (commodity_item._id == item.commodities[0].toString()) {
-						commodities_name = commodity_item.commodity_name;
-					}
-				})
-			}
-			if(item.country.length!=0) {
-				country.forEach(function (country_item) {
-					if (country_item._id == item.country[0].country.toString()) {
-						project.push({_id: item._id,commodities_name:commodities_name,proj_status:proj_status, proj_type:proj_type, proj_status_date:proj_status_date, proj_name: item.proj_name,companies: item.companies.length, country: {_id:country_item._id,name:country_item.name,iso2:country_item.iso2}})
-					}
-				})
-			}
-			else{
-				project.push({_id: item._id,commodities_name:commodities_name,proj_status:proj_status, proj_type:proj_type, proj_status_date:proj_status_date, proj_name: item.proj_name,companies: item.companies.length, country: {_id:'',name:'',iso2:''}})
-			}
-		});
-		res.send({data:project,count:count});
+			count = collection.length;
+			collection = collection.slice(req.params.skip, Number(req.params.limit) + Number(req.params.skip));
+			collection.forEach(function (item) {
+				var proj_status = '';
+				var proj_type = '';
+				var proj_status_date = '';
+				var commodities_name = '';
+				if (item.proj_status.length != 0) {
+					proj_status = item.proj_status[0].string;
+					source.forEach(function (source_item) {
+						if (source_item._id.toString() == item.proj_status[0].source.toString()) {
+							proj_status_date = source_item.source_date;
+						}
+					})
+				}
+				if (item.proj_type.length != 0) {
+					proj_type = item.proj_type[0].string;
+				}
+				if (item.commodities.length != 0) {
+					commodities.forEach(function (commodity_item) {
+						if (commodity_item._id == item.commodities[0].toString()) {
+							commodities_name = commodity_item.commodity_name;
+						}
+					})
+				}
+				if (item.country.length != 0) {
+					country.forEach(function (country_item) {
+						if (country_item._id == item.country[0].country.toString()) {
+							project.push({
+								_id: item._id,
+								commodities_name: commodities_name,
+								proj_status: proj_status,
+								proj_type: proj_type,
+								proj_status_date: proj_status_date,
+								proj_name: item.proj_name,
+								companies: item.companies.length,
+								country: {_id: country_item._id, name: country_item.name, iso2: country_item.iso2}
+							})
+						}
+					})
+				}
+				else {
+					project.push({
+						_id: item._id,
+						commodities_name: commodities_name,
+						proj_status: proj_status,
+						proj_type: proj_type,
+						proj_status_date: proj_status_date,
+						proj_name: item.proj_name,
+						companies: item.companies.length,
+						country: {_id: '', name: '', iso2: ''}
+					})
+				}
+			});
+			res.send({data: project, count: count});
 	});
 };
 exports.getProjectByID = function(req, res) {

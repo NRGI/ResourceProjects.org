@@ -1,0 +1,57 @@
+.container
+    .page-header
+        .row
+            .col-md-3
+                h1 Companies
+                    small
+            .col-md-3
+                .btn-group(role='group', aria-label='...')
+                    button.btn.btn-default(type='button')
+                        a(href='/groups') View Company Groups
+
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
+
+    .row
+        .col-md-12
+            table.table.table-striped(about='http://resourceprojects.org/company' ts-wrapper)
+                thead
+                    tr
+                        th.tablesort-sortable-th(ts-criteria='company_name')
+                            | &nbsp; Company
+                        th.tablesort-sortable-th(ts-criteria='company_groups.name')
+                            | &nbsp; Group(s)
+                        th.tablesort-sortable-th(ts-criteria='projects|parseInt')
+                            | &nbsp; No. Projects
+                tbody
+                    tr(ng-repeat='company in companies',ts-repeat)
+                        td
+                            a(href='companies/{{company._id}}')
+                                span(ng-bind-html="company.company_name|sanitize")
+                        td
+                            text(ng-repeat="group in company.company_groups")
+                                a(href='group/{{group._id}}')
+                                    span(ng-bind-html="group.company_group_name|sanitize")
+                                | {{$last ? '' : ', '}}
+                        td {{company.projects}}
+
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")

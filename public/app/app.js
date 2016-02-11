@@ -1,5 +1,6 @@
 'use strict';
 angular.module('app', [
+    'ch.filters',
     'iso-3166-country-codes',
     'leaflet-directive',
     'ngDialog',
@@ -9,20 +10,18 @@ angular.module('app', [
 ]);
 
 angular.module('app')
-
-angular.module('app')
     .config(function($routeProvider, $locationProvider) {
         // role checks
         var routeRoleChecks = {
             supervisor: {auth: function(nrgiAuthSrvc) {
                 return nrgiAuthSrvc.authorizeCurrentUserForRoute('supervisor')
             }},
-            researcher: {auth: function(nrgiAuthSrvc) {
-                return nrgiAuthSrvc.authorizeCurrentUserForRoute('researcher')
-            }},
-            reviewer: {auth: function(nrgiAuthSrvc) {
-                return nrgiAuthSrvc.authorizeCurrentUserForRoute('reviewer')
-            }},
+            //researcher: {auth: function(nrgiAuthSrvc) {
+            //    return nrgiAuthSrvc.authorizeCurrentUserForRoute('researcher')
+            //}},
+            //reviewer: {auth: function(nrgiAuthSrvc) {
+            //    return nrgiAuthSrvc.authorizeCurrentUserForRoute('reviewer')
+            //}},
             user: {auth: function(nrgiAuthSrvc) {
                 return nrgiAuthSrvc.authorizeAuthenticatedUserForRoute()
             }}
@@ -56,174 +55,113 @@ angular.module('app')
                 controller: 'nrgiProfileCtrl',
                 resolve: routeRoleChecks.user
             })
-
-
-
-
-
-            .when('/contracts', {
-                templateUrl: '/partials/contracts/contracts',
-                controller: 'nrgiContractsCtrl'
-            })
-            .when('/contract/:id', {
-                templateUrl: '/partials/contracts/contract',
-                controller: 'nrgiContractCtrl'
-            })
-            .when('/concessions', {
-                templateUrl: '/partials/concessions/concessions',
-                controller: 'nrgiConcessionsCtrl'
-            })
-            .when('/concession/:id', {
-                templateUrl: '/partials/concessions/concession',
-                controller: 'nrgiConcessionCtrl'
-            })
-            .when('/projects', {
-                templateUrl: '/partials/projects/projects',
-                controller: 'nrgiProjectsCtrl'
-            })
-            .when('/project/:id_country/:id', {
-                templateUrl: '/partials/projects/project',
-                controller: 'nrgiProjectCtrl'
-            })
-            .when('/map', {
-                templateUrl: '/partials/projects/map'
-            })
-            .when('/production/:id_country/:id', {
-                templateUrl: '/partials/common/production'
-            })
-            .when('/countries', {
-                templateUrl: '/partials/countries/countries',
-                controller: 'nrgiCountriesCtrl'
-            })
-            .when('/country/:id', {
-                templateUrl: '/partials/countries/country',
-                controller: 'nrgiCountryCtrl'
-            })
-            .when('/commodities', {
-                templateUrl: '/partials/commodities/commodities',
-                controller: 'nrgiCommoditiesCtrl'
-            })
-            .when('/commodity/:id', {
-                templateUrl: '/partials/commodities/commodity',
-                controller: 'nrgiCommodityCtrl'
-            })
+            //Entity Routes
+            //.when('/contracts', {
+            //    templateUrl: '/partials/contracts/contracts',
+            //    controller: 'nrgiContractsCtrl'
+            //})
+            //.when('/contract/:id', {
+            //    templateUrl: '/partials/contracts/contract',
+            //    controller: 'nrgiContractCtrl'
+            //})
+            //.when('/concessions', {
+            //    templateUrl: '/partials/concessions/concessions',
+            //    controller: 'nrgiConcessionsCtrl'
+            //})
+            //.when('/concessions/:id', {
+            //    templateUrl: '/partials/concessions/concession',
+            //    controller: 'nrgiConcessionCtrl'
+            //})
+            //.when('/concessions/map', {
+            //    templateUrl: '/partials/projects/map'
+            //})
+            //.when('/projects', {
+            //    templateUrl: '/partials/projects/projects',
+            //    controller: 'nrgiProjectsCtrl'
+            //})
+            //.when('/projects/:id_country/:id', {
+            //    templateUrl: '/partials/projects/project',
+            //    controller: 'nrgiProjectCtrl'
+            //})
+            //.when('/projects/map', {
+            //    templateUrl: '/partials/projects/map'
+            //})
             .when('/companies', {
-                templateUrl: '/partials/companies/companies',
-                controller: 'nrgiCompaniesCtrl'
-
+                templateUrl: '/partials/companies/company-list',
+                controller: 'nrgiCompanyListCtrl'
             })
-            .when('/company/:id', {
-                templateUrl: '/partials/companies/company',
-                controller: 'nrgiCompanyCtrl'
+            .when('/companies/:id', {
+                templateUrl: '/partials/companies/company-detail',
+                controller: 'nrgiCompanyDetailCtrl'
             })
-            .when('/groups', {
-                templateUrl: '/partials/companies/groups',
-                controller: 'nrgiGroupsCtrl'
-            })
-            .when('/group/:id', {
-                templateUrl: '/partials/companies/group',
-                controller: 'nrgiGroupCtrl'
-            })
-            .when('/governmentReceipt/:id', {
-                templateUrl: '/partials/common/receipt'
-            })
+            //
+            ////Helper groups
+            //.when('/countries', {
+            //    templateUrl: '/partials/countries/countries',
+            //    controller: 'nrgiCountriesCtrl'
+            //})
+            //.when('/countries/:id', {
+            //    templateUrl: '/partials/countries/country',
+            //    controller: 'nrgiCountryCtrl'
+            //})
+            //.when('/commodities', {
+            //    templateUrl: '/partials/commodities/commodities',
+            //    controller: 'nrgiCommoditiesCtrl'
+            //})
+            //.when('/commodities/:id', {
+            //    templateUrl: '/partials/commodities/commodity',
+            //    controller: 'nrgiCommodityCtrl'
+            //})
+            //.when('/groups', {
+            //    templateUrl: '/partials/companies/groups',
+            //    controller: 'nrgiGroupsCtrl'
+            //})
+            //.when('/groups/:id', {
+            //    templateUrl: '/partials/companies/group',
+            //    controller: 'nrgiGroupCtrl'
+            //})
+            //
+            ////Transfers and related facts
+            //.when('/governmentReceipt/:id', {
+            //    templateUrl: '/partials/common/receipt'
+            //})
+            //.when('/production/:id_country/:id', {
+            //    templateUrl: '/partials/common/production'
+            //})
+            //.when('/governmentreceipt/:id_country/:id', {
+            //    templateUrl: '/partials/common/governmentreceipt'
+            //})
+            //
+            ////Other
             .when('/sources', {
                 templateUrl: '/partials/sources/sources',
                 controller: 'nrgiSourcesCtrl'
             })
-            .when('/source/:id', {
+            .when('/sources/:id', {
                 templateUrl: '/partials/sources/source',
                 controller: 'nrgiSourceCtrl'
             })
-            .when('/glossary', {
-                templateUrl: '/partials/common/glossary'
-            })
-            .when('/contribute', {
-                templateUrl: '/partials/common/contribute'
-            })
-            .when('/about', {
-                templateUrl: '/partials/common/about'
-            })
-            .when('/model', {
-                templateUrl: '/partials/common/dataModel'
-            })
-            .when('/namedGraphs', {
-                templateUrl: '/partials/common/namedGraphs'
-            })
-            .when('/governmentreceipt/:id_country/:id', {
-                templateUrl: '/partials/common/governmentreceipt'
-            })
+            //.when('/glossary', {
+            //    templateUrl: '/partials/common/glossary'
+            //})
+            //.when('/contribute', {
+            //    templateUrl: '/partials/common/contribute'
+            //})
+            //.when('/about', {
+            //    templateUrl: '/partials/common/about'
+            //})
+            //.when('/model', {
+            //    templateUrl: '/partials/common/dataModel'
+            //})
+            //.when('/namedGraphs', {
+            //    templateUrl: '/partials/common/namedGraphs'
+            //})
             //.when('/classes', {
             //    templateUrl: '/partials/main/classes'
             //})
             //.when('/instances/:id', {
             //    templateUrl: '/partials/main/instances'
             //})
-
-
-
-//    .when('/admin/question-admin', {
-//        templateUrl: '/partials/admin/questions/question-admin',
-//        controller: 'nrgiQuestionAdminCtrl',
-//        resolve: routeRoleChecks.supervisor
-//    })
-//    .when('/admin/question-admin/:id', {
-//        templateUrl: '/partials/admin/questions/question-admin-update',
-//        controller: 'nrgiQuestionAdminUpdateCtrl',
-//        resolve: routeRoleChecks.supervisor
-//    })
-//    .when('/admin/assessment-admin', {
-//        templateUrl: '/partials/admin/assessments/assessment-admin',
-//        controller: 'nrgiAssessmentAdminCtrl',
-//        resolve: routeRoleChecks.supervisor
-//    })
-//    .when('/admin/assessment-assign/:assessment_ID', {
-//        templateUrl: '/partials/admin/assessments/assessment-admin-assign',
-//        controller: 'nrgiAssessmentAdminAssignCtrl',
-//        resolve: routeRoleChecks.supervisor
-//    })
-//    .when('/admin/assessments/assessment-dashboard', {
-//        templateUrl: '/partials/admin/assessments/assessment-dashboard',
-//        controller: 'nrgiAssessmentDashboardCtrl',
-//        resolve: routeRoleChecks.user
-//    })
-//    .when('/admin/assessments/assessment-dashboard/:assessment_ID', {
-//        templateUrl: '/partials/admin/assessments/assessment-dashboard-detail',
-//        controller: 'nrgiAssessmentDashboardDetailCtrl',
-//        resolve: routeRoleChecks.user
-//    })
-//    // Assessment overview routes
-//    .when('/assessments', {
-//        templateUrl: '/partials/user/assessments/assessments-list',
-//        controller: 'nrgiAssessmentsListCtrl',
-//        resolve: routeRoleChecks.user
-//    })
-//    .when('/assessments/:assessment_ID', {
-//        templateUrl: '/partials/user/assessments/assessment-detail',
-//        // controller: '',
-//        controller: 'nrgiAssessmentDetailCtrl',
-//        resolve: routeRoleChecks.user
-//    })
-//    .when('/assessments/assessment/:answer_ID', {
-//        templateUrl: '/partials/user/assessments/answer-page',
-//        controller: 'nrgiAnswerCtrl'
-//    })
-//    .when('/answer-page', {
-//        templateUrl: '/partials/answer-page',
-//        constant: 'nrgiAnswerCtrl'
-//    })
-//    .when('/answer-page-bolivia', {
-//        templateUrl: '/partials/bolivia-answer-page',
-//        constant: 'boliviaCtrl'
-//    });
-//    .when('/reporting', {
-//        templateUrl: '/partials/questions/reporting',
-//        controller: 'nrgiReportingCtrl'
-//    })
-//    .when('/assessment/:nav_ID', {
-//         templateUrl:'/partials/assessments/assessment-details',
-//         controller: 'nrgiAssessmentDetailCtrl'
-//    });
     });
 
 angular.module('app').run(function($rootScope, $location,$http) {

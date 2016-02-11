@@ -20,18 +20,18 @@ contractSchema = new Schema ({
     country: [fact],
     // Links
     //sources: [source],
-    commodities: [{
-        type: ObjectId,
-        ref: 'Commodities'}],
-    companies: [{
-        type: ObjectId,
-        ref: 'Companies'}],
-    concessions: [{
-        type: ObjectId,
-        ref: 'Concessions'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Projects'}]
+    //commodities: [{
+    //    type: ObjectId,
+    //    ref: 'Commodities'}],
+    //companies: [{
+    //    type: ObjectId,
+    //    ref: 'Companies'}],
+    //concessions: [{
+    //    type: ObjectId,
+    //    ref: 'Concessions'}],
+    //projects: [{
+    //    type: ObjectId,
+    //    ref: 'Projects'}]
 });
 
 Contract = mongoose.model('Contract', contractSchema);

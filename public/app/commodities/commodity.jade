@@ -100,15 +100,15 @@
             thead
                tr
                   th.tablesort-sortable-th(ts-criteria='name') Name
-                  //th.tablesort-sortable-th(ts-criteria='group') Group
+                  th.tablesort-sortable-th(ts-criteria='group') Group
             tbody
                tr(ng-repeat='company in commodity.companies',ts-repeat)
                   td
                      a(href='company/{{company._id}}')
                         span(ng-bind-html="company.company_name|sanitize")
-                  //td
-                  //   a(href='group/{{company.idGroup}}')
-                  //      span(ng-bind-html="company.group|sanitize")
+                  td
+                     a(href='group/{{company.idGroup}}')
+                        span(ng-bind-html="company.group|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             |  Download:

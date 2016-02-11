@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
 var aliasSchema, companySchema, Company,
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Sources'},
@@ -32,9 +33,7 @@ companySchema = new Schema({
     company_established_source: source,
     country_of_incorporation: [fact],
     countries_of_operation: [fact],
-    company_start_date: [fact],
-    company_end_date: [fact],
-    company_website: [fact],
+    company_website: fact,
     description: htmlSettings,
 
     //External mapping
@@ -46,7 +45,7 @@ companySchema = new Schema({
     commodities: [{
         type: ObjectId,
         ref: 'Link'}],
-    company_groups: [{
+    company_group: [{
         type: ObjectId,
         ref: 'Link'}],
     concessions: [{
@@ -82,9 +81,23 @@ companySchema = new Schema({
 //
 //    }
 //};
+//companySchema.plugin(deepPopulate);
+
+//var deepPopOpts = {
+//    populate: {
+//        'comments.user': {
+//            select: 'name',
+//            options: {
+//                limit: 5
+//            }
+//        },
+//        'approved.user': {
+//            select: 'name'
+//        }
+//    }
+//};
 
 companySchema.plugin(mongooseHistory, hst_options);
-
 Company = mongoose.model('Company', companySchema);
 
 function createDefaultCompanies() {
@@ -97,23 +110,11 @@ function createDefaultCompanies() {
                 company_established_source: '56747e060e8cc07115200ee5',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb9'}],
                 countries_of_operation: [{source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb9'}, {source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb8'}],
-                company_start_date: [{source: '56747e060e8cc07115200ee5', date: new Date()}],
-                company_end_date: [{source: '56747e060e8cc07115200ee5', date: new Date()}],
-                company_website: [{source: '56747e060e8cc07115200ee5', string: 'http://google.com'}],
+                company_website: {source: '56747e060e8cc07115200ee5', string: 'http://google.com'},
                 description: '<p>yes</p><p>no</p>',
                 //External mapping
-                open_corporates_id: 'junkid',
-                companies_house_id: 'junkid2',
-
-                ////Display specifific lists
-                //display_commodities: ['56a13e9942c8bef50ec2e9e8', '56a13e9942c8bef50ec2e9eb'],
-
-                //LINKS
-                //sources: ['56747e060e8cc07115200ee5','56747e060e8cc07115200ee4','56747e060e8cc07115200ee6'],
-                commodities: ['56a8def185d9580a07c58280','56a8def185d9580a07c58281'],
-                company_groups: ['56a8e342b9a34fbb07013c5f'],
-                concessions: ['56a8e4acf77930f50708881e'],
-                projects: ['56a8e4acf77930f50708881e']
+                open_corporates_id: 'gb/06774082',
+                companies_house_id: '03323845'
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376a',
@@ -123,21 +124,10 @@ function createDefaultCompanies() {
                 description: '<p>yes</p><p>no</p>',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee4', country: '56a7e6c02302369318e16bb8'}],
                 countries_of_operation: [{source: '56747e060e8cc07115200ee4', country: '56a7e6c02302369318e16bb8'}, {source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bba'}],
-                company_start_date: [{source: '56747e060e8cc07115200ee4', date: new Date()}],
-                company_end_date: [{source: '56747e060e8cc07115200ee4', date: new Date()}],
-                company_website: [{source: '56747e060e8cc07115200ee4', string: 'http://google.com'}],
+                company_website: {source: '56747e060e8cc07115200ee4', string: 'http://google.com'},
                 //External mapping
-                open_corporates_id: 'junkid',
-                companies_house_id: 'junkid2',
-
-                ////Display specifific lists
-                //display_commodities: ['56a13e9942c8bef50ec2e9e8'],
-                //
-                //LINKS
-                //sources: ['56747e060e8cc07115200ee4', '56747e060e8cc07115200ee6','56747e060e8cc07115200ee5'],
-                commodities: ['56a8dfbfee9e493007085bce'],
-                concessions: ['56a8e5320fa7dd0d0817beff'],
-                contracts: ['56a8e66f405f534508e8586f']
+                open_corporates_id: 'gb/06774082',
+                companies_house_id: '03323845',
             });
             Company.create({
                 _id: '56a13a758f224f670e6a376c',
@@ -147,19 +137,10 @@ function createDefaultCompanies() {
                 description: '<p>yes</p><p>no</p>',
                 country_of_incorporation: [{source: '56747e060e8cc07115200ee3', country: '56a8d7d08e7079da05d6b542'}],
                 countries_of_operation: [{source: '56747e060e8cc07115200ee3', country: '56a8d7d08e7079da05d6b542'}],
-                company_start_date: [{source: '56747e060e8cc07115200ee3', date: new Date()}],
-                company_end_date: [{source: '56747e060e8cc07115200ee3', date: new Date()}],
-                company_website: [{source: '56747e060e8cc07115200ee3', string: 'http://google.com'}],
+                company_website: {source: '56747e060e8cc07115200ee3', string: 'http://google.com'},
                 //External mapping
-                open_corporates_id: 'junkid',
-                companies_house_id: 'junkid2',
-
-                ////Display specifific lists
-                //display_commodities: ['56a13e9942c8bef50ec2e9e8'],
-                //
-                //LINKS
-                //sources: ['56747e060e8cc07115200ee6', '56747e060e8cc07115200ee4', '56747e060e8cc07115200ee3'],
-                commodities: ['56a8e070121b00500792c2eb'],
+                open_corporates_id: 'gb/06774082',
+                companies_house_id: '03323845'
             });
             console.log('Companies created...');
         }

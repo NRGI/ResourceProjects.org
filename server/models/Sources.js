@@ -59,9 +59,9 @@ sourceSchema = new Schema({
     //contracts: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Link'}]
+    //projects: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}]
     //transfers: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],
@@ -96,7 +96,7 @@ function createDefaultSources() {
                 commodities: ['56a13e9942c8bef50ec2e9e8'],
                 companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376c'],
                 company_groups: ['56a14d8ee47b92f110ce9a57'],
-                concessions: ['56a2b8236e585b7316655794'],
+                concessions: ['56a2b8236e585b7316655794']
                 //transfers: [ObjectId],
                 //reserves: [ObjectId],
                 //production: [ObjectId],

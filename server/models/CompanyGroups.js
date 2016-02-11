@@ -30,12 +30,12 @@ companyGroupSchema = new Schema({
         ref: 'Sources'},
     description: htmlSettings,
     open_corporates_group_ID: String,
-    companies: [{
-        type: ObjectId,
-        ref: 'Companies'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Projects'}]
+    //companies: [{
+    //    type: ObjectId,
+    //    ref: 'Companies'}],
+    //projects: [{
+    //    type: ObjectId,
+    //    ref: 'Projects'}]
 });
 
 //pull from open corporates
@@ -50,6 +50,7 @@ CompanyGroup = mongoose.model('CompanyGroup', companyGroupSchema);
 function createDefaultCompanyGroups() {
     CompanyGroup.find({}).exec(function(err, company_groups) {
         if(company_groups.length === 0) {
+            //console.log('***No conmpay groups')
             CompanyGroup.create({
                 _id: '56a14d8ee47b92f110ce9a57',
                 company_group_name: 'Shell',
