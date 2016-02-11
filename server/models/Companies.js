@@ -81,7 +81,7 @@ companySchema = new Schema({
 //
 //    }
 //};
-//companySchema.plugin(deepPopulate);
+
 
 //var deepPopOpts = {
 //    populate: {
@@ -98,6 +98,7 @@ companySchema = new Schema({
 //};
 
 companySchema.plugin(mongooseHistory, hst_options);
+companySchema.plugin(deepPopulate);
 Company = mongoose.model('Company', companySchema);
 
 function createDefaultCompanies() {

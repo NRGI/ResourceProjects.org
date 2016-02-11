@@ -6,7 +6,9 @@ angular.module('app', [
     'ngDialog',
     'ngResource',
     'ngRoute',
-    'tableSort'
+    'tableSort',
+    'angular-underscore',
+    'restangular'
 ]);
 
 angular.module('app')
@@ -75,14 +77,14 @@ angular.module('app')
             //.when('/concessions/map', {
             //    templateUrl: '/partials/projects/map'
             //})
-            //.when('/projects', {
-            //    templateUrl: '/partials/projects/projects',
-            //    controller: 'nrgiProjectsCtrl'
-            //})
-            //.when('/projects/:id_country/:id', {
-            //    templateUrl: '/partials/projects/project',
-            //    controller: 'nrgiProjectCtrl'
-            //})
+            .when('/projects', {
+                templateUrl: '/partials/projects/project-list',
+                controller: 'nrgiProjectListCtrl'
+            })
+            .when('/project/:id_country/:id', {
+                templateUrl: '/partials/projects/project-detail',
+                controller: 'nrgiProjectDetailCtrl'
+            })
             //.when('/projects/map', {
             //    templateUrl: '/partials/projects/map'
             //})

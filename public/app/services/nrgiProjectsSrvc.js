@@ -1,29 +1,11 @@
 'use strict';
 
 angular.module('app')
-    .factory('nrgiProjectsSrvc', function($http,$q) {
-        return {
-            getAllProjects:function(limit,skip) {
-                var dfd = $q.defer();
-                $http.get('/api/projects/'+limit +'/'+skip).then(function (response) {
-                    if(response.data) {
-                        dfd.resolve(response.data);
-                    } else {
-                        dfd.resolve(false);
-                    }
-                });
-                return dfd.promise;
-            },
-            getProjectById:function(id) {
-                var dfd = $q.defer();
-                $http.get('/api/projects/'+id).then(function (response) {
-                    if(response.data) {
-                        dfd.resolve(response.data);
-                    } else {
-                        dfd.resolve(false);
-                    }
-                });
-                return dfd.promise;
-            }
-        }
+    .factory('nrgiProjectsSrvc', function($resource) {
+        var ProjectResource = $resource('/api/projects/:limit/:skip/:_id', {_id: "@id", limit: "@limit", skip: "@skip"}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ProjectResource;
     });

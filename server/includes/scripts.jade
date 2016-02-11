@@ -16,6 +16,9 @@ script(type="text/javascript", src="https://api.mapbox.com/mapbox.js/plugins/lea
 //script(type="text/javascript", src="vendor/tablesorter/dist/js/jquery.tablesorter.widgets.min.js")
 script(type = "text/javascript", src = "/vendor/bootstrap-typeahead.js")
 script(type="text/javascript", src="/app/component/angular-tablesort.js")
+script(type="text/javascript", src="/vendor/underscore/underscore.js")
+script(type="text/javascript", src="/vendor/angular-underscore/angular-underscore.min.js")
+script(type="text/javascript", src="/vendor/restangular/dist/restangular.js")
 script(type='text/javascript').
     $(document).ready(function(){
         $('.typeahead').typeahead({
@@ -50,8 +53,8 @@ script(type="text/javascript", src="/app/companies/nrgiCompanyDetailCtrl.js")
 //sources
 
 
-//script(type="text/javascript", src="/app/projects/nrgiProjectsCtrl.js")
-//script(type="text/javascript", src="/app/projects/nrgiProjectCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiProjectListCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiProjectDetailCtrl.js")
 //script(type="text/javascript", src="/app/projects/nrgiMapCtrl.js")
 script(type="text/javascript", src="/app/sources/nrgiSourcesCtrl.js")
 script(type="text/javascript", src="/app/sources/nrgiSourceCtrl.js")
@@ -66,7 +69,7 @@ script(type="text/javascript", src="/app/sources/nrgiSourceCtrl.js")
 //script(type="text/javascript", src="/app/contracts/nrgiContractCtrl.js")
 //script(type="text/javascript", src="/app/concessions/nrgiConcessionsCtrl.js")
 //script(type="text/javascript", src="/app/concessions/nrgiConcessionCtrl.js")
-
+script(type="text/javascript", src="/app/services/nrgiRCAPISrvc.js")
 //- DIRECTIVES
 script(type="text/javascript", src="/app/directives/directives/nrgi-list-nav.js")
 

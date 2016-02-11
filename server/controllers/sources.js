@@ -5,7 +5,7 @@ var Source 		= require('mongoose').model('Source'),
 	encrypt 	= require('../utilities/encryption');
 //.populate('comments.author', 'firstName lastName role')
 exports.getSources = function(req, res) {
-	var source_len, link_len, source_counter, link_counter,
+	var source_len, link_len, source_counter, link_counter,key,
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
 
@@ -59,7 +59,10 @@ exports.getSources = function(req, res) {
 					c.projects = 0;
 					links.forEach(function(link) {
 						++link_counter;
-						switch (link.entities.pop('company')) {
+						if(link.entities.indexOf('project')==0){
+							key =0;
+						}else{key=1}
+						switch (link.entities[key]) {
 							case 'project':
 								c.projects += 1;
 								break;
@@ -67,7 +70,6 @@ exports.getSources = function(req, res) {
 							default:
 								console.log('error');
 						}
-
 					});
 					if(source_counter == source_len && link_counter == link_len) {
 						res.send({data:sources, count:source_count});
@@ -75,27 +77,6 @@ exports.getSources = function(req, res) {
 				});
 		});
 	}
-
-
-	//var count;var sources=[];
-	//Source.find(req.query).exec(function(err, source) {
-	//	count = source.length;
-	//	if(source.length!=0) {
-	//		source = source.slice(req.params.skip, Number(req.params.limit) + Number(req.params.skip));
-	//		source.forEach(function (item) {
-	//			sources.push({
-	//				_id:item._id,
-	//				source_name:item.source_name,
-	//				source_type:item.source_type,
-	//				source_date:item.source_date,
-	//				projects:item.projects.length
-	//			})
-	//		});
-	//		res.send({data: sources, count: count});
-	//	}else{
-	//		res.send({data: source, count: count});
-	//	}
-	//});
 };
 exports.getSourceByID = function(req, res) {
 	var created =''; var sourceByID =[];

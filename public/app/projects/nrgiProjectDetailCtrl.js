@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiProjectCtrl', function (
+    .controller('nrgiProjectDetailCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
@@ -9,14 +9,8 @@ angular.module('app')
         $routeParams
     ) {
         $scope.projectMarkers=[]; $scope.center=[]; var lat=''; var lng='';
-        nrgiProjectsSrvc.getProjectById($routeParams.id).then(function(response) {
-            $scope.project=response;
-            angular.forEach($scope.project.proj_coordinates,function(item,i){
-                $scope.projectMarkers.push({message:$scope.project.proj_name,lat:item.loc[0],lng:item.loc[1]});
-                lat=item.loc[0];
-                lng=item.loc[1];
-            });
-            $scope.center={lat:lat,lng:lng,zoom: 5};
+        nrgiProjectsSrvc.get({_id: $routeParams.id}, function (success) {
+            $scope.project = success;
         });
         var tilesDict = {
             openstreetmap: {

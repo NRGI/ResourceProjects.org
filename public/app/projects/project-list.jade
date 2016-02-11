@@ -1,0 +1,71 @@
+.container
+   .page-header
+      .row
+       .col-md-3
+         h1 Projects
+         small
+       .col-md-3
+         .btn-group(role='group', aria-label='...')
+            button.btn.btn-default(type='button')
+               a(href='/map') Map View
+
+   nrgi-list-nav(
+   page="page"
+   type="record_type"
+   show="show_count"
+   count="count"
+   limit="limit"
+   last="last"
+   next="next"
+   prev="prev"
+   first="first"
+   select="select")
+
+   table#projects.table.table-striped(about='http://resourceprojects.org/project',ts-wrapper)
+      thead
+         tr
+            th.tablesort-sortable-th(ts-criteria='proj_name')
+               | &nbsp; Name
+            th.tablesort-sortable-th(ts-criteria='proj_country.country.name')
+               | &nbsp; Country
+            th.tablesort-sortable-th(ts-criteria='proj_type.string')
+               | &nbsp; Commodity Type
+            th.tablesort-sortable-th(ts-criteria='proj_commodity[0].commodity_name')
+               | &nbsp; Commodity
+            th.tablesort-sortable-th(ts-criteria='proj_status[0].string')
+               | &nbsp; Status
+            th.tablesort-sortable-th(ts-criteria="companies|parseInt")
+               | &nbsp; No.Companies
+      tbody
+         tr(ng-repeat='project in projects',ts-repeat)
+            td
+               a(href='/project/{{project.proj_country.country.iso2}}/{{project._id}}')
+                  span(ng-bind-html="project.proj_name|sanitize")
+            td
+               a(href='/country/{{project.proj_country.country._id}}')
+                  span(ng-bind-html="project.proj_country.country.name|sanitize")
+            td.commodity_type {{project.proj_type.string}}
+            td
+               text(ng-repeat="commodity in project.proj_commodity")
+                  a(href='commodity/{{commodity._id}}')
+                     span(ng-bind-html="commodity.commodity_name|sanitize")
+                  | {{$last ? '' : ', '}}
+            td.status
+               text(ng-repeat="status in project.proj_status")
+                  text(ng-if="$last")
+                     | {{status.string }}
+                     text.small  (true at {{status.source.source_date | date:'MM/dd/yyyy @ h:mma' : timezone}})
+            td
+               span(ng-if="project.companies!=0") {{project.companies}}
+
+   nrgi-list-nav(
+   page="page"
+   type="record_type"
+   show="show_count"
+   count="count"
+   limit="limit"
+   last="last"
+   next="next"
+   prev="prev"
+   first="first"
+   select="select")

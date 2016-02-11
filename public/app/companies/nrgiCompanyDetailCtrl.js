@@ -4,14 +4,18 @@ angular.module('app')
     .controller('nrgiCompanyDetailCtrl', function (
         $scope,
         $routeParams,
+        nrgiRCAPISrvc,
         nrgiCompaniesSrvc
         //nrgiAuthSrvc,
         //nrgiIdentitySrvc,
         //nrgiCountriesSrvc
     ) {
+        $scope.proj_table_sort = {sort_type: 'project.project.proj_name', sort_reverse: false, search_text: ''};
+
         nrgiCompaniesSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.company = success;
         });
+
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",

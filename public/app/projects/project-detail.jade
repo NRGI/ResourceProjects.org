@@ -1,4 +1,4 @@
-.container(ng-controller="nrgiMapCtrl")
+.container
    .page-header
       .row
          .col-md-12
@@ -24,25 +24,24 @@
                   tr
                      td.project-label Country:
                      td
-                        a(href='country/{{project.country[0]._id}}')
-                           span(ng-bind-html="project.country[0].name|sanitize")
+                        a(href='country/{{project.proj_country.country._id}}')
+                           span(ng-bind-html="project.proj_country.country.name|sanitize")
                   tr
                      td.project-label Aliases:
                      td.aliases
                         span(ng-repeat='alias in project.proj_aliases')
-                           span {{alias.name}}
-                           span(ng-if="!$last") ,
-                           =' '
+                           span {{alias.alias}}
+                           | {{$last ? '' : ', '}}
                   tr
                      td.project-label Commodity Type(s):
-                     td.commodity_type {{project.proj_type[0].string}}
+                     td.commodity_type {{project.proj_type.string}}
                   tr
                      td.project-label Commodities:
                      td.commodities
                         span(ng-repeat='commodity in project.commodities')
-                           a(href='commodity/{{commodity._id}}')
-                              span(ng-bind-html="commodity.name|sanitize")
-                           span(ng-if='!$last') ,
+                           a(href='comodity/{{commodity}}')
+                              span(ng-bind-html="commodity|sanitize")
+                           | {{$last ? '' : ', '}}
                   tr
                      td.project-label Status:
                      td.commodity_type {{project.proj_status[0].string}}
