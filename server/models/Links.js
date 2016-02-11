@@ -33,6 +33,9 @@ linkSchema = new Schema({
     //company_group_end_date: Date,
     ////licensee specific
     //ownership_stake: Number
+    ////transfer specific
+    transfer_company: {type: ObjectId, ref: 'Company'},
+    transfer_country: {type: ObjectId, ref: 'Country'},
 
 });
 

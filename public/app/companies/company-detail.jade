@@ -12,8 +12,6 @@
             markers="company.projectMarkers"
             tiles="tiles"
             height='300px')
-
-    //.row {{company.projects}}
     .row
         .col-md-6
             .info-box
@@ -91,8 +89,8 @@
                         td: a(href='country/{{project.project.proj_country.country.iso2}}')
                             span(ng-bind-html="project.project.proj_country.country.name|sanitize")
                         td {{project.project.proj_type.string | ucfirst}}
-                        td: text(ng-repeat="commodity in project.project.proj_commodity")
-                            a(href='group/{{commodity.commodity.commodity_code}}')
+                        td: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
+                            a(href='commodity/{{commodity.commodity.commodity_code}}')
                                 span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}
                         td: text(ng-repeat="status in project.project.proj_status")
@@ -109,6 +107,7 @@
                     //=' '
                     //a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%3Fcountry+%3Fcountry_name+%3FcommodityType+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fcompany%2F2f2508fdb642e947%3E+rp%3AholdsStake+%3Fstakes+.%0A++++%3Fstakes+rp%3AisStakeIn+%3Fproject+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos_%3AprefLabel+%3Fname+.%0A++++%0A++++OPTIONAL+%7B%0A%0A++++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++++%3Fcountry+a+rp%3ACountry+.%0A++++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A++++++OPTIONAL+%7B+%3Fproject+rp%3AhasCommodity+%3Fcommodity+.%0A++++++++++++++++%3Fcommodity+rp%3AcommodityType+%3FcommodityType+%0A++++++%7D%0A++++++%0A++++%7D%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV
 
+    //.row {{company.concessions}}
     .row.top-padding-med
         .col-md-6
             h2 Contracts
@@ -127,7 +126,7 @@
                         td: a(href="contract/{{contract.idCompany}}"): span(ng-bind-html="contract.name|sanitize")
                         td: a(href="country/{{contract.country._id}}"): span(ng-bind-html="contract.country|sanitize")
                         td: a(href="commodity/{{contract.commodity._id}}"): span(ng-bind-html="contract.group|sanitize")
-                        td: a(href="http://www.resourcecontracts.org/contract/{{contract.contract.contract_id}}"): span(ng-bind-html="contract.contract.contract_id|sanitize")
+                        td: a(href="http://www.resourcecontracts.org/contract/{{contract}}"): span(ng-bind-html="contract|sanitize")
             .download
                 span.glyphicon.glyphicon-download(aria-hidden="true")
                 span
@@ -143,18 +142,28 @@
             table.table.table-striped.projects(ts-wrapper)
                 thead
                     tr
-                        th.tablesort-sortable-th(ts-criteria='name') Name
-                        th.tablesort-sortable-th(ts-criteria='commodity') Country
-                        th.tablesort-sortable-th(ts-criteria='status') Commodity Type
-                        th.tablesort-sortable-th(ts-criteria='count|parseInt') Commodity
+                        th(ts-criteria='name') Name
+                        th(ts-criteria='commodity') Country
+                        th(ts-criteria='status') Commodity Type
+                        th(ts-criteria='count|parseInt') Commodity
+                        th(ts-criteria='count|parseInt') Status
                 tbody
-                    tr(ng-repeat='concession in company.concessions',ts-repeat)
-                        td
-                            a(href='/concession/{{concession.id}}')
-                                span(ng-bind-html="concession.name|sanitize")
-                        td {{concession.country}}
-                        td {{concession.commodity_type}}
-                        td {{concession.commodity}}
+                    tr(ng-repeat='(key, concession) in company.concessions')
+                        td: a(href='/concession/{{key}}')
+                                span(ng-bind-html="concession.concession_name|sanitize")
+                        td: a(href='/country/{{concession.concession_country._id}}')
+                            span(ng-bind-html="concession.concession_country.name|sanitize")
+                        td {{concession.concession_type.string | ucfirst}}
+                        td: text(ng-repeat="commodity in concession.concession_commodities")
+                            a(href='commodity/{{commodity.commodity.commodity_code}}')
+                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                            | {{$last ? '' : ', '}}
+                        td: text(
+                        ng-repeat="status in concession.concession_status"
+                        ng-if="concession.concession_status.length > 0")
+                            text(ng-if="$last")
+                                | {{status.string | ucfirst}}
+                                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
             .download
                 span.glyphicon.glyphicon-download(aria-hidden="true")
                 span
@@ -165,18 +174,18 @@
                     //=' '
                     //a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Concessions CSV
 
-    //h2 Payments
-    //table.table.table-striped.payments(ts-wrapper,ng-if='company.payments.length!=0')
-    //    thead
-    //        tr
-    //            th.tablesort-sortable-th(ts-criteria='year|parseInt') Year
-    //            th.tablesort-sortable-th(ts-criteria='paidTo') Paid by
-    //            th.tablesort-sortable-th(ts-criteria='paidBy') Paid to
-    //            th.tablesort-sortable-th(ts-criteria='type') Payment Type
-    //            th.tablesort-sortable-th(ts-criteria='currency') Currency
-    //            th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
-    //            th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?
-    //    tbody
+    h2 Payments
+    table.table.table-striped.payments(ts-wrapper,ng-if='company.payments.length!=0')
+        thead
+            tr
+                th(ts-criteria='year|parseInt') Year
+                th(ts-criteria='paidTo') Paid by
+                th(ts-criteria='paidBy') Paid to
+                th(ts-criteria='type') Payment Type
+                th(ts-criteria='currency') Currency
+                th(ts-criteria='value|parseInt') Value
+                th(ts-criteria='receipt') Payment or receipt?
+        tbody
     //        tr(ng-repeat="payment in company.payments",ts-repeat)
     //            td {{payment.year}}
     //            td

@@ -17,19 +17,7 @@ commoditySchema = new Schema ({
     },
     commodity_aliases: [{
         type: ObjectId,
-        ref: 'Alias'}],
-    concessions: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    contracts: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    companies: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Link'}]
+        ref: 'Alias'}]
 });
 
 Commodity = mongoose.model('Commodity', commoditySchema);

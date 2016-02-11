@@ -97,7 +97,7 @@ function createDefaultProjects() {
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: {source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'},
                 proj_type: {source: '56747e060e8cc07115200ee6', string: 'oil'},
-                proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'}],
+                proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [79.22885591,  -44.84381911]}],
                 proj_status: [{source: '56747e060e8cc07115200ee6', string: 'discovery'}],
