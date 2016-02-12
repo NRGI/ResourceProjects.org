@@ -1,6 +1,7 @@
 var Company 		= require('mongoose').model('Company'),
     CompanyGroup 	= require('mongoose').model('CompanyGroup'),
     Link 	        = require('mongoose').model('Link'),
+    Transfer 	    = require('mongoose').model('Transfer'),
     Country			= require('mongoose').model('Country'),
     async           = require('async'),
     _               = require("underscore"),
@@ -99,7 +100,9 @@ exports.getCompanyByID = function(req, res) {
 
     async.waterfall([
         getCompany,
+        getTransfers,
         getCompanyLinks,
+        //getContracts,
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -113,6 +116,21 @@ exports.getCompanyByID = function(req, res) {
             .populate('country.country')
             .lean()
             .exec(function(err, company) {
+                if(company) {
+                    callback(null, company);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+    function getTransfers(company, callback) {
+        company.transfers = [];
+        Transfer.find({transfer_company: company._id})
+            .populate('transfer_country')
+            .exec(function(err, transfers) {
+                _.each(transfers, function(transfer) {
+                    company.transfers.push(transfer);
+                });
                 if(company) {
                     callback(null, company);
                 } else {
@@ -201,7 +219,7 @@ exports.getCompanyByID = function(req, res) {
                             break;
 
                         default:
-                            //console.log(entity, 'link skipped...');
+                            console.log(entity, 'link skipped...');
                     }
                     if(link_counter == link_len) {
                         res.send(company);
@@ -209,4 +227,48 @@ exports.getCompanyByID = function(req, res) {
                 });
             });
     }
+    //function getContracts(company, callback) {
+    //    company.contract_pull = {};
+    //    //company.contracts.forEach(function(contract) {
+    //    //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract + '/metadata', function (err, res, body) {
+    //    //        company.contract_pull[contract] = {
+    //    //            //contract_name: body.name,
+    //    //            //contract_country: body.country,
+    //    //            //contract_commodity: body.resource
+    //    //        };
+    //    //        //    if (!err && res.statusCode == 200) {
+    //    //        //        //console.log(body); // Show the HTML for the Google homepage.
+    //    //        //        company.contract_pull[contract] = {
+    //    //        //            //contract_name: body.name,
+    //    //        //            //contract_country: body.country,
+    //    //        //            //contract_commodity: body.resource
+    //    //        //        };
+    //    //        //    }
+    //    //    });
+    //    //});
+    //    _.each(company.contracts, function(contract) {
+    //        request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract + '/metadata', function (err, res, body) {
+    //            company.contract_pull[contract] = {
+    //                //contract_name: body.name,
+    //                //contract_country: body.country,
+    //                //contract_commodity: body.resource
+    //            };
+    //        //    if (!err && res.statusCode == 200) {
+    //        //        //console.log(body); // Show the HTML for the Google homepage.
+    //        //        company.contract_pull[contract] = {
+    //        //            //contract_name: body.name,
+    //        //            //contract_country: body.country,
+    //        //            //contract_commodity: body.resource
+    //        //        };
+    //        //    }
+    //        });
+    //    });
+    //    if(company) {
+    //        callback(null, company);
+    //    } else {
+    //        callback(err);
+    //    }
+    //    //console.log(company.contract_pull);
+    //    //callback(null, company);
+    //}
 };

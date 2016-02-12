@@ -16,7 +16,7 @@ var mongoose 		    = require('mongoose'),
     //licenseModel      = require('../models/Licenses'),
     //productionModel   = require('../models/Production'),
     //reservesModel     = require('../models/Reserves'),
-    //transferModel     = require('../models/Transfers'),
+    transferModel     = require('../models/Transfers'),
     model_load          = ['Facts'];
 
 model_load.forEach(function(model_name) {
@@ -42,6 +42,7 @@ module.exports 	= function(config) {
     linkModel.createDefaultLinks();
     aliasModel.createDefaultAliases();
     countryModel.createDefaultCountries();
+    transferModel.createDefaultTransfers();
     //contributorModel.createDefaultContributors();
 
 
