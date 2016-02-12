@@ -14,6 +14,9 @@ var sourceSchema, contractSchema, Contract,
 
 contractSchema = new Schema ({
     contract_id: String //from rc.org
+    //contract_name: String, //from rc.org
+    //contract_type: [fact], //geographic type i.e. onshore, off shore, etc.
+    //country: [fact]
 });
 
 Contract = mongoose.model('Contract', contractSchema);

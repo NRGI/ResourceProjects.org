@@ -11,9 +11,9 @@ angular.module('app')
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
-
+        $scope.record_type = 'companies';
         var loadCompanies = function(limit,page){
-            nrgiCompaniesSrvc.query({skip: page, limit: limit}, function (success) {
+            nrgiCompaniesSrvc.query({skip: page, limit: limit,record_type:$scope.record_type}, function (success) {
                 $scope.count = success.count;
                 $scope.limit = limit;
                 $scope.page = page;

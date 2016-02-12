@@ -36,7 +36,9 @@ sourceSchema = new Schema({
     retrieve_date: {
         type: Date,
         default: Date.now},
-    create_author: ObjectId,
+    create_author: [{
+            type: ObjectId,
+            ref: 'User'}],
     create_date: {
         type: Date,
         default: Date.now},
@@ -59,9 +61,9 @@ sourceSchema = new Schema({
     //contracts: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],
-    //projects: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}]
+    projects: [{
+        type: ObjectId,
+        ref: 'Link'}]
     //transfers: [{
     //    type: ObjectId,
     //    ref: 'Contracts'}],
@@ -91,7 +93,7 @@ function createDefaultSources() {
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
-                create_author: '569976c21dad48f614cc8125',
+                create_author: ['569976c21dad48f614cc8125'],
                 countries: ['56a7e6c02302369318e16bb8'],
                 commodities: ['56a13e9942c8bef50ec2e9e8'],
                 companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376c'],
@@ -111,7 +113,7 @@ function createDefaultSources() {
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
-                create_author: '569976c21dad48f614cc8126',
+                create_author: ['569976c21dad48f614cc8126'],
                 //countries: ['56a7e6c02302369318e16bb9','56a7e6c02302369318e16bb8','56a7e6c02302369318e16bba'],
                 //companies: ['56a13a758f224f670e6a376a', '56a13a758f224f670e6a376e'],
                 //concessions: ['56a2b8236e585b7316655794'],
@@ -126,7 +128,7 @@ function createDefaultSources() {
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
-                create_author: '569976c21dad48f614cc8126',
+                create_author: ['569976c21dad48f614cc8126'],
                 //commodities: ['56a13e9942c8bef50ec2e9e8','56a13e9942c8bef50ec2e9eb','56a13e9942c8bef50ec2e9f1'],
                 //companies: ['56a13a758f224f670e6a376e', '56a13a758f224f670e6a376a','56a13a758f224f670e6a376c'],
                 //concessions: ['56a2b8236e585b7316655794'],

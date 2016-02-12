@@ -1,14 +1,12 @@
 'use strict';
 angular.module('app', [
-    'ch.filters',
+    'angular.filter',
     'iso-3166-country-codes',
     'leaflet-directive',
     'ngDialog',
     'ngResource',
     'ngRoute',
-    'tableSort',
-    'angular-underscore',
-    'restangular'
+    'tableSort'
 ]);
 
 angular.module('app')
@@ -66,10 +64,10 @@ angular.module('app')
             //    templateUrl: '/partials/contracts/contract',
             //    controller: 'nrgiContractCtrl'
             //})
-            //.when('/concessions', {
-            //    templateUrl: '/partials/concessions/concessions',
-            //    controller: 'nrgiConcessionsCtrl'
-            //})
+            .when('/concessions', {
+                templateUrl: '/partials/concessions/concession-list',
+                controller: 'nrgiConcessionListCtrl'
+            })
             //.when('/concessions/:id', {
             //    templateUrl: '/partials/concessions/concession',
             //    controller: 'nrgiConcessionCtrl'
@@ -98,26 +96,26 @@ angular.module('app')
             })
             //
             ////Helper groups
-            //.when('/countries', {
-            //    templateUrl: '/partials/countries/countries',
-            //    controller: 'nrgiCountriesCtrl'
-            //})
+            .when('/countries', {
+                templateUrl: '/partials/countries/country-list',
+                controller: 'nrgiCountryListCtrl'
+            })
             //.when('/countries/:id', {
             //    templateUrl: '/partials/countries/country',
             //    controller: 'nrgiCountryCtrl'
             //})
-            //.when('/commodities', {
-            //    templateUrl: '/partials/commodities/commodities',
-            //    controller: 'nrgiCommoditiesCtrl'
-            //})
+            .when('/commodities', {
+                templateUrl: '/partials/commodities/commodity-list',
+                controller: 'nrgiCommodityListCtrl'
+            })
             //.when('/commodities/:id', {
             //    templateUrl: '/partials/commodities/commodity',
             //    controller: 'nrgiCommodityCtrl'
             //})
-            //.when('/groups', {
-            //    templateUrl: '/partials/companies/groups',
-            //    controller: 'nrgiGroupsCtrl'
-            //})
+            .when('/groups', {
+                templateUrl: '/partials/companies/group-list',
+                controller: 'nrgiGroupListCtrl'
+            })
             //.when('/groups/:id', {
             //    templateUrl: '/partials/companies/group',
             //    controller: 'nrgiGroupCtrl'
@@ -136,22 +134,22 @@ angular.module('app')
             //
             ////Other
             .when('/sources', {
-                templateUrl: '/partials/sources/sources',
-                controller: 'nrgiSourcesCtrl'
+                templateUrl: '/partials/sources/source-list',
+                controller: 'nrgiSourceListCtrl'
             })
-            .when('/sources/:id', {
-                templateUrl: '/partials/sources/source',
-                controller: 'nrgiSourceCtrl'
+            .when('/source/:id', {
+                templateUrl: '/partials/sources/source-detail',
+                controller: 'nrgiSourceDetailCtrl'
             })
-            //.when('/glossary', {
-            //    templateUrl: '/partials/common/glossary'
-            //})
-            //.when('/contribute', {
-            //    templateUrl: '/partials/common/contribute'
-            //})
-            //.when('/about', {
-            //    templateUrl: '/partials/common/about'
-            //})
+            .when('/glossary', {
+                templateUrl: '/partials/common/glossary'
+            })
+            .when('/contribute', {
+                templateUrl: '/partials/common/contribute'
+            })
+            .when('/about', {
+                templateUrl: '/partials/common/about'
+            })
             //.when('/model', {
             //    templateUrl: '/partials/common/dataModel'
             //})

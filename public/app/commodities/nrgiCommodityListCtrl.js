@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiCommoditiesCtrl', function (
+    .controller('nrgiCommodityListCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,

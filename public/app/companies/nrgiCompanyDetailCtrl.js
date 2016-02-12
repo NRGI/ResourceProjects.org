@@ -4,7 +4,6 @@ angular.module('app')
     .controller('nrgiCompanyDetailCtrl', function (
         $scope,
         $routeParams,
-        nrgiRCAPISrvc,
         nrgiCompaniesSrvc
         //nrgiAuthSrvc,
         //nrgiIdentitySrvc,

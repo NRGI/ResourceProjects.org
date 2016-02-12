@@ -39,9 +39,9 @@
                      td.project-label Commodities:
                      td.commodities
                         span(ng-repeat='commodity in project.commodities')
-                           a(href='comodity/{{commodity}}')
-                              span(ng-bind-html="commodity|sanitize")
-                           | {{$last ? '' : ', '}}
+                           a(href='commodity/{{commodity._id}}')
+                              span(ng-bind-html="commodity.name|sanitize")
+                           span(ng-if='!$last') ,
                   tr
                      td.project-label Status:
                      td.commodity_type {{project.proj_status[0].string}}
@@ -109,9 +109,6 @@
                   td
                      a(href='group/{{company.companyGroup._id}}')
                         span(ng-bind-html="company.companyGroup.name|sanitize")
-                  td
-                     a(href='group/{{company.idGroup}}')
-                        //span(ng-bind-html="company.group|sanitize")
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span

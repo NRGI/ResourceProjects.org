@@ -1,33 +1,95 @@
 var Commodity 		= require('mongoose').model('Commodity'),
-	Company 		= require('mongoose').model('Company'),
-	Source 			= require('mongoose').model('Source'),
-	Country 		= require('mongoose').model('Country'),
-	Project 		= require('mongoose').model('Project'),
-	Concession 		= require('mongoose').model('Concession'),
-	Contract 		= require('mongoose').model('Contract'),
-	Alias 			= require('mongoose').model('Alias'),
+	Link 	        = require('mongoose').model('Link'),
+	async           = require('async'),
+	_               = require("underscore"),
+	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
 //.populate('comments.author', 'firstName lastName role')
 exports.getCommodities = function(req, res) {
-	var count;var commodities=[];
-	var query = Commodity.find(req.query);
-	query.exec(function(err, collection) {
-		count = collection.length;
-		collection =collection.slice(req.params.skip,Number(req.params.limit)+Number(req.params.skip));
-		if(collection.length!=0) {
-			collection.forEach(function (item) {
-				commodities.push({
-					_id: item._id,
-					commodity_name: item.commodity_name,
-					projects: item.projects.length,
-					contracts: item.contracts.length,
-					concessions: item.concessions.length
-				})
+	var commodity_len, link_len, commodity_counter, link_counter,
+		limit = Number(req.params.limit),
+		skip = Number(req.params.skip);
 
-			});
+	async.waterfall([
+		commodityCount,
+		getCommoditySet,
+		getCommodityLinks,
+	], function (err, result) {
+		if (err) {
+			res.send(err);
 		}
-		res.send({data:commodities,count:count});
 	});
+
+	function commodityCount(callback) {
+		Commodity.find({}).count().exec(function(err, commodity_count) {
+			if(commodity_count) {
+				callback(null, commodity_count);
+			} else {
+				callback(err);
+			}
+		});
+	}
+
+	function getCommoditySet(commodity_count, callback) {
+		Commodity.find(req.query)
+			.sort({
+				commodity_name: 'asc'
+			})
+			.skip(skip)
+			.limit(limit)
+			.lean()
+			.exec(function(err, commodities) {
+				if(commodities) {
+					callback(null, commodity_count, commodities);
+				} else {
+					callback(err);
+				}
+			});
+	}
+
+	function getCommodityLinks(commodity_count, commodities, callback) {
+		commodity_len = commodities.length;
+		commodity_counter = 0;
+		commodities.forEach(function (c) {
+			Link.find({commodity: c._id})
+				.populate('concession')
+				.populate('project')
+				.populate('contract')
+				.exec(function(err, links) {
+					++commodity_counter;
+					link_len = links.length;
+					link_counter = 0;
+					c.concessions = 0;
+					c.contracts = 0;
+					c.projects = 0;
+					links.forEach(function(link) {
+						++link_counter;
+
+						var entity = _.without(link.entities, 'commodity')[0];
+						switch (entity) {
+							case 'concession':
+								c.concessions+= 1;
+								break;
+							//
+							case 'project':
+								c.projects += 1;
+								break;
+							//
+							case 'contract':
+								c.contracts += 1;
+								break;
+							//
+							default:
+							//console.log(entity, 'link skipped...');
+						}
+
+					});
+					if(commodity_counter == commodity_len && link_counter == link_len) {
+						res.send({data:commodities, count:commodity_count});
+					}
+				});
+		});
+	}
 };
 exports.getCommodityByID = function(req, res) {
 	var source=[];var country=[];var concession=[];var contract=[];var project=[];var company=[];var alias=[];var commodity=[];

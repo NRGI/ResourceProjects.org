@@ -3,16 +3,18 @@ var Project 		= require('mongoose').model('Project'),
 	Source	 		= require('mongoose').model('Source'),
 	Link 	        = require('mongoose').model('Link'),
 	async           = require('async'),
+	_               = require("underscore"),
+	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
 exports.getProjects = function(req, res) {
-	var project_len, link_len, project_counter, link_counter,key,
+	var project_len, link_len, project_counter, link_counter,
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
 
 	async.waterfall([
 		projectCount,
 		getProjectSet,
-		getProjectLinks,
+		getProjectLinks
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -64,10 +66,8 @@ exports.getProjects = function(req, res) {
 					c.companies = 0;
 					links.forEach(function(link) {
 						++link_counter;
-						if(link.entities.indexOf('project')==0){
-							key =1;
-						}else{key=0}
-						switch (link.entities[key]) {
+						var entity = _.without(link.entities, 'project')[0];
+						switch (entity) {
 							case 'commodity':
 								c.proj_commodity.push({
 									_id: link.commodity._id,
@@ -100,6 +100,7 @@ exports.getProjectByID = function(req, res) {
 		if (err) {
 			res.send(err);
 		}
+
 	});
 
 	function getProject(callback) {
@@ -109,7 +110,6 @@ exports.getProjectByID = function(req, res) {
 			.populate('proj_aliases', ' _id alias')
 			.lean()
 			.exec(function(err, project) {
-				console.log(project);
 				if(project) {
 					callback(null, project);
 				} else {
@@ -150,7 +150,6 @@ exports.getProjectByID = function(req, res) {
 							});
 							break;
 						case 'concession':
-							console.log(link);
 							break;
 						case 'contract':
 							project.contracts.push(link);
@@ -159,8 +158,6 @@ exports.getProjectByID = function(req, res) {
 							console.log('error');
 					}
 					if(link_counter == link_len) {
-
-						console.log(project);
 						res.send(project);
 					}
 				});

@@ -35,36 +35,15 @@ concessionSchema = new Schema ({
     concession_country: [fact],
     concession_status: [fact], //status i.e. exploration, production, etc.
     concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
+    concession_commodity: [fact],
 
     //External Links
     oo_concession_id: String,
     oo_url_api: String,
     oo_url_wiki: String,
     oo_source_date: Date,
-    oo_details: mixedSchema,
-
-    //Links
-    //sources: [source],
-    commodities: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    companies: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    contracts: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Link'}],
+    oo_details: mixedSchema
 });
-
-////Open Oil pull
-//concessionSchema.methods = {
-//    openOilPull: function() {
-//
-//    },
-//};
 
 concessionSchema.plugin(mongooseHistory, hst_options);
 
@@ -79,9 +58,11 @@ function createDefaultConcessions() {
                 concession_aliases: ['56a7d75bd9caddb614ab02b3','56a7d75bd9caddb614ab02b4'],
                 concession_established_source: '56747e060e8cc07115200ee6',
                 description: '<p>yes</p><p>no</p>',
-                concession_country: [{source: '56747e060e8cc07115200ee6', string: '56a7e6c02302369318e16bb8'}],
+                concession_country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb8'}],
                 concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
+                concession_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
+
 
                 //External Links
                 oo_concession_id: 'junkid',
@@ -102,9 +83,11 @@ function createDefaultConcessions() {
                 concession_aliases: ['56a7d75bd9caddb614ab02b5'],
                 concession_established_source: '56747e060e8cc07115200ee5',
                 description: '<p>yes</p><p>no</p>',
-                concession_country: [{source: '56747e060e8cc07115200ee5', string: '56a7e6c02302369318e16bb8'}],
+                concession_country: [{source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb8'}],
                 concession_status: [{source: '56747e060e8cc07115200ee5', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee5', string: 'offshore'}],
+                concession_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
+
 
                 //External Links
                 oo_concession_id: 'junkid',

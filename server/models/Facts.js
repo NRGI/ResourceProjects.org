@@ -18,6 +18,9 @@ factSchema = new Schema({
     commodity: {
         type: ObjectId,
         ref: 'Commodity'},
+    company: {
+        type: ObjectId,
+        ref: 'Company'},
     project: {
         type: ObjectId,
         ref: 'Project'},

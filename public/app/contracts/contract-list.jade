@@ -3,7 +3,17 @@
         h1 Contracts
             small
 
-    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
 
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
@@ -26,4 +36,14 @@
                 td
                     span(ng-if="contract.projects!=0") {{contract.projects}}
 
-    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")

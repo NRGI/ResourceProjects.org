@@ -2,10 +2,12 @@ var Source 		= require('mongoose').model('Source'),
 	User 		= require('mongoose').model('User'),
 	Link 	        = require('mongoose').model('Link'),
 	async           = require('async'),
+	_               = require("underscore"),
+	request         = require('request'),
 	encrypt 	= require('../utilities/encryption');
 //.populate('comments.author', 'firstName lastName role')
 exports.getSources = function(req, res) {
-	var source_len, link_len, source_counter, link_counter,key,
+	var source_len, link_len, source_counter, link_counter,
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
 
@@ -38,7 +40,6 @@ exports.getSources = function(req, res) {
 			.limit(limit)
 			.lean()
 			.exec(function(err, sources) {
-				console.log(skip,sources.length);
 				if(sources) {
 					callback(null, source_count, sources);
 				} else {
@@ -59,16 +60,8 @@ exports.getSources = function(req, res) {
 					c.projects = 0;
 					links.forEach(function(link) {
 						++link_counter;
-						if(link.entities.indexOf('project')==0){
-							key =0;
-						}else{key=1}
-						switch (link.entities[key]) {
-							case 'project':
-								c.projects += 1;
-								break;
-							//
-							default:
-								console.log('error');
+						if(link.entities.indexOf('project')===0){
+							c.projects += 1;
 						}
 					});
 					if(source_counter == source_len && link_counter == link_len) {
@@ -79,28 +72,26 @@ exports.getSources = function(req, res) {
 	}
 };
 exports.getSourceByID = function(req, res) {
-	var created =''; var sourceByID =[];
-	Source.findOne({_id:req.params.id}).exec(function(err, source) {
-		if(source!=null) {
-			User.findOne({_id: source.create_author.toString()}).exec(function (err, user) {
-				if (user != null) {
-					created = user.first_name + " " + user.last_name;
-				}
-				sourceByID.push({
-					_id: source._id,
-					source_name: source.source_name,
-					source_type: source.source_type,
-					source_date: source.source_date,
-					create_date: source.create_date,
-					retrieve_date: source.retrieve_date,
-					source_archive_url: source.source_archive_url,
-					source_url: source.source_url,
-					source_notes: source.source_notes
-				});
-				res.send({data: sourceByID, created: created});
-			});
-		}else{
-			res.send({data: source, created: created});
+
+	async.waterfall([
+		getSource
+	], function (err, result) {
+		if (err) {
+			res.send(err);
 		}
 	});
+
+	function getSource(callback) {
+		Source.findOne({_id:req.params.id})
+			.populate('create_author', ' _id first_name last_name')
+			.lean()
+			.exec(function(err, source) {
+				if(source) {
+					callback(null, source);
+					res.send(source);
+				} else {
+					callback(err);
+				}
+			});
+	}
 };
