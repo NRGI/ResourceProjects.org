@@ -1,0 +1,59 @@
+.container
+    .page-header
+        h1 Concessions
+            small
+
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
+
+    .row
+        .col-md-12
+            table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
+                thead
+                    tr
+                        th(ts-criteria='concession_name') Name
+                        th(ts-criteria='country') Country
+                        th(ts-criteria='concession_type') Commodity Type
+                        th(ts-criteria='commodities_name') Commodity
+                        th(ts-criteria='concession_status') Status
+                        th(ts-criteria='projects|parseInt') No. Projects
+                tbody
+                    tr(ng-repeat="concession in concessions",ts-repeat)
+                        td: a(href='/concession/{{concession._id}}')
+                            span(ng-bind-html="concession.concession_name|sanitize")
+                        td: text(ng-repeat="country in concession.concession_country")
+                            a(href='/country/{{country.country.iso2}}')
+                                span(ng-bind-html="country.country.name|sanitize")
+                            | {{$last ? '' : ', '}}
+                        td: text(ng-repeat="type in concession.concession_type")
+                            text(ng-if="$last") {{type.string}}
+                        td: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_code'")
+                            a(href='/commodity/{{commodity.commodity._id}}')
+                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                            | {{$last ? '' : ', '}}
+                        td: text(ng-repeat="status in concession.concession_status")
+                            text(ng-if="$last")
+                                | {{status.string | ucfirst}}
+                                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        td {{concession.projects}}
+
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")

@@ -66,10 +66,10 @@ angular.module('app')
             //    templateUrl: '/partials/contracts/contract',
             //    controller: 'nrgiContractCtrl'
             //})
-            //.when('/concessions', {
-            //    templateUrl: '/partials/concessions/concessions',
-            //    controller: 'nrgiConcessionsCtrl'
-            //})
+            .when('/concessions', {
+                templateUrl: '/partials/concessions/concession-list',
+                controller: 'nrgiConcessionListCtrl'
+            })
             //.when('/concessions/:id', {
             //    templateUrl: '/partials/concessions/concession',
             //    controller: 'nrgiConcessionCtrl'
