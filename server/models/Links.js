@@ -11,7 +11,7 @@ var linkSchema, Link,
     ObjectId        = Schema.Types.ObjectId,
     //MixedSchema     = Schema.Types.Mixed,
     entity_enu      = {
-        values: 'commodity company company_group concession contract project'.split(' '),
+        values: 'commodity company company_group concession contract project transfer'.split(' '),
         //values: ' project '.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
     };

@@ -2,6 +2,7 @@ var Concession 		= require('mongoose').model('Concession'),
     Country 		= require('mongoose').model('Country'),
     Source 			= require('mongoose').model('Source'),
     Alias 			= require('mongoose').model('Alias'),
+    Transfer 	    = require('mongoose').model('Transfer'),
     Link            = require('mongoose').model('Link'),
     Company 		= require('mongoose').model('Company'),
     Commodity 		= require('mongoose').model('Commodity'),
@@ -92,6 +93,7 @@ exports.getConcessionByID = function(req, res) {
 
     async.waterfall([
         getConcession,
+        getTransfers,
         getConcessionLinks,
         //getContracts,
     ], function (err, result) {
@@ -107,6 +109,22 @@ exports.getConcessionByID = function(req, res) {
             .populate('concession_commodity.commodity')
             .lean()
             .exec(function(err, concession) {
+                if(concession) {
+                    callback(null, concession);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+    function getTransfers(concession, callback) {
+        concession.transfers = [];
+        Transfer.find({transfer_concession: concession._id})
+            .populate('transfer_country')
+            .populate('transfer_company', '_id company_name')
+            .exec(function(err, transfers) {
+                _.each(transfers, function(transfer) {
+                    concession.transfers.push(transfer);
+                });
                 if(concession) {
                     callback(null, concession);
                 } else {

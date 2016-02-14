@@ -175,9 +175,7 @@ exports.getCompanyByID = function(req, res) {
                             }
                             break;
                         case 'concession':
-                            console.log(link.concession);
                             if (!company.concessions.hasOwnProperty(link.concession._id)) {
-                                //console.log(_.find(link.concession.concession_country.reverse()).country);
                                 company.concessions[link.concession._id] = {
                                     concession_name: link.concession.concession_name,
                                     concession_country: _.find(link.concession.concession_country.reverse()).country,
@@ -198,7 +196,6 @@ exports.getCompanyByID = function(req, res) {
                             //if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
                             //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
                             //        if (!err && res.statusCode == 200) {
-                            //            console.log(body); // Show the HTML for the Google homepage.
                             //            company.contracts[link.contract.contract_id] = {
                             //                contract_name: body.name,
                             //                contract_country: body.country,

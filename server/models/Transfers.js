@@ -54,6 +54,14 @@ transferSchema = new Schema ({
         type: ObjectId,
         ref: 'Country'
     },
+    transfer_concession: {
+        type: ObjectId,
+        ref: 'Concession'
+    },
+    transfer_project: {
+        type: ObjectId,
+        ref: 'Project'
+    },
     //transfer_note: htmlSettings,
     //transfer_note: String,
     tranfer_gov_entity: String,
@@ -91,6 +99,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
+                transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -109,6 +118,7 @@ function createDefaultTransfers() {
                 transfer_value: 4102721984,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
+                transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -127,6 +137,7 @@ function createDefaultTransfers() {
                 transfer_value: 4102721984,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
+                transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -145,6 +156,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
+                transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -163,6 +175,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
+                transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -181,6 +194,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
+                transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
