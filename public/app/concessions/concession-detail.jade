@@ -15,22 +15,22 @@
                 table#concession-info
                     tbody
                         tr
-                            td.concession_label.small ID:
+                            td.detail_label ID:
                             td.concession_id {{concession._id}}
                         tr
-                            td.concession_label.small Aliases:
+                            td.detail_label.small Aliases:
                             td.concession_aliases
                                 span(ng-repeat='alias in concession.concession_aliases')
                                     span {{alias.alias}}
                                     | {{$last ? '' : ', '}}
                         tr
-                            td.concession_label.small Country:
+                            td.detail_label.small Country:
                             td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
                                 a(href='country/{{country.country.iso2}}')
                                     span(ng-bind-html="country.country.name|sanitize")
                                 | {{$last ? '' : ', '}}
                         tr
-                            td.concession_label.small Status:
+                            td.detail_label.small Status:
                             td.concession_status: text(
                             ng-repeat="status in concession.concession_status"
                             ng-if="concession.concession_status.length > 0")
@@ -38,21 +38,21 @@
                                     | {{status.string | ucfirst}}
                                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                         tr
-                            td.concession_label.small Commodities:
+                            td.detail_label.small Commodities:
                             td.concession_commodities
                                 text(ng-repeat="(key, value) in concession.commodities")
                                     a(href='commoddity/{{key}}')
                                         span(ng-bind-html="value|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr
-                            td.concession_label.small Open Oil ID:
+                            td.detail_label.small Open Oil ID:
                             td.concession_conracts
                                 a(href='')
                                     | {{concession.oo_concession_id}}
                             //td.company_open_corporates_id
                             //    a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr
-                            td.concession_label.small Contract:
+                            td.detail_label.small Contract:
                             td
                                 text(ng-repeat="contract in concession.contracts")
                                     a(href=href="http://www.resourcecontracts.org/contract/{{contract}}")
@@ -66,46 +66,13 @@
                 table#concession-info
                     tbody
                         tr
-                            td.concession_label.our-id Desctiption:
+                            td.detail_label.our-id Desctiption:
                             td.concession_description
                                 span(ng-bind-html="concession.description|sanitize")
     .row
        .col-md-6
-          h2 Projects
-          table.table.table-striped.projects(ts-wrapper)
-             thead
-                tr
-                   th(ts-criteria='name') Name
-                   th(ts-criteria='name') Country
-                   th(ts-criteria='commodity') Commodity Type
-                   th(ts-criteria='commodity') Commodity
-                   th(ts-criteria='status') Status
-             tbody
-                 tr(
-                 ng-repeat="project in concession.projects | unique: 'project._id'"
-                 ts-repeat
-                 ts-hide-no-data)
-                     td.proj_id: a(href='project/{{project.project._id}}')
-                         span(ng-bind-html="project.project.proj_name|sanitize")
-                     td.proj_country: a(href='country/{{project.project.proj_country.country.iso2}}')
-                         span(ng-bind-html="project.project.proj_country.country.name|sanitize")
-                     td.proj_type {{project.project.proj_type.string | ucfirst}}
-                     td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
-                         a(href='commodity/{{commodity.commodity.commodity_code}}')
-                             span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                         | {{$last ? '' : ', '}}
-                     td.proj_status: text(ng-repeat="status in project.project.proj_status")
-                         text(ng-if="$last")
-                             | {{status.string | ucfirst}}
-                             text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-          .download
-             span.glyphicon.glyphicon-download(aria-hidden="true")
-              span  Download
-                  =' '
-                a(href="")
-             //span  Download
-             //   =' '
-             //   a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Projects CSV
+           nrgi-project-table(projects="concession.projects")
+
     //   .col-md-6
     //      h2 Companies
     //         a=' '

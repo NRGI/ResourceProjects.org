@@ -1,0 +1,72 @@
+//h2 Projects
+//table.table.table-striped.projects(ts-wrapper)
+//    thead
+//        tr
+//            th(ts-criteria='name') Name
+//            th(ts-criteria='name') Country
+//            th(ts-criteria='commodity') Commodity Type
+//            th(ts-criteria='commodity') Commodity
+//            th(ts-criteria='status') Status
+//    tbody
+//        tr(
+//        ng-repeat="project in concession.projects | unique: 'project._id'"
+//        ts-repeat
+//        ts-hide-no-data)
+//            td.proj_id: a(href='project/{{project.project._id}}')
+//                span(ng-bind-html="project.project.proj_name|sanitize")
+//            td.proj_country: a(href='country/{{project.project.proj_country.country.iso2}}')
+//                span(ng-bind-html="project.project.proj_country.country.name|sanitize")
+//            td.proj_type {{project.project.proj_type.string | ucfirst}}
+//            td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
+//                a(href='commodity/{{commodity.commodity.commodity_code}}')
+//                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+//                | {{$last ? '' : ', '}}
+//            td.proj_status: text(ng-repeat="status in project.project.proj_status")
+//                text(ng-if="$last")
+//                    | {{status.string | ucfirst}}
+//                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+//.download
+//    span.glyphicon.glyphicon-download(aria-hidden="true")
+//        span  Download:
+//            =' '
+//        a(href="") Projects
+h2 Projects
+| {{entity}}
+table.table.table-striped.projects(ts-wrapper)#project-info
+    thead
+        tr
+            th(ts-criteria='project.project.proj_name') Name
+            //th
+            //    a(href="#" ng-click="proj_table_sort.sort_type = 'name'; proj_table_sort.sort_reverse = !proj_table_sort.sort_reverse")
+            //        text.left-padding-med Name
+            th(ts-criteria='project.project.proj_country.country.name') Country
+            th(ts-criteria='project.project.proj_type.string') Commodity Type
+            th(ts-criteria='project.project.proj_commodity.commodity.commodity_name[project.project.proj_commodity.commodity.commodity_name.length - 1]') Commodity
+            th(ts-criteria='project.project.proj_status.string[project.project.proj_status.string.length - 1]') Status
+    tbody
+        tr(
+        ng-repeat='project in projects'
+        ts-repeat
+        ts-hide-no-data)
+            td.proj_id: a(href='project/{{project.project._id}}')
+                span(ng-bind-html="project.project.proj_name|sanitize")
+            td.proj_country: a(href='country/{{project.project.proj_country.country.iso2}}')
+                span(ng-bind-html="project.project.proj_country.country.name|sanitize")
+            td.proj_type {{project.project.proj_type.string | ucfirst}}
+            td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
+                a(href='commodity/{{commodity.commodity.commodity_code}}')
+                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                | {{$last ? '' : ', '}}
+            td.proj_status: text(ng-repeat="status in project.project.proj_status")
+                text(ng-if="$last")
+                    | {{status.string | ucfirst}}
+                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+.download
+    span.glyphicon.glyphicon-download(aria-hidden='true')
+    span
+        |  Download:
+        =' '
+        a(href="") Projects CSV
+        //|  Download:
+        //=' '
+        //a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%3Fcountry+%3Fcountry_name+%3FcommodityType+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fcompany%2F2f2508fdb642e947%3E+rp%3AholdsStake+%3Fstakes+.%0A++++%3Fstakes+rp%3AisStakeIn+%3Fproject+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos_%3AprefLabel+%3Fname+.%0A++++%0A++++OPTIONAL+%7B%0A%0A++++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++++%3Fcountry+a+rp%3ACountry+.%0A++++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A++++++OPTIONAL+%7B+%3Fproject+rp%3AhasCommodity+%3Fcommodity+.%0A++++++++++++++++%3Fcommodity+rp%3AcommodityType+%3FcommodityType+%0A++++++%7D%0A++++++%0A++++%7D%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV

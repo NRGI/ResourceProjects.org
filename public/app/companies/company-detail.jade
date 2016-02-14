@@ -19,20 +19,20 @@
                 table#company-info
                     tbody
                         tr
-                            td.company_label.small ID:
+                            td.detail_label.small ID:
                             td.company_id {{company._id}}
                         tr
-                            td.company_label.small Website:
+                            td.detail_label.small Website:
                             td.company_website
                                 a(target="_blank" href='{{company.company_website.string }}') {{company.company_website.string}}
                         tr
-                            td.company_label.small Aliases:
+                            td.detail_label.small Aliases:
                             td.company_aliases
                                 text(ng-repeat="alias in company.company_aliases")
                                     | {{alias.alias}}
                                     | {{$last ? '' : ', '}}
                         tr
-                            td.company_label.small Part of:
+                            td.detail_label.small Part of:
                             td.company_part-of
                                 text(ng-repeat="group in company.company_groups")
                                     a(href='group/{{group._id}}')
@@ -40,18 +40,18 @@
                                     | {{$last ? '' : ', '}}
 
                         tr
-                            td.company_label.small Commodities:
+                            td.detail_label.small Commodities:
                             td.company_commodities
                                 text(ng-repeat="(key, value) in company.commodities")
                                     a(href='commoddity/{{key}}')
                                         span(ng-bind-html="value|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
-                            td.company_label.small Open Corporates ID:
+                            td.detail_label.small Open Corporates ID:
                             td.company_open_corporates_id
                                 a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr(ng-if='company.companies_house_id')
-                            td.company_label.small Companies House ID:
+                            td.detail_label.small Companies House ID:
                             td.company_companies_house_id
                                 a(target="_blank" href='https://beta.companieshouse.gov.uk/company/{{company.companies_house_id}}') {{company.companies_house_id}}
         .col-md-6
@@ -61,53 +61,14 @@
                 table#company-description
                     tbody
                         tr
-                            td.company_label.small Desctiption:
+                            td.detail_label.small Desctiption:
                             td.company_description
                                 span(ng-bind-html="company.description|sanitize")
 
     .row
         .col-md-12
-            h2 Projects
-            table.table.table-striped.projects(ts-wrapper)#project-info
-                thead
-                    tr
-                        th(ts-criteria='project.project.proj_name') Name
-                        //th
-                        //    a(href="#" ng-click="proj_table_sort.sort_type = 'name'; proj_table_sort.sort_reverse = !proj_table_sort.sort_reverse")
-                        //        text.left-padding-med Name
-                        th(ts-criteria='project.project.proj_country.country.name') Country
-                        th(ts-criteria='project.project.proj_type.string') Commodity Type
-                        th(ts-criteria='project.project.proj_commodity.commodity.commodity_name[project.project.proj_commodity.commodity.commodity_name.length - 1]') Commodity
-                        th(ts-criteria='project.project.proj_status.string[project.project.proj_status.string.length - 1]') Status
-                tbody
-                    tr(
-                    ng-repeat='project in company.projects'
-                    ts-repeat
-                    ts-hide-no-data)
-                        td.proj_id: a(href='project/{{project.project._id}}')
-                            span(ng-bind-html="project.project.proj_name|sanitize")
-                        td.proj_country: a(href='country/{{project.project.proj_country.country.iso2}}')
-                            span(ng-bind-html="project.project.proj_country.country.name|sanitize")
-                        td.proj_type {{project.project.proj_type.string | ucfirst}}
-                        td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
-                            a(href='commodity/{{commodity.commodity.commodity_code}}')
-                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                            | {{$last ? '' : ', '}}
-                        td.proj_status: text(ng-repeat="status in project.project.proj_status")
-                            text(ng-if="$last")
-                                | {{status.string | ucfirst}}
-                                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-            .download
-                span.glyphicon.glyphicon-download(aria-hidden='true')
-                span
-                    |  Download:
-                    =' '
-                    a(href="") Projects CSV
-                    //|  Download:
-                    //=' '
-                    //a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%3Fcountry+%3Fcountry_name+%3FcommodityType+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fcompany%2F2f2508fdb642e947%3E+rp%3AholdsStake+%3Fstakes+.%0A++++%3Fstakes+rp%3AisStakeIn+%3Fproject+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos_%3AprefLabel+%3Fname+.%0A++++%0A++++OPTIONAL+%7B%0A%0A++++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++++%3Fcountry+a+rp%3ACountry+.%0A++++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A++++++OPTIONAL+%7B+%3Fproject+rp%3AhasCommodity+%3Fcommodity+.%0A++++++++++++++++%3Fcommodity+rp%3AcommodityType+%3FcommodityType+%0A++++++%7D%0A++++++%0A++++%7D%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV
+            nrgi-project-table(projects="company.projects")
 
-    //.row {{company.concessions}}
     .row.top-padding-med
         .col-md-6
             h2 Contracts
