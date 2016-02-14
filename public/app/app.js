@@ -70,10 +70,10 @@ angular.module('app')
                 templateUrl: '/partials/concessions/concession-list',
                 controller: 'nrgiConcessionListCtrl'
             })
-            //.when('/concessions/:id', {
-            //    templateUrl: '/partials/concessions/concession',
-            //    controller: 'nrgiConcessionCtrl'
-            //})
+            .when('/concessions/:id', {
+                templateUrl: '/partials/concessions/concession-detail',
+                controller: 'nrgiConcessionDetailCtrl'
+            })
             //.when('/concessions/map', {
             //    templateUrl: '/partials/projects/map'
             //})

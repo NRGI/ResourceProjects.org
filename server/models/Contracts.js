@@ -31,7 +31,7 @@ function createDefaultContracts() {
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec22',
-                contract_id: 'ocds-591adf-PE6396832160RC',
+                contract_id: 'ocds-591adf-PE6396832160RC--OTHER',
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec21',

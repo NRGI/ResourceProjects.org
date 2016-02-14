@@ -19,40 +19,40 @@
                 table#company-info
                     tbody
                         tr
-                            td.project-label.rp-id.small ID:
-                            td {{company._id}}
+                            td.company_label.small ID:
+                            td.company_id {{company._id}}
                         tr
-                            td.project-label.website.small Website:
-                            td
+                            td.company_label.small Website:
+                            td.company_website
                                 a(target="_blank" href='{{company.company_website.string }}') {{company.company_website.string}}
                         tr
-                            td.project-label.aliases.small Aliases:
-                            td
+                            td.company_label.small Aliases:
+                            td.company_aliases
                                 text(ng-repeat="alias in company.company_aliases")
                                     | {{alias.alias}}
                                     | {{$last ? '' : ', '}}
                         tr
-                            td.project-label.part-of.small Part of:
-                            td
+                            td.company_label.small Part of:
+                            td.company_part-of
                                 text(ng-repeat="group in company.company_groups")
                                     a(href='group/{{group._id}}')
                                         span(ng-bind-html="group.company_group_name|sanitize")
                                     | {{$last ? '' : ', '}}
 
                         tr
-                            td.project-label.commodities.small Commodities:
-                            td
+                            td.company_label.small Commodities:
+                            td.company_commodities
                                 text(ng-repeat="(key, value) in company.commodities")
                                     a(href='commoddity/{{key}}')
                                         span(ng-bind-html="value|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
-                            td.project-label.open-corporates.small Open Corporates ID:
-                            td
+                            td.company_label.small Open Corporates ID:
+                            td.company_open_corporates_id
                                 a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr(ng-if='company.companies_house_id')
-                            td.project-label.companies-house.small Companies House ID:
-                            td
+                            td.company_label.small Companies House ID:
+                            td.company_companies_house_id
                                 a(target="_blank" href='https://beta.companieshouse.gov.uk/company/{{company.companies_house_id}}') {{company.companies_house_id}}
         .col-md-6
             .info-box
@@ -61,8 +61,8 @@
                 table#company-description
                     tbody
                         tr
-                            td.project-label.description.small Desctiption:
-                            td
+                            td.company_label.small Desctiption:
+                            td.company_description
                                 span(ng-bind-html="company.description|sanitize")
 
     .row
@@ -84,16 +84,16 @@
                     ng-repeat='project in company.projects'
                     ts-repeat
                     ts-hide-no-data)
-                        td: a(href='project/{{project.project._id}}')
+                        td.proj_id: a(href='project/{{project.project._id}}')
                             span(ng-bind-html="project.project.proj_name|sanitize")
-                        td: a(href='country/{{project.project.proj_country.country.iso2}}')
+                        td.proj_country: a(href='country/{{project.project.proj_country.country.iso2}}')
                             span(ng-bind-html="project.project.proj_country.country.name|sanitize")
-                        td {{project.project.proj_type.string | ucfirst}}
-                        td: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
+                        td.proj_type {{project.project.proj_type.string | ucfirst}}
+                        td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
                             a(href='commodity/{{commodity.commodity.commodity_code}}')
                                 span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td: text(ng-repeat="status in project.project.proj_status")
+                        td.proj_status: text(ng-repeat="status in project.project.proj_status")
                             text(ng-if="$last")
                                 | {{status.string | ucfirst}}
                                 text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
@@ -112,7 +112,7 @@
         .col-md-6
             h2 Contracts
                 a=' '
-            table.table.table-striped.companies(ts-wrapper)#contract-info
+            table.table.table-striped.contracts(ts-wrapper)#contract-info
                 thead
                     tr
                         th(ts-criteria='name') Name
@@ -123,10 +123,10 @@
                     tr(
                     ng-repeat="contract in company.contracts"
                     ts-repeat)
-                        td: a(href="contract/{{contract.idCompany}}"): span(ng-bind-html="contract.name|sanitize")
-                        td: a(href="country/{{contract.country._id}}"): span(ng-bind-html="contract.country|sanitize")
-                        td: a(href="commodity/{{contract.commodity._id}}"): span(ng-bind-html="contract.group|sanitize")
-                        td: a(href="http://www.resourcecontracts.org/contract/{{contract}}"): span(ng-bind-html="contract|sanitize")
+                        td.contract_name: a(href="contract/{{contract.idCompany}}"): span(ng-bind-html="contract.name|sanitize")
+                        td.contract_country: a(href="country/{{contract.country._id}}"): span(ng-bind-html="contract.country|sanitize")
+                        td.contract_commodity: a(href="commodity/{{contract.commodity._id}}"): span(ng-bind-html="contract.group|sanitize")
+                        td.contract_rc_id: a(href="http://www.resourcecontracts.org/contract/{{contract}}"): span(ng-bind-html="contract|sanitize")
             .download
                 span.glyphicon.glyphicon-download(aria-hidden="true")
                 span
@@ -139,7 +139,7 @@
 
         .col-md-6
             h2 Concessions
-            table.table.table-striped.projects(ts-wrapper)
+            table.table.table-striped.concessions(ts-wrapper)
                 thead
                     tr
                         th(ts-criteria='name') Name
@@ -149,16 +149,16 @@
                         th(ts-criteria='count|parseInt') Status
                 tbody
                     tr(ng-repeat='(key, concession) in company.concessions')
-                        td: a(href='/concession/{{key}}')
+                        td.concession_name: a(href='/concession/{{key}}')
                                 span(ng-bind-html="concession.concession_name|sanitize")
-                        td: a(href='/country/{{concession.concession_country._id}}')
+                        td.concession_country: a(href='/country/{{concession.concession_country._id}}')
                             span(ng-bind-html="concession.concession_country.name|sanitize")
-                        td {{concession.concession_type.string | ucfirst}}
-                        td: text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity.commodity_code'")
+                        td.concession_type {{concession.concession_type.string | ucfirst}}
+                        td.concession_commodity: text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity.commodity_code'")
                             a(href='commodity/{{commodity.commodity.commodity_code}}')
                                 span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td: text(
+                        td.concession_status: text(
                         ng-repeat="status in concession.concession_status"
                         ng-if="concession.concession_status.length > 0")
                             text(ng-if="$last")
@@ -175,7 +175,7 @@
                     //a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Concessions CSV
 
     h2 Payments
-    table.table.table-striped.payments(
+    table.table.table-striped.transfers(
     ts-wrapper
     ng-if='company.transfers.length!=0')
         thead
@@ -191,17 +191,17 @@
             tr(
             ng-repeat="transfer in company.transfers"
             ts-repeat)
-                td {{transfer.transfer_year}}
-                td
+                td.transfer_year {{transfer.transfer_year}}
+                td.transfer_company
                     a(href="company/{{transfer.transfer_company}}")
                         span(ng-bind-html="company.company_name|sanitize")
-                td
+                td.transfer_country
                     a(href="country/{{transfer.transfer_country.iso2}}")
                         span(ng-bind-html="transfer.transfer_country.name|sanitize")
-                td {{transfer.transfer_type}}
-                td {{transfer.transfer_unit}}
-                td {{transfer.transfer_value}}
-                td {{transfer.transfer_audit_type}}
+                td.transfer_type {{transfer.transfer_type}}
+                td.transfer_unit {{transfer.transfer_unit}}
+                td.transfer_value {{transfer.transfer_value}}
+                td.transfer_audit_type {{transfer.transfer_audit_type}}
     .download
         span.glyphicon.glyphicon-download(aria-hidden='true')
         span

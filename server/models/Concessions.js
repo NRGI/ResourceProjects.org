@@ -35,7 +35,6 @@ concessionSchema = new Schema ({
     concession_country: [fact],
     concession_status: [fact], //status i.e. exploration, production, etc.
     concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
-    concession_commodity: [fact],
 
     //External Links
     oo_concession_id: String,
@@ -61,7 +60,6 @@ function createDefaultConcessions() {
                 concession_country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb8'}],
                 concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
-                concession_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
 
 
                 //External Links
@@ -86,7 +84,6 @@ function createDefaultConcessions() {
                 concession_country: [{source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bb8'}],
                 concession_status: [{source: '56747e060e8cc07115200ee5', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee5', string: 'offshore'}],
-                concession_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
 
 
                 //External Links
