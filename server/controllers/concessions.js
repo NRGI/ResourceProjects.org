@@ -118,6 +118,7 @@ exports.getConcessionByID = function(req, res) {
         Link.find({concession: concession._id})
             .populate('commodity')
             .populate('contract')
+            .populate('company')
             //.populate('concession', 'concession_name concession_country concession_type commodities')
             .deepPopulate('project project.proj_country.country project.proj_commodity.commodity')
             //.deepPopulate()
@@ -126,7 +127,7 @@ exports.getConcessionByID = function(req, res) {
                 link_counter = 0;
                 concession.commodities = {};
                 concession.projects = [];
-                //concession.contracts = {};
+                concession.companies = {};
                 concession.contracts = [];
                 //concession.concessions = {};
                 links.forEach(function(link) {
@@ -138,14 +139,15 @@ exports.getConcessionByID = function(req, res) {
                                 concession.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
                             }
                             break;
-                        //case 'company_group':
-                        //    if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                        //        company.company_groups[link.company_group.company_group_name] = {
-                        //            _id: link.company_group._id,
-                        //            company_group_name: link.company_group.company_group_name
-                        //        };
-                        //    }
-                        //    break;
+                        case 'company':
+                            if (!concession.companies.hasOwnProperty(link.company._id)) {
+                                concession.companies[link.company._id] = {
+                                    company_name: link.company.company_name,
+                                    //company_group_id: link.company_group.company_group_name,
+                                    //company_group_name: link.company_group.company_group_name
+                                };
+                            }
+                            break;
                         //case 'concession':
                         //    //console.log(link.concession);
                         //    if (!company.concessions.hasOwnProperty(link.concession._id)) {

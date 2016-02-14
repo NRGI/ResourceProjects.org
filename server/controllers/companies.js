@@ -127,6 +127,7 @@ exports.getCompanyByID = function(req, res) {
         company.transfers = [];
         Transfer.find({transfer_company: company._id})
             .populate('transfer_country')
+            .populate('transfer_company', '_id company_name')
             .exec(function(err, transfers) {
                 _.each(transfers, function(transfer) {
                     company.transfers.push(transfer);

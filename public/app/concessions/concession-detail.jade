@@ -4,10 +4,10 @@
             span(ng-bind-html="concession.concession_name|sanitize")
             =' '
             small Concession
-    //.row
-    //   .col-md-12
-    //      leaflet(center="country.countryMap",controls="controls",markers="country.projectMarkers",tiles="tiles",height='240px')
-    //.row {{concession}}
+    .row
+        .col-md-12
+            leaflet(center="country.countryMap",controls="controls",markers="country.projectMarkers",tiles="tiles",height='240px')
+    .row {{concession.companies}}
     .row
         .col-md-6
             .info-box
@@ -71,44 +71,45 @@
                             td.concession_description
                                 span(ng-bind-html="concession.description|sanitize")
     .row
-       .col-md-6
-           nrgi-project-table(projects="concession.projects")
+        .col-md-6
+            nrgi-project-table(projects="concession.projects")
 
-    //   .col-md-6
-    //      h2 Companies
-    //         a=' '
-    //         small Companies active in this country
-    //      table.table.table-striped.companies(ts-wrapper)
-    //         thead
-    //            tr
-    //               th(ts-criteria='name') Name
-    //               th(ts-criteria='group') Group
-    //         tbody
-    //            tr(ng-repeat="company in country.companies",ts-repeat)
-    //               td
-    //                  a(href="company/{{company.idCompany}}")
-    //                     span(ng-bind-html="company.name|sanitize")
-    //               td
-    //                  a(href="group/{{company.idGroup}}")
-    //                     span(ng-bind-html="company.group|sanitize")
-    //      .download
-    //         span.glyphicon.glyphicon-download(aria-hidden="true")
-    //         span  Download
-    //            =' '
-    //            a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3FcompanyName+%28xsd%3Astring%28%3Fgroup_%29+as+%3Fgroup%29++%3FgroupName+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fproject_name%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+.%0A+++++++++++++++%3Fcompany+skos%3AprefLabel+%3FcompanyName%0A++++++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++++++%3Fgroup_+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++++++%3Fgroup_+skos%3AprefLabel+%3FgroupName%0A++++++++%7D%0A++++%7D+%0A%7D+%0AGROUP+BY+%3Fcompany+%3FcompanyName%0AORDER+BY+%3FcompanyName%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Companies CSV
-    //h2 Payments
-    //table.table.table-striped.payments(ts-wrapper)
-    //   thead
-    //      tr
-    //         th(ts-criteria='year') Year
-    //         th(ts-criteria='project') Project
-    //         th(ts-criteria='paidBy') Paid by
-    //         th.type(ts-criteria='type') Payment Type
-    //         th(ts-criteria='currency') Currency
-    //         th(ts-criteria='value|parseInt') Value
-    //         th(ts-criteria='receipt') Payment or receipt?
-    //         th(ts-criteria='id|parseInt') ID
-    //   tbody
+        .col-md-6
+            h2 Companies
+                //a=' '
+                //small Companies active
+            table.table.table-striped.companies(ts-wrapper)
+                thead
+                    tr
+                        th(ts-criteria='name') Name
+                        th(ts-criteria='group') Group
+                tbody
+                    tr(
+                    ng-repeat="(id, company) in concession.companies")
+                        td
+                           a(href="companies/{{id}}")
+                              span(ng-bind-html="company.company_name|sanitize")
+                        td SUB SUB QUERY
+            .download
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download:
+                    =' '
+                    a(href="") Companies CSV
+                    //a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3FcompanyName+%28xsd%3Astring%28%3Fgroup_%29+as+%3Fgroup%29++%3FgroupName+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fproject_name%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+.%0A+++++++++++++++%3Fcompany+skos%3AprefLabel+%3FcompanyName%0A++++++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++++++%3Fgroup_+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++++++%3Fgroup_+skos%3AprefLabel+%3FgroupName%0A++++++++%7D%0A++++%7D+%0A%7D+%0AGROUP+BY+%3Fcompany+%3FcompanyName%0AORDER+BY+%3FcompanyName%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Companies CSV
+
+    h2 Payments
+    table.table.table-striped.payments(ts-wrapper)
+       thead
+          tr
+             th(ts-criteria='year') Year
+             th(ts-criteria='project') Project
+             th(ts-criteria='paidBy') Paid by
+             th.type(ts-criteria='type') Payment Type
+             th(ts-criteria='currency') Currency
+             th(ts-criteria='value|parseInt') Value
+             th(ts-criteria='receipt') Payment or receipt?
+             th(ts-criteria='id|parseInt') ID
+       tbody
     //      tr(ng-repeat="payment in country.payments",ts-repeat)
     //         td {{payment.year}}
     //         td
