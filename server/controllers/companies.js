@@ -174,15 +174,15 @@ exports.getCompanyByID = function(req, res) {
                             }
                             break;
                         case 'concession':
-                            //console.log(link.concession);
+                            console.log(link.concession);
                             if (!company.concessions.hasOwnProperty(link.concession._id)) {
                                 //console.log(_.find(link.concession.concession_country.reverse()).country);
                                 company.concessions[link.concession._id] = {
                                     concession_name: link.concession.concession_name,
                                     concession_country: _.find(link.concession.concession_country.reverse()).country,
                                     concession_type: _.find(link.concession.concession_type.reverse()),
-                                //    concession_commodity: link.concession,
-                                    concession_status: _.find(link.concession.concession_status.reverse())
+                                    concession_commodities: link.concession.concession_commodity,
+                                    concession_status: link.concession.concession_status
                                 };
                                 company.concessions[link.concession._id+'kkk'] = {
                                     concession_name: link.concession.concession_name,
@@ -190,10 +190,6 @@ exports.getCompanyByID = function(req, res) {
                                     concession_type: _.find(link.concession.concession_type.reverse()),
                                     concession_commodities: link.concession.concession_commodity,
                                     concession_status: link.concession.concession_status
-                                    //
-                                    //
-                                    //
-                                    //    link.concession.commodity_name
                                 };
                             }
                             break;

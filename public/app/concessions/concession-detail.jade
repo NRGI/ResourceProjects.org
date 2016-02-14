@@ -7,7 +7,7 @@
     //.row
     //   .col-md-12
     //      leaflet(center="country.countryMap",controls="controls",markers="country.projectMarkers",tiles="tiles",height='240px')
-    .row {{concession.projects}}
+    //.row {{concession}}
     .row
         .col-md-6
             .info-box
@@ -39,10 +39,11 @@
                                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                         tr
                             td.detail_label.small Commodities:
+                            //td {{concession.concession_commodity}}
                             td.concession_commodities
-                                text(ng-repeat="(key, value) in concession.commodities")
-                                    a(href='commoddity/{{key}}')
-                                        span(ng-bind-html="value|sanitize")
+                                text(ng-repeat="commodity in concession.concession_commodity | unique: 'concession._id'")
+                                    a(href='commoddity/{{commodity.commodity._id}}')
+                                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Open Oil ID:

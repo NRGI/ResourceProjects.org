@@ -12,7 +12,7 @@ body {
 footer {
   margin-top: 40px;
   padding-top: 20px;
-/* border-top: 4px solid rgb(215, 219, 223); */
+/* border-top 4px solid rgb(215, 219, 223); */
   border-top: 8px solid #d6d8cb;
   background: #eeefe8;
   color: #333;
@@ -188,8 +188,8 @@ th {
   font-size: 1.2em;
 }
 .navbar-fixed-top {
-/*border-top: 25px solid #B0D6F2!important;*/
-/*border-bottom: 1px rgb(85,114,136) solid;*/
+/*border-top 25px solid #B0D6F2!important;*/
+/*border-bottom 1px rgb(85,114,136) solid;*/
   border-bottom: 1px solid #eeefe8 !important;
 }
 .navbar-search .search-query {

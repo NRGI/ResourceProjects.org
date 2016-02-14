@@ -104,7 +104,7 @@ exports.getConcessionByID = function(req, res) {
         Concession.findOne({_id:req.params.id})
             .populate('concession_aliases', ' _id alias')
             .populate('concession_country.country')
-            .populate('concession_country.country')
+            .populate('concession_commodity.commodity')
             .lean()
             .exec(function(err, concession) {
                 if(concession) {
