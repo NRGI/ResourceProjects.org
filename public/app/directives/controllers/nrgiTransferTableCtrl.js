@@ -1,5 +1,7 @@
 'use strict';
 
-angular.module('app').controller('nrgiTransferTableCtrl', function ($scope) {
+angular
+    .module('app')
+    .controller('nrgiTransferTableCtrl', function ($scope) {
 
-});
+    });
