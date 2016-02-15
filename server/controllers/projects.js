@@ -1,178 +1,166 @@
 var Project 		= require('mongoose').model('Project'),
 	Country 		= require('mongoose').model('Country'),
-	Source 			= require('mongoose').model('Source'),
-	Alias 			= require('mongoose').model('Alias'),
-	Company 		= require('mongoose').model('Company'),
-	CompanyGroup 	= require('mongoose').model('CompanyGroup'),
-	Commodity 		= require('mongoose').model('Commodity'),
-	Concession 		= require('mongoose').model('Concession'),
-	Contract 		= require('mongoose').model('Contract'),
+	Source	 		= require('mongoose').model('Source'),
+	Link 	        = require('mongoose').model('Link'),
+	async           = require('async'),
+	_               = require("underscore"),
+	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
-
 exports.getProjects = function(req, res) {
-	var count;
-	var query = Project.find(req.query);
-	query.exec(function(err, collection) {
-		count = collection.length;
-		collection =collection.slice(req.params.skip,Number(req.params.limit)+Number(req.params.skip));
-		res.send({data:collection,count:count});
+	var project_len, link_len, project_counter, link_counter,
+		limit = Number(req.params.limit),
+		skip = Number(req.params.skip);
+
+	async.waterfall([
+		projectCount,
+		getProjectSet,
+		getProjectLinks
+	], function (err, result) {
+		if (err) {
+			res.send(err);
+		}
 	});
-};
-exports.getProjectByID = function(req, res) {
-	var country=[];var project=[];var source=[];var alias=[];var companies=[];var contracts=[];var commodities=[];var concessions=[];var companyGroup=[];
-	Commodity.find(req.query).exec(function(err, collection) {
-		commodities = collection;
-	});
-	Company.find(req.query).exec(function(err, collection) {
-		companies = collection;
-	});
-	CompanyGroup.find(req.query).exec(function(err, collection) {
-		companyGroup = collection;
-	});
-	Alias.find(req.query).exec(function(err, collection) {
-		alias = collection;
-	});
-	Source.find(req.query).exec(function(err, collection) {
-		source = collection;
-	});
-	Country.find(req.query).exec(function(err, collection) {
-		country = collection;
-	});
-	Concession.find(req.query).exec(function(err, collection) {
-		concessions = collection;
-	});
-	Contract.find(req.query).exec(function(err, collection) {
-		contracts = collection;
-	});
-	Project.findOne({_id:req.params.id}).exec(function(err, collection) {
-		setTimeout(function() {
-			if (collection != null || collection != undefined) {
-				project = collection;
-				if (collection.proj_status.length != 0) {
-					source.forEach(function (source_item) {
-						if (source_item._id.toString() == collection.proj_status[0].source.toString()) {
-							project.proj_status[0] = {
-								source: collection.proj_status[0].source,
-								date: source_item.source_date,
-								string: collection.proj_status[0].string
-							};
+
+	function projectCount(callback) {
+		Project.find({}).count().exec(function(err, project_count) {
+			if(project_count) {
+				callback(null, project_count);
+			} else {
+				callback(err);
+			}
+		});
+	}
+
+	function getProjectSet(project_count, callback) {
+		Project.find(req.query)
+			.sort({
+				proj_name: 'asc'
+			})
+			.skip(skip)
+			.limit(limit)
+			.populate('proj_country.country', '_id iso2 name')
+			.populate('proj_status.source', 'source_date')
+			.populate('proj_aliases', ' _id alias')
+			.lean()
+			.exec(function(err, projects) {
+				if(projects) {
+					callback(null, project_count, projects);
+				} else {
+					callback(err);
+				}
+			});
+	}
+
+	function getProjectLinks(project_count, projects, callback) {
+		project_len = projects.length;
+		project_counter = 0;
+		projects.forEach(function (c) {
+			Link.find({project: c._id})
+				.populate('commodity','_id commodity_name')
+				.populate('company')
+				.exec(function(err, links) {
+					++project_counter;
+					link_len = links.length;
+					link_counter = 0;
+					c.proj_commodity = [];
+					c.companies = 0;
+					links.forEach(function(link) {
+						++link_counter;
+						var entity = _.without(link.entities, 'project')[0];
+						switch (entity) {
+							case 'commodity':
+								c.proj_commodity.push({
+									_id: link.commodity._id,
+									commodity_name: link.commodity.commodity_name
+								});
+								break;
+							//
+							case 'company':
+								c.companies += 1;
+								break;
+							//
+							default:
+								console.log('error');
 						}
-						project.proj_coordinates.forEach(function (coordinates, i) {
-							if (source_item._id.toString() == coordinates.source.toString()) {
-								project.proj_coordinates[i] = {
-									source: coordinates.source,
-									date: source_item.source_date,
-									loc: coordinates.loc,
-									name: source_item.source_name
-								};
-							}
-						})
-					})
-				}
-				if (collection.proj_aliases.length != 0) {
-					collection.proj_aliases.forEach(function (aliases, i) {
-						alias.forEach(function (alias_item) {
-							if (alias_item._id.toString() == aliases.toString()) {
-								project.proj_aliases[i] = {
-									_id: aliases,
-									name: alias_item.alias
-								};
-							}
-
-						})
-					})
-				}
-				if (collection.concessions.length != 0) {
-					collection.concessions.forEach(function (concession, i) {
-						concessions.forEach(function (concession_item) {
-							if (concession_item._id.toString() == concession.toString()) {
-								project.concessions[i] = {
-									_id: concession,
-									name: concession_item.concession_name
-								};
-							}
-
-						})
-					})
-				}
-				if (collection.contracts.length != 0) {
-					collection.contracts.forEach(function (contract, i) {
-						contracts.forEach(function (contract_item) {
-							if (contract_item._id.toString() == contract.toString()) {
-								project.contracts[i] = {
-									_id: contract,
-									name: contract_item.contract_id
-								};
-							}
-
-						})
-					})
-				}
-				if (collection.commodities.length != 0) {
-					collection.commodities.forEach(function (commodity, i) {
-						commodities.forEach(function (commodity_item) {
-							if (commodity_item._id.toString() == commodity.toString()) {
-								project.commodities[i] = {
-									_id: commodity,
-									name: commodity_item.commodity_name
-								};
-							}
-
-						})
-					})
-				}
-				if (collection.companies.length != 0) {
-					collection.companies.forEach(function (company, i) {
-						companies.forEach(function (company_item) {
-							if (company_item._id.toString() == company.toString()) {
-								if (company_item.company_groups.length != 0) {
-									companyGroup.forEach(function (companyGroup_item) {
-										if (companyGroup_item._id.toString() == company_item.company_groups.toString())
-											project.companies[i] = {
-												company: {
-													_id: company,
-													name: company_item.company_name
-												},
-												companyGroup: {
-													_id: company_item.company_groups,
-													name: companyGroup_item.company_group_name
-												}
-											};
-									})
-
-								}
-								else {
-									project.companies[i] = {
-										company: {
-											_id: company,
-											name: company_item.company_name
-										},
-										companyGroup: {}
-									};
-								}
-							}
-						})
-					})
-				}
-				country.forEach(function (country_item) {
-					if (collection.country.length != 0) {
-						if (collection.country[0].country != undefined) {
-							if (country_item._id == collection.country[0].country.toString()) {
-								project.country[0] = {
-									source: collection.country[0].source,
-									country: collection.country[0].country,
-									_id: country_item._id,
-									name: country_item.name,
-									iso2: country_item.iso2
-								};
-							}
-						}
+					});
+					if(project_counter == project_len && link_counter == link_len) {
+						res.send({data:projects, count:project_count});
 					}
 				});
-				res.send(project);
-			} else {
-				res.send(collection);
-			}
-		},200)
+		});
+	}
+};
+exports.getProjectByID = function(req, res) {
+	var link_counter, link_len,key;
+
+	async.waterfall([
+		getProject,
+		getProjectLinks,
+	], function (err, result) {
+		if (err) {
+			res.send(err);
+		}
+
 	});
+
+	function getProject(callback) {
+		Project.findOne({_id:req.params.id})
+			.populate('proj_country.country', '_id iso2 name')
+			.populate('proj_status.source', 'source_date')
+			.populate('proj_aliases', ' _id alias')
+			.lean()
+			.exec(function(err, project) {
+				if(project) {
+					callback(null, project);
+				} else {
+					callback(err);
+				}
+			});
+	}
+	function getProjectLinks(project, callback) {
+		Link.find({project: project._id})
+			.populate('commodity')
+			.populate('company')
+			.populate('contract')
+			.populate('concession')
+			.deepPopulate('company company.company_group')
+			.exec(function(err, links) {
+				link_len = links.length;
+				link_counter = 0;
+				project.companies = [];
+				project.commodities = {};
+				project.projects = [];
+				project.concessions = [];
+				project.contracts = [];
+				links.forEach(function(link) {
+					++link_counter;
+					if(link.entities.indexOf('project')==0){
+						key =1;
+					}else{key=0}
+					switch (link.entities[key]) {
+						case 'commodity':
+							if (!project.commodities.hasOwnProperty(link.commodity_code)) {
+								project.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+							}
+							break;
+						case 'company':
+							project.companies.push({
+								_id: link.company._id,
+								company_name: link.company.company_name
+							});
+							break;
+						case 'concession':
+							break;
+						case 'contract':
+							project.contracts.push(link);
+							break;
+						default:
+							console.log('error');
+					}
+					if(link_counter == link_len) {
+						res.send(project);
+					}
+				});
+			});
+	}
 };

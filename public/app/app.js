@@ -10,8 +10,6 @@ angular.module('app', [
 ]);
 
 angular.module('app')
-
-angular.module('app')
     .config(function($routeProvider, $locationProvider) {
         // role checks
         var routeRoleChecks = {
@@ -77,14 +75,14 @@ angular.module('app')
             //.when('/concessions/map', {
             //    templateUrl: '/partials/projects/map'
             //})
-            //.when('/projects', {
-            //    templateUrl: '/partials/projects/projects',
-            //    controller: 'nrgiProjectsCtrl'
-            //})
-            //.when('/projects/:id_country/:id', {
-            //    templateUrl: '/partials/projects/project',
-            //    controller: 'nrgiProjectCtrl'
-            //})
+            .when('/projects', {
+                templateUrl: '/partials/projects/project-list',
+                controller: 'nrgiProjectListCtrl'
+            })
+            .when('/project/:id_country/:id', {
+                templateUrl: '/partials/projects/project-detail',
+                controller: 'nrgiProjectDetailCtrl'
+            })
             //.when('/projects/map', {
             //    templateUrl: '/partials/projects/map'
             //})
@@ -98,26 +96,26 @@ angular.module('app')
             })
             //
             ////Helper groups
-            //.when('/countries', {
-            //    templateUrl: '/partials/countries/countries',
-            //    controller: 'nrgiCountriesCtrl'
-            //})
+            .when('/countries', {
+                templateUrl: '/partials/countries/country-list',
+                controller: 'nrgiCountryListCtrl'
+            })
             //.when('/countries/:id', {
             //    templateUrl: '/partials/countries/country',
             //    controller: 'nrgiCountryCtrl'
             //})
-            //.when('/commodities', {
-            //    templateUrl: '/partials/commodities/commodities',
-            //    controller: 'nrgiCommoditiesCtrl'
-            //})
+            .when('/commodities', {
+                templateUrl: '/partials/commodities/commodity-list',
+                controller: 'nrgiCommodityListCtrl'
+            })
             //.when('/commodities/:id', {
             //    templateUrl: '/partials/commodities/commodity',
             //    controller: 'nrgiCommodityCtrl'
             //})
-            //.when('/groups', {
-            //    templateUrl: '/partials/companies/groups',
-            //    controller: 'nrgiGroupsCtrl'
-            //})
+            .when('/groups', {
+                templateUrl: '/partials/companies/group-list',
+                controller: 'nrgiGroupListCtrl'
+            })
             //.when('/groups/:id', {
             //    templateUrl: '/partials/companies/group',
             //    controller: 'nrgiGroupCtrl'
@@ -135,23 +133,23 @@ angular.module('app')
             //})
             //
             ////Other
-            //.when('/sources', {
-            //    templateUrl: '/partials/sources/sources',
-            //    controller: 'nrgiSourcesCtrl'
-            //})
-            //.when('/sources/:id', {
-            //    templateUrl: '/partials/sources/source',
-            //    controller: 'nrgiSourceCtrl'
-            //})
-            //.when('/glossary', {
-            //    templateUrl: '/partials/common/glossary'
-            //})
-            //.when('/contribute', {
-            //    templateUrl: '/partials/common/contribute'
-            //})
-            //.when('/about', {
-            //    templateUrl: '/partials/common/about'
-            //})
+            .when('/sources', {
+                templateUrl: '/partials/sources/source-list',
+                controller: 'nrgiSourceListCtrl'
+            })
+            .when('/source/:id', {
+                templateUrl: '/partials/sources/source-detail',
+                controller: 'nrgiSourceDetailCtrl'
+            })
+            .when('/glossary', {
+                templateUrl: '/partials/common/glossary'
+            })
+            .when('/contribute', {
+                templateUrl: '/partials/common/contribute'
+            })
+            .when('/about', {
+                templateUrl: '/partials/common/about'
+            })
             //.when('/model', {
             //    templateUrl: '/partials/common/dataModel'
             //})

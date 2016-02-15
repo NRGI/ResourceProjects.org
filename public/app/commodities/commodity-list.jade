@@ -4,7 +4,17 @@
          .col-md-4
             h1 Commodities
 
-   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+   nrgi-list-nav(
+   page="page"
+   type="record_type"
+   show="show_count"
+   count="count"
+   limit="limit"
+   last="last"
+   next="next"
+   prev="prev"
+   first="first"
+   select="select")
 
    table#commodities.table.table-striped(ts-wrapper)
       thead
@@ -19,10 +29,23 @@
                a(href='commodity/{{commodity._id}}')
                   span(ng-bind-html="commodity.commodity_name|sanitize")
             td
-               span(ng-if="commodity.projects!=0") {{commodity.projects}}
+               span(ng-if="commodity.projects!=0")
+                  | {{commodity.projects}}
             td
-               span(ng-if="commodity.contracts!=0") {{commodity.contracts}}
+               span(ng-if="commodity.contracts!=0")
+                  | {{commodity.contracts}}
             td
-               span(ng-if="commodity.concessions!=0") {{commodity.concessions}}
+               span(ng-if="commodity.concessions!=0")
+                  | {{commodity.concessions}}
 
-   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+   nrgi-list-nav(
+   page="page"
+   type="record_type"
+   show="show_count"
+   count="count"
+   limit="limit"
+   last="last"
+   next="next"
+   prev="prev"
+   first="first"
+   select="select")

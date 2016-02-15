@@ -21,7 +21,7 @@ module.exports	= function(app) {
 
 	//CONTRACTS
 	app.get('/api/contracts/:limit/:skip', contracts.getContracts);
-	app.get('/api/contract/:id', contracts.getContractByID);
+	app.get('/api/contracts/:id', contracts.getContractByID);
 
 	//CONCESSIONS
 	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
@@ -48,7 +48,7 @@ module.exports	= function(app) {
 
 	//SOURCES
 	app.get('/api/sources/:limit/:skip', sources.getSources);
-	app.get('/api/source/:id', sources.getSourceByID);
+	app.get('/api/sources/:id', sources.getSourceByID);
 
 	/////////////////////////
 	///// USERS CRUD ////////

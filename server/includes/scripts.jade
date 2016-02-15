@@ -7,13 +7,18 @@ script(type="text/javascript", src="/vendor/angular-resource/angular-resource.js
 script(type="text/javascript", src="/vendor/angular-route/angular-route.js")
 script(type="text/javascript", src="/vendor/angular-filter/dist/angular-filter.js")
 script(type="text/javascript", src="/vendor/ngDialog/js/ngDialog.js")
-script(type="text/javascript", src="/vendor/angular-tablesort/js/angular-tablesort.js")
 script(type="text/javascript", src="/vendor/iso-3166-country-codes-angular/dist/iso-3166-country-codes-angular.min.js")
 script(src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js")
 script(type="text/javascript", src="/vendor/esri-leaflet/dist/esri-leaflet.js")
 script(type="text/javascript", src="/vendor/angular-leaflet-directive/dist/angular-leaflet-directive.min.js")
-script(type="text/javascript", src="/vendor/Leaflet.fullscreen/dist/Leaflet.fullscreen.js")
-script(type="text/javascript", src="/vendor/typeahead.js/dist/typeahead.bundle.js")
+script(type="text/javascript", src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js")
+//script(type="text/javascript", src="vendor/tablesorter/dist/js/jquery.tablesorter.min.js")
+//script(type="text/javascript", src="vendor/tablesorter/dist/js/jquery.tablesorter.widgets.min.js")
+script(type = "text/javascript", src = "/vendor/bootstrap-typeahead.js")
+script(type="text/javascript", src="/app/component/angular-tablesort.js")
+script(type="text/javascript", src="/vendor/underscore/underscore.js")
+script(type="text/javascript", src="/vendor/angular-underscore/angular-underscore.min.js")
+script(type="text/javascript", src="/vendor/restangular/dist/restangular.js")
 script(type='text/javascript').
     $(document).ready(function(){
         $('.typeahead').typeahead({
@@ -31,9 +36,6 @@ script(type='text/javascript').
             displayText: function(item){ return item.value;}
         });
     });
-//script(type="text/javascript", src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.13.3/jquery.tablesorter.min.js")
-//script(type="text/javascript", src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.13.3/jquery.tablesorter.widgets.min.js")
-
 //- MAIN APP
 script(type="text/javascript", src="/app/app.js")
 script(type="text/javascript", src="/app/common/nrgiNotifier.js")
@@ -55,20 +57,24 @@ script(type="text/javascript", src="/app/contracts/nrgiContractDetailCtrl.js")
 //sources
 
 
-//script(type="text/javascript", src="/app/projects/nrgiProjectsCtrl.js")
-//script(type="text/javascript", src="/app/projects/nrgiProjectCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiProjectListCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiProjectDetailCtrl.js")
 //script(type="text/javascript", src="/app/projects/nrgiMapCtrl.js")
-//script(type="text/javascript", src="/app/sources/nrgiSourcesCtrl.js")
-//script(type="text/javascript", src="/app/sources/nrgiSourceCtrl.js")
-//script(type="text/javascript", src="/app/countries/nrgiCountriesCtrl.js")
+script(type="text/javascript", src="/app/sources/nrgiSourceListCtrl.js")
+script(type="text/javascript", src="/app/sources/nrgiSourceDetailCtrl.js")
+script(type="text/javascript", src="/app/countries/nrgiCountryListCtrl.js")
 //script(type="text/javascript", src="/app/countries/nrgiCountryCtrl.js")
 
-//script(type="text/javascript", src="/app/companies/nrgiGroupsCtrl.js")
+script(type="text/javascript", src="/app/companies/nrgiGroupListCtrl.js")
 //script(type="text/javascript", src="/app/companies/nrgiGroupCtrl.js")
-//script(type="text/javascript", src="/app/commodities/nrgiCommoditiesCtrl.js")
+script(type="text/javascript", src="/app/commodities/nrgiCommodityListCtrl.js")
 //script(type="text/javascript", src="/app/commodities/nrgiCommodityCtrl.js")
 
-
+//script(type="text/javascript", src="/app/contracts/nrgiContractListCtrl.js")
+////script(type="text/javascript", src="/app/contracts/nrgiContractCtrl.js")
+//script(type="text/javascript", src="/app/concessions/nrgiConcessionListCtrl.js")
+////script(type="text/javascript", src="/app/concessions/nrgiConcessionCtrl.js")
+//script(type="text/javascript", src="/app/services/nrgiRCAPISrvc.js")
 
 
 //- DIRECTIVES
@@ -93,12 +99,23 @@ script(type="text/javascript", src="/app/services/nrgiSourcesSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiContractsSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiConcessionsSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiProjectsSrvc.js")
+script(type="text/javascript", src="/app/services/nrgiCommoditiesSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiQuestionSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiQuestionMethodSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiQuestionTextSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiAssessmentSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiAssessmentMethodSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiAnswerSrvc.js")
+//- script(type="text/javascript", src="/app/services/nrgiAnswerMethodSrvc.js")
+//- script(type="text/javascript", src="/app/services/ApiSrvc.js")
+//- script(type="text/javascript", src="/app/nrgiAnswerCtrl.js")
+//- script(type="text/javascript", src="/app/boliviaCtrl.js")
+//- script(type="text/javascript", src="/app/services/ApiSrvc.js")
 
 //- METHODS
 script(type="text/javascript", src="/app/services/methods/nrgiCompaniesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiConcessionsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiUserMethodSrvc.js")
-
 //- ACCT CTRLS
 script(type="text/javascript", src="/app/account/nrgiNavBarLoginCtrl.js")
 script(type="text/javascript", src="/app/account/nrgiProfileCtrl.js")

@@ -37,7 +37,7 @@ exports.getCompanies = function(req, res) {
             .sort({
                 company_name: 'asc'
             })
-            .skip(skip * limit)
+            .skip(skip)
             .limit(limit)
             .populate('country_of_incorporation.country', '_id iso2 name')
             .populate('company_aliases', ' _id alias')
@@ -54,7 +54,6 @@ exports.getCompanies = function(req, res) {
     function getCompanyLinks(company_count, companies, callback) {
         company_len = companies.length;
         company_counter = 0;
-
         companies.forEach(function (c) {
             Link.find({company: c._id})
                 .populate('company_group','_id company_group_name')
@@ -67,6 +66,7 @@ exports.getCompanies = function(req, res) {
                     c.projects = 0;
                     links.forEach(function(link) {
                         ++link_counter;
+
                         var entity = _.without(link.entities, 'company')[0]
                         switch (entity) {
                             case 'company_group':
@@ -83,11 +83,11 @@ exports.getCompanies = function(req, res) {
                             default:
                                 //console.log(entity, 'link skipped...');
                         }
-                        if(company_counter == company_len && link_counter == link_len) {
-                            res.send({data:companies, count:company_count});
-                        }
-                    });
 
+                    });
+                    if(company_counter == company_len && link_counter == link_len) {
+                        res.send({data:companies, count:company_count});
+                    }
                 });
         });
     }
@@ -139,6 +139,7 @@ exports.getCompanyByID = function(req, res) {
             });
     }
     function getCompanyLinks(company, callback) {
+        //console.log(company);
         Link.find({company: company._id})
             .populate('company_group','_id company_group_name')
             .populate('commodity')

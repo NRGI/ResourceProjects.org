@@ -9,7 +9,7 @@ var Contract 		= require('mongoose').model('Contract'),
     async           = require('async'),
     _               = require("underscore"),
     encrypt 		= require('../utilities/encryption');
-//.populate('comments.author', 'firstName lastName role')
+
 exports.getContracts = function(req, res) {
     var concession_len, link_len, concession_counter, link_counter,
         limit = Number(req.params.limit),

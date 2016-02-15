@@ -13,7 +13,6 @@ var sourceSchema, contractSchema, Contract,
 
 
 contractSchema = new Schema ({
-    //Metadata
     contract_id: String //from rc.org
     //contract_name: String, //from rc.org
     //contract_type: [fact], //geographic type i.e. onshore, off shore, etc.
@@ -35,7 +34,7 @@ function createDefaultContracts() {
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec21',
-                contract_id: 'ocds-591adf-PE6396832160RC',
+                contract_id: 'ocds-591adf-PE6396832160RC'
             });
             console.log('Contracts created...');
         }

@@ -27,7 +27,7 @@ linkSchema = new Schema({
     entities: [{ //linked entity
         type: String,
         required:'{PATH} is required!',
-        enum: entity_enu}],
+        enum: entity_enu}]
     ////company group specific
     //company_group_start_date: Date,
     //company_group_end_date: Date,
@@ -70,6 +70,11 @@ function createDefaultLinks() {
             Link.create({_id:'56b920dddddddc16182ed7e0',project:'56a930f41b5482a31231ef43',contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entities:['contract','project']});
             Link.create({_id:'56b92hhhhhhhhc16182ed7df',project:'56a930f41b5482a31231ef44',contract:'56a2eb4345d114c30439ec21',source:'56747e060e8cc07115200ee6',entities:['contract','project']});
 
+            //transfer links
+            //country
+            //companies
+            //project
+
 
             //Link.create({_id:'56b92074a4jhd786182ed7de',project:'56a930f41b5482a31231ef42',concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee6',entities:['concession','project']});
             //Link.create({_id:'56b92074a4449996182ed7e0',project:'56a930f41b5482a31231ef43',concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee6',entities:['concession','project']});
@@ -82,6 +87,7 @@ function createDefaultLinks() {
             //country
             //companies
             //project
+
 
             //Link.create({_id:'56a8e778c052957008a847a7',concession:'56a2b8236e585b7316655794',commodity:'56a13e9942c8bef50ec2e9f1',source:'56747e060e8cc07115200ee6',entities:['concession','commodity']});
             //Link.create({_id:'56a8e778c052957008a847a8',concession:'56a2b8236e585b7316655794',commodity:'56a13e9942c8bef50ec2e9eb',source:'56747e060e8cc07115200ee6',entities:['concession','commodity']});

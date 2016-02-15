@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiSourcesCtrl', function (
+    .controller('nrgiSourceListCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
@@ -11,7 +11,7 @@ angular.module('app')
         $scope.show_count=0;
         $scope.controller='nrgiSourcesCtrl';
         var loadSources = function(limit,page){
-            nrgiSourcesSrvc.getAllSources(limit,page).then(function(response) {
+            nrgiSourcesSrvc.query({skip: page, limit: limit}, function (response) {
                 $scope.count = response.count;
                 $scope.limit = limit;
                 $scope.page = page;

@@ -14,13 +14,13 @@
    table.table.table-striped(ts-wrapper)
       thead
          tr
-            th.tablesort-sortable-th(ts-criteria='name') Company Group
+            th.tablesort-sortable-th(ts-criteria='company_group_name') Company Group
             th.tablesort-sortable-th(ts-criteria='companies|parseInt') No. Companies
             th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
       tbody
          tr(ng-repeat='group in groups',ts-repeat)
             td
-               a(href='group/{{group._id}}') {{group.name}}
+               a(href='group/{{group._id}}') {{group.company_group_name}}
             td
                span(ng-if="group.companies!=0") {{group.companies}}
             td

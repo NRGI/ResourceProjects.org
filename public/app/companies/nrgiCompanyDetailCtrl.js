@@ -13,7 +13,6 @@ angular.module('app')
 
         nrgiCompaniesSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.company = success;
-
         });
 
         var tilesDict = {

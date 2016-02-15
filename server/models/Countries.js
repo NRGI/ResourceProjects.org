@@ -6,6 +6,7 @@ var countrySchema, Country,
     links    = require('./Links'),
     mongoose = require('mongoose'),
     Schema   = mongoose.Schema,
+    fact     = require("./Facts"),
     ObjectId = Schema.Types.ObjectId;
 
 countrySchema = new Schema({
@@ -13,8 +14,8 @@ countrySchema = new Schema({
     name: String,
     country_aliases: [{
         type: ObjectId,
-        ref: 'Alias'}]
-
+        ref: 'Alias'}],
+    projects:[fact]
 });
 
 //countrySchema.plugin(mongooseHistory, options);

@@ -7,7 +7,7 @@ var mongoose = require('mongoose');
 var factSchema, Fact,
     Schema      = mongoose.Schema,
     ObjectId    = Schema.Types.ObjectId,
-    source      = {type: ObjectId, ref: 'Sources'};
+    source      = {type: ObjectId, ref: 'Source'};
 
 factSchema = new Schema({
     source: source,
@@ -21,6 +21,9 @@ factSchema = new Schema({
     company: {
         type: ObjectId,
         ref: 'Company'},
+    project: {
+        type: ObjectId,
+        ref: 'Project'},
     string: String,
     number: Number,
     date: Date,

@@ -38,7 +38,25 @@ companySchema = new Schema({
 
     //External mapping
     open_corporates_id: String,
-    companies_house_id: String
+    companies_house_id: String,
+
+    ////Links
+    //sources: [source],
+    commodities: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    company_group: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    concessions: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    contracts: [{
+        type: ObjectId,
+        ref: 'Link'}],
+    projects: [{
+        type: ObjectId,
+        ref: 'Link'}]
 });
 //TranModel
 //    .find({ quantityout: 1 },

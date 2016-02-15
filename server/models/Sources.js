@@ -36,7 +36,9 @@ sourceSchema = new Schema({
     retrieve_date: {
         type: Date,
         default: Date.now},
-    create_author: ObjectId,
+    create_author: [{
+            type: ObjectId,
+            ref: 'User'}],
     create_date: {
         type: Date,
         default: Date.now}
@@ -49,7 +51,6 @@ Source = mongoose.model('Source', sourceSchema);
 function createDefaultSources() {
     Source.find({}).exec(function(err, sources) {
         if(sources.length === 0) {
-            //console.log('***No sources');
             Source.create({
                 _id: '56747e060e8cc07115200ee4',
                 source_name: 'source 1',

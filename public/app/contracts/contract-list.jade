@@ -18,24 +18,23 @@
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
-                th(ts-criteria='name') RC-ID
-                th(ts-criteria='country.name') Country
-                th(ts-criteria='contract_type') Commodity Type
-                th(ts-criteria='commodities_name') Commodity
-                th(ts-criteria='projects|parseInt') No. Projects
+                th.tablesort-sortable-th(ts-criteria='name') RC-ID
+                th.tablesort-sortable-th(ts-criteria='country.name') Country
+                th.tablesort-sortable-th(ts-criteria='contract_type') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='commodities_name') Commodity
+                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
         tbody
-            tr(ng-repeat="contract in contracts" ts-repeat)
+            tr(ng-repeat="contract in contracts",ts-repeat)
                 td
-                    a(href='contracts/{{contract._id}}')
-                        span(ng-bind-html="contract.contract_id | sanitize")
+                    a(href='contract/{{ contract._id }}')
+                        span(ng-bind-html="contract.name | sanitize")
                 td
-                //    a(href='country/{{ contract.country._id }}')
-                //        span(ng-bind-html="contract.country.name | sanitize")
+                    a(href='country/{{ contract.country._id }}')
+                        span(ng-bind-html="contract.country.name | sanitize")
+                td.commodity_type {{contract.contract_type}}
+                td {{contract.commodities_name}}
                 td
-                    //.commodity_type {{contract.contract_type}}
-                td
-                    //| {{contract.commodities_name}}
-                td {{contract.projects}}
+                    span(ng-if="contract.projects!=0") {{contract.projects}}
 
     nrgi-list-nav(
     page="page"

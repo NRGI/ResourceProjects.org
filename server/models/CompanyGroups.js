@@ -29,7 +29,13 @@ companyGroupSchema = new Schema({
         type: ObjectId,
         ref: 'Sources'},
     description: htmlSettings,
-    open_corporates_group_ID: String
+    open_corporates_group_ID: String,
+    //companies: [{
+    //    type: ObjectId,
+    //    ref: 'Companies'}],
+    //projects: [{
+    //    type: ObjectId,
+    //    ref: 'Projects'}]
 });
 
 //pull from open corporates

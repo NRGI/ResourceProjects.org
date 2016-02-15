@@ -14,6 +14,7 @@
             tr(ng-repeat="country in countries",ts-repeat)
                 td
                     a(href='country/{{ country._id }}') {{country.name | isoCountry}}
-                td {{country.projects}}
+                td
+                    span(ng-if="country.projects!=0") {{country.projects}}
 
     navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")

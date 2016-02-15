@@ -42,7 +42,8 @@
                                 a(href='group/{{group._id}}')
                                     span(ng-bind-html="group.company_group_name|sanitize")
                                 | {{$last ? '' : ', '}}
-                        td {{company.projects}}
+                        td
+                            text(ng-if="company.projects!=0") {{company.projects}}
 
     nrgi-list-nav(
     page="page"
