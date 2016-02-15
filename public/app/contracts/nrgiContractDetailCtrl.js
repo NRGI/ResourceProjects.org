@@ -8,9 +8,9 @@ angular.module('app')
         nrgiContractsSrvc,
         $routeParams
     ) {
-        //nrgiContractsSrvc.getContractById($routeParams.id).then(function(response) {
-        //    $scope.contract=response;
-        //});
+        nrgiContractsSrvc.get({_id: $routeParams.id}, function (success) {
+            $scope.contract = success;
+        });
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
