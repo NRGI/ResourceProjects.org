@@ -58,14 +58,14 @@ angular.module('app')
                 resolve: routeRoleChecks.user
             })
             //Entity Routes
-            //.when('/contracts', {
-            //    templateUrl: '/partials/contracts/contracts',
-            //    controller: 'nrgiContractsCtrl'
-            //})
-            //.when('/contract/:id', {
-            //    templateUrl: '/partials/contracts/contract',
-            //    controller: 'nrgiContractCtrl'
-            //})
+            .when('/contracts', {
+                templateUrl: '/partials/contracts/contract-list',
+                controller: 'nrgiContractListCtrl'
+            })
+            .when('/contracts/:id', {
+                templateUrl: '/partials/contracts/contract-detail',
+                controller: 'nrgiContractDetailCtrl'
+            })
             .when('/concessions', {
                 templateUrl: '/partials/concessions/concession-list',
                 controller: 'nrgiConcessionListCtrl'

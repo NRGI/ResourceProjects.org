@@ -1,12 +1,11 @@
 var Company 		= require('mongoose').model('Company'),
-    CompanyGroup 	= require('mongoose').model('CompanyGroup'),
+    //CompanyGroup 	= require('mongoose').model('CompanyGroup'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
-    Country			= require('mongoose').model('Country'),
+    //Country			= require('mongoose').model('Country'),
     async           = require('async'),
     _               = require("underscore"),
-    request         = require('request'),
-    encrypt 		= require('../utilities/encryption');
+    request         = require('request');
 
 exports.getCompanies = function(req, res) {
     var company_len, link_len, company_counter, link_counter,

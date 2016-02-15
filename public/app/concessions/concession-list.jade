@@ -27,7 +27,7 @@
                         th(ts-criteria='concession_status') Status
                         th(ts-criteria='projects|parseInt') No. Projects
                 tbody
-                    tr(ng-repeat="concession in concessions",ts-repeat)
+                    tr(ng-repeat="concession in concessions" ts-repeat)
                         td: a(href='/concessions/{{concession._id}}')
                             span(ng-bind-html="concession.concession_name|sanitize")
                         td: text(ng-repeat="country in concession.concession_country")

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiContractsCtrl', function (
+    .controller('nrgiContractListCtrl', function (
         $scope,
         ISO3166,
         nrgiAuthSrvc,
@@ -9,16 +9,23 @@ angular.module('app')
         $sce,
         nrgiContractsSrvc
     ) {
-        $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
+        $scope.limit = 50;
+        $scope.page = 0;
+        $scope.count =0;
+        $scope.show_count=0;
+
         var loadContracts = function(limit,page){
-            nrgiContractsSrvc.getAllContracts(limit,page).then(function(response) {
-                $scope.count = response.count;
+            nrgiContractsSrvc.query({skip: page, limit: limit}, function (success) {
+                console.log(success);
+                $scope.count = success.count;
                 $scope.limit = limit;
                 $scope.page = page;
-                $scope.contracts=response.data;
-                $scope.show_count = response.data.length+$scope.page;
+                $scope.contracts = success.data;
+                $scope.show_count = success.data.length+$scope.page;
+                $scope.record_type = 'contracts';
             });
         };
+
         loadContracts($scope.limit,$scope.page);
         $scope.select = function(changeLimit){
             loadContracts(changeLimit,0);

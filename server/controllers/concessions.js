@@ -1,16 +1,15 @@
 var Concession 		= require('mongoose').model('Concession'),
-    Country 		= require('mongoose').model('Country'),
-    Source 			= require('mongoose').model('Source'),
-    Alias 			= require('mongoose').model('Alias'),
+    //Country 		= require('mongoose').model('Country'),
+    //Source 			= require('mongoose').model('Source'),
+    //Alias 			= require('mongoose').model('Alias'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Link            = require('mongoose').model('Link'),
-    Company 		= require('mongoose').model('Company'),
-    Commodity 		= require('mongoose').model('Commodity'),
-    Project 		= require('mongoose').model('Project'),
-    Contract 		= require('mongoose').model('Contract'),
+    //Company 		= require('mongoose').model('Company'),
+    //Commodity 		= require('mongoose').model('Commodity'),
+    //Project 		= require('mongoose').model('Project'),
+    //Contract 		= require('mongoose').model('Contract'),
     async           = require('async'),
-    _               = require("underscore"),
-    encrypt 	= require('../utilities/encryption');
+    _               = require("underscore");
 
 
 exports.getConcessions = function(req, res) {
@@ -166,30 +165,6 @@ exports.getConcessionByID = function(req, res) {
                                 };
                             }
                             break;
-                        //case 'concession':
-                        //    //console.log(link.concession);
-                        //    if (!company.concessions.hasOwnProperty(link.concession._id)) {
-                        //        //console.log(_.find(link.concession.concession_country.reverse()).country);
-                        //        company.concessions[link.concession._id] = {
-                        //            concession_name: link.concession.concession_name,
-                        //            concession_country: _.find(link.concession.concession_country.reverse()).country,
-                        //            concession_type: _.find(link.concession.concession_type.reverse()),
-                        //            //    concession_commodity: link.concession,
-                        //            concession_status: _.find(link.concession.concession_status.reverse())
-                        //        };
-                        //        company.concessions[link.concession._id+'kkk'] = {
-                        //            concession_name: link.concession.concession_name,
-                        //            concession_country: _.find(link.concession.concession_country.reverse().country),
-                        //            concession_type: _.find(link.concession.concession_type.reverse()),
-                        //            concession_commodities: link.concession.concession_commodity,
-                        //            concession_status: link.concession.concession_status
-                        //            //
-                        //            //
-                        //            //
-                        //            //    link.concession.commodity_name
-                        //        };
-                        //    }
-                        //    break;
                         case 'contract':
                             if (!_.contains(concession.contracts, link.contract.contract_id)) {
                                 concession.contracts.push(link.contract.contract_id);
@@ -253,117 +228,3 @@ exports.getConcessionByID = function(req, res) {
     //    //callback(null, company);
     //}
 };
-
-//exports.getConcessionByID = function(req, res) {
-//    var country=[];var project=[];var source=[];var alias=[];var companies=[];var contracts=[];var commodities=[];var concessions=[];
-//    Commodity.find(req.query).exec(function(err, collection) {
-//        commodities = collection;
-//    });
-//    Company.find(req.query).exec(function(err, collection) {
-//        companies = collection;
-//    });
-//    Alias.find(req.query).exec(function(err, collection) {
-//        alias = collection;
-//    });
-//    Source.find(req.query).exec(function(err, collection) {
-//        source = collection;
-//    });
-//    Country.find(req.query).exec(function(err, collection) {
-//        country = collection;
-//    });
-//    Project.find(req.query).exec(function(err, collection) {
-//        project = collection;
-//    });
-//    Contract.find(req.query).exec(function(err, collection) {
-//        contracts = collection;
-//    });
-//    Concession.findOne({_id:req.params.id}).exec(function(err, collection) {
-//        setTimeout(function() {
-//            if (collection != null || collection != undefined) {
-//                concessions = collection;
-//                if (collection.concession_status.length != 0) {
-//                    source.forEach(function (source_item) {
-//                        if (source_item._id.toString() == collection.concession_status[0].source.toString()) {
-//                            concessions.concession_status[0] = {
-//                                source: collection.concession_status[0].source,
-//                                date: source_item.source_date,
-//                                string: collection.concession_status[0].string
-//                            };
-//                        }
-//                    })
-//                }
-//                if (collection.concession_aliases.length != 0) {
-//                    collection.concession_aliases.forEach(function (aliases, i) {
-//                        alias.forEach(function (alias_item) {
-//                            if (alias_item._id.toString() == aliases.toString()) {
-//                                concessions.concession_aliases[i] = {
-//                                    _id: aliases,
-//                                    name: alias_item.alias
-//                                };
-//                            }
-//
-//                        })
-//                    })
-//                }
-//                if (collection.contracts.length != 0) {
-//                    collection.contracts.forEach(function (contract, i) {
-//                        contracts.forEach(function (contract_item) {
-//                            if (contract_item._id.toString() == contract.toString()) {
-//                                concessions.contracts[i] = {
-//                                    _id: contract,
-//                                    name: contract_item.contract_id
-//                                };
-//                            }
-//
-//                        })
-//                    })
-//                }
-//                if (collection.commodities.length != 0) {
-//                    collection.commodities.forEach(function (commodity, i) {
-//                        commodities.forEach(function (commodity_item) {
-//                            if (commodity_item._id.toString() == commodity.toString()) {
-//                                concessions.commodities[i] = {
-//                                    _id: commodity,
-//                                    name: commodity_item.commodity_name
-//                                };
-//                            }
-//
-//                        })
-//                    })
-//                }
-//                //if (collection.companies.length != 0) {
-//                //	collection.companies.forEach(function (company, i) {
-//                //		companies.forEach(function (company_item) {
-//                //			if (company_item._id.toString() == company.toString()) {
-//                //				concessions.companies[i] = {
-//                //					_id: company,
-//                //					name: company_item.company_name
-//                //				};
-//                //			}
-//                //
-//                //		})
-//                //	})
-//                //}
-//                country.forEach(function (country_item) {
-//                    if (collection.concession_country.length != 0) {
-//                        if (collection.concession_country[0].string != undefined) {
-//                            if (country_item._id == collection.concession_country[0].string.toString()) {
-//                                concessions.concession_country[0] = {
-//                                    source: collection.concession_country[0].source,
-//                                    string: collection.concession_country[0].string,
-//                                    _id: country_item._id,
-//                                    name: country_item.name,
-//                                    iso2: country_item.iso2
-//                                };
-//                            }
-//                        }
-//                    }
-//                });
-//                res.send(concessions);
-//            } else {
-//                res.send(collection);
-//            }
-//        },100);
-//        //res.send(concession);
-//    });
-//};

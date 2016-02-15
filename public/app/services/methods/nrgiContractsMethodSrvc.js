@@ -1,24 +1,24 @@
 angular.module('app')
-    .factory('nrgiConcessionsMethodSrvc', function(
+    .factory('nrgiContractsMethodSrvc', function(
         $q,
-        nrgiConcessionsSrvc
+        nrgiContractsSrvc
     ) {
         return {
-            createConcession: function(new_concession_data) {
-                var new_concession = new nrgiConcessionsSrvc(new_concession_data);
+            createContract: function(new_contract_data) {
+                var new_contract = new nrgiContractsSrvc(new_contract_data);
                 var dfd = $q.defer();
 
-                new_concession.$save().then(function() {
+                new_contract.$save().then(function() {
                     dfd.resolve();
                 }, function(response) {
                     dfd.reject(response.data.reason);
                 });
                 return dfd.promise;
             },
-            deleteConcession: function(concession_deletion) {
+            deleteContract: function(contract_deletion) {
                 var dfd = $q.defer();
-                var delete_ID = new nrgiConcessionsSrvc();
-                delete_ID.id = concession_deletion;
+                var delete_ID = new nrgiContractsSrvc();
+                delete_ID.id = contract_deletion;
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
@@ -27,9 +27,9 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateConcession: function(new_concession_data) {
+            updateContract: function(new_contract_data) {
                 var dfd = $q.defer();
-                new_concession_data.$update().then(function() {
+                new_contract_data.$update().then(function() {
                     dfd.resolve();
                 }), function(response) {
                     dfd.reject(response.data.reason);
@@ -39,14 +39,15 @@ angular.module('app')
         }
     });
 
-//'use strict';
 
+//'use strict';
+//
 //angular.module('app')
-//    .factory('nrgiConcessionsSrvc', function($http,$q) {
+//    .factory('nrgiContractsSrvc', function($http,$q) {
 //        return {
-//            getAllConcessions:function(limit,skip) {
+//            getAllContracts:function(limit,skip) {
 //                var dfd = $q.defer();
-//                $http.get('/api/concessions/'+limit+"/"+skip).then(function (response) {
+//                $http.get('/api/contracts/'+limit+"/"+skip).then(function (response) {
 //                    if(response.data) {
 //                        dfd.resolve(response.data);
 //                    } else {
@@ -55,9 +56,9 @@ angular.module('app')
 //                });
 //                return dfd.promise;
 //            },
-//            getConcessionById:function(id) {
+//            getContractById:function(id) {
 //                var dfd = $q.defer();
-//                $http.get('/api/concessions/'+id).then(function (response) {
+//                $http.get('/api/contract/'+id).then(function (response) {
 //                    if(response.data) {
 //                        dfd.resolve(response.data);
 //                    } else {

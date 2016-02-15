@@ -1,16 +1,16 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiContractCtrl', function (
+    .controller('nrgiContractDetailCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiContractsSrvc,
         $routeParams
     ) {
-        nrgiContractsSrvc.getContractById($routeParams.id).then(function(response) {
-            $scope.contract=response;
-        });
+        //nrgiContractsSrvc.getContractById($routeParams.id).then(function(response) {
+        //    $scope.contract=response;
+        //});
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
