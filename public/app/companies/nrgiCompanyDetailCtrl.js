@@ -11,7 +11,8 @@ angular.module('app')
     ) {
         $scope.proj_table_sort = {sort_type: 'project.project.proj_name', sort_reverse: false, search_text: ''};
 
-        nrgiCompaniesSrvc.get({_id: $routeParams.id}, function (success) {
+        $scope.record_type = 'companies';
+        nrgiCompaniesSrvc.get({_id: $routeParams.id,record_type:$scope.record_type}, function (success) {
             $scope.company = success;
         });
 

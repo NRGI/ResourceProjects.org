@@ -344,6 +344,9 @@ td.project-label {
   padding: 2px 5px 0 2px;
   vertical-align: top;
 }
+.location-th {
+  background-image: none !important;
+}
 .tablesort-sortable-th {
   background-image: url("data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==");
   background-position: center left;

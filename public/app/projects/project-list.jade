@@ -24,39 +24,32 @@
    table#projects.table.table-striped(about='http://resourceprojects.org/project',ts-wrapper)
       thead
          tr
-            th.tablesort-sortable-th(ts-criteria='proj_name')
-               | &nbsp; Name
-            th.tablesort-sortable-th(ts-criteria='proj_country.country.name')
-               | &nbsp; Country
-            th.tablesort-sortable-th(ts-criteria='proj_type.string')
-               | &nbsp; Commodity Type
-            th.tablesort-sortable-th(ts-criteria='proj_commodity[0].commodity_name')
-               | &nbsp; Commodity
-            th.tablesort-sortable-th(ts-criteria='proj_status[0].string')
-               | &nbsp; Status
-            th.tablesort-sortable-th(ts-criteria="companies|parseInt")
-               | &nbsp; No.Companies
+            th.tablesort-sortable-th(ts-criteria='proj_name') Name
+            th.tablesort-sortable-th(ts-criteria='proj_country.country.name') Country
+            th.tablesort-sortable-th(ts-criteria='proj_type.string') Commodity Type
+            th.tablesort-sortable-th(ts-criteria='proj_commodity[0].commodity_name') Commodity
+            th.tablesort-sortable-th(ts-criteria='proj_status[0].string') Status
+            th.tablesort-sortable-th(ts-criteria="companies|parseInt")  No.Companies
       tbody
          tr(ng-repeat='project in projects',ts-repeat)
-            td
-               a(href='/project/{{project.proj_country.country.iso2}}/{{project._id}}')
+            td: a(href='/project/{{project._id}}')
                   span(ng-bind-html="project.proj_name|sanitize")
-            td
-               a(href='/country/{{project.proj_country.country._id}}')
-                  span(ng-bind-html="project.proj_country.country.name|sanitize")
-            td.commodity_type {{project.proj_type.string}}
-            td
-               text(ng-repeat="commodity in project.proj_commodity")
+            td: text(ng-repeat="country in project.proj_country")
+                  a(href='/country/{{country.country.iso2}}')
+                     span(ng-bind-html="country.country.name|sanitize")
+                  | {{$last ? '' : ', '}}
+            td: text(ng-repeat="type in project.proj_type")
+               text(ng-if="$last") {{type.string | ucfirst}}
+            td: text(ng-repeat="commodity in project.proj_commodity")
                   a(href='commodity/{{commodity._id}}')
                      span(ng-bind-html="commodity.commodity_name|sanitize")
                   | {{$last ? '' : ', '}}
-            td.status
-               text(ng-repeat="status in project.proj_status")
+            td: text(ng-repeat="status in project.proj_status")
                   text(ng-if="$last")
-                     | {{status.string }}
-                     text.small  (true at {{status.source.source_date | date:'MM/dd/yyyy @ h:mma' : timezone}})
-            td
-               span(ng-if="project.companies!=0") {{project.companies}}
+                     | {{status.string | ucfirst}}
+                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+            td: span(ng-if="project.companies!=0")
+                 | {{project.companies}}
 
    nrgi-list-nav(
    page="page"

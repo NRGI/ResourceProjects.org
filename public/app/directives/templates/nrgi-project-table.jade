@@ -2,23 +2,25 @@ h2 Projects
 table.table.table-striped.projects(ts-wrapper)#project-info
     thead
         tr
-            th(ts-criteria='project.project.proj_name') Name
+            th(ts-criteria='project.proj_name') Name
             //th
             //    a(href="#" ng-click="proj_table_sort.sort_type = 'name'; proj_table_sort.sort_reverse = !proj_table_sort.sort_reverse")
             //        text.left-padding-med Name
-            th(ts-criteria='project.project.proj_country.country.name') Country
-            th(ts-criteria='project.project.proj_type.string') Commodity Type
-            th(ts-criteria='project.project.proj_commodity.commodity.commodity_name[project.project.proj_commodity.commodity.commodity_name.length - 1]') Commodity
-            th(ts-criteria='project.project.proj_status.string[project.project.proj_status.string.length - 1]') Status
+            th(ts-criteria='project.proj_country[project.proj_country.length - 1].country.name') Country
+            th(ts-criteria='project.proj_type[project.proj_type.length - 1].string') Commodity Type
+            th(ts-criteria='project.proj_commodity.commodity[project.proj_commodity.commodity.length - 1].commodity_name') Commodity
+            th(ts-criteria='project.proj_status[project.proj_status.length - 1].string') Status
     tbody
         tr(
         ng-repeat='project in projects'
         ts-repeat)
             td.proj_id: a(href='project/{{project.project._id}}')
                 span(ng-bind-html="project.project.proj_name|sanitize")
-            td.proj_country: a(href='country/{{project.project.proj_country.country.iso2}}')
-                span(ng-bind-html="project.project.proj_country.country.name|sanitize")
-            td.proj_type {{project.project.proj_type.string | ucfirst}}
+            td.proj_country: text(ng-repeat="country in project.project.proj_country | unique: 'country._id'")
+                a(href='country/{{country.country.iso2}}')
+                    span(ng-bind-html="country.country.name|sanitize")
+            td.proj_type: text(ng-repeat="type in project.project.proj_type")
+                | {{type.string | ucfirst}}
             td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
                 a(href='commodity/{{commodity.commodity.commodity_code}}')
                     span(ng-bind-html="commodity.commodity.commodity_name|sanitize")

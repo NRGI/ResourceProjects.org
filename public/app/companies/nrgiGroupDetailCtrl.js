@@ -1,15 +1,16 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiGroupCtrl', function (
+    .controller('nrgiGroupDetailCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiCompaniesSrvc,
         $routeParams
     ) {
-
-        nrgiCompaniesSrvc.getCompanyGroupById($routeParams.id).then(function(success) {
+        $scope.record_type = 'companyGroups';
+        nrgiCompaniesSrvc.get({_id: $routeParams.id,record_type:$scope.record_type}, function (success) {
+            console.log(success);
             $scope.group=success;
         });
         //$scope.group =

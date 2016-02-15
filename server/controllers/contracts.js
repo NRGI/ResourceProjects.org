@@ -134,10 +134,13 @@ exports.getContractByID = function(req, res) {
     }
     function getContractRCData(contract, callback) {
         request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
-            contract.rc_info = {
-                contract_name: body.name,
-                contract_country: body.country,
-                contract_commodity: body.resource
+            var contract_req;
+            contract_req=JSON.parse(body);
+            contract.rc_info={
+                contract_name: contract_req.name,
+                contract_country: contract_req.country,
+                contract_commodity: contract_req.resource,
+                contract_concession: contract_req.concession
             }
         });
         if(contract) {
@@ -223,6 +226,7 @@ exports.getContractByID = function(req, res) {
                             console.log(entity, 'link skipped...');
                     }
                     if(link_counter == link_len) {
+                        console.log(contract);
                         res.send(contract);
                     }
                 });
