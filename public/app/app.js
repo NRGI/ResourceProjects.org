@@ -79,7 +79,7 @@ angular.module('app')
                 templateUrl: '/partials/projects/project-list',
                 controller: 'nrgiProjectListCtrl'
             })
-            .when('/project/:id_country/:id', {
+            .when('/project/:id', {
                 templateUrl: '/partials/projects/project-detail',
                 controller: 'nrgiProjectDetailCtrl'
             })
@@ -116,10 +116,10 @@ angular.module('app')
                 templateUrl: '/partials/companies/group-list',
                 controller: 'nrgiGroupListCtrl'
             })
-            //.when('/groups/:id', {
-            //    templateUrl: '/partials/companies/group',
-            //    controller: 'nrgiGroupCtrl'
-            //})
+            .when('/group/:id', {
+                templateUrl: '/partials/companies/group-detail',
+                controller: 'nrgiGroupDetailCtrl'
+            })
             //
             ////Transfers and related facts
             //.when('/governmentReceipt/:id', {

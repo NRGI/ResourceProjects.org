@@ -34,7 +34,7 @@
                                 span(ng-bind-html="country.country.name|sanitize")
                             | {{$last ? '' : ', '}}
                         td: text(ng-repeat="type in concession.concession_type")
-                            text(ng-if="$last") {{type.string}}
+                            text(ng-if="$last") {{type.string | ucfirst}}
                         td: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_code'")
                             a(href='/commodity/{{commodity.commodity._id}}')
                                 span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
@@ -43,7 +43,8 @@
                             text(ng-if="$last")
                                 | {{status.string | ucfirst}}
                                 text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                        td {{concession.projects}}
+                        td: text(ng-if="concession.projects!=0")
+                            | {{concession.projects}}
 
     nrgi-list-nav(
     page="page"

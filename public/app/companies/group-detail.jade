@@ -15,20 +15,31 @@
             table#group-info
                tbody
                   tr
-                     td.project-label(style='width:200px') ID:
+                     td.detail_label.small ID:
                      td {{group._id}}
                   tr
-                     td.project-label(style='width:200px') Aliases:
-                     td
+                     td.detail_label.small Aliases:
+                     td.company_group_aliases
+                        span(ng-repeat='alias in group.company_group_aliases')
+                           span {{alias.alias}}
+                           | {{$last ? '' : ', '}}
                   tr
-                     td.project-label(style='width:200px') Commodities:
-                     td
+                     td.detail_label.small Commodities:
+                     td.commodities
+                        text(ng-repeat="commodity in group.commodities | unique: 'group.commodities._id'")
+                           a(href='commoddity/{{commodity._id}}')
+                              span(ng-bind-html="commodity.commodity_name | sanitize")
+                           | {{$last ? '' : ', '}}
                   tr
-                     td.project-label(style='width:200px') Open Corporate ID:
-                     td {{group.open_corporates_group_ID}}
+                     td.detail_label.small Open Corporate ID:
+                     td {{group.open_corporates_group_id}}
                   tr
-                     td.project-label(style='width:200px') Companies:
-                     td
+                     td.detail_label.small Companies:
+                     td.companies
+                        text(ng-repeat="company in group.companies | unique: 'group.companies._id'")
+                           a(href='company/{{company._id}}')
+                              span(ng-bind-html="company.company_name | sanitize")
+                           | {{$last ? '' : ', '}}
       .col-md-6
          .info-box
             h2
@@ -52,12 +63,13 @@
             tbody
                tr(ng-repeat='project in group.projects',ts-repeat)
                   td
-                     a(href='country/{{project.id}}')
-                        span(ng-bind-html="project.name|sanitize")
-                  td
-                     a(href='project/{{project.countryId}}')
-                        span(ng-bind-html="project.country|sanitize")
-                  td {{project.type}}
+                     a(href='project/{{project.project._id}}')
+                        span(ng-bind-html="project.project.proj_name|sanitize")
+                  td: text(ng-repeat='country in project.project.proj_country')
+                     a(href='country/{{country.country._id}}')
+                        span(ng-bind-html="country.country.name|sanitize")
+                  td: text(ng-repeat='type in project.project.proj_type')
+                     |{{type.string | ucfirst}}
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span
@@ -69,12 +81,13 @@
          table.table.table-striped.companies(ts-wrapper)
             thead
                tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
+                  th.tablesort-sortable-th(ts-criteria='company_name') Name
             tbody
-               tr(ng-repeat='company in group.companies',ts-repeat)
+               tr(ng-repeat="company in group.companies | unique: 'group.companies._id'",ts-repeat)
                   td
-                     a(href='company/{{company.id}}')
-                        span(ng-bind-html="company.name|sanitize")
+                     a(href='company/{{company._id}}')
+                        span(ng-bind-html="company.company_name | sanitize")
+
          .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span

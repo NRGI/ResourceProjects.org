@@ -2,6 +2,7 @@ var Project 		= require('mongoose').model('Project'),
 	Country 		= require('mongoose').model('Country'),
 	Source	 		= require('mongoose').model('Source'),
 	Link 	        = require('mongoose').model('Link'),
+	Transfer 	    = require('mongoose').model('Transfer'),
 	async           = require('async'),
 	_               = require("underscore"),
 	request         = require('request'),
@@ -39,8 +40,7 @@ exports.getProjects = function(req, res) {
 			.skip(skip)
 			.limit(limit)
 			.populate('proj_country.country', '_id iso2 name')
-			.populate('proj_status.source', 'source_date')
-			.populate('proj_aliases', ' _id alias')
+			//.populate('proj_aliases', ' _id alias')
 			.lean()
 			.exec(function(err, projects) {
 				if(projects) {
@@ -91,11 +91,12 @@ exports.getProjects = function(req, res) {
 	}
 };
 exports.getProjectByID = function(req, res) {
-	var link_counter, link_len,key;
+	var link_counter, link_len;
 
 	async.waterfall([
 		getProject,
-		getProjectLinks,
+		getTransfers,
+		getProjectLinks
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -105,11 +106,30 @@ exports.getProjectByID = function(req, res) {
 
 	function getProject(callback) {
 		Project.findOne({_id:req.params.id})
-			.populate('proj_country.country', '_id iso2 name')
-			.populate('proj_status.source', 'source_date')
+			.populate('proj_country.country')
 			.populate('proj_aliases', ' _id alias')
+			.populate('proj_commodity.commodity')
 			.lean()
 			.exec(function(err, project) {
+				if(project) {
+					callback(null, project);
+				} else {
+					callback(err);
+				}
+			});
+	}
+	function getTransfers(project, callback) {
+		project.transfers = [];
+		project.prodactions = [];
+		Transfer.find({transfer_project: project._id})
+			.populate('transfer_country')
+			.populate('transfer_company', '_id company_name')
+			.exec(function(err, transfers) {
+				console.log(project._id);
+				console.log(transfers);
+				_.each(transfers, function(transfer) {
+					project.transfers.push(transfer);
+				});
 				if(project) {
 					callback(null, project);
 				} else {
@@ -134,22 +154,26 @@ exports.getProjectByID = function(req, res) {
 				project.contracts = [];
 				links.forEach(function(link) {
 					++link_counter;
-					if(link.entities.indexOf('project')==0){
-						key =1;
-					}else{key=0}
-					switch (link.entities[key]) {
+					var entity = _.without(link.entities, 'project')[0];
+					switch (entity) {
 						case 'commodity':
 							if (!project.commodities.hasOwnProperty(link.commodity_code)) {
 								project.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
 							}
 							break;
 						case 'company':
-							project.companies.push({
-								_id: link.company._id,
-								company_name: link.company.company_name
-							});
+							if (!project.companies.hasOwnProperty(link.company._id)) {
+								project.companies.push({
+									_id: link.company._id,
+									company_name: link.company.company_name
+								});
+							}
 							break;
 						case 'concession':
+							project.concessions.push({
+								_id: link.concession._id,
+								concession_name: link.concession.concession_name
+							});
 							break;
 						case 'contract':
 							project.contracts.push(link);
