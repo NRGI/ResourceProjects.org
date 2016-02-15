@@ -26,10 +26,10 @@
         tbody
             tr(ng-repeat="contract in contracts",ts-repeat)
                 td
-                    a(href='contract/{{ contract._id }}')
-                        span(ng-bind-html="contract.name | sanitize")
+                    a(href='contracts/{{ contract._id }}')
+                        span(ng-bind-html="contract.contract_id | sanitize")
                 td
-                    a(href='country/{{ contract.country._id }}')
+                    a(href='countries/{{ contract.country._id }}')
                         span(ng-bind-html="contract.country.name | sanitize")
                 td.commodity_type {{contract.contract_type}}
                 td {{contract.commodities_name}}

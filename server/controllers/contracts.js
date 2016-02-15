@@ -7,8 +7,8 @@ var Contract 		= require('mongoose').model('Contract'),
     Commodity 		= require('mongoose').model('Commodity'),
     Project 		= require('mongoose').model('Project'),
     async           = require('async'),
-    _               = require("underscore"),
-    encrypt 		= require('../utilities/encryption');
+    _               = require('underscore'),
+    request         = require('request');
 
 exports.getContracts = function(req, res) {
     var concession_len, link_len, concession_counter, link_counter,
@@ -18,6 +18,7 @@ exports.getContracts = function(req, res) {
     async.waterfall([
         contractCount,
         getContractSet,
+        getContractRCData,
         getContractLinks,
     ], function (err, result) {
         if (err) {
@@ -49,6 +50,26 @@ exports.getContracts = function(req, res) {
                     callback(err);
                 }
             });
+    }
+    function getContractRCData(contract_count, contracts, callback) {
+        _.each(contracts, function(contract) {
+
+            //request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
+            //    if (!err && res.statusCode == 200) {
+            //        contract.rc_info = {
+            //            contract_name: body.name,
+            //            contract_country: body.country,
+            //            contract_commodity: body.resource
+            //        }
+            //    }
+            //});
+        });
+        if(contracts) {
+            callback(null, contract_count, contracts);
+        } else {
+            callback(err);
+        }
+
     }
     function getContractLinks(contract_count, contracts, callback) {
         contract_len = contracts.length;
@@ -86,3 +107,4 @@ exports.getContractByID = function(req, res) {
         res.send(contract);
     });
 };
+
