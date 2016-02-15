@@ -9,16 +9,21 @@ angular.module('app')
         $sce,
         nrgiCountriesSrvc
     ) {
-        $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
+        $scope.limit = 50;
+        $scope.page = 0;
+        $scope.count =0;
+        $scope.show_count=0;
         var loadCountries = function(limit,page){
-            nrgiCountriesSrvc.query({skip: page, limit: limit}, function(response) {
-                $scope.count = response.count;
+            nrgiCountriesSrvc.query({skip: page, limit: limit}, function(success) {
+                $scope.count = success.count;
                 $scope.limit = limit;
                 $scope.page = page;
-                $scope.countries=response.data;
-                $scope.show_count = response.data.length+$scope.page;
+                $scope.countries = success.data;
+                $scope.show_count = success.data.length+$scope.page;
+                $scope.record_type = 'countries';
             });
         };
+
         loadCountries($scope.limit,$scope.page);
         $scope.select = function(changeLimit){
             loadCountries(changeLimit,0);
