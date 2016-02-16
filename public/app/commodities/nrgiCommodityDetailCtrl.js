@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiCommodityCtrl', function (
+    .controller('nrgiCommodityDetailCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiCommoditiesSrvc,
         $routeParams
     ) {
-        nrgiCommoditiesSrvc.getCoommodityById($routeParams.id).then(function(response) {
+        nrgiCommoditiesSrvc.get({_id: $routeParams.id}, function (response) {
             $scope.commodity=response;
         });
         //$scope.commodity =
@@ -44,4 +44,3 @@ angular.module('app')
             }
         });
     });
-

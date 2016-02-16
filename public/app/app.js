@@ -60,7 +60,7 @@ angular.module('app')
                 templateUrl: '/partials/contracts/contract-list',
                 controller: 'nrgiContractListCtrl'
             })
-            .when('/contracts/:id', {
+            .when('/contract/:id', {
                 templateUrl: '/partials/contracts/contract-detail',
                 controller: 'nrgiContractDetailCtrl'
             })
@@ -68,7 +68,7 @@ angular.module('app')
                 templateUrl: '/partials/concessions/concession-list',
                 controller: 'nrgiConcessionListCtrl'
             })
-            .when('/concessions/:id', {
+            .when('/concession/:id', {
                 templateUrl: '/partials/concessions/concession-detail',
                 controller: 'nrgiConcessionDetailCtrl'
             })
@@ -90,7 +90,7 @@ angular.module('app')
                 templateUrl: '/partials/companies/company-list',
                 controller: 'nrgiCompanyListCtrl'
             })
-            .when('/companies/:id', {
+            .when('/company/:id', {
                 templateUrl: '/partials/companies/company-detail',
                 controller: 'nrgiCompanyDetailCtrl'
             })
@@ -108,10 +108,10 @@ angular.module('app')
                 templateUrl: '/partials/commodities/commodity-list',
                 controller: 'nrgiCommodityListCtrl'
             })
-            //.when('/commodities/:id', {
-            //    templateUrl: '/partials/commodities/commodity',
-            //    controller: 'nrgiCommodityCtrl'
-            //})
+            .when('/commodity/:id', {
+                templateUrl: '/partials/commodities/commodity-detail',
+                controller: 'nrgiCommodityDetailCtrl'
+            })
             .when('/groups', {
                 templateUrl: '/partials/companies/group-list',
                 controller: 'nrgiGroupListCtrl'

@@ -35,7 +35,7 @@
                 tbody
                     tr(ng-repeat='company in companies',ts-repeat)
                         td
-                            a(href='companies/{{company._id}}')
+                            a(href='company/{{company._id}}')
                                 span(ng-bind-html="company.company_name|sanitize")
                         td
                             text(ng-repeat="group in company.company_groups")

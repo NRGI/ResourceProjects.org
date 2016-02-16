@@ -5,7 +5,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
             th.tablesort-sortable-th(ts-criteria='production_volume') Volume
             th.tablesort-sortable-th(ts-criteria='transfer_unit') Unit
-            th.tablesort-sortable-th(ts-criteria='production_commodity') Commodity
+            th.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
             th.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
             th.tablesort-sortable-th(ts-criteria='production_price_per_unit') Price per unit
     tbody
@@ -14,8 +14,10 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
         ts-repeat)
             td.production_year {{production.production_year}}
             td.production_volume  {{production.production_volume}}
-            td.production_unit {{production.transfer_unit}}
-            td.production_commodity {{production.production_commodity}}
+            td.production_unit {{production.production_unit}}
+            td.production_commodity
+                a(href='commodity/{{production.production_commodity._id}}')
+                    | {{production.production_commodity.commodity_name}}
             td.production_price {{production.production_price}}
             td.production_price_per_unit {{production.production_price_per_unit}}
 .download

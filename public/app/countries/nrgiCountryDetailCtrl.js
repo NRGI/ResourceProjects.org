@@ -8,7 +8,7 @@ angular.module('app')
         nrgiCountriesSrvc,
         $routeParams
     ) {
-        nrgiCountriesSrvc.getCountryById($routeParams.id).then(function(response) {
+        nrgiCountriesSrvc.get({_id: $routeParams.id}, function (response) {
             $scope.country=response;
         });
         //$scope.country =
@@ -56,6 +56,3 @@ angular.module('app')
             }
         });
     });
-
-
-

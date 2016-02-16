@@ -36,7 +36,7 @@ function createDefaultAliases() {
             //commodity aliases
             Alias.create({_id: '56a6ac8f6c1ac5811ae27988', code: 'alu', reference:'wb', model: 'commodity'});
             Alias.create({_id: '56a6ac8f6c1ac5811ae27989', code: 'alum', reference:'imf', model: 'commodity'});
-            Alias.create({_id: '56a6ac8f6c1ac5811ae2798a', alias: 'Aluminium', language:'fr', model: 'commodity'});
+            Alias.create({_id: '56a6ac8f6c1ac5811ae2798a', code: 'Aluminium', reference:'fr', model: 'commodity'});
             Alias.create({_id: '56a6ac8f6c1ac5811ae2798d', code: 'gol', reference:'wb', model: 'commodity'});
             Alias.create({_id: '56a6ac8f6c1ac5811ae2798e', code: 'au', reference:'imf', model: 'commodity'});
             Alias.create({_id: '56a6ac8f6c1ac5811ae2798f', code: 'hyd', reference:'wb', model: 'commodity'});

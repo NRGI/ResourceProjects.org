@@ -16,7 +16,6 @@ angular.module('app')
 
         var loadConcessions = function(limit,page){
             nrgiConcessionsSrvc.query({skip: page, limit: limit}, function (success) {
-                console.log(success);
                 $scope.count = success.count;
                 $scope.limit = limit;
                 $scope.page = page;
@@ -39,7 +38,6 @@ angular.module('app')
         $scope.first = function(){
             loadConcessions($scope.limit,0);
         };
-
         $scope.last = function(page){
             if($scope.count%$scope.limit!=0){
                 page =  parseInt($scope.count/$scope.limit)*$scope.limit;
