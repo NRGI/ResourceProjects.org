@@ -3,6 +3,7 @@ var Project 		= require('mongoose').model('Project'),
 	Source	 		= require('mongoose').model('Source'),
 	Link 	        = require('mongoose').model('Link'),
 	Transfer 	    = require('mongoose').model('Transfer'),
+	Production 	    = require('mongoose').model('Production'),
 	async           = require('async'),
 	_               = require("underscore"),
 	request         = require('request'),
@@ -91,12 +92,14 @@ exports.getProjects = function(req, res) {
 	}
 };
 exports.getProjectByID = function(req, res) {
-	var link_counter, link_len;
+	var link_counter, link_len,project_counter, project_len;
 
 	async.waterfall([
 		getProject,
 		getTransfers,
-		getProjectLinks
+		getProductions,
+		getProjectLinks,
+		getCompanyGroup
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -120,15 +123,27 @@ exports.getProjectByID = function(req, res) {
 	}
 	function getTransfers(project, callback) {
 		project.transfers = [];
-		project.prodactions = [];
 		Transfer.find({transfer_project: project._id})
 			.populate('transfer_country')
 			.populate('transfer_company', '_id company_name')
 			.exec(function(err, transfers) {
-				console.log(project._id);
-				console.log(transfers);
 				_.each(transfers, function(transfer) {
 					project.transfers.push(transfer);
+				});
+				if(project) {
+					callback(null, project);
+				} else {
+					callback(err);
+				}
+			});
+	}
+	function getProductions(project, callback) {
+		project.productions = [];
+		Production.find({production_project: project._id})
+			.populate('production_commodity')
+			.exec(function(err, productions) {
+				_.each(productions, function(productions) {
+					project.productions.push(productions);
 				});
 				if(project) {
 					callback(null, project);
@@ -182,9 +197,43 @@ exports.getProjectByID = function(req, res) {
 							console.log('error');
 					}
 					if(link_counter == link_len) {
-						res.send(project);
+						callback(null, project);
 					}
 				});
 			});
 	}
+	function getCompanyGroup(project, callback) {
+		project_len = project.companies.length;
+		project_counter = 0;
+		project.companies.forEach(function(company) {
+			Link.find({company: company._id})
+				.populate('company_group', '_id company_group_name')
+				.exec(function (err, links) {
+					++project_counter;
+					link_len = links.length;
+					link_counter = 0;
+					company.company_groups = {};
+					links.forEach(function (link) {
+						++link_counter;
+						var entity = _.without(link.entities, 'company')[0];
+						switch (entity) {
+							case 'company_group':
+								if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+									company.company_groups[link.company_group.company_group_name] = {
+										_id: link.company_group._id,
+										company_group_name: link.company_group.company_group_name
+									};
+								}
+								break;
+							default:
+								console.log('error');
+						}
+						if(project_counter == project_len && link_counter == link_len) {
+							res.send(project);
+						}
+					});
+				});
+		});
+	}
+
 };

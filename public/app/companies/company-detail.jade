@@ -113,7 +113,7 @@
                             | &nbsp; Status
                 tbody
                     tr(ng-repeat='(key, concession) in company.concessions')
-                        td.concession_name: a(href='/concessions/{{key}}')
+                        td.concession_name: a(href='/concession/{{key}}')
                                 span(ng-bind-html="concession.concession_name|sanitize")
                         td.concession_country: a(href='/country/{{concession.concession_country._id}}')
                             span(ng-bind-html="concession.concession_country.name|sanitize")

@@ -25,8 +25,8 @@
       thead
          tr
             th.tablesort-sortable-th(ts-criteria='proj_name') Name
-            th.tablesort-sortable-th(ts-criteria='proj_country.country.name') Country
-            th.tablesort-sortable-th(ts-criteria='proj_type.string') Commodity Type
+            th.tablesort-sortable-th(ts-criteria='proj_country[proj_country.length - 1].country.name') Country
+            th.tablesort-sortable-th(ts-criteria='proj_type[proj_type.length - 1].string') Commodity Type
             th.tablesort-sortable-th(ts-criteria='proj_commodity[0].commodity_name') Commodity
             th.tablesort-sortable-th(ts-criteria='proj_status[0].string') Status
             th.tablesort-sortable-th(ts-criteria="companies|parseInt")  No.Companies
@@ -35,7 +35,7 @@
             td: a(href='/project/{{project._id}}')
                   span(ng-bind-html="project.proj_name|sanitize")
             td: text(ng-repeat="country in project.proj_country")
-                  a(href='/country/{{country.country.iso2}}')
+                  a(href='/country/{{country.country._id}}')
                      span(ng-bind-html="country.country.name|sanitize")
                   | {{$last ? '' : ', '}}
             td: text(ng-repeat="type in project.proj_type")

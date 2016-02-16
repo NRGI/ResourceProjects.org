@@ -25,7 +25,7 @@
                   tr
                      td.detail_label.small Country:
                      td.project_country: text(ng-repeat="country in project.proj_country | unique: 'iso2'")
-                        a(href='country/{{country.country.iso2}}')
+                        a(href='country/{{country.country._id}}')
                            span(ng-bind-html="country.country.name|sanitize")
                            | {{$last ? '' : ', '}}
                   tr
@@ -44,7 +44,7 @@
                      td.detail_label.small Commodities:
                      td.project_commodities
                         text(ng-repeat="commodity in project.proj_commodity | unique: 'project._id'")
-                           a(href='commoddity/{{commodity.commodity._id}}')
+                           a(href='commodity/{{commodity.commodity._id}}')
                               span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                            | {{$last ? '' : ', '}}
                   tr
@@ -105,30 +105,10 @@
                      td.project-label.our-id Desctiption:
                      td.project-description
                         span(ng-bind-html="project.description|sanitize")
-         h2 Companies
-         table.table.table-striped.companies(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='group') Group
-                  th.tablesort-sortable-th(ts-criteria='stake') Stake
-            tbody
-               tr(ng-repeat='company in project.companies',ts-repeat)
-                  td
-                     a(href='company/{{company._id}}')
-                        span(ng-bind-html="company.company_name|sanitize")
-                  td SUB SUB QUERY
-                  td 10%
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden='true')
-            =' '
-            span Download:
-               =' '
-               a(href="") Companies CSV
-               //a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3FgroupName+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fproject%2FMX%2Fadar-gok3sd%3E+rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3FgroupName%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%3Fstake+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on')
+         nrgi-company-table(companies="project.companies")
    .row
       .col-md-12
-         nrgi-production-table(prodactions="project.prodactions")
+         nrgi-production-table(productions="project.productions")
 
    .row
       .col-md-12

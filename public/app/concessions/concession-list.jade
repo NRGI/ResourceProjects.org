@@ -19,18 +19,18 @@
             table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
                 thead
                     tr
-                        th(ts-criteria='concession_name') Name
-                        th(ts-criteria='country') Country
-                        th(ts-criteria='concession_type') Commodity Type
-                        th(ts-criteria='commodities_name') Commodity
-                        th(ts-criteria='concession_status') Status
-                        th(ts-criteria='projects|parseInt') No. Projects
+                        th.tablesort-sortable-th(ts-criteria='concession_name') Name
+                        th.tablesort-sortable-th(ts-criteria='concession_country[concession_country.length-1].country.name') Country
+                        th.tablesort-sortable-th(ts-criteria='concession_type[concession_type.length-1].string') Commodity Type
+                        th.tablesort-sortable-th(ts-criteria='concession_commodity[concession_commodity.length-1].commodity.commodity_name') Commodity
+                        th.tablesort-sortable-th(ts-criteria='concession_status[concession_status.length-1].string') Status
+                        th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
                 tbody
                     tr(ng-repeat="concession in concessions" ts-repeat)
-                        td: a(href='/concessions/{{concession._id}}')
+                        td: a(href='/concession/{{ concession._id }}')
                             span(ng-bind-html="concession.concession_name|sanitize")
                         td: text(ng-repeat="country in concession.concession_country")
-                            a(href='/country/{{country.country.iso2}}')
+                            a(href='/country/{{country.country._id}}')
                                 span(ng-bind-html="country.country.name|sanitize")
                             | {{$last ? '' : ', '}}
                         td: text(ng-repeat="type in concession.concession_type")

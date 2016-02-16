@@ -88,12 +88,13 @@ exports.getConcessions = function(req, res) {
 };
 
 exports.getConcessionByID = function(req, res) {
-    var link_counter, link_len;
+    var link_counter, link_len,concession_counter, concession_len;
 
     async.waterfall([
         getConcession,
         getTransfers,
         getConcessionLinks,
+        getCompanyGroup,
         //getContracts,
     ], function (err, result) {
         if (err) {
@@ -144,7 +145,7 @@ exports.getConcessionByID = function(req, res) {
                 link_counter = 0;
                 concession.commodities = {};
                 concession.projects = [];
-                concession.companies = {};
+                concession.companies = [];
                 concession.contracts = [];
                 //concession.concessions = {};
                 links.forEach(function(link) {
@@ -158,11 +159,10 @@ exports.getConcessionByID = function(req, res) {
                             break;
                         case 'company':
                             if (!concession.companies.hasOwnProperty(link.company._id)) {
-                                concession.companies[link.company._id] = {
-                                    company_name: link.company.company_name,
-                                    //company_group_id: link.company_group.company_group_name,
-                                    //company_group_name: link.company_group.company_group_name
-                                };
+                                concession.companies.push({
+                                    _id: link.company._id,
+                                    company_name: link.company.company_name
+                                });
                             }
                             break;
                         case 'contract':
@@ -178,7 +178,9 @@ exports.getConcessionByID = function(req, res) {
                             console.log(entity, 'link skipped...');
                     }
                     if(link_counter == link_len) {
-                        res.send(concession);
+
+                        callback(null, concession);
+                        //res.send(concession);
                     }
                 });
             });
@@ -227,4 +229,38 @@ exports.getConcessionByID = function(req, res) {
     //    //console.log(company.contract_pull);
     //    //callback(null, company);
     //}
+
+    function getCompanyGroup(concession, callback) {
+        concession_len = concession.companies.length;
+        concession_counter = 0;
+        concession.companies.forEach(function(company) {
+            Link.find({company: company._id})
+                .populate('company_group', '_id company_group_name')
+                .exec(function (err, links) {
+                    ++concession_counter;
+                    link_len = links.length;
+                    link_counter = 0;
+                    company.company_groups = {};
+                    links.forEach(function (link) {
+                        ++link_counter;
+                        var entity = _.without(link.entities, 'company')[0];
+                        switch (entity) {
+                            case 'company_group':
+                                if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+                                    company.company_groups[link.company_group.company_group_name] = {
+                                        _id: link.company_group._id,
+                                        company_group_name: link.company_group.company_group_name
+                                    };
+                                }
+                                break;
+                            default:
+                                console.log('error');
+                        }
+                        if(concession_counter == concession_len && link_counter == link_len) {
+                            res.send(concession);
+                        }
+                    });
+                });
+        });
+    }
 };

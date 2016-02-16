@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiCountryCtrl', function (
+    .controller('nrgiCountryDetailCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiCountriesSrvc,
         $routeParams
     ) {
-        nrgiCountriesSrvc.getCountryById($routeParams.id).then(function(response) {
+        nrgiCountriesSrvc.get({_id: $routeParams.id}, function (response) {
             $scope.country=response;
         });
         //$scope.country =
