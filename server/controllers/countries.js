@@ -92,3 +92,27 @@ exports.getCountryByID = function(req, res) {
 			});
 	}
 };
+//exports.getCountryByID = function(req, res) {
+//	var link_counter, link_len;
+//
+//	async.waterfall([
+//		getCountry
+//	], function (err, result) {
+//		if (err) {
+//			res.send(err);
+//		}
+//	});
+//
+//	function getCountry(callback) {
+//		Country.findOne({_id:req.params.id})
+//			.lean()
+//			.exec(function(err, country) {
+//				if(country) {
+//					//callback(null, concession);
+//					res.send(country);
+//				} else {
+//					callback(err);
+//				}
+//			});
+//	}
+//};
