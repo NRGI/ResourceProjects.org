@@ -246,6 +246,7 @@ exports.getConcessionByID = function(req, res) {
                         var entity = _.without(link.entities, 'company')[0];
                         switch (entity) {
                             case 'company_group':
+                                //console.log(link);
                                 if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
                                     company.company_groups[link.company_group.company_group_name] = {
                                         _id: link.company_group._id,
@@ -254,9 +255,14 @@ exports.getConcessionByID = function(req, res) {
                                 }
                                 break;
                             default:
-                                console.log('error');
+                                console.log(entity, 'link skipped...');
                         }
+                        //console.log(concession_counter);
+                        //console.log(concession_len);
+                        //console.log(link_counter);
+                        //console.log(link_len);
                         if(concession_counter == concession_len && link_counter == link_len) {
+                            console.log(concession.companies)
                             res.send(concession);
                         }
                     });

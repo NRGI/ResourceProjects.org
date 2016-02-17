@@ -9,11 +9,15 @@ table.table.table-striped.companies(ts-wrapper)#company-info
             th(ng-if="stake==true") Stake
     tbody
         tr(
-        ng-repeat="(id, company) in companies")
+        ng-repeat="company in companies")
             td
-                a(href="companies/{{id}}")
+                a(href="companies/{{company._id}}")
                     span(ng-bind-html="company.company_name|sanitize")
-            td SUB SUB QUERY
+            td
+                text(ng-repeat="group in company.company_groups")
+                    a(href='group/{{group._id}}')
+                        span(ng-bind-html="group.company_group_name|sanitize")
+                    | {{$last ? '' : ', '}}
             td(ng-if="stake==true") UNFINISHED FIELD
 .download
     span.glyphicon.glyphicon-download(aria-hidden="true")
