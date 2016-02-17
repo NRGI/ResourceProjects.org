@@ -100,10 +100,10 @@ angular.module('app')
                 templateUrl: '/partials/countries/country-list',
                 controller: 'nrgiCountryListCtrl'
             })
-            //.when('/countries/:id', {
-            //    templateUrl: '/partials/countries/country',
-            //    controller: 'nrgiCountryCtrl'
-            //})
+            .when('/countries/:id', {
+                templateUrl: '/partials/countries/country-detail',
+                controller: 'nrgiCountryDetailCtrl'
+            })
             .when('/commodities', {
                 templateUrl: '/partials/commodities/commodity-list',
                 controller: 'nrgiCommodityListCtrl'

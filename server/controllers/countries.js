@@ -64,7 +64,7 @@ exports.getCountries = function(req, res) {
 };
 
 exports.getCountryByID = function(req, res) {
-    Country.findOne({_id:req.params.id}).exec(function(err, country) {
+    Country.findOne({iso2:req.params.id}).exec(function(err, country) {
         res.send(country);
     });
 };

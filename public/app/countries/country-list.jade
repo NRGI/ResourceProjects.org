@@ -23,7 +23,7 @@
         tbody
             tr(ng-repeat="country in countries" ts-repeat)
                 td
-                    a(href='country/{{ country.iso2 }}') {{country.name | isoCountry}}
+                    a(href='countries/{{ country.iso2 }}') {{country.name | isoCountry}}
                 td
                     span {{country.projects}}
 
