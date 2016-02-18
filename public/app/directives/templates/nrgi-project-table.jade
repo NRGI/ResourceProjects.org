@@ -2,14 +2,14 @@ h2 Projects
 table.table.table-striped.projects(ts-wrapper)#project-info
     thead
         tr
-            th(ts-criteria='project.proj_name') Name
+            th.tablesort-sortable-th(ts-criteria='project.proj_name') Name
             //th
             //    a(href="#" ng-click="proj_table_sort.sort_type = 'name'; proj_table_sort.sort_reverse = !proj_table_sort.sort_reverse")
             //        text.left-padding-med Name
-            th(ts-criteria='project.proj_country[project.proj_country.length - 1].country.name') Country
-            th(ts-criteria='project.proj_type[project.proj_type.length - 1].string') Commodity Type
-            th(ts-criteria='project.proj_commodity.commodity[project.proj_commodity.commodity.length - 1].commodity_name') Commodity
-            th(ts-criteria='project.proj_status[project.proj_status.length - 1].string') Status
+            th.tablesort-sortable-th(ts-criteria='project.proj_country[project.proj_country.length - 1].country.name') Country
+            th.tablesort-sortable-th(ts-criteria='project.proj_type[project.proj_type.length - 1].string') Commodity Type
+            th.tablesort-sortable-th(ts-criteria='project.proj_commodity.commodity[project.proj_commodity.commodity.length - 1].commodity_name') Commodity
+            th.tablesort-sortable-th(ts-criteria='project.proj_status[project.proj_status.length - 1].string') Status
     tbody
         tr(
         ng-repeat='project in projects'
