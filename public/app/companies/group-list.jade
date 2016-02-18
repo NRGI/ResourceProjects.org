@@ -9,7 +9,17 @@
                button.btn.btn-default(type='button')
                   a(href='/companies') View Companies
 
-   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+   nrgi-list-nav(
+   page="page"
+   type="record_type"
+   show="show_count"
+   count="count"
+   limit="limit"
+   last="last"
+   next="next"
+   prev="prev"
+   first="first"
+   select="select")
 
    table.table.table-striped(ts-wrapper)
       thead
@@ -19,11 +29,19 @@
             th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
       tbody
          tr(ng-repeat='group in groups',ts-repeat)
-            td
+            td.company_group_name
                a(href='group/{{group._id}}') {{group.company_group_name}}
-            td
-               span(ng-if="group.companies!=0") {{group.companies}}
-            td
-               span(ng-if="group.projects!=0") {{group.projects}}
+            td.company_group_companies {{group.companies}}
+            td.company_group_projects {{group.projects}}
 
-   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+   nrgi-list-nav(
+   page="page"
+   type="record_type"
+   show="show_count"
+   count="count"
+   limit="limit"
+   last="last"
+   next="next"
+   prev="prev"
+   first="first"
+   select="select")
