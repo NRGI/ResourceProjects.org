@@ -111,6 +111,7 @@
             span  Download
             =' '
                a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Concessions CSV
+
    h2 Payments
    table.table.table-striped.payments(ts-wrapper)
       thead
@@ -118,7 +119,7 @@
             th.tablesort-sortable-th(ts-criteria='year') Year
             th.tablesort-sortable-th(ts-criteria='project') Project
             th.tablesort-sortable-th(ts-criteria='paidBy') Paid by
-            th.tablesort-sortable-th.type(ts-criteria='type') Payment Type
+            th.tablesort-sortable-th(ts-criteria='type') Payment Type
             th.tablesort-sortable-th(ts-criteria='currency') Currency
             th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
             th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?

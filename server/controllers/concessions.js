@@ -240,17 +240,17 @@ exports.getConcessionByID = function(req, res) {
                     ++concession_counter;
                     link_len = links.length;
                     link_counter = 0;
-                    company.company_groups = {};
+                    company.company_groups = [];
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'company')[0];
                         switch (entity) {
                             case 'company_group':
                                 if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                    company.company_groups[link.company_group.company_group_name] = {
+                                    company.company_groups.push({
                                         _id: link.company_group._id,
                                         company_group_name: link.company_group.company_group_name
-                                    };
+                                    });
                                 }
                                 break;
                             default:

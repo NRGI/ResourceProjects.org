@@ -3,8 +3,8 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='transfer_year|parseInt') Year
-            th.tablesort-sortable-th(ts-criteria='company_name') Paid by
-            th.tablesort-sortable-th(ts-criteria='name') Paid to
+            th.tablesort-sortable-th(ts-criteria='transfer_company.company_name') Paid by
+            th.tablesort-sortable-th(ts-criteria='transfer_country.name') Paid to
             th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
             th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
             th.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value

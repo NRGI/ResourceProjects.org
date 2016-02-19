@@ -2,69 +2,32 @@
 
 angular.module('app')
     .controller('nrgiMapCtrl', function (
-        $scope
+        $scope,
+        nrgiProjectsSrvc,
+        $routeParams
     ) {
-        $scope.map ={
-            'center': {
-                lat: 23,
-                lng: 258,
-                zoom: 2
-            },
-            markers:{
-                m1: {
-                    lat: 23,
-                    lng: 258,
-                    message: "I'm a static marker"
-                },
-                m2: {
-                    lat: 38.716,
-                    lng: 258,
-                    message: "I'm a static marker"
-                },
-                m3: {
-                    lat: 45,
-                    lng: 258,
-                    message: "I'm a static marker"
-                },
-                m4: {
-                    lat: 38.716,
-                    lng: 258,
-                    message: "I'm a static marker"
-                },
-                m5: {
-                    lat: 12,
-                    lng: 258,
-                    message: "<a href ='/'>q</a><br>I'm a static marker"
-                },
-                m6: {
-                    lat: 78,
-                    lng: 258,
-                    message: "I'm a static marker"
-                },
-                m7: {
-                    lat: 36,
-                    lng: 258,
-                    message: "I'm a static marker"
-                },
-                m8: {
-                    lat: 59,
-                    lng: 258,
-                    message: "I'm a static marker"
+    $scope.projectMarkers=[]; $scope.map=[]; var lat=''; var lng='';
+    nrgiProjectsSrvc.get(function (success) {
+        $scope.projectMarkers = success.data;
+    });
+        var tilesDict = {
+            openstreetmap: {
+                url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+                options: {
+                    attribution: 'Tiles: &copy; Esri'
                 }
+            }
+        };
+        angular.extend($scope, {
+            tiles: tilesDict.openstreetmap,
+            defaults: {
+                scrollWheelZoom: false
             },
             controls: {
                 fullscreen: {
                     position: 'topleft'
                 }
-            },
-            tiles:{
-                url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-                options: {
-                    attribution: 'Tiles: &copy; Esri'
-                }
-            },
-            defaults: {
-                scrollWheelZoom: false
             }
-        };
+        });
+
     });

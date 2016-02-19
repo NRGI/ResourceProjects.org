@@ -152,13 +152,17 @@ exports.getProjectByID = function(req, res) {
 				}
 			});
 	}
+
+
+// summary
 	function getProjectLinks(project, callback) {
 		Link.find({project: project._id})
 			.populate('commodity')
 			.populate('company')
 			.populate('contract')
 			.populate('concession')
-			.deepPopulate('company company.company_group')
+			.deepPopulate('company_group')
+			//.deepPopulate('company company.company_group')
 			.exec(function(err, links) {
 				link_len = links.length;
 				link_counter = 0;
@@ -212,17 +216,17 @@ exports.getProjectByID = function(req, res) {
 					++project_counter;
 					link_len = links.length;
 					link_counter = 0;
-					company.company_groups = {};
+					company.company_groups = [];
 					links.forEach(function (link) {
 						++link_counter;
 						var entity = _.without(link.entities, 'company')[0];
 						switch (entity) {
 							case 'company_group':
 								if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-									company.company_groups[link.company_group.company_group_name] = {
+									company.company_groups.push({
 										_id: link.company_group._id,
 										company_group_name: link.company_group.company_group_name
-									};
+									});
 								}
 								break;
 							default:
@@ -234,6 +238,45 @@ exports.getProjectByID = function(req, res) {
 					});
 				});
 		});
+	}
+
+};
+exports.getProjectsMap = function(req, res) {
+	var project_len, project_counter;
+	console.log(req.query);
+	async.waterfall([
+		getProject
+	], function (err, result) {
+		if (err) {
+			res.send(err);
+		}
+
+	});
+
+	function getProject(callback) {
+		Project.find(req.query)
+			.lean()
+			.exec(function(err, projects) {
+				project_len = projects.length;
+				project_counter = 0;
+				var data = [];
+				if(projects) {
+					projects.forEach(function (project) {
+						++project_counter;
+						project.proj_coordinates.forEach(function (loc) {
+						data.push({
+								'lat':loc.loc[0],
+								'lng':loc.loc[1],
+								'message':"<a href =\'/project/"+ project._id +"\'>"+project.proj_name+"</a><br>"+project.proj_name
+						})
+						})
+					});
+					if(project_counter == project_len) {
+					res.send({data:data});}
+				} else {
+					callback(err);
+				}
+			});
 	}
 
 };

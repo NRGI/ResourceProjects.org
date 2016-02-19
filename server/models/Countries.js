@@ -2,9 +2,11 @@
 //COUNTRIES
 ////////////
 'use strict';
+var mongoose = require('mongoose');
+require('mongoose-html-2').loadType(mongoose);
 var countrySchema, Country,
     links    = require('./Links'),
-    mongoose = require('mongoose'),
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema   = mongoose.Schema,
     fact     = require("./Facts"),
     ObjectId = Schema.Types.ObjectId;
@@ -20,6 +22,7 @@ countrySchema = new Schema({
 
 //countrySchema.plugin(mongooseHistory, options);
 
+countrySchema.plugin(deepPopulate);
 Country = mongoose.model('Country', countrySchema);
 
 function createDefaultCountries() {

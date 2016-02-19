@@ -151,45 +151,45 @@ exports.getCompanyByID = function(req, res) {
             .exec(function(err, links) {
                 link_len = links.length;
                 link_counter = 0;
-                company.company_groups = {};
-                company.commodities = {};
+                company.company_groups = [];
+                company.commodities = [];
                 company.projects = [];
-                company.contracts = {};
                 company.contracts = [];
-                company.concessions = {};
+                company.contracts = [];
+                company.concessions = [];
                 links.forEach(function(link) {
                     ++link_counter;
                     var entity = _.without(link.entities, 'company')[0]
                     switch (entity) {
                         case 'commodity':
                             if (!company.commodities.hasOwnProperty(link.commodity_code)) {
-                                company.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+                                company.commodities.push({_id:link.commodity._id,commodity_name:link.commodity.commodity_name});
                             }
                             break;
                         case 'company_group':
                             if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                company.company_groups[link.company_group.company_group_name] = {
+                                company.company_groups.push({
                                     _id: link.company_group._id,
                                     company_group_name: link.company_group.company_group_name
-                                };
+                                });
                             }
                             break;
                         case 'concession':
                             if (!company.concessions.hasOwnProperty(link.concession._id)) {
-                                company.concessions[link.concession._id] = {
+                                company.concessions.push({
                                     concession_name: link.concession.concession_name,
                                     concession_country: _.find(link.concession.concession_country.reverse()).country,
                                     concession_type: _.find(link.concession.concession_type.reverse()),
                                     concession_commodities: link.concession.concession_commodity,
                                     concession_status: link.concession.concession_status
-                                };
-                                company.concessions[link.concession._id+'kkk'] = {
-                                    concession_name: link.concession.concession_name,
-                                    concession_country: _.find(link.concession.concession_country.reverse().country),
-                                    concession_type: _.find(link.concession.concession_type.reverse()),
-                                    concession_commodities: link.concession.concession_commodity,
-                                    concession_status: link.concession.concession_status
-                                };
+                                });
+                                //company.concessions[link.concession._id+'kkk'] = {
+                                //    concession_name: link.concession.concession_name,
+                                //    concession_country: _.find(link.concession.concession_country.reverse().country),
+                                //    concession_type: _.find(link.concession.concession_type.reverse()),
+                                //    concession_commodities: link.concession.concession_commodity,
+                                //    concession_status: link.concession.concession_status
+                                //};
                             }
                             break;
                         case 'contract':

@@ -18,7 +18,7 @@
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='name') RC-ID
+                th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
                 th.tablesort-sortable-th(ts-criteria='country.name') Country
                 th.tablesort-sortable-th(ts-criteria='contract_type') Commodity Type
                 th.tablesort-sortable-th(ts-criteria='commodities_name') Commodity
@@ -26,10 +26,10 @@
         tbody
             tr(ng-repeat="contract in contracts",ts-repeat)
                 td
-                    a(href='contracts/{{ contract._id }}')
+                    a(href='contract/{{ contract._id }}')
                         span(ng-bind-html="contract.contract_id | sanitize")
                 td
-                    a(href='countries/{{ contract.country._id }}')
+                    a(href='country/{{ contract.country._id }}')
                         span(ng-bind-html="contract.country.name | sanitize")
                 td.commodity_type {{contract.contract_type}}
                 td {{contract.commodities_name}}

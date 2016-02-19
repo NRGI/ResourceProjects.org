@@ -133,6 +133,8 @@ tableSortModule.directive('tsCriteria', function() {
         link: function(scope, element, attrs, tsWrapperCtrl) {
             var clickingCallback = function(event) {
                 scope.$apply( function() {
+                    $('table th').removeClass("tablesort-asc");
+                    $('table th').removeClass("tablesort-desc");
                     $('table th').addClass('tablesort-sortable-th');
                     element.removeClass('tablesort-sortable-th');
                     if( event.shiftKey ) {
