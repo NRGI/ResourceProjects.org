@@ -7,7 +7,10 @@ angular
             restrict: 'EA',
             controller: 'nrgiContractTableCtrl',
             scope: {
-                contracts: '='
+                contracts: '=',
+                companies: '=',
+                commodity: '=',
+                country: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-contract-table'
         };

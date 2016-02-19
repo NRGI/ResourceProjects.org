@@ -4,7 +4,7 @@ angular.module('app')
         nrgiCountriesSrvc
     ) {
         return {
-            createSource: function(new_country_data) {
+            createCountry: function(new_country_data) {
                 var new_country = new nrgiCountriesSrvc(new_country_data);
                 var dfd = $q.defer();
 
@@ -15,7 +15,7 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
-            deleteSource: function(country_deletion) {
+            deleteCountry: function(country_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiCountriesSrvc();
                 delete_ID.id = country_deletion;
@@ -27,7 +27,7 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateSource: function(new_country_data) {
+            updateCountry: function(new_country_data) {
                 var dfd = $q.defer();
                 new_country_data.$update().then(function() {
                     dfd.resolve();

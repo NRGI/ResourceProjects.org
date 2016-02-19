@@ -3,18 +3,36 @@
         h1 Countries
             small
 
-    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
 
-    table.table.table-striped(about='http://resourceprojects.org/country',ts-wrapper)
+    table.table.table-striped(about='http://resourceprojects.org/country' ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='name') Country
-                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+                th(ts-criteria='name') Country
+                th(ts-criteria='projects|parseInt') No. Projects
         tbody
-            tr(ng-repeat="country in countries",ts-repeat)
-                td
-                    a(href='country/{{ country._id }}') {{country.name | isoCountry}}
-                td
-                    span(ng-if="country.projects!=0") {{country.projects}}
+            tr(ng-repeat="country in countries" ts-repeat)
+                td.country_name: a(href='countries/{{ country.iso2 }}') {{country.name | isoCountry}}
+                td.country_projects {{country.projects}}
 
-    navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")

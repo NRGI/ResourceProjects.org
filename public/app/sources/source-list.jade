@@ -28,13 +28,12 @@
 				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
 		tbody
 			tr(ng-repeat='source in sources', ts-repeat)
-				td
+				td.source_name
 					a(href='source/{{ source._id }}')
 						span(ng-bind-html="source.source_name|sanitize")
-				td {{source.source_type}}
-				td {{source.source_date| date:'yyyy-MM-dd'}}
-				td
-					span(ng-if="source.projects!=0") {{source.projects}}
+				td.source_type {{source.source_type}}
+				td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
+				td.source_projects {{source.projects}}
 
 	nrgi-list-nav(
 	page="page"

@@ -8,9 +8,12 @@ angular.module('app')
         nrgiConcessionsSrvc,
         $routeParams
     ) {
+        $scope.center=[];
         nrgiConcessionsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.concession = success;
+            $scope.center={lat:$scope.concession.location[0].lat,lng:$scope.concession.location[0].lng,zoom: 3};
         });
+
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",

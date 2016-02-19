@@ -90,7 +90,8 @@ exports.getCompanyGroupByID = function(req, res) {
 	async.waterfall([
 		getCompanyGroup,
 		getTransfers,
-		getCompanyGroupLinks
+		getCompanyGroupLinks,
+		getProjectLocation
 		//getContracts,
 	], function (err, result) {
 		if (err) {
@@ -208,9 +209,27 @@ exports.getCompanyGroupByID = function(req, res) {
 							console.log(entity, 'link skipped...');
 					}
 					if(link_counter == link_len) {
-						res.send(companyGroup);
+						callback(null, companyGroup);
 					}
 				});
 			});
+	}
+	function getProjectLocation(companyGroup,callback) {
+		var project_counter = 0;
+		companyGroup.location = [];
+		var project_len = companyGroup.projects.length;
+		companyGroup.projects.forEach(function (project) {
+			++project_counter;
+			project.project.proj_coordinates.forEach(function (loc) {
+				companyGroup.location.push({
+					'lat': loc.loc[0],
+					'lng': loc.loc[1],
+					'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+				});
+				if (project_counter == project_len) {
+					res.send(companyGroup);
+				}
+			})
+		});
 	}
 };

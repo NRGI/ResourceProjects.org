@@ -7,7 +7,8 @@ angular
             restrict: 'EA',
             controller: 'nrgiCompanyTableCtrl',
             scope: {
-                companies: '='
+                companies: '=',
+                stake: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-company-table'
         };

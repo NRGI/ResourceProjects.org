@@ -101,6 +101,7 @@ exports.getCompanyByID = function(req, res) {
         getCompany,
         getTransfers,
         getCompanyLinks,
+        getProjectLocation
         //getContracts,
     ], function (err, result) {
         if (err) {
@@ -216,10 +217,28 @@ exports.getCompanyByID = function(req, res) {
                             console.log(entity, 'link skipped...');
                     }
                     if(link_counter == link_len) {
-                        res.send(company);
+                        callback(null, company);
                     }
                 });
             });
+    }
+    function getProjectLocation(company,callback) {
+        var project_counter = 0;
+        company.location = [];
+        var project_len = company.projects.length;
+        company.projects.forEach(function (project) {
+            ++project_counter;
+            project.project.proj_coordinates.forEach(function (loc) {
+                company.location.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                });
+                if (project_counter == project_len) {
+                    res.send(company);
+                }
+            })
+        });
     }
     //function getContracts(company, callback) {
     //    company.contract_pull = {};

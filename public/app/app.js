@@ -174,20 +174,5 @@ angular.module('app').run(function($rootScope, $location,$http) {
     });
     $rootScope.$on('$routeChangeSuccess', function() {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
-        //$http.get('/api/countries').then(function (response) {
-        //    console.log(response);
-        //})
-        //$http.get('/api/commodities').then(function (response) {
-        //    console.log(response);
-        //})
-        //$http.get('/api/companies').then(function (response) {
-        //    console.log(response);
-        //})
-        //$http.get('/api/concessions').then(function (response) {
-        //    console.log(response);
-        //})
-        //$http.get('/api/projects').then(function (response) {
-        //    console.log(response);
-        //})
     })
 });

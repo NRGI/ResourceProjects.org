@@ -1,29 +1,48 @@
 .container
-   .page-header
-      .row
-         .col-md-4
-            h1 Company Groups
-               small
-         .col-md-3
-            .btn-group(role='group', aria-label='...')
-               button.btn.btn-default(type='button')
-                  a(href='/companies') View Companies
+    .page-header
+        .row
+            .col-md-4
+                h1 Company Groups
+                    small
+            .col-md-5
+            .col-md-3
+                .btn-group(role='group', aria-label='...')
+                    button.btn.btn-default.pull-right(type='button')
+                        a(href='/companies') View Companies
 
-   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
 
-   table.table.table-striped(ts-wrapper)
-      thead
-         tr
-            th.tablesort-sortable-th(ts-criteria='company_group_name') Company Group
-            th.tablesort-sortable-th(ts-criteria='companies|parseInt') No. Companies
-            th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
-      tbody
-         tr(ng-repeat='group in groups',ts-repeat)
-            td
-               a(href='group/{{group._id}}') {{group.company_group_name}}
-            td
-               span(ng-if="group.companies!=0") {{group.companies}}
-            td
-               span(ng-if="group.projects!=0") {{group.projects}}
+    table.table.table-striped(ts-wrapper)
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='company_group_name') Company Group
+                th.tablesort-sortable-th(ts-criteria='companies|parseInt') No. Companies
+                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+        tbody
+            tr(ng-repeat='group in groups',ts-repeat)
+                td.company_group_name
+                    a(href='group/{{group._id}}') {{group.company_group_name}}
+                td.company_group_companies {{group.companies}}
+                td.company_group_projects {{group.projects}}
 
-   navigate(page="page",show="show_count",count="count",limit="limit",last="last",next="next",prev="prev",first="first",select="select")
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")

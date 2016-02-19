@@ -8,10 +8,12 @@ angular.module('app')
         nrgiProjectsSrvc,
         $routeParams
     ) {
-        $scope.projectMarkers=[]; $scope.center=[]; var lat=''; var lng='';
+        $scope.projectMarkers=[]; $scope.center=[];
         nrgiProjectsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.project = success;
+            $scope.center={lat:$scope.project.coordinates[0].lat,lng:$scope.project.coordinates[0].lng,zoom: 5};
         });
+
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
@@ -20,6 +22,7 @@ angular.module('app')
                 }
             }
         };
+
         angular.extend($scope, {
             tiles: tilesDict.openstreetmap,
             defaults: {
@@ -31,7 +34,6 @@ angular.module('app')
                 }
             }
         });
-
     });
 
 

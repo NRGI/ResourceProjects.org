@@ -109,6 +109,7 @@ exports.getContractByID = function(req, res) {
         getContract,
         getContractRCData,
         getContractLinks,
+        getProjectLocation
         //getTransfers,
         //getCompanyLinks,
         //getContracts,
@@ -154,7 +155,7 @@ exports.getContractByID = function(req, res) {
         Link.find({contract: contract._id})
             //.populate('company_group','_id company_group_name')
             //.populate('commodity')
-            //.populate('contract')
+            .populate('company')
             //.populate('concession', 'concession_name concession_country concession_type commodities')
             .deepPopulate('project project.proj_country.country project.proj_commodity.commodity ' +
             'concession concession.concession_country.country concession.concession_commodity.commodity')
@@ -164,8 +165,7 @@ exports.getContractByID = function(req, res) {
                 //contract.company_groups = {};
                 //contract.commodities = {};
                 contract.projects = [];
-                //contract.contracts = {};
-                //contract.contracts = [];
+                contract.companies = {};
                 //contract.concessions = {};
                 links.forEach(function(link) {
                     ++link_counter;
@@ -202,22 +202,15 @@ exports.getContractByID = function(req, res) {
                         //        };
                         //    }
                         //    break;
-                        //case 'contract':
-                        //    //if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
-                        //    //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
-                        //    //        if (!err && res.statusCode == 200) {
-                        //    //            company.contracts[link.contract.contract_id] = {
-                        //    //                contract_name: body.name,
-                        //    //                contract_country: body.country,
-                        //    //                contract_commodity: body.resource
-                        //    //            };
-                        //    //        }
-                        //    //    });
-                        //    //}
-                        //    if (!_.contains(company.contracts, link.contract.contract_id)) {
-                        //        company.contracts.push(link.contract.contract_id);
-                        //    }
-                        //    break;
+                        case 'company':
+                            if (!contract.companies.hasOwnProperty(link.company._id)) {
+                                contract.companies[link.company._id] = {
+                                    company_name: link.company.company_name,
+                                    //company_group_id: link.company_group.company_group_name,
+                                    //company_group_name: link.company_group.company_group_name
+                                };
+                            }
+                            break;
                         case 'project':
                             contract.projects.push(link);
                             break;
@@ -226,11 +219,28 @@ exports.getContractByID = function(req, res) {
                             console.log(entity, 'link skipped...');
                     }
                     if(link_counter == link_len) {
-                        console.log(contract);
-                        res.send(contract);
+                        callback(null, contract);
                     }
                 });
             });
+    }
+    function getProjectLocation(contract,callback) {
+        var project_counter = 0;
+        contract.location = [];
+        var project_len = contract.projects.length;
+        contract.projects.forEach(function (project) {
+            ++project_counter;
+            project.project.proj_coordinates.forEach(function (loc) {
+                contract.location.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                });
+                if (project_counter == project_len) {
+                    res.send(contract);
+                }
+            })
+        });
     }
 
 };

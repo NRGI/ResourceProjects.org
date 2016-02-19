@@ -6,7 +6,7 @@
          small Project
    .row
       .col-md-12
-         leaflet(center="center",controls="controls",markers="projectMarkers",tiles="tiles", height='240px')
+         leaflet(center="center",controls="controls",markers="project.coordinates",tiles="tiles", height='240px')
    .row
       .col-md-6
          .info-box
@@ -83,18 +83,18 @@
                            tbody
                               tr
                                  th.tablesort-sortable-th(ts-criteria='name') Name
-                                 th.tablesort-sortable-th(ts-criteria='loc[0]') Lat
-                                 th.tablesort-sortable-th(ts-criteria='loc[1]') Lng
+                                 th.tablesort-sortable-th(ts-criteria='lat') Lat
+                                 th.tablesort-sortable-th(ts-criteria='lng') Lng
                                  th.location-th
-                              tr(ng-repeat='marker in project.proj_coordinates',ts-repeat)
-                                 td
-                                    text name
-                                 td
-                                    span(ng-if='marker.loc[0]!=0') {{marker.loc[0]}}
-                                 td
-                                    span(ng-if='marker.loc[1]!=0') {{marker.loc[1]}}
-                                 td
-                                    span(ng-if='marker.loc[0]!=0') True at: {{marker.timestamp|date:'yyyy-MM-dd'}}
+                              tr(ng-repeat='location in project.coordinates',ts-repeat)
+                                 td.location_name
+                                    text {{location.message}}
+                                 td.location_lat
+                                    span(ng-if='location.lat') {{location.lat}}
+                                 td.location_lng
+                                    span(ng-if='location.lng') {{location.lng}}
+                                 td.location_timestamp
+                                    span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
       .col-md-6
          .info-box
             h2

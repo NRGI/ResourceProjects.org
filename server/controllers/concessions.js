@@ -95,6 +95,7 @@ exports.getConcessionByID = function(req, res) {
         getTransfers,
         getConcessionLinks,
         getCompanyGroup,
+        getProjectLocation
         //getContracts,
     ], function (err, result) {
         if (err) {
@@ -254,13 +255,31 @@ exports.getConcessionByID = function(req, res) {
                                 }
                                 break;
                             default:
-                                console.log('error');
+                                console.log(entity, 'link skipped...');
                         }
                         if(concession_counter == concession_len && link_counter == link_len) {
-                            res.send(concession);
+                            callback(null, concession);
                         }
                     });
                 });
+        });
+    }
+    function getProjectLocation(concession,callback) {
+        var project_counter = 0;
+        concession.location = [];
+        var project_len = concession.projects.length;
+        concession.projects.forEach(function (project) {
+            ++project_counter;
+            project.project.proj_coordinates.forEach(function (loc) {
+                concession.location.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                });
+                if (project_counter == project_len) {
+                    res.send(concession);
+                }
+            })
         });
     }
 };

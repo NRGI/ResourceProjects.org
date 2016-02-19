@@ -52,6 +52,8 @@ script(type="text/javascript", src="/app/concessions/nrgiConcessionDetailCtrl.js
 script(type="text/javascript", src="/app/contracts/nrgiContractListCtrl.js")
 script(type="text/javascript", src="/app/contracts/nrgiContractDetailCtrl.js")
 //countries
+script(type="text/javascript", src="/app/countries/nrgiCountryListCtrl.js")
+script(type="text/javascript", src="/app/countries/nrgiCountryDetailCtrl.js")
 //payments
 //projects
 //sources
@@ -62,8 +64,6 @@ script(type="text/javascript", src="/app/projects/nrgiProjectDetailCtrl.js")
 script(type="text/javascript", src="/app/projects/nrgiMapCtrl.js")
 script(type="text/javascript", src="/app/sources/nrgiSourceListCtrl.js")
 script(type="text/javascript", src="/app/sources/nrgiSourceDetailCtrl.js")
-script(type="text/javascript", src="/app/countries/nrgiCountryListCtrl.js")
-script(type="text/javascript", src="/app/countries/nrgiCountryDetailCtrl.js")
 
 script(type="text/javascript", src="/app/companies/nrgiGroupListCtrl.js")
 script(type="text/javascript", src="/app/companies/nrgiGroupDetailCtrl.js")
@@ -78,20 +78,20 @@ script(type="text/javascript", src="/app/commodities/nrgiCommodityDetailCtrl.js"
 
 
 //- DIRECTIVES
+script(type="text/javascript", src="/app/directives/directives/nrgi-company-table.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-list-nav.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-project-table.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-transfer-table.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-production-table.js")
-script(type="text/javascript", src="/app/directives/directives/nrgi-company-table.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-contract-table.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-concession-table.js")
 
 //- DIRECTIVE CTRLS
+script(type="text/javascript", src="/app/directives/controllers/nrgiCompanyTableCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiListNavCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiProjectTableCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiTransferTableCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiProductionTableCtrl.js")
-script(type="text/javascript", src="/app/directives/controllers/nrgiCompanyTableCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiContractTableCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiConcessionTableCtrl.js")
 
@@ -123,6 +123,7 @@ script(type="text/javascript", src="/app/services/nrgiCommoditiesSrvc.js")
 //- METHODS
 script(type="text/javascript", src="/app/services/methods/nrgiCompaniesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiConcessionsMethodSrvc.js")
+script(type="text/javascript", src="/app/services/methods/nrgiCountriesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiUserMethodSrvc.js")
 //- ACCT CTRLS
 script(type="text/javascript", src="/app/account/nrgiNavBarLoginCtrl.js")

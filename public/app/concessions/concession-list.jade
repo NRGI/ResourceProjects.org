@@ -27,24 +27,23 @@
                         th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
                 tbody
                     tr(ng-repeat="concession in concessions" ts-repeat)
-                        td: a(href='/concession/{{ concession._id }}')
+                        td.concession_name: a(href='/concession/{{ concession._id }}')
                             span(ng-bind-html="concession.concession_name|sanitize")
-                        td: text(ng-repeat="country in concession.concession_country")
+                        td.concession_country: text(ng-repeat="country in concession.concession_country")
                             a(href='/country/{{country.country._id}}')
                                 span(ng-bind-html="country.country.name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td: text(ng-repeat="type in concession.concession_type")
+                        td.concession_type: text(ng-repeat="type in concession.concession_type")
                             text(ng-if="$last") {{type.string | ucfirst}}
-                        td: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_code'")
+                        td.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_code'")
                             a(href='/commodity/{{commodity.commodity._id}}')
                                 span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td: text(ng-repeat="status in concession.concession_status")
+                        td.concession_status: text(ng-repeat="status in concession.concession_status")
                             text(ng-if="$last")
                                 | {{status.string | ucfirst}}
                                 text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                        td: text(ng-if="concession.projects!=0")
-                            | {{concession.projects}}
+                        td.concession_projects {{concession.projects}}
 
     nrgi-list-nav(
     page="page"

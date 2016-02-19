@@ -7,9 +7,9 @@
     .row
         .col-md-12
             leaflet(
-            center="company.countryMap"
+            center="center"
             controls="controls"
-            markers="company.projectMarkers"
+            markers="company.location"
             tiles="tiles"
             height='300px')
     .row
@@ -71,7 +71,7 @@
 
     .row.top-padding-med
         .col-md-6
-            nrgi-contract-table(contracts="company.contracts")
+            nrgi-contract-table(contracts="company.contracts" companies="false" commodity="true" country="true")
 
         .col-md-6
             nrgi-concession-table(concessions="company.concessions")

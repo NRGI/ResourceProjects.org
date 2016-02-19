@@ -22,15 +22,15 @@ exports.getCountries = function(req, res) {
 		}
 	});
 
-	function countryCount(callback) {
-		Country.find({}).count().exec(function(err, country_count) {
-			if(country_count) {
-				callback(null, country_count);
-			} else {
-				callback(err);
-			}
-		});
-	}
+    function countryCount(callback) {
+        Country.find({}).count().exec(function(err, country_count) {
+            if(country_count) {
+                callback(null, country_count);
+            } else {
+                callback(err);
+            }
+        });
+    }
 
 	function getCountrySet(country_count, callback) {
 		Country.find(req.query)
@@ -70,8 +70,8 @@ exports.getCountries = function(req, res) {
 		});
 	}
 };
+
 exports.getCountryByID = function(req, res) {
-	var link_counter, link_len;
 
 	async.waterfall([
 		getCountry
@@ -86,7 +86,6 @@ exports.getCountryByID = function(req, res) {
 			.lean()
 			.exec(function(err, country) {
 				if(country) {
-					//callback(null, concession);
 					res.send(country);
 				} else {
 					callback(err);

@@ -25,18 +25,12 @@
             th.tablesort-sortable-th(ts-criteria='concessions|parseInt') No. Concessions
       tbody
          tr(ng-repeat='commodity in commodities',ts-repeat)
-            td
+            td.commodity_name
                a(href='commodity/{{commodity._id}}')
                   span(ng-bind-html="commodity.commodity_name|sanitize")
-            td
-               span(ng-if="commodity.projects!=0")
-                  | {{commodity.projects}}
-            td
-               span(ng-if="commodity.contracts!=0")
-                  | {{commodity.contracts}}
-            td
-               span(ng-if="commodity.concessions!=0")
-                  | {{commodity.concessions}}
+            td.commodity_projects {{commodity.projects}}
+            td.commodity_contracts {{commodity.contracts}}
+            td.commodity_concessions {{commodity.concessions}}
 
    nrgi-list-nav(
    page="page"

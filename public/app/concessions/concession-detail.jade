@@ -7,9 +7,9 @@
     .row
         .col-md-12
             leaflet(
-            center="concession.countryMap"
+            center="center"
             controls="controls"
-            markers="concession.projectMarkers"
+            markers="concession.location"
             tiles="tiles"
             height='300px')
     .row
@@ -77,10 +77,8 @@
     .row
         .col-md-6
             nrgi-project-table(projects="concession.projects")
-
         .col-md-6
-            nrgi-company-table(companies="concession.companies")
-
+            nrgi-company-table(companies="concession.companies" stake='true')
     .row
         .col-md-12
             nrgi-transfer-table(transfers="concession.transfers")
