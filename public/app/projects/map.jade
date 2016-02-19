@@ -1,9 +1,14 @@
 .container(ng-controller="nrgiMapCtrl")
   .page-header
-     h1 Projects
-        =' '
-        small Map
+      .row
+        .col-md-3
+            h1 Project Map
+        .col-md-3
+          .btn-group(role='group', aria-label='...')
+              button.btn.btn-default(type='button')
+                  a(href='/projects') List View
+
   .row
      .col-md-12
        #map
-         leaflet#projectMap(center="map.center",controls="map.controls",markers="map.markers",tiles="map.tiles")
+         leaflet#projectMap(center="center",controls="controls",markers="projectMarkers",tiles="tiles")

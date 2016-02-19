@@ -13,7 +13,7 @@ exports.getCountries = function(req, res) {
     async.waterfall([
         countryCount,
         getCountrySet,
-        getCountryProjects
+		getCountryProjectCount
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -29,7 +29,6 @@ exports.getCountries = function(req, res) {
             }
         });
     }
-
     function getCountrySet(country_count, callback) {
         Country.find(req.query)
             .sort({
@@ -49,7 +48,7 @@ exports.getCountries = function(req, res) {
                 }
             });
     }
-    function getCountryProjects(country_count, countries, callback) {
+    function getCountryProjectCount(country_count, countries, callback) {
         country_len = countries.length;
         country_counter = 0;
         countries.forEach(function (c) {

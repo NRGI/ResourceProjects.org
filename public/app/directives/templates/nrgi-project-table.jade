@@ -8,7 +8,8 @@ table.table.table-striped.projects(ts-wrapper)#project-info
             //        text.left-padding-med Name
             th.tablesort-sortable-th(ts-criteria='project.proj_country[project.proj_country.length - 1].country.name') Country
             th.tablesort-sortable-th(ts-criteria='project.proj_type[project.proj_type.length - 1].string') Commodity Type
-            th.tablesort-sortable-th(ts-criteria='project.proj_commodity.commodity[project.proj_commodity.commodity.length - 1].commodity_name') Commodity
+            //th.tablesort-sortable-th(ts-criteria='project.proj_commodity.commodity[project.proj_commodity.commodity.length - 1].commodity_name') Commodity
+            th.tablesort-sortable-th(ts-criteria='project.proj_commodity[project.proj_commodity.length - 1].commodity.commodity_name') Commodity
             th.tablesort-sortable-th(ts-criteria='project.proj_status[project.proj_status.length - 1].string') Status
     tbody
         tr(
@@ -19,8 +20,10 @@ table.table.table-striped.projects(ts-wrapper)#project-info
             td.proj_country: text(ng-repeat="country in project.project.proj_country | unique: 'country._id'")
                 a(href='country/{{country.country._id}}')
                     span(ng-bind-html="country.country.name|sanitize")
+                | {{$last ? '' : ', '}}
             td.proj_type: text(ng-repeat="type in project.project.proj_type")
                 | {{type.string | ucfirst}}
+                | {{$last ? '' : ', '}}
             td.proj_commodity: text(ng-repeat="commodity in project.project.proj_commodity | unique: 'commodity.commodity_code'")
                 a(href='commodity/{{commodity.commodity.commodity_code}}')
                     span(ng-bind-html="commodity.commodity.commodity_name|sanitize")

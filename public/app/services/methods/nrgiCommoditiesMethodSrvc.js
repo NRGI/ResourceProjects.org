@@ -1,25 +1,24 @@
-'use strict';
 angular.module('app')
-    .factory('nrgiCountriesMethodSrvc', function(
+    .factory('nrgiCommoditiesMethodSrvc', function(
         $q,
-        nrgiCountriesSrvc
+        nrgiCommoditiesSrvc
     ) {
         return {
-            createCountry: function(new_country_data) {
-                var new_country = new nrgiCountriesSrvc(new_country_data);
+            createSource: function(new_commodity_data) {
+                var new_commodity = new nrgiCommoditiesSrvc(new_commodity_data);
                 var dfd = $q.defer();
 
-                new_country.$save().then(function() {
+                new_commodity.$save().then(function() {
                     dfd.resolve();
                 }, function(response) {
                     dfd.reject(response.data.reason);
                 });
                 return dfd.promise;
             },
-            deleteCountry: function(country_deletion) {
+            deleteSource: function(commodity_deletion) {
                 var dfd = $q.defer();
-                var delete_ID = new nrgiCountriesSrvc();
-                delete_ID.id = country_deletion;
+                var delete_ID = new nrgiCommoditiesSrvc();
+                delete_ID.id = commodity_deletion;
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
@@ -28,9 +27,9 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateCountry: function(new_country_data) {
+            updateSource: function(new_commodity_data) {
                 var dfd = $q.defer();
-                new_country_data.$update().then(function() {
+                new_commodity_data.$update().then(function() {
                     dfd.resolve();
                 }), function(response) {
                     dfd.reject(response.data.reason);

@@ -83,9 +83,10 @@ angular.module('app')
                 templateUrl: '/partials/projects/project-detail',
                 controller: 'nrgiProjectDetailCtrl'
             })
-            //.when('/projects/map', {
-            //    templateUrl: '/partials/projects/map'
-            //})
+            .when('/projects/map', {
+                templateUrl: '/partials/projects/map',
+                controller: 'nrgiMapCtrl'
+            })
             .when('/companies', {
                 templateUrl: '/partials/companies/company-list',
                 controller: 'nrgiCompanyListCtrl'

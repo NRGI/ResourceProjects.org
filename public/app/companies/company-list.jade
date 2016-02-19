@@ -27,9 +27,12 @@
             table.table.table-striped(about='http://resourceprojects.org/company' ts-wrapper)
                 thead
                     tr
-                        th.tablesort-sortable-th(ts-criteria='company_name') Company
-                        th.tablesort-sortable-th(ts-criteria='company_groups.name') Group(s)
-                        th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+                        th.tablesort-sortable-th(ts-criteria='company_name')
+                            | &nbsp; Company
+                        th.tablesort-sortable-th(ts-criteria='company_groups[company_groups.length-1].company_group_name')
+                            | &nbsp; Group(s)
+                        th.tablesort-sortable-th(ts-criteria='projects|parseInt')
+                            | &nbsp; No. Projects
                 tbody
                     tr(ng-repeat='company in companies',ts-repeat)
                         td.company_name: a(href='company/{{company._id}}')

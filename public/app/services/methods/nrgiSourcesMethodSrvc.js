@@ -1,25 +1,24 @@
-'use strict';
 angular.module('app')
-    .factory('nrgiCountriesMethodSrvc', function(
+    .factory('nrgiSourcesMethodSrvc', function(
         $q,
-        nrgiCountriesSrvc
+        nrgiSourcesSrvc
     ) {
         return {
-            createCountry: function(new_country_data) {
-                var new_country = new nrgiCountriesSrvc(new_country_data);
+            createSource: function(new_source_data) {
+                var new_source = new nrgiSourcesSrvc(new_source_data);
                 var dfd = $q.defer();
 
-                new_country.$save().then(function() {
+                new_source.$save().then(function() {
                     dfd.resolve();
                 }, function(response) {
                     dfd.reject(response.data.reason);
                 });
                 return dfd.promise;
             },
-            deleteCountry: function(country_deletion) {
+            deleteSource: function(source_deletion) {
                 var dfd = $q.defer();
-                var delete_ID = new nrgiCountriesSrvc();
-                delete_ID.id = country_deletion;
+                var delete_ID = new nrgiSourcesSrvc();
+                delete_ID.id = source_deletion;
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
@@ -28,9 +27,9 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateCountry: function(new_country_data) {
+            updateSource: function(new_source_data) {
                 var dfd = $q.defer();
-                new_country_data.$update().then(function() {
+                new_source_data.$update().then(function() {
                     dfd.resolve();
                 }), function(response) {
                     dfd.reject(response.data.reason);
