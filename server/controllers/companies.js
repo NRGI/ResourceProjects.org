@@ -214,7 +214,6 @@ exports.getCompanyByID = function(req, res) {
                             case 'project':
                                 company.projects.push(link.project);
                                 break;
-
                             default:
                                 console.log(entity, 'link skipped...');
                         }
