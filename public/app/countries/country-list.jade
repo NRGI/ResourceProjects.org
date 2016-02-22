@@ -22,7 +22,7 @@
                 th(ts-criteria='projects|parseInt') No. Projects
         tbody
             tr(ng-repeat="country in countries" ts-repeat)
-                td.country_name: a(href='countries/{{ country.iso2 }}') {{country.name | isoCountry}}
+                td.country_name: a(href='country/{{ country._id }}') {{country.name | isoCountry}}
                 td.country_projects {{country.projects}}
 
     nrgi-list-nav(

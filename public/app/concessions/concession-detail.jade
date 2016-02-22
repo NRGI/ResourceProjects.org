@@ -30,7 +30,7 @@
                         tr
                             td.detail_label.small Country:
                             td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
-                                a(href='country/{{country.country.iso2}}')
+                                a(href='country/{{country.country._id}}')
                                     span(ng-bind-html="country.country.name|sanitize")
                                 | {{$last ? '' : ', '}}
                         tr
@@ -46,7 +46,7 @@
                             //td {{concession.concession_commodity}}
                             td.concession_commodities
                                 text(ng-repeat="commodity in concession.concession_commodity | unique: 'concession._id'")
-                                    a(href='commoddity/{{commodity.commodity._id}}')
+                                    a(href='commodity/{{commodity.commodity._id}}')
                                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr

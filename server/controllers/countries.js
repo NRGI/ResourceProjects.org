@@ -2,6 +2,7 @@ var Country 		= require('mongoose').model('Country'),
 	Transfer 	    = require('mongoose').model('Transfer'),
 	Link            = require('mongoose').model('Link'),
 	Project 		= require('mongoose').model('Project'),
+	Concession 		= require('mongoose').model('Concession'),
 	async           = require('async'),
 	_               = require("underscore"),
 	request         = require('request'),
@@ -66,9 +67,13 @@ exports.getCountries = function(req, res) {
 };
 
 exports.getCountryByID = function(req, res) {
+	var concession_len,concession_counter;
 
 	async.waterfall([
-		getCountry
+		getCountry,
+		getCountryProjects,
+		getCountryConcessions,
+		getTransfers
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -77,8 +82,85 @@ exports.getCountryByID = function(req, res) {
 
 	function getCountry(callback) {
 		Country.findOne({_id:req.params.id})
+			.populate('country_commodity.commodity')
 			.lean()
 			.exec(function(err, country) {
+				if(country) {
+					callback(null, country);
+					//res.send(country);
+				} else {
+					callback(err);
+				}
+			});
+	}
+	function getCountryProjects(country, callback) {
+		var project_counter= 0;
+		country.projects = [];
+		country.location = [];
+		Project.find({'proj_country.country': country._id})
+				.populate('proj_country.country')
+				.populate('proj_aliases', ' _id alias')
+				.populate('proj_commodity.commodity')
+				.exec(function (err, project) {
+				var project_len = project.length;
+				if (project) {
+					country.projects = project;
+					country.projects.forEach(function (project) {
+						++project_counter;
+						project.proj_coordinates.forEach(function (loc) {
+							country.location.push({
+								'lat': loc.loc[0],
+								'lng': loc.loc[1],
+								'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
+							});
+							if (project_counter == project_len) {
+								callback(null, country);
+							}
+						})
+					});
+				} else {
+					callback(err);
+				}
+			});
+	}
+	function getCountryConcessions(country, callback) {
+		concession_counter = 0;
+		country.concessions = [];
+		Concession.find({'concession_country.country': country._id})
+			.populate('concession_country.country')
+			.populate('concession_commodity.commodity')
+			.exec(function (err, concessions) {
+				concession_len = concessions.length;
+				concessions.forEach(function (concession) {
+					++concession_counter;
+					if (concession) {
+						country.concessions.push({
+							_id: concession._id,
+							concession_name: concession.concession_name,
+							concession_country: _.find(concession.concession_country.reverse()).country,
+							concession_type: _.find(concession.concession_type.reverse()),
+							concession_commodities: concession.concession_commodity,
+							concession_status: concession.concession_status
+						});
+					} else {
+						callback(err);
+					}
+					if(concession_counter == concession_len) {
+						callback(null, country);
+					}
+				});
+			});
+	}
+	function getTransfers(country, callback) {
+		country.transfers = [];
+		Transfer.find({transfer_country: country._id})
+			.populate('transfer_country')
+			.populate('transfer_company', '_id company_name')
+			.populate('transfer_project', '_id proj_name')
+			.exec(function(err, transfers) {
+				_.each(transfers, function(transfer) {
+					country.transfers.push(transfer);
+				});
 				if(country) {
 					res.send(country);
 				} else {

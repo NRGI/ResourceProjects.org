@@ -52,9 +52,9 @@ projectSchema = new Schema({
     //concessions: [{
     //    type: ObjectId,
     //    ref: 'Link'}],
-    companies: [{
-        type: ObjectId,
-        ref: 'Link'}],
+    //companies: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
     //contracts: [{
     //    type: ObjectId,
     //    ref: 'Link'}]

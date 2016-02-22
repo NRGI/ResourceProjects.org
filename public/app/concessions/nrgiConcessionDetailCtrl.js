@@ -11,6 +11,7 @@ angular.module('app')
         $scope.center=[];
         nrgiConcessionsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.concession = success;
+            if($scope.concession.location.length>0)
             $scope.center={lat:$scope.concession.location[0].lat,lng:$scope.concession.location[0].lng,zoom: 3};
         });
 
