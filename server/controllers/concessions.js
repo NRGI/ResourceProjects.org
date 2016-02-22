@@ -95,6 +95,7 @@ exports.getConcessionByID = function(req, res) {
         getTransfers,
         getConcessionLinks,
         getCompanyGroup,
+        getProjectLocation
         //getContracts,
     ], function (err, result) {
         if (err) {
@@ -246,7 +247,6 @@ exports.getConcessionByID = function(req, res) {
                         var entity = _.without(link.entities, 'company')[0];
                         switch (entity) {
                             case 'company_group':
-                                //console.log(link);
                                 if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
                                     company.company_groups.push({
                                         _id: link.company_group._id,
@@ -257,16 +257,29 @@ exports.getConcessionByID = function(req, res) {
                             default:
                                 console.log(entity, 'link skipped...');
                         }
-                        //console.log(concession_counter);
-                        //console.log(concession_len);
-                        //console.log(link_counter);
-                        //console.log(link_len);
                         if(concession_counter == concession_len && link_counter == link_len) {
-                            console.log(concession.companies)
-                            res.send(concession);
+                            callback(null, concession);
                         }
                     });
                 });
+        });
+    }
+    function getProjectLocation(concession,callback) {
+        var project_counter = 0;
+        concession.location = [];
+        var project_len = concession.projects.length;
+        concession.projects.forEach(function (project) {
+            ++project_counter;
+            project.project.proj_coordinates.forEach(function (loc) {
+                concession.location.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                });
+                if (project_counter == project_len) {
+                    res.send(concession);
+                }
+            })
         });
     }
 };

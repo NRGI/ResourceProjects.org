@@ -109,6 +109,7 @@ exports.getContractByID = function(req, res) {
         getContract,
         getContractRCData,
         getContractLinks,
+        getProjectLocation
         //getTransfers,
         //getCompanyLinks,
         //getContracts,
@@ -218,11 +219,28 @@ exports.getContractByID = function(req, res) {
                             console.log(entity, 'link skipped...');
                     }
                     if(link_counter == link_len) {
-                        console.log(contract);
-                        res.send(contract);
+                        callback(null, contract);
                     }
                 });
             });
+    }
+    function getProjectLocation(contract,callback) {
+        var project_counter = 0;
+        contract.location = [];
+        var project_len = contract.projects.length;
+        contract.projects.forEach(function (project) {
+            ++project_counter;
+            project.project.proj_coordinates.forEach(function (loc) {
+                contract.location.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                });
+                if (project_counter == project_len) {
+                    res.send(contract);
+                }
+            })
+        });
     }
 
 };

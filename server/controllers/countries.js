@@ -1,24 +1,25 @@
 var Country 		= require('mongoose').model('Country'),
-    Project 		= require('mongoose').model('Project'),
-    Transfer 	    = require('mongoose').model('Transfer'),
-    Link            = require('mongoose').model('Link'),
-    async           = require('async'),
-    _               = require("underscore"),
-    request         = require('request');
-
+	Transfer 	    = require('mongoose').model('Transfer'),
+	Link            = require('mongoose').model('Link'),
+	Project 		= require('mongoose').model('Project'),
+	async           = require('async'),
+	_               = require("underscore"),
+	request         = require('request'),
+	encrypt 		= require('../utilities/encryption');
 exports.getCountries = function(req, res) {
-    var limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+	var country_len,country_counter,
+		limit = Number(req.params.limit),
+		skip = Number(req.params.skip);
 
-    async.waterfall([
-        countryCount,
-        getCountrySet,
+	async.waterfall([
+		countryCount,
+		getCountrySet,
 		getCountryProjectCount
-    ], function (err, result) {
-        if (err) {
-            res.send(err);
-        }
-    });
+	], function (err, result) {
+		if (err) {
+			res.send(err);
+		}
+	});
 
     function countryCount(callback) {
         Country.find({}).count().exec(function(err, country_count) {
@@ -60,15 +61,11 @@ exports.getCountries = function(req, res) {
                 }
             });
 
-        });
-    }
+		});
+	}
 };
 
 exports.getCountryByID = function(req, res) {
-    //Country.findOne({iso2:req.params.id}).exec(function(err, country) {
-    //    res.send(country);
-    //});
-	var link_counter, link_len;
 
 	async.waterfall([
 		getCountry
@@ -83,7 +80,6 @@ exports.getCountryByID = function(req, res) {
 			.lean()
 			.exec(function(err, country) {
 				if(country) {
-					//callback(null, concession);
 					res.send(country);
 				} else {
 					callback(err);
@@ -91,27 +87,3 @@ exports.getCountryByID = function(req, res) {
 			});
 	}
 };
-//exports.getCountryByID = function(req, res) {
-//	var link_counter, link_len;
-//
-//	async.waterfall([
-//		getCountry
-//	], function (err, result) {
-//		if (err) {
-//			res.send(err);
-//		}
-//	});
-//
-//	function getCountry(callback) {
-//		Country.findOne({_id:req.params.id})
-//			.lean()
-//			.exec(function(err, country) {
-//				if(country) {
-//					//callback(null, concession);
-//					res.send(country);
-//				} else {
-//					callback(err);
-//				}
-//			});
-//	}
-//};

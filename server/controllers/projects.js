@@ -99,6 +99,7 @@ exports.getProjectByID = function(req, res) {
 		getTransfers,
 		getProductions,
 		getProjectLinks,
+		getProjectCoordinate,
 		getCompanyGroup
 	], function (err, result) {
 		if (err) {
@@ -206,6 +207,36 @@ exports.getProjectByID = function(req, res) {
 				});
 			});
 	}
+
+	function getProjectCoordinate(project, callback) {
+		project.coordinates = [];
+		project_counter = 0;
+		project_len = project.proj_coordinates.length;
+		Production.find({production_project: project._id})
+			.populate('production_commodity')
+			.exec(function(err, productions) {
+				_.each(productions, function(productions) {
+					project.productions.push(productions);
+				});
+				if(project.proj_coordinates) {
+					project.proj_coordinates.forEach(function (loc) {
+						++project_counter;
+						project.coordinates.push({
+							'lat': loc.loc[0],
+							'lng': loc.loc[1],
+							'message': project.proj_name,
+							'timestamp': loc.timestamp
+						});
+						if (project_counter == project_len) {
+							callback(null, project);
+						}
+					})
+				} else {
+					callback(null, project);
+				}
+			});
+	}
+
 	function getCompanyGroup(project, callback) {
 		project_len = project.companies.length;
 		project_counter = 0;

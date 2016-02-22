@@ -3,18 +3,19 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='name') Name
-            th.tablesort-sortable-th(ts-criteria='name') Country
-            th.tablesort-sortable-th(ts-criteria='country') Country
-            th.tablesort-sortable-th(ts-criteria='commodity_name') Commodity
+            th.tablesort-sortable-th(ng-if="country==true",ts-criteria='country') Country
+            th.tablesort-sortable-th(ng-if="commodity==true",ts-criteria='commodity_name') Commodity
             th.tablesort-sortable-th(ts-criteria='rc_id') RC-ID
+            th.tablesort-sortable-th(ng-if="companies==true",ts-criteria='companies') No. Companies
     tbody
         tr(
         ng-repeat='contract in contracts'
         ts-repeat)
-            td
-            td
-            td
-            td
+            td.contract_name
+            td.contract_country(ng-if="country==true")
+            td.contract_commodity_name(ng-if="commodity==true")
+            td.contract_rc_id
+            td.contract_companies(ng-if="companies==true")
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span

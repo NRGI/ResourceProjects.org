@@ -96,7 +96,8 @@ exports.getCommodityByID = function(req, res) {
 
 	async.waterfall([
 		getCommodity,
-		getCommodityLinks
+		getCommodityLinks,
+		getProjectLocation
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -195,9 +196,29 @@ exports.getCommodityByID = function(req, res) {
 							console.log(entity, 'link skipped...');
 					}
 					if(link_counter == link_len) {
-						res.send(commodity);
+						//res.send(commodity);
+						callback(null, commodity);
 					}
 				});
 			});
 	}
+	function getProjectLocation(commodity,callback) {
+		var project_counter = 0;
+		commodity.location = [];
+		var project_len = commodity.projects.length;
+		commodity.projects.forEach(function (project) {
+			++project_counter;
+			project.project.proj_coordinates.forEach(function (loc) {
+				commodity.location.push({
+					'lat': loc.loc[0],
+					'lng': loc.loc[1],
+					'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+				});
+				if (project_counter == project_len) {
+					res.send(commodity);
+				}
+			})
+		});
+	}
+
 };

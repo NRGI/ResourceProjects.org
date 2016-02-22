@@ -8,8 +8,10 @@ angular.module('app')
         nrgiContractsSrvc,
         $routeParams
     ) {
+        $scope.center=[];
         nrgiContractsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.contract = success;
+            $scope.center={lat:$scope.contract.location[0].lat,lng:$scope.contract.location[0].lng,zoom: 3};
         });
         var tilesDict = {
             openstreetmap: {
