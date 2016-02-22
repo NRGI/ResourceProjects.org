@@ -11,6 +11,7 @@ angular.module('app')
         $scope.record_type = 'companies';
         nrgiCompaniesSrvc.get({_id: $routeParams.id,record_type:$scope.record_type}, function (success) {
             $scope.company = success;
+            if($scope.company.location.length>0)
             $scope.center={lat:$scope.company.location[0].lat,lng:$scope.company.location[0].lng,zoom: 3};
         });
 

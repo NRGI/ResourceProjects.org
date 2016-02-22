@@ -10,7 +10,7 @@ table.table.table-striped.companies(ts-wrapper)#company-info
     tbody
         tr(
         ng-repeat="company in companies",ts-repeat)
-            td.company_name: a(href="companies/{{company._id}}")
+            td.company_name: a(href="company/{{company._id}}")
                     span(ng-bind-html="company.company_name|sanitize")
             td.company_groups: text(
                 ng-repeat="group in company.company_groups")

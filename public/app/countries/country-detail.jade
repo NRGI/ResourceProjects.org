@@ -6,141 +6,152 @@
          small Country
    .row
       .col-md-12
-         leaflet(center="country.countryMap",controls="controls",markers="country.projectMarkers",tiles="tiles",height='240px')
+         leaflet(center="center",controls="controls",markers="country.location",tiles="tiles",height='240px')
    .info-box
       h2 Country Info
       table#group-info
          tbody
             tr
-               td.project-label(style='width:200px') Commodity Type(s):
-               td {{country.commodity_type}}
+               td.detail_label.small Commodity Type(s):
+                  td.country_type: text(
+                  ng-repeat="type in country.country_type"
+                  ng-if="country.country_type.length > 0")
+                     text(ng-if="$last")
+                        | {{type.string | ucfirst}}
+                        text.small  (true at {{type.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
             tr
-               td.project-label(style='width:200px') Commodity:
-               td
-                  a(href='commodity/{{country.commodity._id}}')
-                     span(ng-bind-html="country.commodity.name|sanitize")
+               td.detail_label.small Commodities:
+                  td.country_commodities
+                     text(ng-repeat="commodity in country.country_commodity")
+                        a(href='commodity/{{commodity.commodity._id}}')
+                           span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                        | {{$last ? '' : ', '}}
    .row
       .col-md-6
-         h2 Projects
-         table.table.table-striped.projects(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='commodity') Commodity
-                  th.tablesort-sortable-th(ts-criteria='status') Status
-                  th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Companies
-            tbody
-               tr(ng-repeat='project in country.projects',ts-repeat)
-                  td
-                     a(href='/project/{{project.id}}')
-                        span(ng-bind-html="project.name|sanitize")
-                  td {{project.commodity}}
-                  td {{project.status}}
-                  td {{project.count}}
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download
-               =' '
-               a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Projects CSV
+         nrgi-project-table(projects="country.projects" country="false" type="false" companies="true")
+         //h2 Projects
+         //table.table.table-striped.projects(ts-wrapper)
+         //   thead
+         //      tr
+         //         th.tablesort-sortable-th(ts-criteria='name') Name
+         //         th.tablesort-sortable-th(ts-criteria='commodity') Commodity
+         //         th.tablesort-sortable-th(ts-criteria='status') Status
+         //         th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Companies
+         //   tbody
+         //      tr(ng-repeat='project in country.projects',ts-repeat)
+         //         td
+         //            a(href='/project/{{project.id}}')
+         //               span(ng-bind-html="project.name|sanitize")
+         //         td {{project.commodity}}
+         //         td {{project.status}}
+         //         td {{project.count}}
+         //.download
+         //   span.glyphicon.glyphicon-download(aria-hidden="true")
+         //   span  Download
+         //      =' '
+         //      a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Projects CSV
       .col-md-6
-         h2 Companies
-            a=' '
-            small Companies active in this country
-         table.table.table-striped.companies(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='group') Group
-            tbody
-               tr(ng-repeat="company in country.companies",ts-repeat)
-                  td
-                     a(href="company/{{company.idCompany}}")
-                        span(ng-bind-html="company.name|sanitize")
-                  td
-                     a(href="group/{{company.idGroup}}")
-                        span(ng-bind-html="company.group|sanitize")
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download
-               =' '
-               a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3FcompanyName+%28xsd%3Astring%28%3Fgroup_%29+as+%3Fgroup%29++%3FgroupName+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fproject_name%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+.%0A+++++++++++++++%3Fcompany+skos%3AprefLabel+%3FcompanyName%0A++++++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++++++%3Fgroup_+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++++++%3Fgroup_+skos%3AprefLabel+%3FgroupName%0A++++++++%7D%0A++++%7D+%0A%7D+%0AGROUP+BY+%3Fcompany+%3FcompanyName%0AORDER+BY+%3FcompanyName%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Companies CSV
+         nrgi-company-table(projects="country.companies")
+         //h2 Companies
+         //   a=' '
+         //   small Companies active in this country
+         //table.table.table-striped.companies(ts-wrapper)
+         //   thead
+         //      tr
+         //         th.tablesort-sortable-th(ts-criteria='name') Name
+         //         th.tablesort-sortable-th(ts-criteria='group') Group
+         //   tbody
+         //      tr(ng-repeat="company in country.companies",ts-repeat)
+         //         td
+         //            a(href="company/{{company.idCompany}}")
+         //               span(ng-bind-html="company.name|sanitize")
+         //         td
+         //            a(href="group/{{company.idGroup}}")
+         //               span(ng-bind-html="company.group|sanitize")
+         //.download
+         //   span.glyphicon.glyphicon-download(aria-hidden="true")
+         //   span  Download
+         //      =' '
+         //      a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3FcompanyName+%28xsd%3Astring%28%3Fgroup_%29+as+%3Fgroup%29++%3FgroupName+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fproject_name%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+.%0A+++++++++++++++%3Fcompany+skos%3AprefLabel+%3FcompanyName%0A++++++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++++++%3Fgroup_+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++++++%3Fgroup_+skos%3AprefLabel+%3FgroupName%0A++++++++%7D%0A++++%7D+%0A%7D+%0AGROUP+BY+%3Fcompany+%3FcompanyName%0AORDER+BY+%3FcompanyName%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Companies CSV
    .row
       .col-md-6
-         h2 Contracts
-            a=' '
-            //small Companies active in this country
-         table.table.table-striped.companies(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') RC-ID
-                  th.tablesort-sortable-th(ts-criteria='group') Commodity
-                  th.tablesort-sortable-th(ts-criteria='group') No. Companies
-            tbody
-               tr(ng-repeat="company in country.companies",ts-repeat)
-                  td
-                     a(href="contract/{{company.idCompany}}")
-                        span(ng-bind-html="company.name|sanitize")
-                  td
-                     a(href="group/{{company.idGroup}}")
-                        span(ng-bind-html="company.group|sanitize")
-                  td
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download
-         =' '
-            a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3FcompanyName+%28xsd%3Astring%28%3Fgroup_%29+as+%3Fgroup%29++%3FgroupName+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fproject_name%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+.%0A+++++++++++++++%3Fcompany+skos%3AprefLabel+%3FcompanyName%0A++++++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++++++%3Fgroup_+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++++++%3Fgroup_+skos%3AprefLabel+%3FgroupName%0A++++++++%7D%0A++++%7D+%0A%7D+%0AGROUP+BY+%3Fcompany+%3FcompanyName%0AORDER+BY+%3FcompanyName%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Contracts CSV
+         nrgi-contract-table(contracts="country.contracts" companies="false" commodity="true" country="true")
+         //h2 Contracts
+         //   a=' '
+         //   //small Companies active in this country
+         //table.table.table-striped.companies(ts-wrapper)
+         //   thead
+         //      tr
+         //         th.tablesort-sortable-th(ts-criteria='name') RC-ID
+         //         th.tablesort-sortable-th(ts-criteria='group') Commodity
+         //         th.tablesort-sortable-th(ts-criteria='group') No. Companies
+         //   tbody
+         //      tr(ng-repeat="company in country.companies",ts-repeat)
+         //         td
+         //            a(href="contract/{{company.idCompany}}")
+         //               span(ng-bind-html="company.name|sanitize")
+         //         td
+         //            a(href="group/{{company.idGroup}}")
+         //               span(ng-bind-html="company.group|sanitize")
+         //         td
+         //.download
+         //   span.glyphicon.glyphicon-download(aria-hidden="true")
+         //   span  Download
+         //=' '
+         //   a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fcompany+%3FcompanyName+%28xsd%3Astring%28%3Fgroup_%29+as+%3Fgroup%29++%3FgroupName+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fproject_name%0A++++%0A++++OPTIONAL+%7B+%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+.%0A+++++++++++++++%3Fcompany+skos%3AprefLabel+%3FcompanyName%0A++++++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++++++%3Fgroup_+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++++++%3Fgroup_+skos%3AprefLabel+%3FgroupName%0A++++++++%7D%0A++++%7D+%0A%7D+%0AGROUP+BY+%3Fcompany+%3FcompanyName%0AORDER+BY+%3FcompanyName%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Contracts CSV
       .col-md-6
-         h2 Concessions
-         table.table.table-striped.projects(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='commodity') Commodity
-                  th.tablesort-sortable-th(ts-criteria='status') Status
-                  th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Projects
-            tbody
-               tr(ng-repeat='project in country.projects',ts-repeat)
-                  td
-                     a(href='/concession/{{project.id}}')
-                        span(ng-bind-html="project.name|sanitize")
-                  td {{project.commodity}}
-                  td {{project.status}}
-                  td {{project.count}}
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download
-            =' '
-               a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Concessions CSV
-
-   h2 Payments
-   table.table.table-striped.payments(ts-wrapper)
-      thead
-         tr
-            th.tablesort-sortable-th(ts-criteria='year') Year
-            th.tablesort-sortable-th(ts-criteria='project') Project
-            th.tablesort-sortable-th(ts-criteria='paidBy') Paid by
-            th.tablesort-sortable-th(ts-criteria='type') Payment Type
-            th.tablesort-sortable-th(ts-criteria='currency') Currency
-            th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
-            th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?
-      tbody
-         tr(ng-repeat="payment in country.payments",ts-repeat)
-            td {{payment.year}}
-            td
-               a(href="project/{{payment.projectId}}")
-                  span(ng-bind-html="payment.project|sanitize")
-            td
-               a(href="company/{{payment.paidById}}")
-                  span(ng-bind-html="payment.paidBy|sanitize")
-            td {{payment.type}}
-            td {{payment.currency}}
-            td {{payment.value}}
-            td {{payment.receipt}}
-   .download
-      span.glyphicon.glyphicon-download(aria-hidden="true")
-      span  Download
-      =' '
-      a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Projects CSV
+         nrgi-concession-table(concessions="country.concessions")
+         //h2 Concessions
+         //table.table.table-striped.projects(ts-wrapper)
+         //   thead
+         //      tr
+         //         th.tablesort-sortable-th(ts-criteria='name') Name
+         //         th.tablesort-sortable-th(ts-criteria='commodity') Commodity
+         //         th.tablesort-sortable-th(ts-criteria='status') Status
+         //         th.tablesort-sortable-th(ts-criteria='count|parseInt') No. Projects
+         //   tbody
+         //      tr(ng-repeat='project in country.projects',ts-repeat)
+         //         td
+         //            a(href='/concession/{{project.id}}')
+         //               span(ng-bind-html="project.name|sanitize")
+         //         td {{project.commodity}}
+         //         td {{project.status}}
+         //         td {{project.count}}
+         //.download
+         //   span.glyphicon.glyphicon-download(aria-hidden="true")
+         //   span  Download
+         //   =' '
+         //      a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Concessions CSV
+   nrgi-transfer-table(transfers="country.transfers" project="true")
+   //h2 Payments
+   //table.table.table-striped.payments(ts-wrapper)
+   //   thead
+   //      tr
+   //         th.tablesort-sortable-th(ts-criteria='year') Year
+   //         th.tablesort-sortable-th(ts-criteria='project') Project
+   //         th.tablesort-sortable-th(ts-criteria='paidBy') Paid by
+   //         th.tablesort-sortable-th(ts-criteria='type') Payment Type
+   //         th.tablesort-sortable-th(ts-criteria='currency') Currency
+   //         th.tablesort-sortable-th(ts-criteria='value|parseInt') Value
+   //         th.tablesort-sortable-th(ts-criteria='receipt') Payment or receipt?
+   //   tbody
+   //      tr(ng-repeat="payment in country.payments",ts-repeat)
+   //         td {{payment.year}}
+   //         td
+   //            a(href="project/{{payment.projectId}}")
+   //               span(ng-bind-html="payment.project|sanitize")
+   //         td
+   //            a(href="company/{{payment.paidById}}")
+   //               span(ng-bind-html="payment.paidBy|sanitize")
+   //         td {{payment.type}}
+   //         td {{payment.currency}}
+   //         td {{payment.value}}
+   //         td {{payment.receipt}}
+   //.download
+   //   span.glyphicon.glyphicon-download(aria-hidden="true")
+   //   span  Download
+   //   =' '
+   //   a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Projects CSV
    .advanced-links
       .container
          h3

@@ -128,6 +128,7 @@ exports.getCompanyByID = function(req, res) {
         Transfer.find({transfer_company: company._id})
             .populate('transfer_country')
             .populate('transfer_company', '_id company_name')
+            .populate('transfer_project', '_id proj_name')
             .exec(function(err, transfers) {
                 _.each(transfers, function(transfer) {
                     company.transfers.push(transfer);
@@ -178,6 +179,7 @@ exports.getCompanyByID = function(req, res) {
                         case 'concession':
                             if (!company.concessions.hasOwnProperty(link.concession._id)) {
                                 company.concessions.push({
+                                    _id: link.concession._id,
                                     concession_name: link.concession.concession_name,
                                     concession_country: _.find(link.concession.concession_country.reverse()).country,
                                     concession_type: _.find(link.concession.concession_type.reverse()),
@@ -210,7 +212,7 @@ exports.getCompanyByID = function(req, res) {
                             }
                             break;
                         case 'project':
-                            company.projects.push(link);
+                            company.projects.push(link.project);
                             break;
 
                         default:
@@ -228,11 +230,11 @@ exports.getCompanyByID = function(req, res) {
         var project_len = company.projects.length;
         company.projects.forEach(function (project) {
             ++project_counter;
-            project.project.proj_coordinates.forEach(function (loc) {
+            project.proj_coordinates.forEach(function (loc) {
                 company.location.push({
                     'lat': loc.loc[0],
                     'lng': loc.loc[1],
-                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                    'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
                 });
                 if (project_counter == project_len) {
                     res.send(company);

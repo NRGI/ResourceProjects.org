@@ -11,6 +11,7 @@ angular.module('app')
         $scope.center=[];
         nrgiCommoditiesSrvc.get({_id: $routeParams.id}, function (response) {
             $scope.commodity=response;
+            if($scope.commodity.location.length>0)
             $scope.center={lat:$scope.commodity.location[0].lat,lng:$scope.commodity.location[0].lng,zoom: 5};
         });
 
