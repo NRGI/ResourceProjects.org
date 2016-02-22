@@ -41,7 +41,7 @@
 
                         tr
                             td.detail_label.small Commodities:
-                            td.company_commodities
+                            td.company_commoditiea
                                 text(ng-repeat="commodity in company.commodities | unique: '_id'")
                                     a(href='commodity/{{commodity._id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
@@ -83,7 +83,13 @@
 
     .row
         .col-md-12
-            nrgi-project-table(projects="company.projects" country="true" type="true" companies="false")
+            nrgi-project-table(
+            projects="company.projects"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true"
+            companies="false")
     .row.top-padding-med
         .col-md-6
             nrgi-contract-table(
@@ -96,4 +102,11 @@
             nrgi-concession-table(concessions="company.concessions")
     .row
         .col-md-12
-            nrgi-transfer-table(transfers="company.transfers" project="false")
+            nrgi-transfer-table(
+            transfers="company.transfers"
+            project="false")
+
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources

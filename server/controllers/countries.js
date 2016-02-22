@@ -144,26 +144,26 @@ exports.getCountryByID = function(req, res) {
 									'lng': loc.loc[1],
 									'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
 								});
+							});
+							if (project_counter == project_len) {
+								callback(null, country);
+							}
+						}
+					);
 
-                            });
-                            if (project_counter == project_len) {
-                                callback(null, country);
-                            }
-                        }
-                    );
-                } else {
-                    callback(err);
-                }
-            });
-    }
-    function getCountryConcessions(country, callback) {
-        concession_counter = 0;
-        country.concessions = [];
-        Concession.find({'concession_country.country': country._id})
-            .populate('concession_country.country')
-            .populate('concession_commodity.commodity')
-            .exec(function (err, concessions) {
-                if (concessions.length>0) {
+				} else {
+					callback(null, country);
+				}
+			});
+	}
+	function getCountryConcessions(country, callback) {
+		concession_counter = 0;
+		country.concessions = [];
+		Concession.find({'concession_country.country': country._id})
+			.populate('concession_country.country')
+			.populate('concession_commodity.commodity')
+			.exec(function (err, concessions) {
+				if (concessions.length>0) {
 					concession_len = concessions.length;
 					_.each(concessions, function (concession) {
 						++concession_counter;

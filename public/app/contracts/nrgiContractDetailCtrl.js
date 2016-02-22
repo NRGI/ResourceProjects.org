@@ -13,8 +13,9 @@ angular.module('app')
             $scope.contract = success;
             console.log($scope.contract)
             console.log($scope.contract.location)
-            if($scope.contract.location.length>0)
-            $scope.center={lat:$scope.contract.location[0].lat,lng:$scope.contract.location[0].lng,zoom: 3};
+            if($scope.contract.location.length>0) {
+                $scope.center={lat:$scope.contract.location[0].lat,lng:$scope.contract.location[0].lng,zoom: 3};
+            }
         });
         var tilesDict = {
             openstreetmap: {
