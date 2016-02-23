@@ -26,7 +26,7 @@
                         th.tablesort-sortable-th(ts-criteria='concession_status[concession_status.length-1].string') Status
                         th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
                 tbody
-                    tr(ng-repeat="concession in concessions" ts-repeat)
+                    tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
                         td.concession_name: a(href='/concession/{{ concession._id }}')
                             span(ng-bind-html="concession.concession_name|sanitize")
                         td.concession_country: text(ng-repeat="country in concession.concession_country")

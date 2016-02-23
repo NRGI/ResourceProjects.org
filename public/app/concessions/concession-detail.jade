@@ -76,12 +76,17 @@
                                 span(ng-bind-html="concession.description|sanitize")
     .row
         .col-md-6
-            nrgi-project-table(projects="concession.projects")
+            nrgi-project-table(projects="concession.projects" country="true" type="true" companies="false" commodity="true" status="true")
         .col-md-6
-            nrgi-company-table(companies="concession.companies" stake='true')
+            nrgi-company-table(companies="concession.companies" stake='true' group='true')
     .row
         .col-md-12
             nrgi-transfer-table(transfers="concession.transfers")
+
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources
     //.advanced-links
     //   .container
     //      h3

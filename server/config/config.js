@@ -9,14 +9,14 @@ module.exports 	= {
         port: process.env.PORT || 3032
     },
     local: {
-        baseUrl: 'http://localhost:3017',
+        baseUrl: 'http://localhost:3041',
         db: 'mongodb://localhost/rp_local',
         rootPath: rootPath,
-        port: process.env.PORT || 3017
+        port: process.env.PORT || 3041
     },
     staging: {
-        baseUrl: 'http://staging.resourceprojects.org',
-        db: '@candidate.32.mongolayer.com:10582/rp_dev',
+        baseUrl: 'http://dev-staging.resourceprojects.org',
+        db: '@candidate.19.mongolayer.com:10726,candidate.32.mongolayer.com:10582/rp_staging?replicaSet=set-54c2868c4ae1de388800b2a3',
         rootPath: rootPath,
         port: process.env.PORT || 80
     },

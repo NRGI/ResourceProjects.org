@@ -9,7 +9,7 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
             th.tablesort-sortable-th(ng-if="companies==true",ts-criteria='companies') No. Companies
     tbody
         tr(
-        ng-repeat='contract in contracts'
+        ng-repeat="contract in contracts | unique: '_id'"
         ts-repeat)
             td.contract_name
             td.contract_country(ng-if="country==true")

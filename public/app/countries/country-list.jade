@@ -21,7 +21,7 @@
                 th(ts-criteria='name') Country
                 th(ts-criteria='projects|parseInt') No. Projects
         tbody
-            tr(ng-repeat="country in countries" ts-repeat)
+            tr(ng-repeat="country in countries | unique: '_id'" ts-repeat)
                 td.country_name: a(href='country/{{ country._id }}') {{country.name | isoCountry}}
                 td.country_projects {{country.projects}}
 

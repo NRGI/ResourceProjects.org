@@ -10,7 +10,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.tablesort-sortable-th(ts-criteria='production_price_per_unit') Price per unit
     tbody
         tr(
-        ng-repeat="production in productions"
+        ng-repeat="production in productions | unique: '_id'"
         ts-repeat)
             td.production_year {{production.production_year}}
             td.production_volume  {{production.production_volume}}

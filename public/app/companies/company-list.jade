@@ -34,7 +34,7 @@
                         th.tablesort-sortable-th(ts-criteria='projects|parseInt')
                             | &nbsp; No. Projects
                 tbody
-                    tr(ng-repeat='company in companies',ts-repeat)
+                    tr(ng-repeat="company in companies | unique: '_id'",ts-repeat)
                         td.company_name: a(href='company/{{company._id}}')
                             span(ng-bind-html="company.company_name|sanitize")
                         td.company_groups: text(ng-repeat="group in company.company_groups")

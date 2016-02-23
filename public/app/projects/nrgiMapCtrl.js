@@ -6,7 +6,7 @@ angular.module('app')
         nrgiProjectsSrvc,
         $routeParams
     ) {
-    $scope.projectMarkers=[];
+    $scope.projectMarkers=[]; $scope.map=[]; var lat=''; var lng='';
     nrgiProjectsSrvc.get(function (success) {
         $scope.projectMarkers = success.data;
     });

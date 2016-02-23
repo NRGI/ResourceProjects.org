@@ -8,7 +8,6 @@ var Country 		= require('mongoose').model('Country'),
 	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
 exports.getCountries = function(req, res) {
-
 	var country_len,country_counter,
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
@@ -32,41 +31,36 @@ exports.getCountries = function(req, res) {
             }
         });
     }
-
-	function getCountrySet(country_count, callback) {
-		Country.find(req.query)
-			.sort({
-				name: 'asc'
-			})
-			.skip(skip)
-			.limit(limit)
-			.populate('country_aliases', ' _id alias model')
-			.lean()
-			.exec(function(err, countries) {
-				if(countries) {
-					callback(null, country_count, countries);
-				} else {
-					callback(err);
-				}
-			});
-	}
-
-	function getCountryProjectCount(country_count, countries, callback) {
-		country_len = countries.length;
-		country_counter = 0;
-		countries.forEach(function (c) {
-			c.projects = 0;
-			Project.find({'proj_country.country': c._id}).exec(function (err, project_count) {
-				++country_counter;
-				if (project_count) {
-					c.projects =project_count.length;
-				} else {
-					callback(err);
-				}
-				if(country_counter == country_len){
-					res.send({data:countries, count:country_count});
-				}
-			});
+    function getCountrySet(country_count, callback) {
+        Country.find(req.query)
+            .sort({
+                name: 'asc'
+            })
+            .skip(skip)
+            .limit(limit)
+            .populate('country_aliases', ' _id alias model')
+            //.populate('projects')
+            .lean()
+            .exec(function(err, countries) {
+                if(countries) {
+                    //res.send({data:countries, count:country_count});
+                    callback(null, country_count, countries);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+    function getCountryProjectCount(country_count, countries, callback) {
+        country_len = countries.length;
+        country_counter = 0;
+        countries.forEach(function (c) {
+            Project.find({'proj_country.country': c._id}).count().exec(function(err, project_count) {
+                ++country_counter;
+                c.projects = project_count;
+                if(country_counter == country_len) {
+                    res.send({data:countries, count:country_count});
+                }
+            });
 
 		});
 	}
@@ -125,7 +119,7 @@ exports.getCountryByID = function(req, res) {
 						})
 					});
 				} else {
-					callback(err);
+					callback(null, country);
 				}
 			});
 	}
@@ -136,10 +130,10 @@ exports.getCountryByID = function(req, res) {
 			.populate('concession_country.country')
 			.populate('concession_commodity.commodity')
 			.exec(function (err, concessions) {
-				concession_len = concessions.length;
-				concessions.forEach(function (concession) {
-					++concession_counter;
-					if (concession) {
+				if (concessions.length>0) {
+					concession_len = concessions.length;
+					concessions.forEach(function (concession) {
+						++concession_counter;
 						country.concessions.push({
 							_id: concession._id,
 							concession_name: concession.concession_name,
@@ -148,13 +142,14 @@ exports.getCountryByID = function(req, res) {
 							concession_commodities: concession.concession_commodity,
 							concession_status: concession.concession_status
 						});
-					} else {
-						callback(err);
-					}
-					if(concession_counter == concession_len) {
-						callback(null, country);
-					}
-				});
+						if (concession_counter == concession_len) {
+							callback(null, country);
+						}
+
+					});
+				} else {
+					callback(null, country);
+				}
 			});
 	}
 	function getTransfers(country, callback) {
@@ -164,14 +159,12 @@ exports.getCountryByID = function(req, res) {
 			.populate('transfer_company', '_id company_name')
 			.populate('transfer_project', '_id proj_name')
 			.exec(function(err, transfers) {
-				_.each(transfers, function(transfer) {
-					country.transfers.push(transfer);
-				});
-				if(country) {
-					res.send(country);
-				} else {
-					callback(err);
+				if(transfers) {
+					_.each(transfers, function (transfer) {
+						country.transfers.push(transfer);
+					});
 				}
+				res.send(country);
 			});
 	}
 };

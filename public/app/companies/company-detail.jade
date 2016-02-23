@@ -67,13 +67,35 @@
 
     .row
         .col-md-12
-            nrgi-project-table(projects="company.projects" country="true" type="true" companies="false")
+            nrgi-project-table(
+            projects="company.projects"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true"
+            companies="false")
+
     .row.top-padding-med
         .col-md-6
-            nrgi-contract-table(contracts="company.contracts" companies="false" commodity="true" country="true")
-
+            nrgi-contract-table(
+            contracts="company.contracts"
+            companies="false"
+            commodity="true"
+            country="true")
         .col-md-6
-            nrgi-concession-table(concessions="company.concessions")
+            nrgi-concession-table(
+            concessions="company.concessions"
+            commodity="true"
+            type="true"
+            status="false"
+            projects="false")
     .row
         .col-md-12
-            nrgi-transfer-table(transfers="company.transfers" project="false")
+            nrgi-transfer-table(
+            transfers="company.transfers"
+            project="false")
+
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources

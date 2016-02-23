@@ -1,6 +1,7 @@
 .container
 	.page-header
 		h1 Sources
+
 	p This website is built up through user contributions, transforming company reports and filings into accessible open data. Find out
 		=' '
 		a(href='/contribute') how you can contribute here
@@ -27,7 +28,7 @@
 				th.tablesort-sortable-th(ts-criteria='source_date') Source date
 				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
 		tbody
-			tr(ng-repeat='source in sources', ts-repeat)
+			tr(ng-repeat="source in sources | unique: '_id'", ts-repeat)
 				td.source_name
 					a(href='source/{{ source._id }}')
 						span(ng-bind-html="source.source_name|sanitize")

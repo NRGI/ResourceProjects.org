@@ -7,7 +7,11 @@ angular
             restrict: 'EA',
             controller: 'nrgiConcessionTableCtrl',
             scope: {
-                concessions: '='
+                concessions: '=',
+                commodity:'=',
+                type:'=',
+                status:'=',
+                projects:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-concession-table'
         };

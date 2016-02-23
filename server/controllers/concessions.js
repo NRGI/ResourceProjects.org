@@ -172,7 +172,7 @@ exports.getConcessionByID = function(req, res) {
                             }
                             break;
                         case 'project':
-                            concession.projects.push(link);
+                            concession.projects.push(link.project);
                             break;
 
                         default:
@@ -270,11 +270,11 @@ exports.getConcessionByID = function(req, res) {
         var project_len = concession.projects.length;
         concession.projects.forEach(function (project) {
             ++project_counter;
-            project.project.proj_coordinates.forEach(function (loc) {
+            project.proj_coordinates.forEach(function (loc) {
                 concession.location.push({
                     'lat': loc.loc[0],
                     'lng': loc.loc[1],
-                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+                    'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
                 });
                 if (project_counter == project_len) {
                     res.send(concession);

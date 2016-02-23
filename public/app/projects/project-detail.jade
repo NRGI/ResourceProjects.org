@@ -14,7 +14,7 @@
             table#project-info
                tbody
                   tr
-                     td.detail_label ID:
+                     td.detail_label.small ID:
                      td.project_id {{project._id}}
                   tr
                      td.detail_label.small Project site name:
@@ -106,14 +106,14 @@
                      td.project-description
                         span(ng-bind-html="project.description|sanitize")
 
-         nrgi-company-table(companies="project.companies")
+         nrgi-company-table(companies="project.companies" stake="true" group="true")
    .row
       .col-md-12
          nrgi-production-table(productions="project.productions")
 
    .row
       .col-md-12
-         nrgi-transfer-table(transfers="project.transfers")
+         nrgi-transfer-table(transfers="project.transfers" project="false")
 
    .advanced-links
       .container

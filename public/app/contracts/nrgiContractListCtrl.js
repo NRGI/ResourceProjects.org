@@ -16,7 +16,6 @@ angular.module('app')
 
         var loadContracts = function(limit,page){
             nrgiContractsSrvc.query({skip: page, limit: limit}, function (success) {
-                console.log(success);
                 $scope.count = success.count;
                 $scope.limit = limit;
                 $scope.page = page;
