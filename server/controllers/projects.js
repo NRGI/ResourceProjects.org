@@ -157,6 +157,11 @@ exports.getProjectByID = function(req, res) {
 
 // summary
 	function getProjectLinks(project, callback) {
+		project.companies = [];
+		project.commodities = [];
+		project.projects = [];
+		project.concessions = [];
+		project.contracts = [];
 		Link.find({project: project._id})
 			.populate('commodity')
 			.populate('company')
@@ -165,46 +170,51 @@ exports.getProjectByID = function(req, res) {
 			.deepPopulate('company_group')
 			//.deepPopulate('company company.company_group')
 			.exec(function(err, links) {
-				link_len = links.length;
-				link_counter = 0;
-				project.companies = [];
-				project.commodities = {};
-				project.projects = [];
-				project.concessions = [];
-				project.contracts = [];
-				links.forEach(function(link) {
-					++link_counter;
-					var entity = _.without(link.entities, 'project')[0];
-					switch (entity) {
-						case 'commodity':
-							if (!project.commodities.hasOwnProperty(link.commodity_code)) {
-								project.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
-							}
-							break;
-						case 'company':
-							if (!project.companies.hasOwnProperty(link.company._id)) {
-								project.companies.push({
-									_id: link.company._id,
-									company_name: link.company.company_name
+				if(links.length>0) {
+					link_len = links.length;
+					link_counter = 0;
+					links.forEach(function (link) {
+						++link_counter;
+						var entity = _.without(link.entities, 'project')[0];
+						switch (entity) {
+							case 'commodity':
+								if (!project.commodities.hasOwnProperty(link.commodity_code)) {
+									project.commodities.push({
+										_id: link.commodity._id,
+										commodity_name:link.commodity.commodity_name});
+								}
+								break;
+							case 'company':
+								if (!project.companies.hasOwnProperty(link.company._id)) {
+									project.companies.push({
+										_id: link.company._id,
+										company_name: link.company.company_name
+									});
+								}
+								break;
+							case 'concession':
+								project.concessions.push({
+									_id: link.concession._id,
+									concession_name: link.concession.concession_name
 								});
-							}
 							break;
-						case 'concession':
-							project.concessions.push({
-								_id: link.concession._id,
-								concession_name: link.concession.concession_name
-							});
-							break;
-						case 'contract':
-							project.contracts.push(link);
-							break;
-						default:
-							console.log('error');
-					}
-					if(link_counter == link_len) {
-						callback(null, project);
-					}
-				});
+							case 'concession':
+								project.concessions.push({
+									_id: link.concession._id,
+									concession_name: link.concession.concession_name
+								});
+								break;
+							case 'contract':
+								project.contracts.push(link);
+								break;
+							default:
+								console.log('error');
+						}
+						if(link_counter == link_len) {
+							callback(null, project);
+						}
+					});
+				}
 			});
 	}
 
@@ -212,13 +222,7 @@ exports.getProjectByID = function(req, res) {
 		project.coordinates = [];
 		project_counter = 0;
 		project_len = project.proj_coordinates.length;
-		Production.find({production_project: project._id})
-			.populate('production_commodity')
-			.exec(function(err, productions) {
-				_.each(productions, function(productions) {
-					project.productions.push(productions);
-				});
-				if(project.proj_coordinates) {
+				if(project_len>0) {
 					project.proj_coordinates.forEach(function (loc) {
 						++project_counter;
 						project.coordinates.push({
@@ -234,7 +238,6 @@ exports.getProjectByID = function(req, res) {
 				} else {
 					callback(null, project);
 				}
-			});
 	}
 
 	function getCompanyGroup(project, callback) {
@@ -274,7 +277,6 @@ exports.getProjectByID = function(req, res) {
 };
 exports.getProjectsMap = function(req, res) {
 	var project_len, project_counter;
-	console.log(req.query);
 	async.waterfall([
 		getProject
 	], function (err, result) {

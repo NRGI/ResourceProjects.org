@@ -118,88 +118,91 @@ exports.getCommodityByID = function(req, res) {
 	}
 	function getCommodityLinks(commodity, callback) {
 		//console.log(company);
+		commodity.company_groups = [];
+		commodity.companies = [];
+		commodity.projects = [];
+		commodity.contracts = [];
+		commodity.contracts = [];
+		commodity.concessions = [];
 		Link.find({commodity: commodity._id})
 			.populate('company_group','_id company_group_name')
 			.populate('company')
 			.populate('contract')
-			//.populate('concession', 'concession_name concession_country concession_type commodities')
 			.deepPopulate('project project.proj_country.country project.proj_commodity.commodity ' +
 			'concession concession.concession_country.country concession.concession_commodity.commodity')
-			//.deepPopulate()
 			.exec(function(err, links) {
-				link_len = links.length;
-				link_counter = 0;
-				commodity.company_groups = {};
-				commodity.companies = {};
-				commodity.projects = [];
-				commodity.contracts = {};
-				commodity.contracts = [];
-				commodity.concessions = {};
-				links.forEach(function(link) {
-					++link_counter;
-					var entity = _.without(link.entities, 'commodity')[0];
-					switch (entity) {
-						case 'company':
-							if (!commodity.companies.hasOwnProperty(link._id)) {
-								commodity.companies[link.company.company_name] = {
-									_id: link.company._id,
-									company_name: link.company.company_name};
-							}
-							break;
-						case 'company_group':
-							if (!commodity.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-								commodity.company_groups[link.company_group.company_group_name] = {
-									_id: link.company_group._id,
-									company_group_name: link.company_group.company_group_name
-								};
-							}
-							break;
-						case 'concession':
-							if (!commodity.concessions.hasOwnProperty(link.concession._id)) {
-								commodity.concessions[link.concession._id] = {
-									concession_name: link.concession.concession_name,
-									concession_country: _.find(link.concession.concession_country.reverse()).country,
-									concession_type: _.find(link.concession.concession_type.reverse()),
-									concession_commodities: link.concession.concession_commodity,
-									concession_status: link.concession.concession_status
-								};
-								commodity.concessions[link.concession._id+'kkk'] = {
-									concession_name: link.concession.concession_name,
-									concession_country: _.find(link.concession.concession_country.reverse().country),
-									concession_type: _.find(link.concession.concession_type.reverse()),
-									concession_commodities: link.concession.concession_commodity,
-									concession_status: link.concession.concession_status
-								};
-							}
-							break;
-						case 'contract':
-							//if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
-							//    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
-							//        if (!err && res.statusCode == 200) {
-							//            company.contracts[link.contract.contract_id] = {
-							//                contract_name: body.name,
-							//                contract_country: body.country,
-							//                contract_commodity: body.resource
-							//            };
-							//        }
-							//    });
-							//}
-							if (!_.contains(commodity.contracts, link.contract.contract_id)) {
-								commodity.contracts.push(link.contract.contract_id);
-							}
-							break;
-						case 'project':
-							commodity.projects.push(link);
-							break;
+				if(links.length>0) {
+					link_len = links.length;
+					link_counter = 0;
+					links.forEach(function (link) {
+						++link_counter;
+						var entity = _.without(link.entities, 'commodity')[0];
+						switch (entity) {
+							case 'company':
+								if (!commodity.companies.hasOwnProperty(link._id)) {
+									commodity.companies.push({
+										_id: link.company._id,
+										company_name: link.company.company_name
+									});
+								}
+								break;
+							case 'company_group':
+								if (!commodity.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+									commodity.company_groups.push({
+										_id: link.company_group._id,
+										company_group_name: link.company_group.company_group_name
+									});
+								}
+								break;
+							case 'concession':
+								if (!commodity.concessions.hasOwnProperty(link.concession._id)) {
+									commodity.concessions.push({
+										_id: link.concession._id,
+										concession_name: link.concession.concession_name,
+										concession_country: _.find(link.concession.concession_country.reverse()).country,
+										concession_type: _.find(link.concession.concession_type.reverse()),
+										concession_commodities: link.concession.concession_commodity,
+										concession_status: link.concession.concession_status
+									});
+									//commodity.concessions[link.concession._id+'kkk'] = {
+									//	concession_name: link.concession.concession_name,
+									//	concession_country: _.find(link.concession.concession_country.reverse().country),
+									//	concession_type: _.find(link.concession.concession_type.reverse()),
+									//	concession_commodities: link.concession.concession_commodity,
+									//	concession_status: link.concession.concession_status
+									//};
+								}
+								break;
+							case 'contract':
+								//if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
+								//    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
+								//        if (!err && res.statusCode == 200) {
+								//            company.contracts.push({
+								//                _id: link.contract.contract_id,
+								//                contract_name: body.name,
+								//                contract_country: body.country,
+								//                contract_commodity: body.resource
+								//            });
+								//        }
+								//    });
+								//}
+								if (!_.contains(commodity.contracts, link.contract.contract_id)) {
+									commodity.contracts.push(link.contract.contract_id);
+								}
+								break;
+							case 'project':
+								commodity.projects.push(link.project);
+								break;
 
-						default:
-							console.log(entity, 'link skipped...');
-					}
-					if(link_counter == link_len) {
-						//res.send(commodity);
-						callback(null, commodity);
-					}
-				});
+							default:
+								console.log(entity, 'link skipped...');
+						}
+						if(link_counter == link_len) {
+							//res.send(commodity);
+							callback(null, commodity);
+						}
+					});
+				}
 			});
 	}
 	function getProjectLocation(commodity,callback) {
@@ -221,6 +224,47 @@ exports.getCommodityByID = function(req, res) {
 				})
 			});
 		}else {
+			res.send(commodity);
+		}
+	}
+	function getCompanyGroup(commodity, callback) {
+		var company_len = commodity.companies.length;
+		var company_counter = 0;
+		if(company_len>0) {
+			commodity.companies.forEach(function (company) {
+				Link.find({company: company._id})
+					.populate('company_group', '_id company_group_name')
+					.exec(function (err, links) {
+						if (links.length > 0) {
+							++company_counter;
+							link_len = links.length;
+							link_counter = 0;
+							company.company_groups = [];
+							links.forEach(function (link) {
+								++link_counter;
+								var entity = _.without(link.entities, 'company')[0];
+								switch (entity) {
+									case 'company_group':
+										if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+											company.company_groups.push({
+												_id: link.company_group._id,
+												company_group_name: link.company_group.company_group_name
+											});
+										}
+										break;
+									default:
+										console.log('error');
+								}
+								if (company_counter == company_len && link_counter == link_len) {
+									res.send(commodity);
+								}
+							});
+						} else {
+							res.send(commodity);
+						}
+					});
+			});
+		} else{
 			res.send(commodity);
 		}
 	}

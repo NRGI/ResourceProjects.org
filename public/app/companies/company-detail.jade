@@ -28,13 +28,13 @@
                         tr
                             td.detail_label.small Aliases:
                             td.company_aliases
-                                text(ng-repeat="alias in company.company_aliases")
+                                text(ng-repeat="alias in company.company_aliases | unique: 'alias'")
                                     | {{alias.alias}}
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Part of:
                             td.company_part-of
-                                text(ng-repeat="group in company.company_groups")
+                                text(ng-repeat="group in company.company_groups | unique: '_id'")
                                     a(href='group/{{group._id}}')
                                         span(ng-bind-html="group.company_group_name|sanitize")
                                     | {{$last ? '' : ', '}}
@@ -42,7 +42,7 @@
                         tr
                             td.detail_label.small Commodities:
                             td.company_commodities
-                                text(ng-repeat="commodity in company.commodities")
+                                text(ng-repeat="commodity in company.commodities | unique: '_id'")
                                     a(href='commodity/{{commodity._id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

@@ -81,13 +81,12 @@ exports.getCountryByID = function(req, res) {
 	});
 
 	function getCountry(callback) {
-		Country.findOne({_id:req.params.id})
+		Country.findOne({iso2:req.params.id})
 			.populate('country_commodity.commodity')
 			.lean()
 			.exec(function(err, country) {
 				if(country) {
 					callback(null, country);
-					//res.send(country);
 				} else {
 					callback(err);
 				}
@@ -103,7 +102,7 @@ exports.getCountryByID = function(req, res) {
 				.populate('proj_commodity.commodity')
 				.exec(function (err, project) {
 				var project_len = project.length;
-				if (project) {
+				if (project_len>0) {
 					country.projects = project;
 					country.projects.forEach(function (project) {
 						++project_counter;

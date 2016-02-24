@@ -24,13 +24,13 @@
                         tr
                             td.detail_label.small Aliases:
                             td.concession_aliases
-                                span(ng-repeat='alias in concession.concession_aliases')
+                                span(ng-repeat="alias in concession.concession_aliases | unique: 'alias'")
                                     span {{alias.alias}}
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Country:
-                            td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
-                                a(href='country/{{country.country._id}}')
+                            td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.iso2'")
+                                a(href='country/{{country.country.iso2}}')
                                     span(ng-bind-html="country.country.name|sanitize")
                                 | {{$last ? '' : ', '}}
                         tr
@@ -43,24 +43,23 @@
                                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                         tr
                             td.detail_label.small Commodities:
-                            //td {{concession.concession_commodity}}
                             td.concession_commodities
-                                text(ng-repeat="commodity in concession.concession_commodity | unique: 'concession._id'")
+                                text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
                                     a(href='commodity/{{commodity.commodity._id}}')
                                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Open Oil ID:
-                            td.concession_conracts
+                            td.concession_open_oil_id
                                 a(href='')
                                     | {{concession.oo_concession_id}}
                             //td.company_open_corporates_id
                             //    a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr
                             td.detail_label.small Contract:
-                            td
-                                text(ng-repeat="contract in concession.contracts")
-                                    a(href=href="http://www.resourcecontracts.org/contract/{{contract}}")
+                            td.concession_conracts
+                                text(ng-repeat="contract in concession.contracts | unique: '_id'")
+                                    a(href="http://www.resourcecontracts.org/contract/{{contract}}")
                                         span(ng-bind-html="contract|sanitize")
                                     | {{$last ? '' : ', '}}
 
@@ -68,7 +67,7 @@
             .info-box
                 h2
                     | &nbsp;
-                table#concession-info
+                table#concession-description
                     tbody
                         tr
                             td.detail_label.our-id Desctiption:
@@ -82,14 +81,8 @@
     .row
         .col-md-12
             nrgi-transfer-table(transfers="concession.transfers")
-    //.advanced-links
-    //   .container
-    //      h3
-    //         | Links
-    //         =' '
-    //         small Advanced
-    //      ul
-    //         li
-    //            a(href='http://staging.nrgi-sandbox.net/default-view/http/resourceprojects.org/project/MX/adar-gok3sd') Triples View
-    //         li
-    //            a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources
+
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources
