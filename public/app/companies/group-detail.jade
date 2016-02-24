@@ -25,13 +25,13 @@
                   tr
                      td.detail_label.small Aliases:
                      td.company_group_aliases
-                        span(ng-repeat='alias in group.company_group_aliases')
+                        span(ng-repeat="alias in group.company_group_aliases | unique: 'alias'")
                            span {{alias.alias}}
                            | {{$last ? '' : ', '}}
                   tr
                      td.detail_label.small Commodities:
                      td.commodities
-                        text(ng-repeat="commodity in group.commodities | unique: 'group.commodities._id'")
+                        text(ng-repeat="commodity in group.commodities | unique: '_id'")
                            a(href='commoddity/{{commodity._id}}')
                               span(ng-bind-html="commodity.commodity_name | sanitize")
                            | {{$last ? '' : ', '}}
@@ -41,7 +41,7 @@
                   tr
                      td.detail_label.small Companies:
                      td.companies
-                        text(ng-repeat="company in group.companies | unique: 'group.companies._id'")
+                        text(ng-repeat="company in group.companies | unique: '_id'")
                            a(href='company/{{company._id}}')
                               span(ng-bind-html="company.company_name | sanitize")
                            | {{$last ? '' : ', '}}
@@ -49,7 +49,7 @@
          .info-box
             h2
                | &nbsp;
-            table#project-info
+            table#group-description
                tbody
                   tr
                      td.project-label.small Desctiption:

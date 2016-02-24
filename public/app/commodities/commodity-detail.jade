@@ -9,20 +9,20 @@
          leaflet(center="center",controls="controls",markers="commodity.location",tiles="tiles", height='240px')
    .info-box
       h2 Commodity Info
-      table#group-info
+      table#commodity-info
          tbody
             tr
-               td.project-label(style='width:200px') Code:
-               td.text-uppercase {{commodity.commodity_code}}
+               td.detail_label.small Code:
+               td.commodity_code {{commodity.commodity_code}}
             tr
-               td.project-label(style='width:200px') Commodity name:
-               td
+               td.detail_label.small Commodity name:
+               td.commodity_name
                   a(href='commodity/{{commodity._id}}')
                      span(ng-bind-html="commodity.commodity_name|sanitize")
             tr
-               td.project-label(style='width:200px') Aliases:
-               td.commodity_type
-                  span(ng-repeat="alias in commodity.commodity_aliases")
+               td.detail_label.small Aliases:
+               td.commodity_aliases
+                  span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
                      span {{alias.code}}
                         span.text-uppercase  ({{alias.reference}})
                      span(ng-if="!$last") ,
@@ -40,24 +40,7 @@
       .col-md-3
          nrgi-company-table(companies="commodity.companies" stake="false")
 
-         //h2 Companies
-         //table.table.table-striped.companies(ts-wrapper)
-         //   thead
-         //      tr
-         //         th.tablesort-sortable-th(ts-criteria='name') Name
-         //         //th.tablesort-sortable-th(ts-criteria='group') Group
-         //   tbody
-         //      tr(
-         //      ng-repeat="(id, company) in commodity.companies")
-         //         td
-         //            a(href="company/{{company._id}}")
-         //               span(ng-bind-html="company.company_name|sanitize")
-         //.download
-         //   span.glyphicon.glyphicon-download(aria-hidden='true')
-         //   |  Download:
-         //   =' '
-         //   a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3Fgroup_name+WHERE+%7B%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject++rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3Fgroup_name%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on') Companies CSV
-    .advanced-links
+   .advanced-links
        .container
           h3
-             a(href='commodity/Antimony') Sources
+             a(href='') Sources

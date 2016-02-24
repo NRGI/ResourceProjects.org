@@ -7,10 +7,15 @@ angular.module('app')
         nrgiIdentitySrvc,
         nrgiCommoditiesSrvc
     ) {
-        $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
+        $scope.limit = 50;
+        $scope.page = 0;
+        $scope.count =0;
+        $scope.show_count=0;
         var loadCommodities = function(limit,page){
             nrgiCommoditiesSrvc.query({skip: page, limit: limit,record_type:$scope.record_type}, function (response) {
-                $scope.count = response.count; $scope.limit = limit; $scope.page = page;
+                $scope.count = response.count;
+                $scope.limit = limit;
+                $scope.page = page;
                 $scope.commodities=response.data;
                 $scope.show_count = response.data.length+$scope.page;
             });
@@ -35,62 +40,6 @@ angular.module('app')
             }else {
                 loadCommodities($scope.limit,page-$scope.limit);
             }
-        }
-
-
-
-        //$scope.commodities = [
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'1'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'},
-        //    {id:'Antimony',name:'Antimony',numberProject:'0'}
-        //];
+        };
     });
 

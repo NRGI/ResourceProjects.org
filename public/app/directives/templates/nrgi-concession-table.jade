@@ -14,10 +14,10 @@ table.table.table-striped.concessions(ts-wrapper)#concessions-info
                 a(href='/concession/{{concession._id}}')
                     span(ng-bind-html="concession.concession_name|sanitize")
             td.concession_country
-                a(href='/country/{{concession.concession_country._id}}')
+                a(href='/country/{{concession.concession_country.iso2}}')
                     span(ng-bind-html="concession.concession_country.name|sanitize")
             td.concession_type(ng-if="type==true") {{concession.concession_type.string | ucfirst}}
-            td.concession_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity.commodity_code'")
+            td.concession_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity._id'")
                 a(href='commodity/{{commodity.commodity._id}}')
                     span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                 | {{$last ? '' : ', '}}
@@ -34,5 +34,3 @@ table.table.table-striped.concessions(ts-wrapper)#concessions-info
         |  Download:
         =' '
         a(href="") Concessions CSV
-    //a(href="/sparql?default-graph-uri=&amp;query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%28COUNT%28distinct+%3Fcompany%29+as+%3FcompanyCount%29+WHERE+%7B%0A++++%3Fproject+rp%3AhasLocation+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcountry%2FAO%3E+.%0A++++%3Fproject+a+rp%3AProject+.%0A++++%3Fproject+skos%3AprefLabel+%3Fname%0A++++OPTIONAL+%7B%0A+++++++++++++++%3Fproject+rp%3AhasStake+%3Fstake+.%0A+++++++++++++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A+++++++++++++++%3Fcompany+a+rp%3ACompany+%0A++++%7D%0A%7D+%0AORDER+BY+%28%3Fname%29%0A%0A%0A&amp;format=text%2Fcsv&amp;timeout=0&amp;debug=on") Concessions CSV
-

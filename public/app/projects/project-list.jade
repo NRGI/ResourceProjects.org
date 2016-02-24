@@ -35,13 +35,13 @@
             tr(ng-repeat="project in projects | unique: '_id'",ts-repeat)
                 td.proj_name: a(href='/project/{{project._id}}')
                     span(ng-bind-html="project.proj_name|sanitize")
-                td.proj_country: text(ng-repeat="country in project.proj_country")
-                    a(href='/country/{{country.country._id}}')
+                td.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
+                    a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.proj_type: text(ng-repeat="type in project.proj_type")
                     text(ng-if="$last") {{type.string | ucfirst}}
-                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity")
+                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: '_id'")
                     a(href='commodity/{{commodity._id}}')
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}

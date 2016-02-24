@@ -29,13 +29,13 @@
                     tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
                         td.concession_name: a(href='/concession/{{ concession._id }}')
                             span(ng-bind-html="concession.concession_name|sanitize")
-                        td.concession_country: text(ng-repeat="country in concession.concession_country")
-                            a(href='/country/{{country.country._id}}')
+                        td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country._id'")
+                            a(href='/country/{{country.country.iso2}}')
                                 span(ng-bind-html="country.country.name|sanitize")
                             | {{$last ? '' : ', '}}
                         td.concession_type: text(ng-repeat="type in concession.concession_type")
                             text(ng-if="$last") {{type.string | ucfirst}}
-                        td.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_code'")
+                        td.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
                             a(href='/commodity/{{commodity.commodity._id}}')
                                 span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}

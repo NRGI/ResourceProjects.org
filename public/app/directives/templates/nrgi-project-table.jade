@@ -3,9 +3,6 @@ table.table.table-striped.projects(ts-wrapper)#project-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='proj_name') Name
-            //th
-            //    a(href="#" ng-click="proj_table_sort.sort_type = 'name'; proj_table_sort.sort_reverse = !proj_table_sort.sort_reverse")
-            //        text.left-padding-med Name
             th.tablesort-sortable-th(ng-if="country==true",ts-criteria='proj_country[proj_country.length - 1].country.name') Country
             th.tablesort-sortable-th(ng-if="type==true",ts-criteria='proj_type[proj_type.length - 1].string') Commodity Type
             th.tablesort-sortable-th(ng-if="commodity==true",ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_name') Commodity
@@ -18,13 +15,13 @@ table.table.table-striped.projects(ts-wrapper)#project-info
             td.proj_id: a(href='project/{{project._id}}')
                 span(ng-bind-html="project.proj_name|sanitize")
             td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
-                a(href='country/{{country.country._id}}')
+                a(href='country/{{country.country.iso2}}')
                     span(ng-bind-html="country.country.name|sanitize")
                 | {{$last ? '' : ', '}}
             td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
                 | {{type.string | ucfirst}}
                 | {{$last ? '' : ', '}}
-            td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_code'")
+            td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
                 a(href='commodity/{{commodity.commodity._id}}')
                     span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                 | {{$last ? '' : ', '}}
@@ -39,4 +36,3 @@ table.table.table-striped.projects(ts-wrapper)#project-info
         |  Download:
         =' '
         a(href="") Projects CSV
-        //a(href='/sparql?default-graph-uri=&query=prefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+DISTINCT+%3Fproject+%3Fname+%3Fcountry+%3Fcountry_name+%3FcommodityType+WHERE+%7B%0A++++%3Chttp%3A%2F%2Fresourceprojects.org%2Fcompany%2F2f2508fdb642e947%3E+rp%3AholdsStake+%3Fstakes+.%0A++++%3Fstakes+rp%3AisStakeIn+%3Fproject+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos_%3AprefLabel+%3Fname+.%0A++++%0A++++OPTIONAL+%7B%0A%0A++++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++++%3Fcountry+a+rp%3ACountry+.%0A++++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A++++++OPTIONAL+%7B+%3Fproject+rp%3AhasCommodity+%3Fcommodity+.%0A++++++++++++++++%3Fcommodity+rp%3AcommodityType+%3FcommodityType+%0A++++++%7D%0A++++++%0A++++%7D%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV

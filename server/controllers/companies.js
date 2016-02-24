@@ -141,106 +141,114 @@ exports.getCompanyByID = function(req, res) {
             });
     }
     function getCompanyLinks(company, callback) {
-        //console.log(company);
         Link.find({company: company._id})
             .populate('company_group','_id company_group_name')
             .populate('commodity')
             .populate('contract')
-            //.populate('concession', 'concession_name concession_country concession_type commodities')
             .deepPopulate('project project.proj_country.country project.proj_commodity.commodity ' +
             'concession concession.concession_country.country concession.concession_commodity.commodity')
-            //.deepPopulate()
             .exec(function(err, links) {
                 link_len = links.length;
-                link_counter = 0;
-                company.company_groups = [];
-                company.commodities = [];
-                company.projects = [];
-                company.contracts = [];
-                company.contracts = [];
-                company.concessions = [];
-                links.forEach(function(link) {
-                    ++link_counter;
-                    var entity = _.without(link.entities, 'company')[0]
-                    switch (entity) {
-                        case 'commodity':
-                            if (!company.commodities.hasOwnProperty(link.commodity_code)) {
-                                company.commodities.push({_id:link.commodity._id,commodity_name:link.commodity.commodity_name});
-                            }
-                            break;
-                        case 'company_group':
-                            if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                company.company_groups.push({
-                                    _id: link.company_group._id,
-                                    company_group_name: link.company_group.company_group_name
-                                });
-                            }
-                            break;
-                        case 'concession':
-                            if (!company.concessions.hasOwnProperty(link.concession._id)) {
-                                company.concessions.push({
-                                    _id: link.concession._id,
-                                    concession_name: link.concession.concession_name,
-                                    concession_country: _.find(link.concession.concession_country.reverse()).country,
-                                    concession_type: _.find(link.concession.concession_type.reverse()),
-                                    concession_commodities: link.concession.concession_commodity,
-                                    concession_status: link.concession.concession_status
-                                });
-                                //company.concessions[link.concession._id+'kkk'] = {
-                                //    concession_name: link.concession.concession_name,
-                                //    concession_country: _.find(link.concession.concession_country.reverse().country),
-                                //    concession_type: _.find(link.concession.concession_type.reverse()),
-                                //    concession_commodities: link.concession.concession_commodity,
-                                //    concession_status: link.concession.concession_status
-                                //};
-                            }
-                            break;
-                        case 'contract':
-                            //if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
-                            //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
-                            //        if (!err && res.statusCode == 200) {
-                            //            company.contracts[link.contract.contract_id] = {
-                            //                contract_name: body.name,
-                            //                contract_country: body.country,
-                            //                contract_commodity: body.resource
-                            //            };
-                            //        }
-                            //    });
-                            //}
-                            if (!_.contains(company.contracts, link.contract.contract_id)) {
-                                company.contracts.push(link.contract.contract_id);
-                            }
-                            break;
-                        case 'project':
-                            company.projects.push(link.project);
-                            break;
+                if(link_len>0) {
+                    link_counter = 0;
+                    company.company_groups = [];
+                    company.commodities = [];
+                    company.projects = [];
+                    company.contracts = [];
+                    company.contracts = [];
+                    company.concessions = [];
+                    links.forEach(function (link) {
+                        ++link_counter;
+                        var entity = _.without(link.entities, 'company')[0]
+                        switch (entity) {
+                            case 'commodity':
+                                if (!company.commodities.hasOwnProperty(link.commodity_code)) {
+                                    company.commodities.push({
+                                        _id: link.commodity._id,
+                                        commodity_name: link.commodity.commodity_name
+                                    });
+                                }
+                                break;
+                            case 'company_group':
+                                if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+                                    company.company_groups.push({
+                                        _id: link.company_group._id,
+                                        company_group_name: link.company_group.company_group_name
+                                    });
+                                }
+                                break;
+                            case 'concession':
+                                if (!company.concessions.hasOwnProperty(link.concession._id)) {
+                                    company.concessions.push({
+                                        _id: link.concession._id,
+                                        concession_name: link.concession.concession_name,
+                                        concession_country: _.find(link.concession.concession_country.reverse()).country,
+                                        concession_type: _.find(link.concession.concession_type.reverse()),
+                                        concession_commodities: link.concession.concession_commodity,
+                                        concession_status: link.concession.concession_status
+                                    });
+                                    //company.concessions[link.concession._id+'kkk'] = {
+                                    //    concession_name: link.concession.concession_name,
+                                    //    concession_country: _.find(link.concession.concession_country.reverse().country),
+                                    //    concession_type: _.find(link.concession.concession_type.reverse()),
+                                    //    concession_commodities: link.concession.concession_commodity,
+                                    //    concession_status: link.concession.concession_status
+                                    //};
+                                }
+                                break;
+                            case 'contract':
+                                //if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
+                                //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
+                                //        if (!err && res.statusCode == 200) {
+                                //            company.contracts[link.contract.contract_id] = {
+                                //                contract_name: body.name,
+                                //                contract_country: body.country,
+                                //                contract_commodity: body.resource
+                                //            };
+                                //        }
+                                //    });
+                                //}
+                                if (!_.contains(company.contracts, link.contract.contract_id)) {
+                                    company.contracts.push(link.contract.contract_id);
+                                }
+                                break;
+                            case 'project':
+                                company.projects.push(link.project);
+                                break;
 
-                        default:
-                            console.log(entity, 'link skipped...');
-                    }
-                    if(link_counter == link_len) {
-                        callback(null, company);
-                    }
-                });
+                            default:
+                                console.log(entity, 'link skipped...');
+                        }
+                        if (link_counter == link_len) {
+                            callback(null, company);
+                        }
+                    });
+                } else{
+                    callback(null, company);
+                }
             });
     }
     function getProjectLocation(company,callback) {
         var project_counter = 0;
         company.location = [];
         var project_len = company.projects.length;
-        company.projects.forEach(function (project) {
-            ++project_counter;
-            project.proj_coordinates.forEach(function (loc) {
-                company.location.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
-                });
-                if (project_counter == project_len) {
-                    res.send(company);
-                }
-            })
-        });
+        if(project_len>0) {
+            company.projects.forEach(function (project) {
+                ++project_counter;
+                project.proj_coordinates.forEach(function (loc) {
+                    company.location.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
+                    });
+                    if (project_counter == project_len) {
+                        res.send(company);
+                    }
+                })
+            });
+        } else{
+            res.send(company);
+        }
     }
     //function getContracts(company, callback) {
     //    company.contract_pull = {};

@@ -157,6 +157,11 @@ exports.getProjectByID = function(req, res) {
 
 // summary
 	function getProjectLinks(project, callback) {
+		project.companies = [];
+		project.commodities = [];
+		project.projects = [];
+		project.concessions = [];
+		project.contracts = [];
 		Link.find({project: project._id})
 			.populate('commodity')
 			.populate('company')
@@ -168,18 +173,15 @@ exports.getProjectByID = function(req, res) {
 				if(links.length>0) {
 					link_len = links.length;
 					link_counter = 0;
-					project.companies = [];
-					project.commodities = {};
-					project.projects = [];
-					project.concessions = [];
-					project.contracts = [];
 					links.forEach(function (link) {
 						++link_counter;
 						var entity = _.without(link.entities, 'project')[0];
 						switch (entity) {
 							case 'commodity':
 								if (!project.commodities.hasOwnProperty(link.commodity_code)) {
-									project.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+									project.commodities.push({
+										_id: link.commodity._id,
+										commodity_name:link.commodity.commodity_name});
 								}
 								break;
 							case 'company':
@@ -216,12 +218,6 @@ exports.getProjectByID = function(req, res) {
 		project.coordinates = [];
 		project_counter = 0;
 		project_len = project.proj_coordinates.length;
-		Production.find({production_project: project._id})
-			.populate('production_commodity')
-			.exec(function(err, productions) {
-				_.each(productions, function(productions) {
-					project.productions.push(productions);
-				});
 				if(project_len>0) {
 					project.proj_coordinates.forEach(function (loc) {
 						++project_counter;
@@ -238,7 +234,6 @@ exports.getProjectByID = function(req, res) {
 				} else {
 					callback(null, project);
 				}
-			});
 	}
 
 	function getCompanyGroup(project, callback) {
@@ -286,7 +281,6 @@ exports.getProjectByID = function(req, res) {
 };
 exports.getProjectsMap = function(req, res) {
 	var project_len, project_counter;
-	console.log(req.query);
 	async.waterfall([
 		getProject
 	], function (err, result) {
