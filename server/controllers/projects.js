@@ -263,7 +263,6 @@ exports.getProjectByID = function(req, res) {
             });
         } else {
             callback(null, project);
-
         }
     }
     function getCompanyGroup(project, callback) {
@@ -310,7 +309,6 @@ exports.getProjectsMap = function(req, res) {
         if (err) {
             res.send(err);
         }
-
     });
 
     function getProject(callback) {
