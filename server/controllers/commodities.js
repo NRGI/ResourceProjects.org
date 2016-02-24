@@ -29,7 +29,6 @@ exports.getCommodities = function(req, res) {
 			}
 		});
 	}
-
 	function getCommoditySet(commodity_count, callback) {
 		Commodity.find(req.query)
 			.sort({
@@ -46,7 +45,6 @@ exports.getCommodities = function(req, res) {
 				}
 			});
 	}
-
 	function getCommodityLinks(commodity_count, commodities, callback) {
 		commodity_len = commodities.length;
 		commodity_counter = 0;
@@ -185,7 +183,6 @@ exports.getCommodityByID = function(req, res) {
 							case 'project':
 								commodity.projects.push(link.project);
 								break;
-
 							default:
 								console.log(entity, 'link skipped...');
 						}
@@ -216,7 +213,6 @@ exports.getCommodityByID = function(req, res) {
 						callback(null, commodity);
 					}
 				});
-
 			});
 		} else{
 			callback(null, commodity);

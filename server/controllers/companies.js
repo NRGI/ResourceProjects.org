@@ -246,7 +246,6 @@ exports.getCompanyByID = function(req, res) {
                         callback(null, company);
                     }
                 });
-
             });
         } else{
             callback(null, company);

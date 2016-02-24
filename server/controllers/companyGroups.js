@@ -30,7 +30,6 @@ exports.getCompanyGroups = function(req, res) {
 			}
 		});
 	}
-
 	function getCompanyGroupSet(companyGroup_count, callback) {
 		CompanyGroup.find(req.query)
 			.sort({
@@ -47,7 +46,6 @@ exports.getCompanyGroups = function(req, res) {
 				}
 			});
 	}
-
 	function getCompanyGroupLinks(companyGroup_count, companyGroup, callback) {
 		companyGroup_len = companyGroup.length;
 		companyGroup_counter = 0;
@@ -260,7 +258,6 @@ exports.getCompanyGroupByID = function(req, res) {
 						callback(null, companyGroup);
 					}
 				});
-
 			});
 		} else{
 			callback(null, companyGroup);

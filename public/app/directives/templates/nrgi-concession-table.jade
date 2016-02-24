@@ -8,8 +8,7 @@ table.table.table-striped.concessions(ts-wrapper)#concessions-info
             th.tablesort-sortable-th(ts-criteria='concession_commodities[concession_commodities.length-1].commodity.commodity_name') Commodity
             //th.tablesort-sortable-th(ng-if='status==true', ts-criteria='count|parseInt') Status
     tbody
-        tr(ng-repeat="concession in concessions",ts-repeat)
-
+        tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
             td.concession_name
                 a(href='/concession/{{concession._id}}')
                     span(ng-bind-html="concession.concession_name|sanitize")

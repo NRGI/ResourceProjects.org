@@ -158,9 +158,6 @@ exports.getProjectByID = function(req, res) {
 				}
 			});
 	}
-
-
-// summary
 	function getProjectLinks(project, callback) {
 		project.companies = [];
 		project.commodities = [];
@@ -227,24 +224,24 @@ exports.getProjectByID = function(req, res) {
 		project.coordinates = [];
 		project_counter = 0;
 		project_len = project.proj_coordinates.length;
-				if(project_len>0) {
-					project.proj_coordinates.forEach(function (loc) {
-						++project_counter;
-						project.coordinates.push({
-							'lat': loc.loc[0],
-							'lng': loc.loc[1],
-							'message': project.proj_name,
-							'timestamp': loc.timestamp
-						});
-						if (project_counter == project_len) {
-							callback(null, project);
-						}
-					})
-				} else {
+		if(project_len>0) {
+			project.proj_coordinates.forEach(function (loc) {
+				++project_counter;
+				project.coordinates.push({
+					'lat': loc.loc[0],
+					'lng': loc.loc[1],
+					'message': project.proj_name,
+					'timestamp': loc.timestamp
+				});
+				if (project_counter == project_len) {
 					callback(null, project);
 				}
-	}
+			});
+		} else {
+			callback(null, project);
 
+		}
+	}
 	function getCompanyGroup(project, callback) {
 		project_len = project.companies.length;
 		project_counter = 0;
