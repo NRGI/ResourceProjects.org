@@ -298,7 +298,6 @@ exports.getProjectByID = function(req, res) {
                 });
         });
     }
-
 };
 
 exports.getProjectsMap = function(req, res) {

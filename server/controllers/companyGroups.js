@@ -284,14 +284,6 @@ exports.getCompanyGroupByID = function(req, res) {
 							}
 						});
 					});
-			//});
-//		} else{
-//			callback(null, companyGroup);
-//		}
-//	}
-//=======
-//>>>>>>> SAVEPOINT
-
 			});
 		} else{
 			callback(null, companyGroup);
