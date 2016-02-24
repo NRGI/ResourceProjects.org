@@ -1,4 +1,5 @@
 .container
+<<<<<<< 9a798a8a37b2577095fecc2350a452238a716276
     .page-header
         h1
             span(ng-bind-html="country.name|sanitize")
@@ -58,3 +59,68 @@
         .container
             h3
                 a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources
+=======
+   .page-header
+      h1
+         span(ng-bind-html="country.name|sanitize")
+         =' '
+         small Country
+   .row
+      .col-md-12
+         leaflet(center="center",controls="controls",markers="country.location",tiles="tiles",height='240px')
+
+   .info-box
+      h2 Country Info
+      table#country-info
+         tbody
+            tr
+               td.detail_label.small Commodity Type(s):
+                  td.country_type: text(
+                  ng-repeat="type in country.country_type"
+                  ng-if="country.country_type.length > 0")
+                     text(ng-if="$last")
+                        | {{type.string | ucfirst}}
+                        text.small  (true at {{type.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+            tr
+               td.detail_label.small Commodities:
+                  td.country_commodities
+                     text(ng-repeat="commodity in country.country_commodity | unique: 'commodity._id'")
+                        a(href='commodity/{{commodity.commodity._id}}')
+                           span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                        | {{$last ? '' : ', '}}
+   .row
+      .col-md-6
+         nrgi-project-table(
+         projects="country.projects"
+         country="false"
+         type="false"
+         companies="true"
+         commodity="true"
+         status="true")
+      .col-md-6
+         nrgi-company-table(
+         companies="country.companies"
+         group="true")
+
+   .row
+      .col-md-6
+         nrgi-contract-table(
+         contracts="country.contracts"
+         companies="true"
+         commodity="true"
+         country="false")
+
+      .col-md-6
+         nrgi-concession-table(
+         concessions="country.concessions"
+         commodity="true"
+         status="true"
+         projects="true")
+
+
+   nrgi-transfer-table(transfers="country.transfers" project="true")
+   .advanced-links
+      .container
+         h3
+            a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources
+>>>>>>> SAVEPOINT

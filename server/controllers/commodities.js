@@ -287,7 +287,6 @@ exports.getCommodityByID = function(req, res) {
 						callback(null, commodity);
 					}
 				});
-
 			});
 		} else{
 			callback(null, commodity);

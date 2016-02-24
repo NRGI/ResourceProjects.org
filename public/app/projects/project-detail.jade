@@ -6,12 +6,16 @@
             small Project
     .row
         .col-md-12
+<<<<<<< 9a798a8a37b2577095fecc2350a452238a716276
             leaflet(
             center="center"
             controls="controls"
             markers="project.coordinates"
             tiles="tiles"
             height='240px')
+=======
+            leaflet(center="center",controls="controls",markers="project.coordinates",tiles="tiles", height='240px')
+>>>>>>> SAVEPOINT
     .row
         .col-md-6
             .info-box
@@ -80,6 +84,7 @@
                             ng-repeat='address in project.proj_address')
                                 span(ng-bind-html="address.string|sanitize")
                                 | {{$last ? '' : ', '}}
+<<<<<<< 9a798a8a37b2577095fecc2350a452238a716276
                         tr
                             td.detail_label.small(colspan='2')
                                 p Location(s):
@@ -133,3 +138,53 @@
     //        h3
     //            a(href='') Sources
     //        .row {{project.sources}}
+=======
+
+                        tr
+                            td.detail_label.small(colspan='2')
+                                p Location(s):
+                                table.table.table-striped.locations(ts-wrapper)
+                                    tbody
+                                        tr
+                                            th.tablesort-sortable-th(ts-criteria='name') Name
+                                            th.tablesort-sortable-th(ts-criteria='lat') Lat
+                                            th.tablesort-sortable-th(ts-criteria='lng') Lng
+                                            th.location-th
+                                        tr(ng-repeat='location in project.coordinates',ts-repeat)
+                                            td.location_name
+                                                text {{location.message}}
+                                            td.location_lat
+                                                span(ng-if='location.lat') {{location.lat}}
+                                            td.location_lng
+                                                span(ng-if='location.lng') {{location.lng}}
+                                            td.location_timestamp
+                                                span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
+        .col-md-6
+            .info-box
+                h2
+                    | &nbsp;
+                table#project-description
+                    tbody
+                        tr
+                            td.project-label.our-id Desctiption:
+                            td.project-description
+                                span(ng-bind-html="project.description|sanitize")
+
+            nrgi-company-table(
+            companies="project.companies"
+            stake="true"
+            group="true")
+    .row
+        .col-md-12
+            nrgi-production-table(productions="project.productions")
+
+    .row
+        .col-md-12
+            nrgi-transfer-table(transfers="project.transfers"
+            project="false")
+
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources
+>>>>>>> SAVEPOINT

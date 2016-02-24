@@ -29,13 +29,8 @@
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Country:
-<<<<<<< 06208da32db0985c5daf8bf7ba09db0bd17ac5cd
-                            td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.iso2'")
-                                a(href='country/{{country.country.iso2}}')
-=======
                             td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
-                                a(href='country/{{country.country._id}}')
->>>>>>> SAVEPOINT
+                                a(href='country/{{country.country.iso2}}')
                                     span(ng-bind-html="country.country.name|sanitize")
                                 | {{$last ? '' : ', '}}
                             //td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
@@ -51,11 +46,7 @@
                         tr
                             td.detail_label.small Commodities:
                             td.concession_commodities
-<<<<<<< 06208da32db0985c5daf8bf7ba09db0bd17ac5cd
                                 text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
-=======
-                                text(ng-repeat="commodity in concession.concession_commodity | unique: 'concession._id'")
->>>>>>> SAVEPOINT
                                     a(href='commodity/{{commodity.commodity._id}}')
                                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

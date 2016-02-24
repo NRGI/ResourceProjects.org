@@ -7,6 +7,7 @@
     .row
         .col-md-6
             .info-box
+<<<<<<< 9a798a8a37b2577095fecc2350a452238a716276
                 table#project-info
                     tbody
                         tr
@@ -43,3 +44,41 @@
                             td.project-label.our-id Desctiption:
                             td
                                 span(ng-bind-html="source.source_notes|sanitize")
+=======
+                table#source-info
+                    tbody
+                        tr
+                            td.detail_label.small Type:
+                            td.source_type {{source.source_type}}
+                        tr
+                            td.detail_label.small Source date:
+                            td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
+                        tr
+                            td.detail_label.small Retrieved date:
+                            td.retrieve_date {{source.retrieve_date| date:'yyyy-MM-dd'}}
+                        tr
+                            td.detail_label.small Access source:
+                            td.source_url
+                                text(ng-if="source.source_url")
+                                    a(ng-href='https://{{source.source_url}}', target='_blank') Link
+                                    =' '
+                                    | (Direct link to data in HTML report)
+                        tr
+                            td.detail_label.small Access archive:
+                            td.source_archive_url
+                                text(ng-if="source.source_archive_url")
+                                    a(href='https://{{source.source_archive_url}}', target='_blank') Link
+                                    =' '
+                                    | (Google sheet)
+                        tr
+                            td.detail_label.small Created:
+                            td.create_author(ng-if="source.create_author.length > 0") {{source.create_author[0].first_name}} {{source.create_author[0].last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
+        .col-md-6
+            .info-box
+                table#source-description
+                    tbody
+                        tr
+                            td.project-label.small Desctiption:
+                            td.source_notes
+                                span(ng-bind-html="source.source_notes|sanitize")
+>>>>>>> SAVEPOINT
