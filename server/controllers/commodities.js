@@ -97,6 +97,7 @@ exports.getCommodityByID = function(req, res) {
 	async.waterfall([
 		getCommodity,
 		getCommodityLinks,
+		getContracts,
 		getProjectLocation,
 		getCompanyGroup
 	], function (err, result) {
@@ -118,12 +119,10 @@ exports.getCommodityByID = function(req, res) {
 			});
 	}
 	function getCommodityLinks(commodity, callback) {
-		//console.log(company);
 		commodity.company_groups = [];
 		commodity.companies = [];
 		commodity.projects = [];
-		commodity.contracts = [];
-		commodity.contracts = [];
+		commodity.contracts_link = [];
 		commodity.concessions = [];
 		Link.find({commodity: commodity._id})
 			.populate('company_group','_id company_group_name')
@@ -175,20 +174,8 @@ exports.getCommodityByID = function(req, res) {
 								}
 								break;
 							case 'contract':
-								//if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
-								//    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
-								//        if (!err && res.statusCode == 200) {
-								//            company.contracts.push({
-								//                _id: link.contract.contract_id,
-								//                contract_name: body.name,
-								//                contract_country: body.country,
-								//                contract_commodity: body.resource
-								//            });
-								//        }
-								//    });
-								//}
-								if (!_.contains(commodity.contracts, link.contract.contract_id)) {
-									commodity.contracts.push(link.contract.contract_id);
+								if (!_.contains(commodity.contracts_link, link.contract.contract_id)) {
+									commodity.contracts_link.push({_id:link.contract.contract_id});
 								}
 								break;
 							case 'project':
@@ -208,6 +195,31 @@ exports.getCommodityByID = function(req, res) {
 				}
 			});
 
+	}
+	function getContracts(commodity, callback) {
+		commodity.contracts = [];
+		var contract_counter = 0;
+		var contract_len = commodity.contracts_link.length;
+		if(contract_len>0) {
+			_.each(commodity.contracts_link, function (contract) {
+				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+					var body = JSON.parse(body);
+					++contract_counter;
+					commodity.contracts.push({
+						_id: contract._id,
+						contract_name: body.name,
+						contract_country: body.country,
+						contract_commodity: body.resource
+					});
+					if (contract_counter == contract_len) {
+						callback(null, commodity);
+					}
+				});
+
+			});
+		} else{
+			callback(null, commodity);
+		}
 	}
 	function getProjectLocation(commodity,callback) {
 		var project_counter = 0;

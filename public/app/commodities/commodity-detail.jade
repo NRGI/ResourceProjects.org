@@ -30,15 +30,31 @@
 
    .row
       .col-md-3
-         nrgi-project-table(projects="commodity.projects" country="true" type="false" companies="false" commodity="false" status="false")
+         nrgi-project-table(
+         projects="commodity.projects"
+         country="true"
+         type="false"
+         companies="false"
+         commodity="false"
+         status="false")
       .col-md-3
-         nrgi-contract-table(contracts="commodity.contracts" companies="false" commodity="false" country="true")
+         nrgi-contract-table(
+         contracts="commodity.contracts"
+         companies="false"
+         commodity="false"
+         country="true")
       .col-md-3
-         nrgi-concession-table(concessions="commodity.concessions" type="false" commodity="false"
+         nrgi-concession-table(
+         concessions="commodity.concessions"
+         type="false"
+         commodity="false"
          status="false"
          projects="false")
       .col-md-3
-         nrgi-company-table(companies="commodity.companies" stake="false")
+         nrgi-company-table(
+         companies="commodity.companies"
+         stake="false"
+         group="true")
 
    .advanced-links
        .container

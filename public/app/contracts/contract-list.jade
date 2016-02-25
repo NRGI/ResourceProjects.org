@@ -27,10 +27,13 @@
             tr(ng-repeat="contract in contracts | unique: '_id'",ts-repeat)
                 td.contract_id: a(href='contract/{{ contract._id }}')
                     span(ng-bind-html="contract.contract_id | sanitize")
-                td.contract_countries: a(href='country/{{ contract.country._id }}')
-                    span(ng-bind-html="contract.country.name | sanitize")
-                td.commodity_type {{contract.contract_type}}
-                td.contract_commodities {{contract.commodities_name}}
+                td.contract_countries: text(ng-repeat="rc_info in contract.rc_info")
+                    a(href='country/{{ rc_info.contract_country.code }}')
+                        span(ng-bind-html="rc_info.contract_country.name | sanitize")
+                td.commodity_type: text(ng-repeat="rc_info in contract.rc_info")
+                    span(ng-bind="rc_info.contract_type[rc_info.contract_type.length-1].toString()")
+                td.contract_commodities: text(ng-repeat="rc_info in contract.rc_info")
+                    span(ng-bind="rc_info.contract_commodity.toString()")
                 td.contract_projects: span(ng-if="contract.projects!=0") {{contract.projects}}
 
     nrgi-list-nav(
