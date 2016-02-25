@@ -62,18 +62,18 @@ exports.getContracts = function(req, res) {
                 request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
                     ++contract_counter;
                     var body = JSON.parse(body);
-                        contract.rc_info.push({
-                            contract_name: body.name,
-                            contract_country: body.country,
-                            contract_commodity: body.resource,
-                            contract_type: body.contract_type
-                        });
+                    contract.rc_info.push({
+                        contract_name: body.name,
+                        contract_country: body.country,
+                        contract_commodity: body.resource,
+                        contract_type: body.contract_type
+                    });
                     if(body.resource!=undefined){
                         var commodity =body.resource;
                         commodity.map(function(name){return contract.commodities.push(name);});
                     }
                     if (contract_counter == contract_len) {
-                           callback(null, contract_count, contracts);
+                        callback(null, contract_count, contracts);
                     }
                 });
             });
@@ -290,7 +290,7 @@ exports.getContractByID = function(req, res) {
     function getCommodity(contract, callback) {
         var commodity_len = contract.commodities.length;
         var commodity_counter = 0;
-            contract.commodity=[];
+        contract.commodity=[];
         if(commodity_len>0) {
             contract.commodities.forEach(function (commodity_name) {
                 if (commodity_name != undefined) {
