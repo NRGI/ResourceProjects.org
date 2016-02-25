@@ -101,8 +101,8 @@ exports.getCompanyByID = function(req, res) {
         getCompany,
         getTransfers,
         getCompanyLinks,
+        getContracts,
         getProjectLocation
-        //getContracts,
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -141,6 +141,11 @@ exports.getCompanyByID = function(req, res) {
             });
     }
     function getCompanyLinks(company, callback) {
+        company.company_groups = [];
+        company.commodities = [];
+        company.projects = [];
+        company.contracts_link = [];
+        company.concessions = [];
         Link.find({company: company._id})
             .populate('company_group','_id company_group_name')
             .populate('commodity')
@@ -151,12 +156,6 @@ exports.getCompanyByID = function(req, res) {
                 link_len = links.length;
                 if(link_len>0) {
                     link_counter = 0;
-                    company.company_groups = [];
-                    company.commodities = [];
-                    company.projects = [];
-                    company.contracts = [];
-                    company.contracts = [];
-                    company.concessions = [];
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'company')[0]
@@ -208,8 +207,8 @@ exports.getCompanyByID = function(req, res) {
                                 //        }
                                 //    });
                                 //}
-                                if (!_.contains(company.contracts, link.contract.contract_id)) {
-                                    company.contracts.push(link.contract.contract_id);
+                                if (!_.contains(company.contracts_link, link.contract.contract_id)) {
+                                    company.contracts_link.push({_id:link.contract.contract_id});
                                 }
                                 break;
                             case 'project':
@@ -227,6 +226,31 @@ exports.getCompanyByID = function(req, res) {
                     callback(null, company);
                 }
             });
+    }
+    function getContracts(company, callback) {
+        company.contracts = [];
+        var contract_counter = 0;
+        var contract_len = company.contracts_link.length;
+        if(contract_len>0) {
+            _.each(company.contracts_link, function (contract) {
+                request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+                    var body = JSON.parse(body);
+                    ++contract_counter;
+                    company.contracts.push({
+                        _id: contract._id,
+                        contract_name: body.name,
+                        contract_country: body.country,
+                        contract_commodity: body.resource
+                    });
+                    if (contract_counter == contract_len) {
+                        callback(null, company);
+                    }
+                });
+
+            });
+        } else{
+            callback(null, company);
+        }
     }
     function getProjectLocation(company,callback) {
         var project_counter = 0;
@@ -250,48 +274,5 @@ exports.getCompanyByID = function(req, res) {
             res.send(company);
         }
     }
-    //function getContracts(company, callback) {
-    //    company.contract_pull = {};
-    //    //company.contracts.forEach(function(contract) {
-    //    //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract + '/metadata', function (err, res, body) {
-    //    //        company.contract_pull[contract] = {
-    //    //            //contract_name: body.name,
-    //    //            //contract_country: body.country,
-    //    //            //contract_commodity: body.resource
-    //    //        };
-    //    //        //    if (!err && res.statusCode == 200) {
-    //    //        //        //console.log(body); // Show the HTML for the Google homepage.
-    //    //        //        company.contract_pull[contract] = {
-    //    //        //            //contract_name: body.name,
-    //    //        //            //contract_country: body.country,
-    //    //        //            //contract_commodity: body.resource
-    //    //        //        };
-    //    //        //    }
-    //    //    });
-    //    //});
-    //    _.each(company.contracts, function(contract) {
-    //        request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract + '/metadata', function (err, res, body) {
-    //            company.contract_pull[contract] = {
-    //                //contract_name: body.name,
-    //                //contract_country: body.country,
-    //                //contract_commodity: body.resource
-    //            };
-    //        //    if (!err && res.statusCode == 200) {
-    //        //        //console.log(body); // Show the HTML for the Google homepage.
-    //        //        company.contract_pull[contract] = {
-    //        //            //contract_name: body.name,
-    //        //            //contract_country: body.country,
-    //        //            //contract_commodity: body.resource
-    //        //        };
-    //        //    }
-    //        });
-    //    });
-    //    if(company) {
-    //        callback(null, company);
-    //    } else {
-    //        callback(err);
-    //    }
-    //    //console.log(company.contract_pull);
-    //    //callback(null, company);
-    //}
+
 };
