@@ -273,7 +273,6 @@ exports.getCompanyByID = function(req, res) {
             res.send(company);
         }
     }
-
 };
 exports.createCompany = function(req, res, next) {
     var companyData = req.body;
