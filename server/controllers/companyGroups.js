@@ -284,12 +284,19 @@ exports.getCompanyGroupByID = function(req, res) {
 							}
 						});
 					});
+			//});
+//		} else{
+//			callback(null, companyGroup);
+//		}
+//	}
+//=======
+//>>>>>>> SAVEPOINT
+
 			});
 		} else{
 			callback(null, companyGroup);
 		}
 	}
-
 	function getProjectLocation(companyGroup,callback) {
 		var project_counter = 0;
 		companyGroup.location = [];
