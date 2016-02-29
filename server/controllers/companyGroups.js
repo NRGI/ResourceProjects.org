@@ -117,8 +117,6 @@ exports.getCompanyGroupByID = function(req, res) {
 	function getCompanyGroupLinks(companyGroup, callback) {
 		companyGroup.companies = [];
 		companyGroup.commodities = [];
-		//companyGroup.contracts = [];
-		//companyGroup.contracts = [];
 		companyGroup.concessions = [];
 		Link.find({company_group: companyGroup._id})
 			.populate('company','_id company_name')
