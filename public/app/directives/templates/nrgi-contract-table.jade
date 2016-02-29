@@ -17,7 +17,8 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
                     span(ng-bind-html="contract.contract_country.name|sanitize")
             td.contract_commodity_name(ng-if="commodity==true")
                 span(ng-bind="contract.contract_commodity.toString()")
-            td.contract_rc_id {{contract._id}}
+            td.contract_rc_id
+                a(href='/contract/{{contract._id}}') {{contract._id}}
             td.contract_companies(ng-if="companies==true")
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')

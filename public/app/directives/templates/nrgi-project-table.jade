@@ -29,7 +29,7 @@ table.table.table-striped.projects(ts-wrapper)#project-info
                 text(ng-if="$last")
                     | {{status.string | ucfirst}}
                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-            td(ng-if="companies==true")
+            td(ng-if="companies==true") {{project.companies}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span
