@@ -1,3 +1,5 @@
+'use strict';
+
 var Country 		= require('mongoose').model('Country'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Link            = require('mongoose').model('Link'),
@@ -7,7 +9,6 @@ var Country 		= require('mongoose').model('Country'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
-
 exports.getCountries = function(req, res) {
     var country_len,country_counter,
         limit = Number(req.params.limit),
