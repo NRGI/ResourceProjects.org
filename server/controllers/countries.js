@@ -141,7 +141,6 @@ exports.getCountryByID = function(req, res) {
 								companies: []
 							});
 							_.each(proj.proj_coordinates, function (loc) {
-								//++project_counter;
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
@@ -235,20 +234,17 @@ exports.getCountryByID = function(req, res) {
 											_id:link._id,
 											company_group_name: link.company_group.company_group_name
 									});
-									console.log('4');
 									break;
 								default:
 									console.log(entity, 'link skipped...');
 							}
 						});
 						if (link_counter == link_len && company_len==company_counter) {
-							console.log('1');
 							callback(null, country);
 						}
 					});
 			})
 		} else {
-			console.log('3');
 			callback(null, country);
 		}
 	}
