@@ -52,7 +52,7 @@ module.exports	= function(app) {
 	app.delete('/api/projects/:id', projects.deleteProject);
 
 	/////////////////////////
-	///// COMPANIES CRUD ////////
+	///// COMPANIES CRUD ////
 	/////////////////////////
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);

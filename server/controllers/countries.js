@@ -314,33 +314,6 @@ exports.getCountryByID = function(req, res) {
 			callback(null, country);
 		}
 	}
-	//function getContracts(country, callback) {
-	//	country.contracts = [];
-	//	request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&country_code=' + country.iso2.toLowerCase(), function (err, res, body) {
-	//		var body = JSON.parse(body);
-	//		body = body.results;
-	//		var contract_counter = 0;
-	//		var contract_len =body.length;
-	//		if(contract_len>0) {
-	//			country.concessions = [];
-	//			_.each(body, function (contract) {
-	//				++contract_counter;
-	//				console.log()
-	//				country.contracts.push({
-	//					_id: contract.open_contracting_id,
-	//					contract_name: contract.name,
-	//					contract_commodity: contract.resource,
-	//					companies:contract.company_name
-	//				});
-	//				if (contract_counter == contract_len) {
-	//					callback(null, country);
-	//				}
-	//			});
-	//		} else {
-	//			callback(null, country);
-	//		}
-	//	});
-	//}
 	function getTransfers(country, callback) {
 		country.transfers = [];
 		Transfer.find({transfer_country: country._id})
