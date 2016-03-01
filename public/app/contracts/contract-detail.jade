@@ -18,13 +18,13 @@
                             td.contract_id {{contract.contract_id}}
                         tr
                             td.detail_label.small Commodities:
-                            td.commodities: text(ng-repeat="commodity in contract.commodities")
+                            td.commodities: text(ng-repeat="commodity in contract.commodities | unique: '_id'")
                                 a(href='commodity/{{commodity._id}}')
                                     span(ng-bind-html="commodity.commodity_name|sanitize")
                                 | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Concessions:
-                            td.concessions: text(ng-repeat="concession in contract.concessions")
+                            td.concessions: text(ng-repeat="concession in contract.concessions | unique: '_id'")
                                 a(href='concession/{{concession._id}}')
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}

@@ -317,3 +317,55 @@ exports.getProjectsMap = function(req, res) {
 	}
 
 };
+exports.createProject = function(req, res, next) {
+	var projectData = req.body;
+	Project.create(projectData, function(err, project) {
+		if(err){
+			if(err.toString().indexOf('E11000') > -1) {
+				err = new Error('Duplicate Username');
+			}
+			res.status(400)
+			return res.send({reason:err.toString()})
+		}
+	});
+	res.send();
+};
+exports.updateProject = function(req, res) {
+	var projectUpdates = req.body;
+	console.log(projectUpdates);
+	Project.findOne({_id:req.body._id}).exec(function(err, project) {
+		if(err) {
+			res.status(400);
+			return res.send({ reason: err.toString() });
+		}
+		project._id=projectUpdates._id;
+		project.proj_name= projectUpdates.proj_name;
+		project.proj_aliases= projectUpdates.proj_aliases;
+		project.proj_established_source= projectUpdates.proj_established_source;
+		project.proj_country= projectUpdates.proj_country;
+		project.proj_type= projectUpdates.proj_type;
+		project.proj_commodity= projectUpdates.proj_commodity;
+		project.proj_site_name= projectUpdates.proj_site_name;
+		project.proj_address= projectUpdates.proj_address;
+		project.proj_coordinates= projectUpdates.proj_coordinates;
+		project.proj_status= projectUpdates.proj_status;
+		project.description= projectUpdates.description;
+		project.save(function(err) {
+			if(err)
+				return res.send({ reason: err.toString() });
+		})
+	});
+	res.send();
+};
+
+exports.deleteProject = function(req, res) {
+
+	Project.remove({_id: req.params.id}, function(err) {
+		if(!err) {
+			res.send();
+		}else{
+			return res.send({ reason: err.toString() });
+		}
+	});
+	res.send();
+};

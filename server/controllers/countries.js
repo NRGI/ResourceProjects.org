@@ -76,6 +76,7 @@ exports.getCountryByID = function(req, res) {
 		getContracts,
 		getCompanyGroupLinks,
 		getProjectLinks,
+		getConcessionLinks,
 		getTransfers
 	], function (err, result) {
 		if (err) {
@@ -101,12 +102,16 @@ exports.getCountryByID = function(req, res) {
 				.populate('company_aliases', ' _id alias')
 				.populate('company_group')
 				.exec(function (err, company) {
-				var company_len = company.length;
+				company_len = company.length;
+				company_counter = 0;
 				if (company_len>0) {
 					_.each(company, function (c) {
+						company_counter++;
 						country.companies.push({_id:c._id,company_name: c.company_name,company_groups:[]});
 					});
-					callback(null, country);
+					if(company_counter==company_len){
+						callback(null, country);
+					}
 				} else {
 					callback(null, country);
 				}
@@ -124,6 +129,7 @@ exports.getCountryByID = function(req, res) {
 				var project_len = project.length;
 				if (project_len>0) {
 					_.each(project, function (proj) {
+							++project_counter;
 							country.projects.push({
 								_id: proj._id,
 								proj_name: proj.proj_name,
@@ -132,7 +138,7 @@ exports.getCountryByID = function(req, res) {
 								companies: []
 							});
 							_.each(proj.proj_coordinates, function (loc) {
-								++project_counter;
+
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
@@ -167,7 +173,8 @@ exports.getCountryByID = function(req, res) {
 							concession_country: _.find(concession.concession_country.reverse()).country,
 							concession_type: _.find(concession.concession_type.reverse()),
 							concession_commodities: concession.concession_commodity,
-							concession_status: concession.concession_status
+							concession_status: concession.concession_status,
+							projects:[]
 						});
 						if (concession_counter == concession_len) {
 							callback(null, country);
@@ -226,20 +233,17 @@ exports.getCountryByID = function(req, res) {
 											_id:link._id,
 											company_group_name: link.company_group.company_group_name
 									});
-									console.log('4');
 									break;
 								default:
 									console.log(entity, 'link skipped...');
 							}
 						});
 						if (link_counter == link_len && company_len==company_counter) {
-							console.log('1');
 							callback(null, country);
 						}
 					});
 			})
 		} else {
-			console.log('3');
 			callback(null, country);
 		}
 	}
@@ -268,6 +272,39 @@ exports.getCountryByID = function(req, res) {
 							}
 						});
 						if (link_counter == link_len && project_counter==project_len) {
+							callback(null, country);
+						}
+					});
+			})
+		} else {
+			callback(null, country);
+		}
+	}
+	function getConcessionLinks(country, callback) {
+		concession_counter = 0;
+		link_counter = 0;
+		concession_len = country.concessions.length;
+		if(concession_len>0) {
+			_.each(country.concessions, function (concession) {
+				concession.projects = 0;
+				Link.find({concession: concession._id})
+					.populate('project')
+					.exec(function (err, links) {
+						++concession_counter;
+						link_len = links.length;
+						link_counter = 0;
+						links.forEach(function (link) {
+							++link_counter;
+							var entity = _.without(link.entities, 'concession')[0];
+							switch (entity) {
+								case 'project':
+									concession.projects += 1;
+									break;
+								default:
+									console.log(entity, 'link skipped...');
+							}
+						});
+						if (link_counter == link_len && concession_counter==concession_len) {
 							callback(null, country);
 						}
 					});
