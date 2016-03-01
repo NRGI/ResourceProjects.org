@@ -1,5 +1,4 @@
 var Country 		= require('mongoose').model('Country'),
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
     Transfer 	    = require('mongoose').model('Transfer'),
     Link            = require('mongoose').model('Link'),
     Project 		= require('mongoose').model('Project'),
@@ -8,16 +7,7 @@ var Country 		= require('mongoose').model('Country'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
-=======
-	Transfer 	    = require('mongoose').model('Transfer'),
-	Link            = require('mongoose').model('Link'),
-	Project 		= require('mongoose').model('Project'),
-	Company 		= require('mongoose').model('Company'),
-	Concession 		= require('mongoose').model('Concession'),
-	async           = require('async'),
-	_               = require("underscore"),
-	request         = require('request');
->>>>>>> SAVEPOINT
+
 exports.getCountries = function(req, res) {
     var country_len,country_counter,
         limit = Number(req.params.limit),
@@ -78,7 +68,7 @@ exports.getCountries = function(req, res) {
 };
 
 exports.getCountryByID = function(req, res) {
-	var concession_len,concession_counter,link_counter, link_len,company_counter,company_len,project_counter,project_len;
+	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;
 	async.waterfall([
 		getCountry,
 		getCountryCompanies,
@@ -87,10 +77,7 @@ exports.getCountryByID = function(req, res) {
 		getContracts,
 		getCompanyGroupLinks,
 		getProjectLinks,
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
 		getConcessionLinks,
-=======
->>>>>>> SAVEPOINT
 		getTransfers
 	], function (err, result) {
 		if (err) {
@@ -116,7 +103,6 @@ exports.getCountryByID = function(req, res) {
 				.populate('company_aliases', ' _id alias')
 				.populate('company_group')
 				.exec(function (err, company) {
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
 				company_len = company.length;
 				company_counter = 0;
 				if (company_len>0) {
@@ -127,14 +113,6 @@ exports.getCountryByID = function(req, res) {
 					if(company_counter==company_len){
 						callback(null, country);
 					}
-=======
-				var company_len = company.length;
-				if (company_len>0) {
-					_.each(company, function (c) {
-						country.companies.push({_id:c._id,company_name: c.company_name,company_groups:[]});
-					});
-					callback(null, country);
->>>>>>> SAVEPOINT
 				} else {
 					callback(null, country);
 				}
@@ -152,10 +130,7 @@ exports.getCountryByID = function(req, res) {
 				var project_len = project.length;
 				if (project_len>0) {
 					_.each(project, function (proj) {
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
 							++project_counter;
-=======
->>>>>>> SAVEPOINT
 							country.projects.push({
 								_id: proj._id,
 								proj_name: proj.proj_name,
@@ -164,19 +139,12 @@ exports.getCountryByID = function(req, res) {
 								companies: []
 							});
 							_.each(proj.proj_coordinates, function (loc) {
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
-=======
-								++project_counter;
->>>>>>> SAVEPOINT
+								//++project_counter;
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
 									'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
 								});
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
-=======
-
->>>>>>> SAVEPOINT
 							});
 							if (project_counter == project_len) {
 								callback(null, country);
@@ -265,29 +233,20 @@ exports.getCountryByID = function(req, res) {
 											_id:link._id,
 											company_group_name: link.company_group.company_group_name
 									});
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
-=======
 									console.log('4');
->>>>>>> SAVEPOINT
 									break;
 								default:
 									console.log(entity, 'link skipped...');
 							}
 						});
 						if (link_counter == link_len && company_len==company_counter) {
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
-=======
 							console.log('1');
->>>>>>> SAVEPOINT
 							callback(null, country);
 						}
 					});
 			})
 		} else {
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
-=======
 			console.log('3');
->>>>>>> SAVEPOINT
 			callback(null, country);
 		}
 	}
@@ -324,7 +283,6 @@ exports.getCountryByID = function(req, res) {
 			callback(null, country);
 		}
 	}
-<<<<<<< f6818c2ee67d006e507cb497cad24a97cd4f478f
 	function getConcessionLinks(country, callback) {
 		concession_counter = 0;
 		link_counter = 0;
@@ -358,8 +316,6 @@ exports.getCountryByID = function(req, res) {
 			callback(null, country);
 		}
 	}
-=======
->>>>>>> SAVEPOINT
 	function getTransfers(country, callback) {
 		country.transfers = [];
 		Transfer.find({transfer_country: country._id})
