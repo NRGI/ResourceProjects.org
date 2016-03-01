@@ -313,7 +313,6 @@ exports.getProjectsMap = function(req, res) {
 				}
 			});
 	}
-
 };
 exports.createProject = function(req, res, next) {
 	var projectData = req.body;
