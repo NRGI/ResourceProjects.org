@@ -134,7 +134,7 @@ exports.getContractByID = function(req, res) {
     }
     function getContractRCData(contract, callback) {
         request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
-                contract.rc_info = {};
+                contract.rc_info = [];
                 var body = JSON.parse(body);
                 contract.rc_info = {
                     contract_name: body.name,
