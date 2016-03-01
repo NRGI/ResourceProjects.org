@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/NRGI/rp-org-frontend",
   "dependencies": {
+    "async": "^1.5.2",
     "aws-sdk": "^2.1.24",
     "body-parser": "^1.9.2",
     "bootstrap": "^3.3.1",
@@ -27,13 +28,18 @@
     "express-session": "^1.9.1",
     "jade": "^1.7.0",
     "mongoose": "^4.0.0",
+    "mongoose-deep-populate": "^2.0.3",
+    "mongoose-history": "^0.4.2",
+    "mongoose-html-2": "^0.1.1",
     "morgan": "^1.5.0",
     "newrelic": "^1.20.2",
     "node-mandrill": "^1.0.1",
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
+    "request": "^2.69.0",
     "s3": "^4.3.1",
-    "stylus": "^0.49.3"
+    "stylus": "^0.49.3",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "chai": "^1.9.1",
