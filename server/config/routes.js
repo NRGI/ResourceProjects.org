@@ -53,7 +53,6 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/projects/:id', projects.deleteProject);
 
-
 	/////////////////////////
 	///// COMPANIES CRUD ////////
 	/////////////////////////
@@ -140,6 +139,13 @@ module.exports	= function(app) {
 	app.post('/api/datasets/:id/actions', datasets.createAction);
 	//TODO consider implementing a get?
 
+	// POST
+	app.post('/api/sources',  sources.createSource);
+	// PUT
+	app.put('/api/sources',  sources.updateSource);
+	// DELETE
+	app.delete('/api/sources/:id', sources.deleteSource);
+
 	/////////////////////////
 	///// USERS CRUD ////////
 	/////////////////////////
@@ -155,43 +161,6 @@ module.exports	= function(app) {
 
 	// DELETE
 	app.delete('/api/users/:id', auth.requiresRole('admin'), users.deleteUser);
-
-	// /////////////////////////////
-	// ///// QUESTIONS CRUD ////////
-	// /////////////////////////////
-	// // GET
-	// app.get('/api/questions', questions.getQuestions);
-	// app.get('/api/questions/:id', questions.getQuestionsByID);
-	// app.get('/api/question-text/:id', questions.getQuestionTextByID);
-	
-	// // PUT
-	// app.put('/api/questions', auth.requiresRole('supervisor'), questions.updateQuestion);
-
-	// // DELETE
-	// app.delete('/api/questions/:id', auth.requiresRole('supervisor'), questions.deleteQuestion);
-
-	// //////////////////////////////////////
-	// ///// ASSESSMENT ANSWERS CRUD ////////
-	// //////////////////////////////////////
-	// // GET
-	// app.get('/api/answers', auth.requiresApiLogin, answers.getAnswers);
-	// app.get('/api/answers/:answer_ID', auth.requiresApiLogin, answers.getAnswersByID);
-	
-	// // POST
-	// app.post('/api/answers', auth.requiresApiLogin, answers.createAnswers);
-	// // app.get('/api/answers/:answer_ID', auth.requiresApiLogin, assessments.getAnswersByID);
-	// // app.get('/api/answers/:answer_ID', auth.requiresApiLogin, assessments.getAnswersByID);
-	
-	// ///////////////////////////////////////
-	// ///// ASSESSMENT OVERVIEW CRUD/////////
-	// ///////////////////////////////////////
-	// // GET
-	// app.get('/api/assessments', auth.requiresApiLogin, assessments.getAssessments);
-	// app.get('/api/assessments/:assessment_ID', auth.requiresApiLogin, assessments.getAssessmentsByID);
-	
-	// // PUT
-	// app.put('/api/assessments/:assessment_ID', auth.requiresApiLogin, assessments.updateAssessment);
-
 	////////////////////
 	///// OTHER ////////
 	////////////////////

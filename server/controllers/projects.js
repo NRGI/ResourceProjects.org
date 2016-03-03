@@ -83,7 +83,6 @@ exports.getProjects = function(req, res) {
 									break;
 								//
 								default:
-									//console.log('error');
 							}
 						});
 						if (project_counter == project_len && link_counter == link_len) {

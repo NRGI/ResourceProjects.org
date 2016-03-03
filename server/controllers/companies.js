@@ -307,7 +307,6 @@ exports.updateCompany = function(req, res) {
 };
 
 exports.deleteCompany = function(req, res) {
-
     Company.remove({_id: req.params.id}, function(err) {
         if(!err) {
             res.send();

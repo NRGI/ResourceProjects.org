@@ -1,59 +1,59 @@
 .container.top-padding-med
-   .well
-      form.form-horizontal(name='create_source_form')
-         fieldset
-            legend New Source Information
-            .form-group
-               label.col-md-2.control-label(form="source_name") Source Name
-               .col-md-10
-                  input.form-control(
-                  name="source_name"
-                  type="text"
-                  placeholder="Source name"
-                  ng-model="source.source_name"
-                  required)
-            .form-group
-               label.col-md-2.control-label(form="source_type") Source Type
-               .col-md-10
-                  input.form-control(
-                  name="source_type"
-                  type="text"
-                  placeholder="Source type"
-                  ng-model="source.source_type"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="source_url") Access Source
-               .col-md-10
-                  input.form-control(
-                  name="source_url"
-                  type="text"
-                  placeholder="Access source"
-                  ng-model="source.source_url"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="source_archive_url") Access Archive
-               .col-md-10
-                  input.form-control(
-                  name="source_archive_url"
-                  type="text"
-                  placeholder="Access archive"
-                  ng-model="source.source_archive_url"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="source_notes") Desctiption
-               .col-md-10
-                  textarea.form-control(
-                  name="source_notes"
-                  type="text"
-                  placeholder="Desctiption"
-                  ng-model="source.source_notes"
-                  )
+    .well
+        form.form-horizontal(name='create_source_form')
+            fieldset
+                legend New Source Information
+                .form-group
+                    label.col-md-2.control-label(form="source_name") Source Name
+                    .col-md-10
+                        input.form-control(
+                        name="source_name"
+                        type="text"
+                        placeholder="Source name"
+                        ng-model="source.source_name"
+                        required)
+                .form-group
+                    label.col-md-2.control-label(form="source_type") Source Type
+                    .col-md-10
+                        input.form-control(
+                        name="source_type"
+                        type="text"
+                        placeholder="Source type"
+                        ng-model="source.source_type"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="source_url") Access Source
+                    .col-md-10
+                        input.form-control(
+                        name="source_url"
+                        type="text"
+                        placeholder="Access source"
+                        ng-model="source.source_url"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="source_archive_url") Access Archive
+                    .col-md-10
+                        input.form-control(
+                        name="source_archive_url"
+                        type="text"
+                        placeholder="Access archive"
+                        ng-model="source.source_archive_url"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="source_notes") Desctiption
+                    .col-md-10
+                        textarea.form-control(
+                        name="source_notes"
+                        type="text"
+                        placeholder="Desctiption"
+                        ng-model="source.source_notes"
+                        )
 
-            .form-group
-               .col-md-10.col-md-offset-2
-                  .pull-right
-                     button.btn.btn-primary(
-                     ng-click="sourceCreate()"
-                     ng-disabled="create_source_form.$invalid") Submit
-                     | &nbsp;
-                     a.btn.btn-default(href="/") Cancel
+                .form-group
+                    .col-md-10.col-md-offset-2
+                        .pull-right
+                            button.btn.btn-primary(
+                            ng-click="sourceCreate()"
+                            ng-disabled="create_source_form.$invalid") Submit
+                            | &nbsp;
+                            a.btn.btn-default(href="/") Cancel
