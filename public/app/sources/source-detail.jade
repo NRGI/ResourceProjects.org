@@ -21,18 +21,20 @@
                   tr
                      td.detail_label.small Access source:
                      td.source_url
-                        a(ng-href='https://{{source.source_url}}', target='_blank') Link
-                        =' '
-                        | (Direct link to data in HTML report)
+                        text(ng-if="source.source_url")
+                           a(ng-href='https://{{source.source_url}}', target='_blank') Link
+                           =' '
+                           | (Direct link to data in HTML report)
                   tr
                      td.detail_label.small Access archive:
                      td.source_archive_url
-                        a(href='https://{{source.source_archive_url}}', target='_blank') Link
-                        =' '
-                        | (Google sheet)
+                        text(ng-if="source.source_archive_url")
+                           a(href='https://{{source.source_archive_url}}', target='_blank') Link
+                           =' '
+                           | (Google sheet)
                   tr
                      td.detail_label.small Created:
-                     td.create_author(ng-if="source.create_author.length > 0") {{source.create_author.first_name}} {{source.create_author.last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
+                     td.create_author(ng-if="source.create_author.length > 0") {{source.create_author[0].first_name}} {{source.create_author[0].last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
       .col-md-6
          .info-box
             table#source-description

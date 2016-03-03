@@ -50,45 +50,49 @@ exports.getCommodities = function(req, res) {
 	function getCommodityLinks(commodity_count, commodities, callback) {
 		commodity_len = commodities.length;
 		commodity_counter = 0;
-		commodities.forEach(function (c) {
-			Link.find({commodity: c._id})
-				.populate('concession')
-				.populate('project')
-				.populate('contract')
-				.exec(function(err, links) {
-					++commodity_counter;
-					link_len = links.length;
-					link_counter = 0;
-					c.concessions = 0;
-					c.contracts = 0;
-					c.projects = 0;
-					links.forEach(function(link) {
-						++link_counter;
+		if(commodity_len>0) {
+			commodities.forEach(function (c) {
+				Link.find({commodity: c._id})
+					.populate('concession')
+					.populate('project')
+					.populate('contract')
+					.exec(function (err, links) {
+						++commodity_counter;
+						link_len = links.length;
+						link_counter = 0;
+						c.concessions = 0;
+						c.contracts = 0;
+						c.projects = 0;
+						links.forEach(function (link) {
+							++link_counter;
 
-						var entity = _.without(link.entities, 'commodity')[0];
-						switch (entity) {
-							case 'concession':
-								c.concessions+= 1;
-								break;
-							//
-							case 'project':
-								c.projects += 1;
-								break;
-							//
-							case 'contract':
-								c.contracts += 1;
-								break;
-							//
-							default:
-							//console.log(entity, 'link skipped...');
+							var entity = _.without(link.entities, 'commodity')[0];
+							switch (entity) {
+								case 'concession':
+									c.concessions += 1;
+									break;
+								//
+								case 'project':
+									c.projects += 1;
+									break;
+								//
+								case 'contract':
+									c.contracts += 1;
+									break;
+								//
+								default:
+								//console.log(entity, 'link skipped...');
+							}
+
+						});
+						if (commodity_counter == commodity_len && link_counter == link_len) {
+							res.send({data: commodities, count: commodity_count});
 						}
-
 					});
-					if(commodity_counter == commodity_len && link_counter == link_len) {
-						res.send({data:commodities, count:commodity_count});
-					}
-				});
-		});
+			});
+		} else{
+			res.send({data: commodities, count: commodity_count});
+		}
 	}
 };
 exports.getCommodityByID = function(req, res) {
@@ -284,6 +288,44 @@ exports.getCommodityByID = function(req, res) {
 			res.send(commodity);
 		}
 	}
+};
+exports.createCommodity = function(req, res, next) {
+	var commodityData = req.body;
+	Commodity.create(commodityData, function(err, commodity) {
+		if(err){
+			res.status(400)
+			return res.send({reason:err.toString()})
+		}
+	});
+	res.send();
+};
+exports.updateCommodity = function(req, res) {
+	var commodityUpdates = req.body;
+	Commodity.findOne({_id:req.body._id}).exec(function(err, commodity) {
+		if(err) {
+			res.status(400);
+			return res.send({ reason: err.toString() });
+		}
+		commodity._id=commodityUpdates._id;
+		commodity.commodity_name= commodityUpdates.commodity_name;
+		commodity.commodity_code= commodityUpdates.commodity_code;
+		commodity.commodity_aliases= commodityUpdates.commodity_aliases;
+		commodity.save(function(err) {
+			if(err)
+				return res.send({ reason: err.toString() });
+		})
+	});
+	res.send();
+};
 
+exports.deleteCommodity = function(req, res) {
 
+	Commodity.remove({_id: req.params.id}, function(err) {
+		if(!err) {
+			res.send();
+		}else{
+			return res.send({ reason: err.toString() });
+		}
+	});
+	res.send();
 };

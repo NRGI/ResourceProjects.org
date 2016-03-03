@@ -329,3 +329,48 @@ exports.getCountryByID = function(req, res) {
 			});
 	}
 };
+
+
+
+exports.createCountry = function(req, res, next) {
+	var countryData = req.body;
+	Country.create(countryData, function(err, country) {
+		if(err){
+			res.status(400)
+			return res.send({reason:err.toString()})
+		}
+	});
+	res.send();
+};
+exports.updateCountry = function(req, res) {
+	var countryUpdates = req.body;
+	Country.findOne({iso2:req.body._id}).exec(function(err, country) {
+		if(err) {
+			res.status(400);
+			return res.send({ reason: err.toString() });
+		}
+		country._id=countryUpdates._id;
+		country.iso2= countryUpdates.iso2;
+		country.name= countryUpdates.name;
+		country.country_aliases= countryUpdates.country_aliases;
+		country.country_type= countryUpdates.country_type;
+		country.country_commodity= countryUpdates.country_commodity;
+		country.save(function(err) {
+			if(err)
+				return res.send({ reason: err.toString() });
+		})
+	});
+	res.send();
+};
+
+exports.deleteCountry = function(req, res) {
+
+	Country.remove({_id: req.params.id}, function(err) {
+		if(!err) {
+			res.send();
+		}else{
+			return res.send({ reason: err.toString() });
+		}
+	});
+	res.send();
+};

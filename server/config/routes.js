@@ -27,13 +27,19 @@ module.exports	= function(app) {
 	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
 	app.get('/api/concessions/:id', concessions.getConcessionByID);
 
-	//PROJECTS
+	/////////////////////////
+	///// PROJECTS CRUD ////////
+	/////////////////////////
 	app.get('/api/projects/:limit/:skip', projects.getProjects);
 	app.get('/api/projects/:id', projects.getProjectByID);
 	app.get('/api/projects/', projects.getProjectsMap);
+	// POST
 	app.post('/api/projects',  projects.createProject);
+	// PUT
 	app.put('/api/projects',  projects.updateProject);
+	// DELETE
 	app.delete('/api/projects/:id', projects.deleteProject);
+
 	//COMPANIES and COMPANYGROUPS
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
@@ -45,13 +51,29 @@ module.exports	= function(app) {
 	app.get('/api/commodities/:limit/:skip', commodities.getCommodities);
 	app.get('/api/commodities/:id', commodities.getCommodityByID);
 
-	//COUNTRIES
+	/////////////////////////
+	///// COUNTRIES CRUD ////////
+	/////////////////////////
 	app.get('/api/countries/:limit/:skip', countries.getCountries);
 	app.get('/api/countries/:id', countries.getCountryByID);
+	// POST
+	app.post('/api/countries',  countries.createCountry);
+	// PUT
+	app.put('/api/countries',  countries.updateCountry);
+	// DELETE
+	app.delete('/api/countries/:id', countries.deleteCountry);
 
-	//SOURCES
+	/////////////////////////
+	///// SOURCES CRUD ////////
+	/////////////////////////
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
+	// POST
+	app.post('/api/sources',  sources.createSource);
+	// PUT
+	app.put('/api/sources',  sources.updateSource);
+	// DELETE
+	app.delete('/api/sources/:id', sources.deleteSource);
 
 	/////////////////////////
 	///// USERS CRUD ////////

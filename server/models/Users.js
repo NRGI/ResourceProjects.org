@@ -55,7 +55,7 @@ function createDefaultUsers() {
                 username: 'jcust',
                 email: 'jcust@resourcegovernance.org',
                 salt:salt,
-                hashed_pwd: hash,
+                hashed_pwd: 'admin',
                 role: 'admin',
                 created_by: '569976c21dad48f614cc8125'});
             salt = encrypt.createSalt();
