@@ -333,7 +333,6 @@ exports.getCountryByID = function(req, res) {
 			});
 	}
 };
-
 exports.createCountry = function(req, res, next) {
 	var countryData = req.body;
 	Country.create(countryData, function(err, country) {
