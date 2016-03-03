@@ -1,5 +1,6 @@
 var auth 		= require('./auth'),
 	users 		= require('../controllers/users'),
+	datasets  = require('../controllers/datasets'),
 	commodities = require('../controllers/commodities'),
 	concessions = require('../controllers/concessions'),
 	companies 	= require('../controllers/companies'),
@@ -8,6 +9,7 @@ var auth 		= require('./auth'),
 	companyGroups 	= require('../controllers/companyGroups'),
 	countries 	= require('../controllers/countries'),
 	sources 	= require('../controllers/sources');
+	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
 	// assessments = require('../controllers/assessments');
@@ -50,6 +52,11 @@ module.exports	= function(app) {
 	//SOURCES
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
+	
+	//DATASETS - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
 
 	/////////////////////////
 	///// USERS CRUD ////////

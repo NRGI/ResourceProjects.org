@@ -34,6 +34,11 @@ angular.module('app')
                 controller: 'nrgiMainCtrl'
             })
             // Admin Routes
+            .when('/admin/etl/datasets', {
+                templateUrl: '/partials/admin/etl/datasets',
+                controller: 'nrgiEtlCtrl'/*,
+                resolve: routeRoleChecks.supervisor -- TODO */
+            })
             .when('/admin/create-user', {
                 templateUrl: '/partials/admin/users/create-user',
                 controller: 'nrgiUserAdminCreateCtrl',
