@@ -44,10 +44,11 @@ exports.getProjects = function(req, res) {
 			//.populate('proj_aliases', ' _id alias')
 			.lean()
 			.exec(function(err, projects) {
-				if(projects) {
+				if(projects.length>0) {
 					callback(null, project_count, projects);
 				} else {
-					callback(err);
+					//callback(err);
+					res.send({data: projects, count: project_count});
 				}
 			});
 	}
@@ -55,40 +56,44 @@ exports.getProjects = function(req, res) {
 	function getProjectLinks(project_count, projects, callback) {
 		project_len = projects.length;
 		project_counter = 0;
-		projects.forEach(function (c) {
-			Link.find({project: c._id})
-				.populate('commodity','_id commodity_name')
-				.populate('company')
-				.exec(function(err, links) {
-					++project_counter;
-					link_len = links.length;
-					link_counter = 0;
-					c.proj_commodity = [];
-					c.companies = 0;
-					links.forEach(function(link) {
-						++link_counter;
-						var entity = _.without(link.entities, 'project')[0];
-						switch (entity) {
-							case 'commodity':
-								c.proj_commodity.push({
-									_id: link.commodity._id,
-									commodity_name: link.commodity.commodity_name
-								});
-								break;
-							//
-							case 'company':
-								c.companies += 1;
-								break;
-							//
-							default:
-								console.log('error');
+		if(project_len>0) {
+			projects.forEach(function (c) {
+				Link.find({project: c._id})
+					.populate('commodity', '_id commodity_name')
+					.populate('company')
+					.exec(function (err, links) {
+						++project_counter;
+						link_len = links.length;
+						link_counter = 0;
+						c.proj_commodity = [];
+						c.companies = 0;
+						links.forEach(function (link) {
+							++link_counter;
+							var entity = _.without(link.entities, 'project')[0];
+							switch (entity) {
+								case 'commodity':
+									c.proj_commodity.push({
+										_id: link.commodity._id,
+										commodity_name: link.commodity.commodity_name
+									});
+									break;
+								//
+								case 'company':
+									c.companies += 1;
+									break;
+								//
+								default:
+									console.log('error');
+							}
+						});
+						if (project_counter == project_len && link_counter == link_len) {
+							res.send({data: projects, count: project_count});
 						}
 					});
-					if(project_counter == project_len && link_counter == link_len) {
-						res.send({data:projects, count:project_count});
-					}
-				});
-		});
+			});
+		} else{
+			res.send({data: projects, count: project_count});
+		}
 	}
 };
 exports.getProjectByID = function(req, res) {

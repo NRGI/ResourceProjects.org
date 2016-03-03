@@ -276,3 +276,46 @@ exports.getCompanyByID = function(req, res) {
     }
 
 };
+exports.createCompany = function(req, res, next) {
+    var companyData = req.body;
+    Company.create(companyData, function(err, company) {
+        if(err){
+            res.status(400)
+            return res.send({reason:err.toString()})
+        }
+    });
+    res.send();
+};
+exports.updateCompany = function(req, res) {
+    var companyUpdates = req.body;
+    Company.findOne({_id:req.body._id}).exec(function(err, company) {
+        if(err) {
+            res.status(400);
+            return res.send({ reason: err.toString() });
+        }
+        company._id=companyUpdates._id;
+        company.company_name= companyUpdates.company_name;
+        company.company_aliases= companyUpdates.company_aliases;
+        company.company_established_source= companyUpdates.company_established_source;
+        company.country_of_incorporation= companyUpdates.country_of_incorporation;
+        company.countries_of_operation= companyUpdates.countries_of_operation;
+        company.description= companyUpdates.description;
+        company.save(function(err) {
+            if(err)
+                return res.send({ reason: err.toString() });
+        })
+    });
+    res.send();
+};
+
+exports.deleteCompany = function(req, res) {
+
+    Company.remove({_id: req.params.id}, function(err) {
+        if(!err) {
+            res.send();
+        }else{
+            return res.send({ reason: err.toString() });
+        }
+    });
+    res.send();
+};

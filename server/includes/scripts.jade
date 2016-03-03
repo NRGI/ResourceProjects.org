@@ -24,7 +24,9 @@ script(type='text/javascript').
         $('.typeahead').typeahead({
             source: function (query, process) {
                 $('.typeahead').addClass('wait');
+                console.log(query);
                 return $.get('/search/'+encodeURIComponent(query), { }, function (data) {
+                    console.log(data)
                     $('.typeahead').removeClass('wait');
                     return process(data);
                 }, 'json');
@@ -117,6 +119,7 @@ script(type="text/javascript", src="/app/services/nrgiCommoditiesSrvc.js")
 
 //- METHODS
 script(type="text/javascript", src="/app/services/methods/nrgiCompaniesMethodSrvc.js")
+script(type="text/javascript", src="/app/services/methods/nrgiSourcesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiProjectsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiConcessionsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiCountriesMethodSrvc.js")
@@ -132,6 +135,10 @@ script(type="text/javascript", src="/app/admin/etl/nrgiEtlCtrl.js")
 script(type="text/javascript", src="/app/admin/etl/nrgiDatasetCreateCtrl.js")
 script(type="text/javascript", src="/app/admin/projects/nrgiProjectAdminCreateCtrl.js")
 script(type="text/javascript", src="/app/admin/projects/nrgiProjectAdminUpdateCtrl.js")
+script(type="text/javascript", src="/app/admin/sources/nrgiSourceAdminCreateCtrl.js")
+script(type="text/javascript", src="/app/admin/sources/nrgiSourceAdminUpdateCtrl.js")
+script(type="text/javascript", src="/app/admin/countries/nrgiCountryAdminCreateCtrl.js")
+script(type="text/javascript", src="/app/admin/countries/nrgiCountryAdminUpdateCtrl.js")
 script(type="text/javascript", src="/app/admin/users/nrgiUserAdminCreateCtrl.js")
 script(type="text/javascript", src="/app/admin/users/nrgiUserAdminCtrl.js")
 script(type="text/javascript", src="/app/admin/users/nrgiUserAdminUpdateCtrl.js")

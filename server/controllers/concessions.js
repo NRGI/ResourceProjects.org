@@ -148,42 +148,46 @@ exports.getConcessionByID = function(req, res) {
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
-                //concession.concessions = {};
-                links.forEach(function(link) {
-                    ++link_counter;
-                    var entity = _.without(link.entities, 'concession')[0]
-                    switch (entity) {
-                        case 'commodity':
-                            if (!concession.commodities.hasOwnProperty(link.commodity_code)) {
-                                concession.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
-                            }
-                            break;
-                        case 'company':
-                            if (!concession.companies.hasOwnProperty(link.company._id)) {
-                                concession.companies.push({
-                                    _id: link.company._id,
-                                    company_name: link.company.company_name
-                                });
-                            }
-                            break;
-                        case 'contract':
-                            if (!_.contains(concession.contracts, link.contract.contract_id)) {
-                                concession.contracts.push(link.contract.contract_id);
-                            }
-                            break;
-                        case 'project':
-                            concession.projects.push(link);
-                            break;
+                if(link_len>0) {
+                    //concession.concessions = {};
+                    links.forEach(function (link) {
+                        ++link_counter;
+                        var entity = _.without(link.entities, 'concession')[0]
+                        switch (entity) {
+                            case 'commodity':
+                                if (!concession.commodities.hasOwnProperty(link.commodity_code)) {
+                                    concession.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+                                }
+                                break;
+                            case 'company':
+                                if (!concession.companies.hasOwnProperty(link.company._id)) {
+                                    concession.companies.push({
+                                        _id: link.company._id,
+                                        company_name: link.company.company_name
+                                    });
+                                }
+                                break;
+                            case 'contract':
+                                if (!_.contains(concession.contracts, link.contract.contract_id)) {
+                                    concession.contracts.push(link.contract.contract_id);
+                                }
+                                break;
+                            case 'project':
+                                concession.projects.push(link.project);
+                                break;
 
-                        default:
-                            console.log(entity, 'link skipped...');
-                    }
-                    if(link_counter == link_len) {
+                            default:
+                                console.log(entity, 'link skipped...');
+                        }
+                        if (link_counter == link_len) {
 
-                        callback(null, concession);
-                        //res.send(concession);
-                    }
-                });
+                            callback(null, concession);
+                            //res.send(concession);
+                        }
+                    });
+                } else{
+                    callback(null, concession);
+                }
             });
     }
     //function getContracts(company, callback) {
@@ -234,52 +238,111 @@ exports.getConcessionByID = function(req, res) {
     function getCompanyGroup(concession, callback) {
         concession_len = concession.companies.length;
         concession_counter = 0;
-        concession.companies.forEach(function(company) {
-            Link.find({company: company._id})
-                .populate('company_group', '_id company_group_name')
-                .exec(function (err, links) {
-                    ++concession_counter;
-                    link_len = links.length;
-                    link_counter = 0;
-                    company.company_groups = [];
-                    links.forEach(function (link) {
-                        ++link_counter;
-                        var entity = _.without(link.entities, 'company')[0];
-                        switch (entity) {
-                            case 'company_group':
-                                if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                    company.company_groups.push({
-                                        _id: link.company_group._id,
-                                        company_group_name: link.company_group.company_group_name
-                                    });
+        if(concession_len>0) {
+            concession.companies.forEach(function (company) {
+                Link.find({company: company._id})
+                    .populate('company_group', '_id company_group_name')
+                    .exec(function (err, links) {
+                        ++concession_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        company.company_groups = [];
+                            links.forEach(function (link) {
+                                ++link_counter;
+                                var entity = _.without(link.entities, 'company')[0];
+                                switch (entity) {
+                                    case 'company_group':
+                                        if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+                                            company.company_groups.push({
+                                                _id: link.company_group._id,
+                                                company_group_name: link.company_group.company_group_name
+                                            });
+                                        }
+                                        break;
+                                    default:
+                                        console.log(entity, 'link skipped...');
                                 }
-                                break;
-                            default:
-                                console.log(entity, 'link skipped...');
-                        }
-                        if(concession_counter == concession_len && link_counter == link_len) {
+                            });
+                        if (concession_counter == concession_len && link_counter == link_len) {
                             callback(null, concession);
                         }
                     });
-                });
-        });
+            });
+        } else {
+            callback(null, concession);
+        }
     }
     function getProjectLocation(concession,callback) {
         var project_counter = 0;
         concession.location = [];
         var project_len = concession.projects.length;
-        concession.projects.forEach(function (project) {
-            ++project_counter;
-            project.project.proj_coordinates.forEach(function (loc) {
-                concession.location.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
-                });
-                if (project_counter == project_len) {
-                    res.send(concession);
-                }
-            })
-        });
+        if(project_len>0) {
+            concession.projects.forEach(function (project) {
+                ++project_counter;
+                project.proj_coordinates.forEach(function (loc) {
+                    concession.location.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
+                    });
+                    if (project_counter == project_len) {
+                        res.send(concession);
+                    }
+                })
+            });
+        } else{
+            res.send(concession);
+        }
     }
+};
+
+exports.createConcession = function(req, res, next) {
+    var concessionData = req.body;
+    Concession.create(concessionData, function(err, concession) {
+        if(err){
+            res.status(400)
+            return res.send({reason:err.toString()})
+        }
+    });
+    res.send();
+};
+exports.updateConcession = function(req, res) {
+    var concessionUpdates = req.body;
+    Concession.findOne({_id:req.body._id}).exec(function(err, concession) {
+        if(err) {
+            res.status(400);
+            return res.send({ reason: err.toString() });
+        }
+        concession._id=concessionUpdates._id;
+        concession.concession_name= concessionUpdates.concession_name;
+        concession.concession_aliases= concessionUpdates.concession_aliases;
+        concession.concession_established_source= concessionUpdates.concession_established_source;
+        concession.description= concessionUpdates.description;
+        concession.concession_country= concessionUpdates.concession_country;
+        concession.concession_status= concessionUpdates.concession_status;
+        concession.concession_type= concessionUpdates.concession_type;
+        concession.concession_commodity= concessionUpdates.concession_commodity;
+        concession.oo_concession_id= concessionUpdates.oo_concession_id;
+        concession.oo_url_api= concessionUpdates.oo_url_api;
+        concession.oo_url_wiki= concessionUpdates.oo_url_wiki;
+        concession.oo_source_date= concessionUpdates.oo_source_date;
+        concession.oo_details= concessionUpdates.oo_details;
+        concession.save(function(err) {
+            if(err)
+                return res.send({ reason: err.toString() });
+        })
+    });
+    res.send();
+};
+
+exports.deleteConcession = function(req, res) {
+
+    Concession.remove({_id: req.params.id}, function(err) {
+        if(!err) {
+            res.send();
+        }else{
+            return res.send({ reason: err.toString() });
+        }
+    });
+    res.send();
 };
