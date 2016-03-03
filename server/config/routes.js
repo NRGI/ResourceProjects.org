@@ -155,6 +155,14 @@ module.exports	= function(app) {
 	app.post('/api/datasets/:id/actions', datasets.createAction);
 	//TODO consider implementing a get?
 
+	// POST
+	app.post('/api/sources',  sources.createSource);
+	// PUT
+	app.put('/api/sources',  sources.updateSource);
+	// DELETE
+	app.delete('/api/sources/:id', sources.deleteSource);
+
+
 	/////////////////////////
 	///// USERS CRUD ////////
 	/////////////////////////

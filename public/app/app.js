@@ -51,8 +51,8 @@ angular.module('app')
             })
             .when('/admin/create-project', {
                 templateUrl: '/partials/admin/projects/create-project',
-                controller: 'nrgiProjectAdminCreateCtrl'
-                //resolve: routeRoleChecks.supervisor
+                controller: 'nrgiProjectAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
             })
             .when('/admin/user-admin', {
                 templateUrl: '/partials/admin/users/user-admin',
