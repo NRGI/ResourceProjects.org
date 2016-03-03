@@ -127,7 +127,6 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/sources/:id', sources.deleteSource);
 
-
 	/////////////////////////
 	///// USERS CRUD ////////
 	/////////////////////////
