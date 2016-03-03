@@ -144,6 +144,11 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/sources/:id', sources.deleteSource);
 
+	//DATASETS - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+
 	/////////////////////////
 	///// USERS CRUD ////////
 	/////////////////////////
