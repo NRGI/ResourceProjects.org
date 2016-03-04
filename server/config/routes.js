@@ -149,6 +149,12 @@ module.exports	= function(app) {
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
 	app.get('/api/datasets/:id', datasets.getDatasetByID);
 
+	//Create a dataset
+	app.post('/api/datasets', datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', datasets.createAction);
+	//TODO consider implementing a get?
+
 	/////////////////////////
 	///// USERS CRUD ////////
 	/////////////////////////
