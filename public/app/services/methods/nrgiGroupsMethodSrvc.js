@@ -1,24 +1,24 @@
 angular.module('app')
-    .factory('nrgiCommoditiesMethodSrvc', function(
+    .factory('nrgiGroupsMethodSrvc', function(
         $q,
-        nrgiCommoditiesSrvc
+        nrgiGroupsSrvc
     ) {
         return {
-            createCommodity: function(new_commodity_data) {
-                var new_commodity = new nrgiCommoditiesSrvc(new_commodity_data);
+            createGroup: function(new_group_data) {
+                var new_group = new nrgiGroupsSrvc(new_group_data);
                 var dfd = $q.defer();
 
-                new_commodity.$save().then(function() {
+                new_group.$save().then(function() {
                     dfd.resolve();
                 }, function(response) {
                     dfd.reject(response.data.reason);
                 });
                 return dfd.promise;
             },
-            deleteCommodity: function(commodity_deletion) {
+            deleteGroup: function(group_deletion) {
                 var dfd = $q.defer();
-                var delete_ID = new nrgiCommoditiesSrvc();
-                delete_ID.id = commodity_deletion;
+                var delete_ID = new nrgiGroupsSrvc();
+                delete_ID.id = group_deletion;
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
@@ -27,9 +27,9 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateCommodity: function(new_commodity_data) {
+            updateGroup: function(new_group_data) {
                 var dfd = $q.defer();
-                new_commodity_data.$update().then(function() {
+                new_group_data.$update().then(function() {
                     dfd.resolve();
                 }), function(response) {
                     dfd.reject(response.data.reason);

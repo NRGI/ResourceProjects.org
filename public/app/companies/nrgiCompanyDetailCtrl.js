@@ -8,8 +8,7 @@ angular.module('app')
     ) {
         $scope.proj_table_sort = {sort_type: 'project.project.proj_name', sort_reverse: false, search_text: ''};
         $scope.center=[];
-        $scope.record_type = 'companies';
-        nrgiCompaniesSrvc.get({_id: $routeParams.id,record_type:$scope.record_type}, function (success) {
+        nrgiCompaniesSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.company = success;
             if($scope.company.location.length>0)
             $scope.center={lat:$scope.company.location[0].lat,lng:$scope.company.location[0].lng,zoom: 3};
