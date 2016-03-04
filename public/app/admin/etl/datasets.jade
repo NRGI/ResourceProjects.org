@@ -21,16 +21,19 @@
 			tbody
 				tr(ng-repeat="dataset in datasets | filter:search_text | orderBy:sort_order")
 					td
-						{{dataset.name}}
+						text {{dataset.name}}
 					td {{dataset.source_url}}
 					td 
 						p(ng-repeat="action in dataset.actions")
-							text {{action.name}}  
+							text {{action.name}}
+							// TODO: Handle "running/started" case
 							span(ng-if="action.status == 'Success'", class=["label", "label-success"], data-toggle="tooltip", title="{{action.details}}") Success
-							span(ng-if="action.status != 'Success'", class=["label", "label-danger"], data-toggle="tooltip", title="{{action.details}}") Failed
+							span(ng-if="action.status == 'Started'", class=["label", "label-warning"]) Running
+							span(ng-if="action.status == 'Failed'", class=["label", "label-danger"], data-toggle="tooltip", title="{{action.details}}") Failed
 					td
-						a.btn.center-block.btn-default(href="/admin/user-admin/{{user._id}}") Import
+						a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
 						span(ng-if="dataset.status.isReadyForChecked")
-							a.btn.center-block.btn-default(href="/admin/user-admin/{{user._id}}") Mark as cleaned
+							a.btn.center-block.btn-default(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
 						span(ng-if="!dataset.status.isReadyForChecked")
-							a.btn.center-block.btn-default.disabled(href="/admin/user-admin/{{user._id}}") Mark as cleaned
+							a.btn.center-block.btn-default.disabled() Mark as cleaned
+		a.btn.center-block.btn-default(href="/admin/etl/datasets/new") Create New Dataset

@@ -9,7 +9,6 @@ var datasetSchema, Dataset,
 
 datasetSchema = new Schema ({
     name: String,
-    original_file: String,
     source_url: String,
     created: { type: Date, default: Date.now },
     modified: Date,

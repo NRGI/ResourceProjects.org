@@ -53,10 +53,16 @@ module.exports	= function(app) {
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
 	
-	//DATASETS - TODO: protect with admin
+	//USERS CRUD - TODO: protect with admin
 	app.get('/api/datasets', datasets.getDatasets);
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
 	app.get('/api/datasets/:id', datasets.getDatasetByID);
+	
+	//Create a dataset
+	app.post('/api/datasets', datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', datasets.createAction);
+	//TODO consider implementing a get?
 
 	/////////////////////////
 	///// USERS CRUD ////////
