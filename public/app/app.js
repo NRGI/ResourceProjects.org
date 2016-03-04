@@ -287,7 +287,6 @@ angular.module('app')
 
 angular.module('app').run(function($rootScope, $location,$http,nrgiAuthSrvc,nrgiNotifier) {
     nrgiAuthSrvc.authenticateUser('jcust', 'admin').then(function(success) {
-
     });
     $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
