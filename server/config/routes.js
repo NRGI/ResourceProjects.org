@@ -16,16 +16,25 @@ var auth 		= require('./auth'),
 
 module.exports	= function(app) {
 
-	// GET
+
 
 
 	//CONTRACTS
 	app.get('/api/contracts/:limit/:skip', contracts.getContracts);
 	app.get('/api/contracts/:id', contracts.getContractByID);
 
-	//CONCESSIONS
+
+	/////////////////////////
+	///// CONCESSIONS CRUD ////////
+	/////////////////////////
 	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
 	app.get('/api/concessions/:id', concessions.getConcessionByID);
+	// POST
+	app.post('/api/concessions',  concessions.createConcession);
+	// PUT
+	app.put('/api/concessions',  concessions.updateConcession);
+	// DELETE
+	app.delete('/api/concessions/:id', concessions.deleteConcession);
 
 	/////////////////////////
 	///// PROJECTS CRUD ////////
@@ -40,16 +49,43 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/projects/:id', projects.deleteProject);
 
-	//COMPANIES and COMPANYGROUPS
+
+	/////////////////////////
+	///// COMPANIES CRUD ////////
+	/////////////////////////
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyByID);
+	// POST
+	app.post('/api/companies',  companies.createCompany);
+	// PUT
+	app.put('/api/companies',  companies.updateCompany);
+	// DELETE
+	app.delete('/api/companies/:id', companies.deleteCompany);
+
+	/////////////////////////
+	///// COMPANYGROUPS CRUD ////////
+	/////////////////////////
 	app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
 	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupByID);
+	// POST
+	app.post('/api/companyGroups',  companyGroups.createCompanyGroup);
+	// PUT
+	app.put('/api/companyGroups',  companyGroups.updateCompanyGroup);
+	// DELETE
+	app.delete('/api/companyGroups/:id', companyGroups.deleteCompanyGroup);
 
-	//COMMODITIES
+	/////////////////////////
+	///// COMMODITIES ////////
+	/////////////////////////
 	app.get('/api/commodities/:limit/:skip', commodities.getCommodities);
 	app.get('/api/commodities/:id', commodities.getCommodityByID);
+	// POST
+	app.post('/api/commodities',  commodities.createCommodity);
+	// PUT
+	app.put('/api/commodities',  commodities.updateCommodity);
+	// DELETE
+	app.delete('/api/commodities/:id', commodities.deleteCommodity);
 
 	/////////////////////////
 	///// COUNTRIES CRUD ////////

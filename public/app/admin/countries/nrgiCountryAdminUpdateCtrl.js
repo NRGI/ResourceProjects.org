@@ -19,7 +19,7 @@ angular.module('app')
         };
 
         $scope.countryDelete = function() {
-            var country_deletion = $scope.source._id;
+            var country_deletion = $scope.country._id;
             nrgiCountriesMethodSrvc.deleteSource(country_deletion).then(function() {
                 nrgiNotifier.notify('Country has been deleted');
             }, function(reason) {

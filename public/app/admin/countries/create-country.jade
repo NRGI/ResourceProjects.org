@@ -4,7 +4,7 @@
          fieldset
             legend New Country Information
             .form-group
-               label.col-md-2.control-label(form="name") Country name
+               label.col-md-2.control-label(form="name") Country Name
                .col-md-10
                   input.form-control(
                   name="name"
@@ -22,14 +22,14 @@
                   ng-model="country.iso2"
                   )
             .form-group
-               label.col-md-2.control-label(form="country_aliases") Country aliases
+               label.col-md-2.control-label(form="country_aliases") Country Aliases
                .col-md-10
                   input.form-control(
                   name="country_aliases"
                   type="text"
-                  placeholder="Country aliases"
+                  placeholder="Country aliases")
                   //ng-model="country.country_aliases"
-                  )
+
             .form-group
                label.col-md-2.control-label(form="country_type") Commodity Type(s)
                .col-md-10
@@ -45,9 +45,9 @@
                   textarea.form-control(
                   name="country_commodity"
                   type="text"
-                  placeholder="Commodities"
+                  placeholder="Commodities")
                   //ng-model="country.country_commodity"
-                  )
+
 
             .form-group
                .col-md-10.col-md-offset-2

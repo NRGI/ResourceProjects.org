@@ -13,14 +13,15 @@
                   ng-model="project.proj_name"
                   required)
             .form-group
-               label.col-md-2.control-label(form="proj_aliases") Project aliases
+               label.col-md-2.control-label(form="proj_aliases") Project Aliases
                .col-md-10
                   input.form-control(
                   name="proj_aliases"
                   type="text"
                   placeholder="Project aliases"
-                  //ng-model="project.proj_aliases"
                   )
+                  //ng-model="project.proj_aliases"
+
             .form-group
                label.col-md-2.control-label(form="proj_country") Country
                .col-md-10
@@ -45,7 +46,7 @@
                   ng-options="item._id as item.commodity_name for item in commodity.data"
                   required)
             .form-group
-               label.col-md-2.control-label(form="proj_site_name") Project site name
+               label.col-md-2.control-label(form="proj_site_name") Project Site Name
                .col-md-10
                   input.form-control(
                   name="proj_site_name"

@@ -1,0 +1,49 @@
+.container.top-padding-med
+   .well
+      form.form-horizontal(name='create_group_form')
+         fieldset
+            legend New Company Group Information
+            .form-group
+               label.col-md-2.control-label(form="company_group_name") Company Group Name
+               .col-md-10
+                  input.form-control(
+                  name="company_group_name"
+                  type="text"
+                  placeholder="Company Group Name"
+                  ng-model="group.company_group_name"
+                  required)
+            .form-group
+               label.col-md-2.control-label(form="company_group_aliases") Aliases
+               .col-md-10
+                  input.form-control(
+                  name="company_group_aliases"
+                  type="text"
+                  placeholder="Aliases"
+                  ng-model="group.company_group_aliases"
+                  )
+            .form-group
+               label.col-md-2.control-label(form="open_corporates_group_ID") Open Corporates ID
+               .col-md-10
+                  input.form-control(
+                  name="open_corporates_group_ID"
+                  type="text"
+                  placeholder="Open Corporates ID"
+                  ng-model="group.open_corporates_group_ID"
+                  )
+            .form-group
+               label.col-md-2.control-label(form="description") Description
+               .col-md-10
+                  textarea.form-control(
+                  name="description"
+                  type="text"
+                  placeholder="Description"
+                  ng-model="group.description"
+                  )
+            .form-group
+               .col-md-10.col-md-offset-2
+                  .pull-right
+                     button.btn.btn-primary(
+                     ng-click="groupCreate()"
+                     ng-disabled="create_group_form.$invalid") Submit
+                     | &nbsp;
+                     a.btn.btn-default(href="/") Cancel
