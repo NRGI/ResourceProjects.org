@@ -1,12 +1,11 @@
 angular.module('app')
-//<<<<<<< 0ed15832530ddb1ee8304822e821fc5839566380
     .controller('nrgiEtlCtrl', function(
-        $scope,
-        $route,
-        nrgiDatasetSrvc,
-        nrgiDatasetActionMethodSrvc,
-        nrgiNotifier
-    ) {
+            $scope,
+            $route,
+            nrgiDatasetSrvc,
+            nrgiDatasetActionMethodSrvc,
+            nrgiNotifier
+        ) {
         console.log("When I create a dataset controller, I get all datasets...");
         nrgiDatasetSrvc.query({}, function (success) {
             for(var i=0;i<success.data.length;i++) {
