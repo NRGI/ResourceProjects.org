@@ -10,5 +10,3 @@ angular.module('app')
         return CompanyResource;
 
     });
-
-
