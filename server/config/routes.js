@@ -19,9 +19,7 @@ var auth 		= require('./auth'),
 
 module.exports	= function(app) {
 
-
 	app.get('/api/search', search.searchText);
-
 
 	//CONTRACTS
 	app.get('/api/contracts/:limit/:skip', contracts.getContracts);
