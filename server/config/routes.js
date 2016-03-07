@@ -1,4 +1,5 @@
 var auth 		= require('./auth'),
+    search 		= require('../controllers/search'),
 	users 		= require('../controllers/users'),
 	commodities = require('../controllers/commodities'),
 	concessions = require('../controllers/concessions'),
@@ -17,6 +18,7 @@ var auth 		= require('./auth'),
 module.exports	= function(app) {
 
 
+	app.get('/api/search', search.searchText);
 
 
 	//CONTRACTS

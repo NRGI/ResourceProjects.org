@@ -43,9 +43,9 @@
                   tr
                      td.detail_label.small Commodities:
                      td.project_commodities
-                        text(ng-repeat="commodity in project.proj_commodity | unique: '_id'")
-                           a(href='commodity/{{commodity._id}}')
-                              span(ng-bind-html="commodity.commodity_name|sanitize")
+                        text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                           a(href='commodity/{{commodity.commodity._id}}')
+                              span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                            | {{$last ? '' : ', '}}
                   tr
                      td.detail_label.small Status:

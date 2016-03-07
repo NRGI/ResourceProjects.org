@@ -83,7 +83,7 @@ exports.getProjects = function(req, res) {
 									break;
 								//
 								default:
-									console.log('error');
+									//console.log('error');
 							}
 						});
 						if (project_counter == project_len && link_counter == link_len) {
@@ -349,7 +349,7 @@ exports.updateProject = function(req, res) {
 		project.proj_established_source= projectUpdates.proj_established_source;
 		project.proj_country= projectUpdates.proj_country;
 		project.proj_type= projectUpdates.proj_type;
-		project.proj_commodity= projectUpdates.proj_commodity;
+		//project.proj_commodity= projectUpdates.proj_commodity;
 		project.proj_site_name= projectUpdates.proj_site_name;
 		project.proj_address= projectUpdates.proj_address;
 		project.proj_coordinates= projectUpdates.proj_coordinates;

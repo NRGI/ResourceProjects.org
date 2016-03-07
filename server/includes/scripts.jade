@@ -24,18 +24,24 @@ script(type='text/javascript').
         $('.typeahead').typeahead({
             source: function (query, process) {
                 $('.typeahead').addClass('wait');
-                console.log(query);
-                return $.get('/search/'+encodeURIComponent(query), { }, function (data) {
-                    console.log(data)
+                return $.get('/api/search', {query: query.toString() }, function (data) {
+
                     $('.typeahead').removeClass('wait');
                     return process(data);
                 }, 'json');
             },
             afterSelect: function (obj) {
                 $('.typeahead').attr('disabled', true);
-                window.location = obj.uri;
+                if(obj.type=='country'){
+                    window.location = '/' + obj.type + '/' + obj.iso2;
+                }
+                else if(obj.type=='companygroup'){
+                    window.location = '/group/' + obj._id;
+                }else {
+                    window.location = '/' + obj.type + '/' + obj._id;
+                }
             },
-            displayText: function(item){ return item.value;}
+            displayText: function(item){ return item.name;}
         });
     });
 //- MAIN APP
