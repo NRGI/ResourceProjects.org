@@ -88,6 +88,17 @@ exports.createAction = function(req, res, next) {
             if (!err) {
                 res.status(200);
                 res.send();
+                if (req.body.name == "Extract from Google Sheets") {
+                    console.log("Starting import from " + model);
+                    request({
+                        url: model.source_url,
+                        json: true
+                    }, function (error, response, body) {
+                        if (!error && response.statusCode === 200) {
+                            console.log(body);
+                         }
+                    })
+                }
             }
             else {
                 res.status(400);
