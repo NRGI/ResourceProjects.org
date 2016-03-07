@@ -1,4 +1,5 @@
 var auth 		= require('./auth'),
+    search 		= require('../controllers/search'),
 	users 		= require('../controllers/users'),
 	datasets  = require('../controllers/datasets'),
 	commodities = require('../controllers/commodities'),
@@ -19,6 +20,7 @@ var auth 		= require('./auth'),
 module.exports	= function(app) {
 
 
+	app.get('/api/search', search.searchText);
 
 
 	//CONTRACTS

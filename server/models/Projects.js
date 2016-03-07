@@ -2,8 +2,10 @@
 ///PROJECTS SCHEMA///
 /////////////////////
 'use strict';
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    searchPlugin = require('mongoose-search-plugin');
 require('mongoose-html-2').loadType(mongoose);
+
 
 var projectSchema, Project,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
@@ -70,6 +72,9 @@ projectSchema = new Schema({
 //};
 
 projectSchema.plugin(mongooseHistory, hst_options);
+projectSchema.plugin(searchPlugin,{
+    fields:['proj_name']
+});
 projectSchema.plugin(deepPopulate);
 Project = mongoose.model('Project', projectSchema);
 
@@ -95,7 +100,6 @@ function createDefaultProjects() {
                 proj_name: 'Procect B',
                 proj_aliases: ['56a939e649434cfc1354d64d'],
                 proj_established_source: '56747e060e8cc07115200ee6',
-                proj_country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
                 proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],
