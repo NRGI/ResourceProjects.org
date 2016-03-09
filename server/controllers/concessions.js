@@ -300,20 +300,24 @@ exports.createConcession = function(req, res, next) {
     var concessionData = req.body;
     Concession.create(concessionData, function(err, concession) {
         if(err){
-            res.status(400)
+            res.status(400);
+            err = new Error('Error');
             return res.send({reason:err.toString()})
+        } else{
+            res.send();
         }
     });
-    res.send();
+
 };
+
 exports.updateConcession = function(req, res) {
     var concessionUpdates = req.body;
     Concession.findOne({_id:req.body._id}).exec(function(err, concession) {
         if(err) {
             res.status(400);
+            err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
-        concession._id=concessionUpdates._id;
         concession.concession_name= concessionUpdates.concession_name;
         concession.concession_aliases= concessionUpdates.concession_aliases;
         concession.concession_established_source= concessionUpdates.concession_established_source;
@@ -328,21 +332,23 @@ exports.updateConcession = function(req, res) {
         concession.oo_source_date= concessionUpdates.oo_source_date;
         concession.oo_details= concessionUpdates.oo_details;
         concession.save(function(err) {
-            if(err)
-                return res.send({ reason: err.toString() });
+            if(err) {
+                err = new Error('Error');
+                return res.send({reason: err.toString()});
+            } else{
+                res.send();
+            }
         })
     });
-    res.send();
 };
 
 exports.deleteConcession = function(req, res) {
-
     Concession.remove({_id: req.params.id}, function(err) {
         if(!err) {
             res.send();
         }else{
+            err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
     });
-    res.send();
 };

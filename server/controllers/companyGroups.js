@@ -290,31 +290,36 @@ exports.createCompanyGroup = function(req, res, next) {
 	var companyGroupData = req.body;
 	CompanyGroup.create(companyGroupData, function(err, companyGroup) {
 		if(err){
-			res.status(400)
+			res.status(400);
+			err = new Error('Error');
 			return res.send({reason:err.toString()})
+		} else{
+			res.send();
 		}
 	});
-	res.send();
 };
 exports.updateCompanyGroup = function(req, res) {
 	var companyGroupUpdates = req.body;
 	CompanyGroup.findOne({_id:req.body._id}).exec(function(err, companyGroup) {
 		if(err) {
 			res.status(400);
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
-		companyGroup._id=companyGroupUpdates._id;
 		companyGroup.company_group_name= companyGroupUpdates.company_group_name;
 		companyGroup.commodity_aliases= companyGroupUpdates.commodity_aliases;
 		companyGroup.company_group_record_established= companyGroupUpdates.company_group_record_established;
 		companyGroup.description= companyGroupUpdates.description;
 		companyGroup.open_corporates_group_id= companyGroupUpdates.open_corporates_group_id;
 		companyGroup.save(function(err) {
-			if(err)
-				return res.send({ reason: err.toString() });
+			if(err) {
+				err = new Error('Error');
+				return res.send({reason: err.toString()});
+			} else {
+				res.send();
+			}
 		})
 	});
-	res.send();
 };
 
 exports.deleteCompanyGroup = function(req, res) {
@@ -323,8 +328,8 @@ exports.deleteCompanyGroup = function(req, res) {
 		if(!err) {
 			res.send();
 		}else{
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
 	});
-	res.send();
 };

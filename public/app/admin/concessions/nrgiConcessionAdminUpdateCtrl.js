@@ -9,7 +9,7 @@ angular.module('app')
 
     ) {
         $scope.concession = nrgiConcessionsSrvc.get({_id:$routeParams.id});
-        $scope.countryUpdate = function() {
+        $scope.concessionUpdate = function() {
             nrgiConcessionsMethodSrvc.updateConcession($scope.concession).then(function() {
                 nrgiNotifier.notify('Concession has been updated');
             }, function(reason) {
@@ -17,7 +17,7 @@ angular.module('app')
             });
         };
 
-        $scope.countryDelete = function() {
+        $scope.concessionDelete = function() {
             var concession_deletion = $scope.concession._id;
             nrgiConcessionsMethodSrvc.deleteConcession(concession_deletion).then(function() {
                 nrgiNotifier.notify('Concession has been deleted');

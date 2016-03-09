@@ -14,9 +14,9 @@ angular.module('app')
         $scope.country = nrgiCountriesSrvc.query({skip: 0, limit: 0});
         $scope.commodity = nrgiCommoditiesSrvc.query({skip: 0, limit: 0});
         $scope.projectUpdate = function() {
-            console.log($scope.project);
             nrgiProjectsMethodSrvc.updateProject($scope.project).then(function() {
                 nrgiNotifier.notify('Project has been updated');
+                $location.path('/admin/project-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });
@@ -26,6 +26,7 @@ angular.module('app')
             var project_deletion = $scope.project._id;
             nrgiProjectsMethodSrvc.deleteProject(project_deletion).then(function() {
                 nrgiNotifier.notify('Project has been deleted');
+                $location.path('/admin/project-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });

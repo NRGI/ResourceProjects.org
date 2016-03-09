@@ -12,6 +12,7 @@ angular.module('app')
         $scope.groupUpdate = function() {
             nrgiGroupsMethodSrvc.updateGroup($scope.group).then(function() {
                 nrgiNotifier.notify('Company group has been updated');
+                $location.path('/admin/group-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });
@@ -21,6 +22,7 @@ angular.module('app')
             var group_deletion = $scope.group._id;
             nrgiGroupsMethodSrvc.deleteGroup(group_deletion).then(function() {
                 nrgiNotifier.notify('Company group has been deleted');
+                $location.path('/admin/group-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });
