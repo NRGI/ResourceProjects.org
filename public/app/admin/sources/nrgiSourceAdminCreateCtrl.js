@@ -14,6 +14,7 @@ angular.module('app')
             $scope.source.create_author = user._id;
             nrgiSourcesMethodSrvc.createSource($scope.source).then(function() {
                 nrgiNotifier.notify('Source created!');
+                $location.path('/admin/source-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })

@@ -12,6 +12,7 @@ angular.module('app')
         $scope.groupCreate = function() {
             nrgiGroupsMethodSrvc.createGroup($scope.group).then(function() {
                 nrgiNotifier.notify('Company group created!');
+                $location.path('/admin/group-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })

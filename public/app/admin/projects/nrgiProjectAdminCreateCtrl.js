@@ -14,9 +14,9 @@ angular.module('app')
         $scope.commodity = nrgiCommoditiesSrvc.query({skip: 0, limit: 0});
 
         $scope.projectCreate = function() {
-            console.log($scope.project);
             nrgiProjectsMethodSrvc.createProject($scope.project).then(function() {
                 nrgiNotifier.notify('Project created!');
+                $location.path('/admin/project-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })

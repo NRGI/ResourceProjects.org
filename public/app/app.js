@@ -14,7 +14,7 @@ angular.module('app')
         // role checks
         var routeRoleChecks = {
             supervisor: {auth: function(nrgiAuthSrvc) {
-                return nrgiAuthSrvc.authorizeCurrentUserForRoute('supervisor')
+                return nrgiAuthSrvc.authorizeCurrentUserForRoute('admin')
             }},
             //researcher: {auth: function(nrgiAuthSrvc) {
             //    return nrgiAuthSrvc.authorizeCurrentUserForRoute('researcher')
@@ -37,11 +37,6 @@ angular.module('app')
             .when('/admin/create-user', {
                 templateUrl: '/partials/admin/users/create-user',
                 controller: 'nrgiUserAdminCreateCtrl',
-                resolve: routeRoleChecks.supervisor
-            })
-            .when('/admin/create-project', {
-                templateUrl: '/partials/admin/projects/create-project',
-                controller: 'nrgiProjectAdminCreateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
             .when('/admin/user-admin', {
@@ -102,6 +97,21 @@ angular.module('app')
                 templateUrl: '/partials/projects/map',
                 controller: 'nrgiMapCtrl'
             })
+            .when('/admin/project-admin', {
+                templateUrl: '/partials/admin/projects/project-admin',
+                controller: 'nrgiProjectAdminCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/create-project', {
+                templateUrl: '/partials/admin/projects/create-project',
+                controller: 'nrgiProjectAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/project-admin/:id', {
+                templateUrl: '/partials/admin/projects/project-admin-update',
+                controller: 'nrgiProjectAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/companies', {
                 templateUrl: '/partials/companies/company-list',
                 controller: 'nrgiCompanyListCtrl'
@@ -129,6 +139,11 @@ angular.module('app')
             .when('/country/:id', {
                 templateUrl: '/partials/countries/country-detail',
                 controller: 'nrgiCountryDetailCtrl'
+            })
+            .when('/admin/country-admin', {
+                templateUrl: '/partials/admin/countries/country-admin',
+                controller: 'nrgiCountryAdminCtrl',
+                resolve: routeRoleChecks.supervisor
             })
             .when('/admin/create-country', {
                 templateUrl: '/partials/admin/countries/create-country',
@@ -166,6 +181,11 @@ angular.module('app')
                 templateUrl: '/partials/groups/group-detail',
                 controller: 'nrgiGroupDetailCtrl'
             })
+            .when('/admin/group-admin', {
+                templateUrl: '/partials/admin/groups/group-admin',
+                controller: 'nrgiGroupAdminCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/admin/create-group', {
                 templateUrl: '/partials/admin/groups/create-group',
                 controller: 'nrgiGroupAdminCreateCtrl',
@@ -176,19 +196,6 @@ angular.module('app')
                 controller: 'nrgiGroupAdminUpdateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
-            //
-            ////Transfers and related facts
-            //.when('/governmentReceipt/:id', {
-            //    templateUrl: '/partials/common/receipt'
-            //})
-            //.when('/production/:id_country/:id', {
-            //    templateUrl: '/partials/common/production'
-            //})
-            //.when('/governmentreceipt/:id_country/:id', {
-            //    templateUrl: '/partials/common/governmentreceipt'
-            //})
-            //
-            ////Other
             .when('/sources', {
                 templateUrl: '/partials/sources/source-list',
                 controller: 'nrgiSourceListCtrl'
@@ -196,6 +203,11 @@ angular.module('app')
             .when('/source/:id', {
                 templateUrl: '/partials/sources/source-detail',
                 controller: 'nrgiSourceDetailCtrl'
+            })
+            .when('/admin/source-admin', {
+                templateUrl: '/partials/admin/sources/source-admin',
+                controller: 'nrgiSourceAdminCtrl',
+                resolve: routeRoleChecks.supervisor
             })
             .when('/admin/create-source', {
                 templateUrl: '/partials/admin/sources/create-source',
@@ -217,6 +229,19 @@ angular.module('app')
             .when('/about', {
                 templateUrl: '/partials/common/about'
             })
+            //
+            ////Transfers and related facts
+            //.when('/governmentReceipt/:id', {
+            //    templateUrl: '/partials/common/receipt'
+            //})
+            //.when('/production/:id_country/:id', {
+            //    templateUrl: '/partials/common/production'
+            //})
+            //.when('/governmentreceipt/:id_country/:id', {
+            //    templateUrl: '/partials/common/governmentreceipt'
+            //})
+            //
+            ////Other
             //.when('/model', {
             //    templateUrl: '/partials/common/dataModel'
             //})

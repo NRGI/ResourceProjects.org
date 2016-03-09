@@ -11,8 +11,6 @@ angular.module('app')
         $scope.center=[];
         nrgiContractsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.contract = success;
-            console.log($scope.contract)
-            console.log($scope.contract.location)
             if($scope.contract.location.length>0)
             $scope.center={lat:$scope.contract.location[0].lat,lng:$scope.contract.location[0].lng,zoom: 3};
         });

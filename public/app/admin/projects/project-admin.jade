@@ -1,0 +1,25 @@
+.container.top-padding-med
+	.well
+		legend Projects
+		.pull-right
+			.btn-group
+				button.btn.btn-default.pull-right(type='button')
+					a(href='/admin/create-project') Create new project
+		table.table
+			thead
+				tr
+					th.tablesort-sortable-th Name
+					th.tablesort-sortable-th Status
+					th 
+			tbody
+				tr(ng-repeat="project in projects | unique: '_id'")
+					td.proj_name
+						span(ng-bind-html="project.proj_name|sanitize")
+					td.project_status: text(
+						ng-repeat="status in project.proj_status"
+						ng-if="project.proj_status.length > 0")
+							text(ng-if="$last")
+								| {{status.string | ucfirst}}
+								text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+					td
+						a.btn.center-block.btn-default(href="/admin/project-admin/{{project._id}}") Edit

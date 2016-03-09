@@ -142,7 +142,7 @@ exports.getCountryByID = function(req, res) {
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
-									'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
+									'message': "<a href =\'/project/" + proj._id + "\'>" + proj.proj_name + "</a><br>" + proj.proj_name
 								});
 
 							});
@@ -336,41 +336,45 @@ exports.createCountry = function(req, res, next) {
 	var countryData = req.body;
 	Country.create(countryData, function(err, country) {
 		if(err){
-			res.status(400)
+			res.status(400);
+			err = new Error('Error');
 			return res.send({reason:err.toString()})
+		} else{
+			res.send();
 		}
 	});
-	res.send();
 };
 exports.updateCountry = function(req, res) {
 	var countryUpdates = req.body;
-	Country.findOne({iso2:req.body._id}).exec(function(err, country) {
+	Country.findOne({_id:req.body._id}).exec(function(err, country) {
 		if(err) {
 			res.status(400);
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
-		country._id=countryUpdates._id;
 		country.iso2= countryUpdates.iso2;
 		country.name= countryUpdates.name;
-		country.country_aliases= countryUpdates.country_aliases;
-		country.country_type= countryUpdates.country_type;
-		country.country_commodity= countryUpdates.country_commodity;
+		//country.country_aliases= countryUpdates.country_aliases;
+		//country.country_type= countryUpdates.country_type;
+		//country.country_commodity= countryUpdates.country_commodity;
 		country.save(function(err) {
-			if(err)
-				return res.send({ reason: err.toString() });
+			if(err) {
+				err = new Error('Error');
+				return res.send({reason: err.toString()});
+			} else{
+				res.send();
+			}
 		})
 	});
-	res.send();
 };
 
 exports.deleteCountry = function(req, res) {
-
 	Country.remove({_id: req.params.id}, function(err) {
 		if(!err) {
 			res.send();
 		}else{
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
 	});
-	res.send();
 };

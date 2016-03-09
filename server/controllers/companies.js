@@ -280,20 +280,22 @@ exports.createCompany = function(req, res, next) {
     var companyData = req.body;
     Company.create(companyData, function(err, company) {
         if(err){
-            res.status(400)
+            res.status(400);
+            err = new Error('Error');
             return res.send({reason:err.toString()})
+        } else {
+            res.send();
         }
     });
-    res.send();
 };
 exports.updateCompany = function(req, res) {
     var companyUpdates = req.body;
     Company.findOne({_id:req.body._id}).exec(function(err, company) {
         if(err) {
             res.status(400);
+            err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
-        company._id=companyUpdates._id;
         company.company_name= companyUpdates.company_name;
         company.company_aliases= companyUpdates.company_aliases;
         company.company_established_source= companyUpdates.company_established_source;
@@ -301,21 +303,23 @@ exports.updateCompany = function(req, res) {
         company.countries_of_operation= companyUpdates.countries_of_operation;
         company.description= companyUpdates.description;
         company.save(function(err) {
-            if(err)
-                return res.send({ reason: err.toString() });
+            if(err) {
+                err = new Error('Error');
+                return res.send({reason: err.toString()});
+            } else {
+                res.send();
+            }
         })
     });
-    res.send();
 };
 
 exports.deleteCompany = function(req, res) {
-
     Company.remove({_id: req.params.id}, function(err) {
         if(!err) {
             res.send();
-        }else{
+        } else{
+            err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
     });
-    res.send();
 };

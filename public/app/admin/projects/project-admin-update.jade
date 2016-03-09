@@ -12,85 +12,85 @@
                   placeholder="Project Name"
                   ng-model="project.proj_name"
                   required)
-            .form-group
-               label.col-md-2.control-label(form="proj_aliases") Project Aliases
-               .col-md-10
-                  input.form-control(
-                  name="proj_aliases"
-                  type="text"
-                  placeholder="Project aliases"
-                  )
-                  //ng-model="project.proj_aliases"
-
-            .form-group
-               label.col-md-2.control-label(form="proj_country") Country
-               .col-md-10
-                  select.form-control(
-                  ng-model="project.proj_country.country"
-                  ng-options="item._id as item.name for item in country.data"
-                  required)
-            .form-group
-               label.col-md-2.control-label(form="proj_type") Commodity Type(s)
-               .col-md-10
-                  input.form-control(
-                  name="proj_type"
-                  type="text"
-                  placeholder="Commodity Type(s)"
-                  ng-model="project.proj_type"
-                  )
             //.form-group
-            //   label.col-md-2.control-label(form="proj_commodity") Commodities
+            //   label.col-md-2.control-label(form="proj_aliases") Project Aliases
+            //   .col-md-10
+            //      input.form-control(
+            //      name="proj_aliases"
+            //      type="text"
+            //      placeholder="Project aliases"
+            //      )
+            //      //ng-model="project.proj_aliases"
+            //
+            //.form-group
+            //   label.col-md-2.control-label(form="proj_country") Country
             //   .col-md-10
             //      select.form-control(
-            //      ng-model="project.proj_commodity.commodity"
-            //      ng-options="item._id as item.commodity_name for item in commodity.data"
+            //      ng-model="project.proj_country.country"
+            //      ng-options="item._id as item.name for item in country.data"
             //      required)
-            .form-group
-               label.col-md-2.control-label(form="proj_site_name") Project Site Name
-               .col-md-10
-                  input.form-control(
-                  name="proj_site_name"
-                  type="text"
-                  placeholder="Project site name"
-                  ng-model="project.proj_site_name.string"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_address") Address
-               .col-md-10
-                  input.form-control(
-                  name="proj_address"
-                  type="text"
-                  placeholder="Address"
-                  ng-model="project.proj_address.string"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_coordinates") Location(s)
-               .col-md-10
-                  input.form-control(
-                  name="proj_coordinates"
-                  type="text"
-                  placeholder="Location(s)"
-                  //ng-model="project.proj_coordinates"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_status") Status
-               .col-md-10
-                  input.form-control(
-                  name="proj_status"
-                  type="text"
-                  placeholder="Status"
-                  ng-model="project.proj_status"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="description") Description
-               .col-md-10
-                  textarea.form-control(
-                  name="description"
-                  type="text"
-                  placeholder="Description"
-                  ng-bind-html="project.description"
-                  data-ng-model="project.description"
-                  )
+            //.form-group
+            //   label.col-md-2.control-label(form="proj_type") Commodity Type(s)
+            //   .col-md-10
+            //      input.form-control(
+            //      name="proj_type"
+            //      type="text"
+            //      placeholder="Commodity Type(s)"
+            //      ng-model="project.proj_type"
+            //      )
+            ////.form-group
+            ////   label.col-md-2.control-label(form="proj_commodity") Commodities
+            ////   .col-md-10
+            ////      select.form-control(
+            ////      ng-model="project.proj_commodity.commodity"
+            ////      ng-options="item._id as item.commodity_name for item in commodity.data"
+            ////      required)
+            //.form-group
+            //   label.col-md-2.control-label(form="proj_site_name") Project Site Name
+            //   .col-md-10
+            //      input.form-control(
+            //      name="proj_site_name"
+            //      type="text"
+            //      placeholder="Project site name"
+            //      ng-model="project.proj_site_name.string"
+            //      )
+            //.form-group
+            //   label.col-md-2.control-label(form="proj_address") Address
+            //   .col-md-10
+            //      input.form-control(
+            //      name="proj_address"
+            //      type="text"
+            //      placeholder="Address"
+            //      ng-model="project.proj_address.string"
+            //      )
+            //.form-group
+            //   label.col-md-2.control-label(form="proj_coordinates") Location(s)
+            //   .col-md-10
+            //      input.form-control(
+            //      name="proj_coordinates"
+            //      type="text"
+            //      placeholder="Location(s)"
+            //      )
+            //      //ng-model="project.proj_coordinates"
+            //.form-group
+            //   label.col-md-2.control-label(form="proj_status") Status
+            //   .col-md-10
+            //      input.form-control(
+            //      name="proj_status"
+            //      type="text"
+            //      placeholder="Status"
+            //      ng-model="project.proj_status"
+            //      )
+            //.form-group
+            //   label.col-md-2.control-label(form="description") Description
+            //   .col-md-10
+            //      textarea.form-control(
+            //      name="description"
+            //      type="text"
+            //      placeholder="Description"
+            //      ng-bind-html="project.description"
+            //      data-ng-model="project.description"
+            //      )
             .form-group
                .col-md-10.col-md-offset-2
                   .pull-right
@@ -98,4 +98,4 @@
                      | &nbsp;
                      button.btn.btn-danger(ng-click="projectDelete()", ng-disabled="") Delete
                      | &nbsp;
-                     a.btn.btn-default(href="/") Cancel
+                     a.btn.btn-default(href="/admin/project-admin") Cancel
