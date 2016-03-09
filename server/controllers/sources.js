@@ -100,23 +100,22 @@ exports.createSource = function(req, res, next) {
 	var sourceData = req.body;
 	Source.create(sourceData, function(err, source) {
 		if(err){
-			if(err.toString().indexOf('E11000') > -1) {
-				err = new Error('Duplicate Username');
-			}
-			res.status(400)
-			return res.send({reason:err.toString()})
+			res.status(400);
+			err = new Error('Error');
+			return res.send({ reason: err.toString() })
+		} else{
+			res.send();
 		}
 	});
-	res.send();
 };
 exports.updateSource = function(req, res) {
 	var sourceUpdates = req.body;
 	Source.findOne({_id:req.body._id}).exec(function(err, source) {
 		if(err) {
 			res.status(400);
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
-		source._id=sourceUpdates._id;
 		source.source_name= sourceUpdates.source_name;
 		source.source_type= sourceUpdates.source_type;
 		source.source_type_id= sourceUpdates.source_type_id;
@@ -126,21 +125,23 @@ exports.updateSource = function(req, res) {
 		source.create_author= sourceUpdates.create_author;
 		source.retrieve_date= sourceUpdates.retrieve_date;
 		source.save(function(err) {
-			if(err)
-				return res.send({ reason: err.toString() });
+			if (err) {
+				err = new Error('Error');
+				return res.send({reason: err.toString()});
+			} else{
+				return res.send();
+			}
 		})
 	});
-	res.send();
 };
 
 exports.deleteSource = function(req, res) {
-
 	Source.remove({_id: req.params.id}, function(err) {
 		if(!err) {
 			res.send();
 		}else{
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
 	});
-	res.send();
 };

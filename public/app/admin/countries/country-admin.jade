@@ -1,0 +1,18 @@
+.container.top-padding-med
+	.well
+		legend Countries
+		.pull-right
+			.btn-group
+				button.btn.btn-default.pull-right(type='button')
+					a(href='/admin/create-group') Create new country
+		table.table
+			thead
+				tr
+					th.tablesort-sortable-th Name
+					th
+			tbody
+				tr(ng-repeat="country in countries | unique: '_id'")
+					td.country_name
+						span(ng-bind-html="country.name|sanitize")
+					td
+						a.btn.center-block.btn-default(href="/admin/country-admin/{{country.iso2}}") Edit
