@@ -9,6 +9,7 @@ angular.module('app')
         nrgiSourcesSrvc
 
     ) {
+        $scope.source = [];
         $scope.source = nrgiSourcesSrvc.get({_id:$routeParams.id});
         $scope.sourceUpdate = function() {
             $scope.source.retrieve_date = new Date();
