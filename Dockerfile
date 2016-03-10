@@ -3,10 +3,12 @@ MAINTAINER Chris Perry, byndcivilization@gmail.com
 
 # Enable EPEL for Node.js
 RUN		rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+#RUN     curl --silent --location https://rpm.nodesource.com/setup | bash -
 
 # Install Node.js, npm, git and bower
-RUN		yum install -y git npm
+RUN		yum install -y nodejs git npm
 RUN		npm install -g bower
+RUN     node -v
 
 # Build src
 ADD     package.json /tmp/package.json
