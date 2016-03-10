@@ -10,10 +10,17 @@ module.exports 	= {
     },
     staging: {
         baseUrl: 'http://dev-staging.resourceprojects.org',
-        db: '@candidate.19.mongolayer.com:10726,candidate.32.mongolayer.com:10582/resource_projects_dev?replicaSet=set-54c2868c4ae1de388800b2a3',
+        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
     }
+    //staging: {
+    //    baseUrl: 'http://dev-staging.resourceprojects.org',
+    //    db_1: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
+    //    db_1: '@aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
+    //    rootPath: rootPath,
+    //    port: process.env.PORT || 80
+    //}
     //production: {
     //    baseUrl: 'http://resourceprojects.org',
     //    db: '@candidate.32.mongolayer.com:10582/rp_production',
