@@ -9,7 +9,7 @@ module.exports 	= {
         port: process.env.PORT || 3030
     },
     staging: {
-        baseUrl: 'http://dev-staging.resourceprojects.org',
+        baseUrl: 'http://dev.resourceprojects.org',
         db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
