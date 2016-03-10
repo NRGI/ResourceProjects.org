@@ -23,9 +23,9 @@ exports.processData = function(link, callback) {
         report += 'Using GS key ${key}\n';
     }
     var feedurl = 'https://spreadsheets.google.com/feeds/worksheets/${key}/public/full?alt=json';
-    
+
     var sheets = new Object;
-    
+
     request({
         url: feedurl,
         json: true
@@ -93,7 +93,7 @@ var sources, countries, commodities, companies, projects;
 var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
     newRow[7] = parseGsDate(newRow[7]);
     newRow[8] = parseGsDate(newRow[8]);
-   
+
     var source = {
         source_name: newRow[0],
         source_type: newRow[2], //TODO: unnecessary?
@@ -171,6 +171,7 @@ var makeNewProject = function(newRow) {
     if (newRow[3].trim() != "") project.proj_address = [{string: newRow[3].trim(), source: sources[newRow[0]]._id}];
     if (newRow[6].trim() != "") project.proj_coordinates = [{loc: [parseFloat(newRow[6].trim()), parseFloat(newRow[7].trim())], source: sources[newRow[0]]._id}];
     if (newRow[9].trim() != "") project.proj_commodity = [{commodity: commodities[newRow[9].trim()]._id, source: sources[newRow[0]]._id}];
+
     return project;
 }
 
@@ -188,59 +189,62 @@ equalDocs = function(masterDoc, newDoc) {
 }
 
 processGenericRow = function(report, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-        if ((row[rowIndex].trim() == "") || (row[rowIndex].trim()[0] == "#")) {
-            report.add(entityName + ": Empty row or label.\n");
-            return callback(null); //Do nothing
-        }
-        var finderObj = {};
-        finderObj[modelKey] = row[rowIndex].trim();
-        model.findOne(
-            finderObj,
-            function(err, doc) {
-                if (err) {
-                    report.add("Encountered an error while querying the DB. Aborting.\n");
-                    return callback(`Failed: ${report.report}`);
-                }
-                else if (doc) {
-                    report.add(`${entityName} ${row[rowIndex]} already exists in the DB (name match), not adding\n`);
-                    destObj[row[rowIndex]] = doc;
-                    return callback(null);
-                }
-                else {
-                    model.create(
-                        makerFunction(row),
-                        function(err, createdModel) {
-                            if (err) {
-                                report.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                return callback(`Failed: ${report.report}`);
-                            }
-                            report.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`);
-                            destObj[row[rowIndex]] = createdModel;
-                            return callback(null);
-                        }
-                    );
-                }
-            }
-        );
+    if ((row[rowIndex].trim() == "") || (row[rowIndex].trim()[0] == "#")) {
+        report.add(entityName + ": Empty row or label.\n");
+        return callback(null); //Do nothing
     }
+    var finderObj = {};
+    finderObj[modelKey] = row[rowIndex].trim();
+    model.findOne(
+        finderObj,
+        function(err, doc) {
+            if (err) {
+                report.add("Encountered an error while querying the DB. Aborting.\n");
+                return callback(`Failed: ${report.report}`);
+            }
+            else if (doc) {
+                report.add(`${entityName} ${row[rowIndex]} already exists in the DB (name match), not adding\n`);
+                destObj[row[rowIndex]] = doc;
+                return callback(null);
+            }
+            else {
+                model.create(
+                    makerFunction(row),
+                    function(err, createdModel) {
+                        if (err) {
+                            report.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                            return callback(`Failed: ${report.report}`);
+                        }
+                        report.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`);
+                        destObj[row[rowIndex]] = createdModel;
+                        return callback(null);
+                    }
+                );
+            }
+        }
+    );
+}
 
 function parseData(sheets, report, finalcallback) {
     async.waterfall([
-        parseBasis,
-        parseCompanies,
-        parseProjects,
-        parseConcessionsAndContracts,
-        parseProduction,
-        parseTransfers,
-        parseReserves
-    ], function (err, report) {
-        if (err) {
-            console.log("PARSE: Got an error\n");
-            return finalcallback("Failed", report)
-        }
-        finalcallback("Success", report);
+            parseBasis,
+            parseCompanies,
+            parseProjects,
+            parseConcessionsAndContracts,
+            parseProduction,
+            parseTransfers,
+            parseReserves
+        ], function (err, report) {
+            if (err) {
+                console.log("PARSE: Got an error\n");
+                return finalcallback("Failed", report)
+            }
+            finalcallback("Success", report);
         }
     );
+
+    ;
+
     function parseEntity(reportSoFar, sheetname, dropRowsStart, dropRowsEnd, entityObj, processRow, entityName, rowIndex, model, modelKey, rowMaker, callback) {
         var intReport = {
             report: reportSoFar, //Relevant for the series waterfall - report gets passed along
@@ -248,7 +252,7 @@ function parseData(sheets, report, finalcallback) {
                 this.report += text;
             }
         }
-        
+
         //Drop first X, last Y rows
         sheets[sheetname].data = sheets[sheetname].data.slice(dropRowsStart, (sheets[sheetname].data.length - dropRowsEnd));
         //TODO: for some cases parallel is OK: differentiate
@@ -259,15 +263,15 @@ function parseData(sheets, report, finalcallback) {
             callback(null, intReport.report); //All good
         });
     }
-    
+
     function parseBasis(callback) {
         var basisReport = report + "Processing basis info\n";
-        
+
         async.parallel([
             parseSources,
             parseCountries,
             parseCommodities
-        ], (function (err, resultsarray) {            
+        ], (function (err, resultsarray) {
             console.log("PARSE BASIS: Finished parallel tasks OR got an error");
             for (var r=0; r<resultsarray.length; r++) {
                 if (!resultsarray[r]) {
@@ -289,6 +293,7 @@ function parseData(sheets, report, finalcallback) {
             //The list of countries of relevance for this dataset is taken from the project list
             parseEntity("", '1.ProjectList', 3, 2, countries, processGenericRow, "Country", 1, Country, "iso2", makeNewCountry, callback);
         }
+
         function parseCommodities(callback) {
             //TODO: In some sheets only a group is named...
             commodities = new Object;
@@ -306,7 +311,7 @@ function parseData(sheets, report, finalcallback) {
                 //TODO - may need some sort of sophisticated duplicate detection here
                 Source.findOne(
                     {source_url: row[4].trim().toLowerCase()},
-                    function(err, doc) {  
+                    function(err, doc) {
                         if (err) {
                             sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
                             return callback(`Failed: ${sourcesReport.report}`);
@@ -324,8 +329,8 @@ function parseData(sheets, report, finalcallback) {
                                     makeNewSource(true, row, doc._id),
                                     function(err, model) {
                                         if (err) {
-                                                sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                                return callback(`Failed: ${sourcesReport.report}`);
+                                            sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                            return callback(`Failed: ${sourcesReport.report}`);
                                         }
                                         sources[row[0]] = model;
                                         return callback(null);
@@ -381,7 +386,7 @@ function parseData(sheets, report, finalcallback) {
         }
 
     }
-    
+
     function parseCompanies(result, callback) {
         var processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             if ((row[3].trim() == "") || (row[3].trim() == "#company")) {
@@ -395,7 +400,7 @@ function parseData(sheets, report, finalcallback) {
                     {company_name: row[3].trim()},
                     {"aliases.alias": row[3].trim()}
                 ]},
-                function(err, doc) {  
+                function(err, doc) {
                     if (err) {
                         companiesReport.add("Encountered an error while querying the DB. Aborting.\n");
                         return callback(`Failed: ${companiesReport.report}`);
@@ -421,7 +426,7 @@ function parseData(sheets, report, finalcallback) {
                                 //Update any created facts
                                 if (model.country_of_incorporation) model.country_of_incorporation.company = model._id;
                                 if (model.company_website) model.company_website.company = model._id;
-                                companiesReport.add(`Added company ${row[3]} to the DB.\n`); 
+                                companiesReport.add(`Added company ${row[3]} to the DB.\n`);
                                 companies[row[3]] = model;
                                 return callback(null);
                             }
@@ -434,7 +439,7 @@ function parseData(sheets, report, finalcallback) {
         //TODO - refactor processCompanyRow to use generic row by allowing custom queries
         parseEntity(result, '6.CompaniesandGroups', 3, 0, companies, processCompanyRow, "Company", 3, Company, "company_name", makeNewCompany, callback);
     }
-    
+
     function parseProjects(result, callback) {
         var processProjectRow = function(projectsReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             if ((row[rowIndex].trim() == "") || (row[1].trim() == "#project")) {
@@ -540,7 +545,6 @@ function parseData(sheets, report, finalcallback) {
                                 if (model.proj_coordinates.length > 0) for (fact in model.proj_coordinates) { fact.project = model._id; }
                                 if (model.proj_status.length > 0) for (fact in model.proj_status) { fact.project = model._id; }
                                 projectsReport.add(`Added project ${row[rowIndex]} to the DB.\n`);
-
                                 projects[row[rowIndex]] = model;
                                 return callback(null);
                             }
@@ -552,7 +556,7 @@ function parseData(sheets, report, finalcallback) {
         projects = new Object;
         parseEntity(result, '5.Projectlocationstatuscommodity', 1, 0, projects, processProjectRow, "Project", 1, Project, "proj_name", makeNewProject, callback);
     }
-    
+
     function parseConcessionsAndContracts(result, callback) {
         var processCandCRow = function(candcReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             if ((row[0].trim() == "#source") || ((row[2].trim() == "") && (row[7].trim() == "") && (row[8].trim() == ""))) {
@@ -561,11 +565,11 @@ function parseData(sheets, report, finalcallback) {
             }
             //First linked companies
             if (row[2].trim() != "") {
-            console.log("-----");
-            console.log(companies[row[2].trim()]);
-            console.log(projects[row[1].trim()]);
-            console.log(sources[row[0].trim()]);
-            console.log("-----");
+                console.log("-----");
+                console.log(companies[row[2].trim()]);
+                console.log(projects[row[1].trim()]);
+                console.log(sources[row[0].trim()]);
+                console.log("-----");
                 if (!companies[row[2].trim()] || !projects[row[1].trim()] || !sources[row[0].trim()] ) {
                     candcReport.add(`Invalid data in row: ${row}. Aborting.\n`);
                     return callback(`Failed: ${candcReport.report}`);
@@ -624,23 +628,23 @@ function parseData(sheets, report, finalcallback) {
                             return callback(null);
                         }
                         else { //No contract, create and link TODO
-                           /* var newCompanyLink = {
-                                company: companies[row[2].trim()]._id,
-                                project: projects[row[1].trim()]._id,
-                                source: sources[row[0].trim()]._id
-                            };
-                            Link.create(
-                                newCompanyLink,
-                                function(err, model) {
-                                    if (err) {
-                                        candcReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                        return callback(`Failed: ${candcReport.report}`);
-                                    }
-                                    //Update any created facts
-                                    companiesReport.add(`Linked company ${row[2]} with project ${row[1]} in the DB.\n`);
-                                    return callback(null);
-                                }
-                            );*/
+                            /* var newCompanyLink = {
+                             company: companies[row[2].trim()]._id,
+                             project: projects[row[1].trim()]._id,
+                             source: sources[row[0].trim()]._id
+                             };
+                             Link.create(
+                             newCompanyLink,
+                             function(err, model) {
+                             if (err) {
+                             candcReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                             return callback(`Failed: ${candcReport.report}`);
+                             }
+                             //Update any created facts
+                             companiesReport.add(`Linked company ${row[2]} with project ${row[1]} in the DB.\n`);
+                             return callback(null);
+                             }
+                             );*/
                             return callback(null);
                         }
                     }
@@ -649,19 +653,19 @@ function parseData(sheets, report, finalcallback) {
         };
         parseEntity(result, '7.Contractsconcessionsandcompanies', 4, 0, null, processCandCRow, null, null, null, null, null, callback);
     }
-    
+
     function parseProduction(result, callback) {
         //send back an error like this: return callback("ERROR");
         result += "Production READ\n";
         callback(null, result);
     }
-    
+
     function parseTransfers(result, callback) {
         //send back an error like this: return callback("ERROR");
         result += "Transfers READ\n";
         callback(null, result);
     }
-    
+
     function parseReserves(result, callback) {
         result += "Reserves READ\n";
         callback(null, result);

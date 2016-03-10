@@ -53,7 +53,7 @@ exports.getDatasets = function(req, res) {
 exports.getDatasetByID = function(req, res) {
     Dataset.findOne({_id:req.params.id})
         .populate('created_by')
-        .populate('actions.started_by')
+        .populate('actions')
         .lean()
         .exec(function(err, dataset) {
             if(dataset) {
@@ -119,7 +119,7 @@ exports.createAction = function(req, res, next) {
                         res.status(400);
                         console.log(err);
                         return res.send({reason:err.toString()})
-                    }  
+                    }
                 }
             );
         }
