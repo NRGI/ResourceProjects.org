@@ -10,6 +10,7 @@ RUN     yum install -y nodejs \
                         npm \
                         git
 RUN		npm install -g bower
+RUN     node -v
 
 # Build src
 ADD     package.json /tmp/package.json
