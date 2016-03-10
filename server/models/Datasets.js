@@ -13,14 +13,7 @@ datasetSchema = new Schema ({
     created: { type: Date, default: Date.now },
     modified: Date,
     created_by: {type: ObjectId, ref: 'User'},
-    actions: [{
-        name: String,
-        started: Date,
-        finished: Date,
-        started_by: {type: ObjectId, ref: 'User'},
-        status: String,
-        details: String
-    }]
+    actions: [{type: ObjectId, ref: 'Action'}]
 });
 
 Dataset = mongoose.model('Dataset', datasetSchema);

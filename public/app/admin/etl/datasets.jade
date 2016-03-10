@@ -15,18 +15,18 @@
 			thead
 				tr
 					th Name
-					th Source
+					th(style={"width": "30%", "word-wrap": "break-word"}) Source
 					th Action History
 					th Available Actions
 			tbody
 				tr(ng-repeat="dataset in datasets | filter:search_text | orderBy:sort_order")
 					td
 						text {{dataset.name}}
-					td {{dataset.source_url}}
+					td(style={"width": "30%", "word-wrap": "break-word"})
+						a(href="{{dataset.source_url}}") {{dataset.source_url}}
 					td 
 						p(ng-repeat="action in dataset.actions")
-							text {{action.name}}
-							// TODO: Handle "running/started" case
+							text {{action.name}} 
 							span(ng-if="action.status == 'Success'", class=["label", "label-success"], data-toggle="tooltip", title="{{action.details}}") Success
 							span(ng-if="action.status == 'Started'", class=["label", "label-warning"]) Running
 							span(ng-if="action.status == 'Failed'", class=["label", "label-danger"], data-toggle="tooltip", title="{{action.details}}") Failed

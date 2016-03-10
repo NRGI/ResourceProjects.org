@@ -1,7 +1,8 @@
 var Dataset 		= require('mongoose').model('Dataset'),
+    Action 		    = require('mongoose').model('Action'),
     async           = require('async'),
     _               = require("underscore"),
-    request         = require('request');
+    googlesheets    = require('../dataprocessing/googlesheets.js');
 
 exports.getDatasets = function(req, res) {
     var dataset_len, limit = null, skip = 0;
@@ -36,7 +37,7 @@ exports.getDatasets = function(req, res) {
             .skip(skip)
             .limit(limit)
             .populate('created_by')
-            .populate('actions.started_by')
+            .populate('actions')
             .lean()
             .exec(function(err, datasets) {
                 if(datasets) {
@@ -52,7 +53,7 @@ exports.getDatasets = function(req, res) {
 exports.getDatasetByID = function(req, res) {
     Dataset.findOne({_id:req.params.id})
         .populate('created_by')
-        .populate('actions.started_by')
+        .populate('actions')
         .lean()
         .exec(function(err, dataset) {
             if(dataset) {
@@ -80,34 +81,49 @@ exports.createAction = function(req, res, next) {
     var datasetRef = req.params['id'];
     console.log("STUB: Start an action for dataset " + datasetRef)
     //Create the action and set status "running"
-    Dataset.findByIdAndUpdate(
-        datasetRef,
-        {$push: {"actions": {name: req.body.name, started: Date.now(), status: "Started"/* TODO: uncomment once working//, started_by: req.user._id*/}}},
-        {safe: true, upsert: false},
+    Action.create(
+        {name: req.body.name, started: Date.now(), status: "Started"/* TODO: uncomment once working//, started_by: req.user._id*/},
         function(err, model) {
-            if (!err) {
-                res.status(200);
-                res.send();
-                if (req.body.name == "Extract from Google Sheets") {
-                    console.log("Starting import from " + model);
-                    request({
-                        url: model.source_url,
-                        json: true
-                    }, function (error, response, body) {
-                        if (!error && response.statusCode === 200) {
-                            console.log(body);
-                         }
-                    })
-                }
-            }
-            else {
+            if (err) {
                 res.status(400);
                 console.log(err);
 	            return res.send({reason:err.toString()})
-            }  
+            }
+            Dataset.findByIdAndUpdate(
+                datasetRef,
+                {$push: {"actions": model._id}},
+                {safe: true, upsert: false},
+                function(err, dmodel) {
+                    if (!err) {
+                        if (req.body.name == "Extract from Google Sheets") {
+                            console.log("Starting import from " + dmodel.name);
+                            res.status(200);
+                            res.send();
+                            console.log("Triggered, res sent\n");
+                            googlesheets.processData(dmodel.source_url, function(status, report) {
+                                console.log("process finished");
+                                console.log("Status: " + status + "\n");
+                                console.log("Report: " + report + "\n");
+                                Action.findByIdAndUpdate(
+                                    model._id,
+                                    {finished: Date.now(), status: status, details: report},
+                                    {safe: true, upsert: false},
+                                    function(err, amodel) {
+                                        if (err) console.log("Failed to update an action: " + err);
+                                    }
+                                );
+                            });
+                        }
+                    }
+                    else {
+                        res.status(400);
+                        console.log(err);
+                        return res.send({reason:err.toString()})
+                    }  
+                }
+            );
         }
     ); 
     //TODO: Perform the action
     //TODO: Perform following actions
-	
 }
