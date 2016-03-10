@@ -12,6 +12,7 @@ angular.module('app')
         $scope.companyCreate = function() {
             nrgiCompaniesMethodSrvc.createCompany($scope.company).then(function() {
                 nrgiNotifier.notify('Company created!');
+                $location.path('/admin/company-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })

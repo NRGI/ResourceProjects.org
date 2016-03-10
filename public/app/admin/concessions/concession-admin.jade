@@ -1,0 +1,23 @@
+.container.top-padding-med
+	.well
+		legend Concessions
+		.pull-right
+			.btn-group
+				button.btn.btn-default.pull-right(type='button')
+					a(href='/admin/create-concession') Create new concession
+		table.table
+			thead
+				tr
+					th.tablesort-sortable-th Name
+					th.tablesort-sortable-th Status
+					th
+			tbody
+				tr(ng-repeat="concession in concessions | unique: '_id'")
+					td.concession_name
+						span(ng-bind-html="concession.concession_name|sanitize")
+					td.concession_status: text(ng-repeat="status in concession.concession_status")
+						text(ng-if="$last")
+							| {{status.string | ucfirst}}
+							text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+					td
+						a.btn.center-block.btn-default(href="/admin/concession-admin/{{concession._id}}") Edit

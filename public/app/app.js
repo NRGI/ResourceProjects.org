@@ -82,6 +82,11 @@ angular.module('app')
                 templateUrl: '/partials/concessions/concession-detail',
                 controller: 'nrgiConcessionDetailCtrl'
             })
+            .when('/admin/concession-admin', {
+                templateUrl: '/partials/admin/concessions/concession-admin',
+                controller: 'nrgiConcessionAdminCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/admin/create-concession', {
                 templateUrl: '/partials/admin/concessions/create-concession',
                 controller: 'nrgiConcessionAdminCreateCtrl',
@@ -130,6 +135,11 @@ angular.module('app')
                 templateUrl: '/partials/companies/company-detail',
                 controller: 'nrgiCompanyDetailCtrl'
             })
+            .when('/admin/company-admin', {
+                templateUrl: '/partials/admin/companies/company-admin',
+                controller: 'nrgiCompanyAdminCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/admin/create-company', {
                 templateUrl: '/partials/admin/companies/create-company',
                 controller: 'nrgiCompanyAdminCreateCtrl',
@@ -172,6 +182,11 @@ angular.module('app')
             .when('/commodity/:id', {
                 templateUrl: '/partials/commodities/commodity-detail',
                 controller: 'nrgiCommodityDetailCtrl'
+            })
+            .when('/admin/commodity-admin', {
+                templateUrl: '/partials/admin/commodities/commodity-admin',
+                controller: 'nrgiCommodityAdminCtrl',
+                resolve: routeRoleChecks.supervisor
             })
             .when('/admin/create-commodity', {
                 templateUrl: '/partials/admin/commodities/create-commodity',

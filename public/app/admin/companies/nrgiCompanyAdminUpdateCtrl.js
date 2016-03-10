@@ -5,22 +5,25 @@ angular.module('app')
         $location,
         nrgiNotifier,
         nrgiCompaniesMethodSrvc,
-        nrgiCompaniesSrvc
-
+        nrgiCompaniesSrvc,
+        nrgiCountriesSrvc
     ) {
         $scope.company = nrgiCompaniesSrvc.get({_id:$routeParams.id});
-        $scope.commodityUpdate = function() {
+        $scope.country = nrgiCountriesSrvc.query({skip: 0, limit: 0});
+        $scope.companyUpdate = function() {
             nrgiCompaniesMethodSrvc.updateCompany($scope.company).then(function() {
                 nrgiNotifier.notify('Company has been updated');
+                $location.path('/admin/company-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });
         };
 
-        $scope.commodityDelete = function() {
+        $scope.companyDelete = function() {
             var company_deletion = $scope.company._id;
             nrgiCompaniesMethodSrvc.deleteCompany(company_deletion).then(function() {
                 nrgiNotifier.notify('Company has been deleted');
+                $location.path('/admin/company-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });

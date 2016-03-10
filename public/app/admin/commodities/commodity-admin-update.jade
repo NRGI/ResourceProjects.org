@@ -21,14 +21,14 @@
                   placeholder="Code"
                   ng-model="commodity.commodity_code"
                   )
-            .form-group
-               label.col-md-2.control-label(form="commodity_aliases") Aliases
-               .col-md-10
-                  input.form-control(
-                  name="commodity_aliases"
-                  type="text"
-                  placeholder="Aliases"
-                  )
+            //.form-group
+            //   label.col-md-2.control-label(form="commodity_aliases") Aliases
+            //   .col-md-10
+            //      input.form-control(
+            //      name="commodity_aliases"
+            //      type="text"
+            //      placeholder="Aliases"
+            //      )
                   //ng-model="commodity.commodity_aliases"
             .form-group
                .col-md-10.col-md-offset-2
@@ -37,4 +37,4 @@
                      | &nbsp;
                      button.btn.btn-danger(ng-click="commodityDelete()", ng-disabled="") Delete
                      | &nbsp;
-                     a.btn.btn-default(href="/") Cancel
+                     a.btn.btn-default(href="/admin/commodity-admin") Cancel
