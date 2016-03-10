@@ -12,6 +12,7 @@ angular.module('app')
         $scope.commodityUpdate = function() {
             nrgiCommoditiesMethodSrvc.updateCommodity($scope.commodity).then(function() {
                 nrgiNotifier.notify('Commodity has been updated');
+                $location.path('/admin/commodity-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });
@@ -21,6 +22,7 @@ angular.module('app')
             var commodity_deletion = $scope.commodity._id;
             nrgiCommoditiesMethodSrvc.deleteCommodity(commodity_deletion).then(function() {
                 nrgiNotifier.notify('Commodity has been deleted');
+                $location.path('/admin/commodity-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });

@@ -1,58 +1,54 @@
-//.container.top-padding-med
-//   .well
-//      form.form-horizontal(name='update_source_form')
-//         fieldset
-//            legend Concession Information
-//            .form-group
-//               label.col-md-2.control-label(form="name") Country name
-//               .col-md-10
-//                  input.form-control(
-//                  name="name"
-//                  type="text"
-//                  placeholder="Country name"
-//                  ng-model="country.name"
-//                  required)
-//            .form-group
-//               label.col-md-2.control-label(form="iso2") Country ISO 2
-//               .col-md-10
-//                  input.form-control(
-//                  name="iso2"
-//                  type="text"
-//                  placeholder="Country ISO 2"
-//                  ng-model="country.iso2"
-//                  )
-//            .form-group
-//               label.col-md-2.control-label(form="country_aliases") Country aliases
-//               .col-md-10
-//                  input.form-control(
-//                  name="country_aliases"
-//                  type="text"
-//                  placeholder="Country aliases")
-//                  //ng-model="country.country_aliases"
-//
-//            .form-group
-//               label.col-md-2.control-label(form="country_type") Commodity Type(s)
-//               .col-md-10
-//                  input.form-control(
-//                  name="country_type"
-//                  type="text"
-//                  placeholder="Access archive"
-//                  ng-model="country.country_type"
-//                  )
-//            .form-group
-//               label.col-md-2.control-label(form="country_commodity") Commodities
-//               .col-md-10
-//                  textarea.form-control(
-//                  name="country_commodity"
-//                  type="text"
-//                  placeholder="Commodities")
-//                  //ng-model="country.country_commodity"
-//
-//            .form-group
-//               .col-md-10.col-md-offset-2
-//                  .pull-right
-//                     button.btn.btn-primary(ng-click="sourceUpdate()", ng-disabled="") Submit
-//                     | &nbsp;
-//                     button.btn.btn-danger(ng-click="sourceDelete()", ng-disabled="") Delete
-//                     | &nbsp;
-//                     a.btn.btn-default(href="/") Cancel
+.container.top-padding-med
+   .well
+      form.form-horizontal(name='update_concession_form')
+         fieldset
+            legend Concession Information
+            .form-group
+                label.col-md-2.control-label(form="concession_name") Concession Name
+                .col-md-10
+                    input.form-control(
+                    name="concession_name"
+                    type="text"
+                    placeholder="Concession name"
+                    ng-model="concession.concession_name"
+                    required)
+            //.form-group
+            //    label.col-md-2.control-label(form="concession_country") Country
+            //    .col-md-10
+            //        select.form-control(
+            //        ng-model="concession.concession_country.country"
+            //        ng-options="item._id as item.name for item in country.data"
+            //        )
+            .form-group
+                label.col-md-2.control-label(form="concession_status") Status
+                .col-md-10
+                    input.form-control(
+                    name="concession_status"
+                    type="text"
+                    placeholder="Status"
+                    ng-model="concession.concession_status[concession.concession_status.length-1].string"
+                    )
+            .form-group
+                label.col-md-2.control-label(form="oo_concession_id") Open Oil ID
+                .col-md-10
+                    input.form-control(
+                    name="oo_concession_id"
+                    type="text"
+                    placeholder="Open Oil ID"
+                    ng-model="concession.oo_concession_id"
+                    )
+            .form-group
+                label.col-md-2.control-label(form="description") Description
+                .col-md-10
+                    textarea.form-control(
+                    name="description"
+                    ng-model="concession.description"
+                    )
+            .form-group
+               .col-md-10.col-md-offset-2
+                  .pull-right
+                     button.btn.btn-primary(ng-click="concessionUpdate()", ng-disabled="") Submit
+                     | &nbsp;
+                     button.btn.btn-danger(ng-click="concessionDelete()", ng-disabled="") Delete
+                     | &nbsp;
+                     a.btn.btn-default(href="/admin/concession-admin") Cancel
