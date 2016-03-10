@@ -12,15 +12,15 @@
                   placeholder="Concession name"
                   ng-model="concession.concession_name"
                   required)
-            .form-group
-               label.col-md-2.control-label(form="concession_aliases") Aliases
-               .col-md-10
-                  input.form-control(
-                  name="concession_aliases"
-                  type="text"
-                  placeholder="Aliases"
-                  ng-model="concession.concession_aliases"
-                  )
+            //.form-group
+            //   label.col-md-2.control-label(form="concession_aliases") Aliases
+            //   .col-md-10
+            //      input.form-control(
+            //      name="concession_aliases"
+            //      type="text"
+            //      placeholder="Aliases"
+            //      ng-model="concession.concession_aliases"
+            //      )
             .form-group
                label.col-md-2.control-label(form="concession_country") Country
                .col-md-10
@@ -35,17 +35,17 @@
                   name="concession_status"
                   type="text"
                   placeholder="Status"
-                  ng-model="concession.concession_status.string"
+                  ng-model="concession.concession_status[concession.concession_status.length-1].string"
                   )
-            .form-group
-               label.col-md-2.control-label(form="concession_commodity") Commodities
-               .col-md-10
-                  input.form-control(
-                  name="concession_commodity"
-                  type="text"
-                  placeholder="Commodities"
-                  ng-model="concession.concession_commodity.commodity"
-                  )
+            //.form-group
+            //   label.col-md-2.control-label(form="concession_commodity") Commodities
+            //   .col-md-10
+            //      input.form-control(
+            //      name="concession_commodity"
+            //      type="text"
+            //      placeholder="Commodities"
+            //      ng-model="concession.concession_commodity.commodity"
+            //      )
             .form-group
                label.col-md-2.control-label(form="oo_concession_id") Open Oil ID
                .col-md-10
@@ -69,4 +69,4 @@
                      ng-click="concessionCreate()"
                      ng-disabled="create_concession_form.$invalid") Submit
                      | &nbsp;
-                     a.btn.btn-default(href="/") Cancel
+                     a.btn.btn-default(href="/admin/concession-admin") Cancel

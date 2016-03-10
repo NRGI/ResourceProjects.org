@@ -10,6 +10,7 @@ angular.module('app')
         $scope.commodityCreate = function() {
             nrgiCommoditiesMethodSrvc.createCommodity($scope.commodity).then(function() {
                 nrgiNotifier.notify('Commodity created!');
+                $location.path('/admin/commodity-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })
