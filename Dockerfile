@@ -11,7 +11,6 @@ RUN     yum install -y nodejs \
                         git
 
 RUN		npm install -g bower
-RUN     node -v
 
 # Build src
 ADD     package.json /tmp/package.json
@@ -25,5 +24,10 @@ RUN     node -v
 
 EXPOSE  80
 
+<<<<<<< 813b0698763833b71591a20b83da9275ac4344c1
 CMD     ["node", "/src/server.js"]
 #CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
+=======
+#CMD     ["node", "/src/server.js"]
+CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
+>>>>>>> updated to centos7 and node4 for dev parity
