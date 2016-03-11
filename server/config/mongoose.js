@@ -28,7 +28,6 @@ model_load.forEach(function(model_name) {
 });
 
 module.exports 	= function(config, user, pass, env) {
-
     if (env === 'local') {
         mongoose.connect(config.db);
     } else {
@@ -42,6 +41,7 @@ module.exports 	= function(config, user, pass, env) {
         };
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
     }
+
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
