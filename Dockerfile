@@ -9,7 +9,6 @@ RUN     yum update -y
 RUN     yum install -y nodejs \
                         npm \
                         git
-
 RUN		npm install -g bower
 
 # Build src
