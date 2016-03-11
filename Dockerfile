@@ -1,14 +1,15 @@
-FROM	centos:centos6
+FROM	centos:centos7
 MAINTAINER Chris Perry, byndcivilization@gmail.com
 
 # Enable EPEL for Node.js
-RUN		rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
-#RUN     curl --silent --location https://rpm.nodesource.com/setup | bash -
+RUN     rpm -Uvh https://rpm.nodesource.com/pub_4.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm
 
 # Install Node.js, npm, git and bower
-RUN		yum install -y nodejs git npm
+RUN     yum update -y
+RUN     yum install -y nodejs \
+                        npm \
+                        git
 RUN		npm install -g bower
-RUN     node -v
 
 # Build src
 ADD     package.json /tmp/package.json
@@ -18,7 +19,9 @@ RUN		rm -R /tmp/node_modules
 COPY	. /src
 RUN		cd /src && bower install --allow-root
 
+RUN     node -v
 
 EXPOSE  80
 
-CMD     ["node", "/src/server.js"]
+#CMD     ["node", "/src/server.js"]
+CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
