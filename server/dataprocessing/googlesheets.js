@@ -1,4 +1,7 @@
 var Source = require('mongoose').model('Source'),
+    Country = require('mongoose').model('Country'),
+    Commodity = require('mongoose').model('Commodity'),
+    Company = require('mongoose').model('Company'),
     async   = require('async'),
     csv     = require('csv'),
     request = require('request'),
@@ -83,7 +86,11 @@ function parseGsDate(input) {
     else return result;
 }
 
-makeNewSource = function(flagDuplicate, newRow, duplicateId) {
+//Data needed for inter-entity reference
+var sources, countries, commodities, companies;
+    
+
+var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
     newRow[7] = parseGsDate(newRow[7]);
     newRow[8] = parseGsDate(newRow[8]);
    
@@ -107,6 +114,46 @@ makeNewSource = function(flagDuplicate, newRow, duplicateId) {
     return source;
 }
 
+var makeNewCountry = function(newRow) {
+    var country = {
+        iso2: newRow[1],
+        name: newRow[0]
+    }
+    return country;
+}
+
+var makeNewCommodity = function(newRow) {
+    var commodity = {
+        commodity_name: newRow[9],
+        commodity_type: newRow[8]
+    }
+    return commodity;
+}
+
+var makeNewCompany = function(newRow) {
+    var company = {
+        company_name: newRow[3]
+    };
+
+    if (newRow[5].trim() != "") {
+        company.open_corporates_id = newRow[5];
+    }
+    if (newRow[2].trim() != "") {
+        company.country_of_incorporation = {country: newRow[2]}; //Fact, will have comp. id added later
+    }
+    if (newRow[6].trim() != "") {
+        company.company_website = {string: newRow[6]}; //Fact, will have comp. id added later
+    }
+    if (newRow[0].trim() != "") {
+        if (sources[newRow[0]]) { //Must be here due to lookups in sheet
+            company.company_established_source = sources[newRow[0]]._id;
+        }
+        else return false; //error
+    }
+    return company;
+}
+
+//TODO: This needs some more work, specifically which properties to compare
 equalDocs = function(masterDoc, newDoc) {
     for (property in newDoc) {
         if (masterDoc[property]) {
@@ -122,6 +169,7 @@ equalDocs = function(masterDoc, newDoc) {
 function parseData(sheets, report, finalcallback) {
     async.waterfall([
         parseBasis,
+        parseCompanies,
         parseProjects,
         parseConcessionsAndContracts,
         parseProduction,
@@ -136,14 +184,30 @@ function parseData(sheets, report, finalcallback) {
         }
     );
     
+    function parseEntity(sheetname, dropRowsStart, dropRowsEnd, entityObj, processRow, callback) {
+        var intReport = {
+            report: "",
+            add: function(text) {
+                this.report += text;
+            }
+        }
+        
+        //Drop first X, last Y rows
+        sheets[sheetname].data = sheets[sheetname].data.slice(dropRowsStart, (sheets[sheetname].data.length - 1 - dropRowsEnd));
+        //TODO: for some cases parallel is OK: differentiate
+        async.eachSeries(sheets[sheetname].data, processRow.bind(null, intReport), function (err) { //"A callback which is called when all iteratee functions have finished, or an error occurs."
+            if (err) return callback(err, intReport.report); //Giving up
+            callback(null, intReport.report); //All good
+        });
+    }
+    
     function parseBasis(callback) {
         var basisReport = report + "Processing basis info\n";
         
         async.parallel([
             parseSources,
             parseCountries,
-            parseCommodities,
-            parseCompanies
+            parseCommodities
         ], (function (err, resultsarray) {            
             console.log("PARSE BASIS: Finished parallel tasks OR got an error");
             for (var r=0; r<resultsarray.length; r++) {
@@ -161,41 +225,77 @@ function parseData(sheets, report, finalcallback) {
             callback(null, basisReport);
         }));
 
+        function parseCountries(callback) {
+            var processCountryRow = function(countriesReport, row, callback) {
+                if (row[0].trim() == "") {
+                    return callback(null); //Do nothing
+                }
+                //As we always take country data from some authoritative source,
+                //duplicate checking is straightforward and duplicates are not added
+                //Currently not checking using aliases (TODO?)
+                Country.findOne(
+                    {iso2: row[1].trim().toUpperCase()},
+                    function(err, doc) {  
+                        if (err) {
+                            countriesReport.add("Encountered an error while querying the DB. Aborting.\n");
+                            return callback(`Failed: ${countriesReport.report}`);
+                        }
+                        else if (doc) {
+                            countriesReport.add(`Country ${row[0]} already exists in the DB (iso match), not adding\n`);
+                            countries[row[1]] = doc; //Identify by code, this is present in (almost - TODO(?)) all sheets
+                            return callback(null);
+                        }
+                        else {
+                            Country.create(
+                                makeNewCountry(row),
+                                function(err, model) {
+                                    if (err) {
+                                        countriesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                        return callback(`Failed: ${countriesReport.report}`);
+                                    }
+                                    countriesReport.add(`Added country ${row[0]} to the DB.\n`); 
+                                    countries[row[1]] = model;
+                                    return callback(null);
+                                }
+                            );
+                        }
+                    }
+                );
+            };
+            countries = new Object;
+            //The list of countries of relevance for this dataset is taken from the project list
+            parseEntity('1.ProjectList', 4, 2, countries, processCountryRow, callback);
+        }
+
         function parseSources(callback) {
-            var sourcesReport = "";
-            var sources = new Object;
-            var sourceCount = sheets['2.SourceList'].data.length - 4;
-            var processedSources = 0;
-            
-            //Drop first 4 rows
-            sheets['2.SourceList'].data = sheets['2.SourceList'].data.slice(4, sheets['2.SourceList'].data.length - 1);
-            async.each(sheets['2.SourceList'].data, processRow, function (err) { //"A callback which is called when all iteratee functions have finished, or an error occurs."
-                if (err) return callback(err, sourcesReport); //GIving up
-                callback(null, sourcesReport); //All good
-            });
-            
-            function processRow(row, callback) {
-                var source = new Object;
+            var processSourceRow = function(sourcesReport, row, callback) {
+                if (row[0].trim() == "") {
+                    return callback(null); //Do nothing
+                }
+                //TODO: Find OLDEST (use that for comparison instead of some other duplicate - important where we create duplicates)
+                //TODO - may need some sort of sophisticated duplicate detection here
                 Source.findOne(
                     {source_url: row[4].trim().toLowerCase()},
                     function(err, doc) {  
                         if (err) {
-                            sourcesReport += "Encountered an error while querying the DB. Aborting.\n";
-                            return callback(`Failed: ${sourcesReport}`);
+                            sourcesReport.add("Encountered an error while querying the DB. Aborting.\n");
+                            return callback(`Failed: ${sourcesReport.report}`);
                         }
                         else if (doc) {
-                            sourcesReport += `Source ${row[0]} already exists in the DB (url match), merging and flagging\n`;
+                            sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), checking content\n`);
                             if (equalDocs(doc, makeNewSource(false, row))) {
+                                sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), not adding\n`);
                                 sources[row[0]] = doc;
                                 return callback(null);
                             }
                             else {
+                                sourcesReport.add(`Source ${row[0]} already exists in the DB (url match),flagging as duplicate\n`);
                                 Source.create(
                                     makeNewSource(true, row, doc._id),
                                     function(err, model) {
                                         if (err) {
-                                                sourcesReport += `Encountered an error while updating the DB: ${err}. Aborting.\n`;
-                                                return callback(`Failed: ${sourcesReport}`);
+                                                sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                                return callback(`Failed: ${sourcesReport.report}`);
                                         }
                                         sources[row[0]] = model;
                                         return callback(null);
@@ -208,17 +308,17 @@ function parseData(sheets, report, finalcallback) {
                                 {source_name: row[0].trim()},
                                 (function(err, doc) {
                                     if (err) {
-                                        sourcesReport += `Encountered an error while querying the DB: ${err}. Aborting.\n`;
-                                        return callback(`Failed: ${sourcesReport}`);
+                                        sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
+                                        return callback(`Failed: ${sourcesReport.report}`);
                                     }
                                     else if (doc) {
-                                        sourcesReport += `Source ${row[0]} already exists in the DB (name match), will flag as possible duplicate\n`;
+                                        sourcesReport.add(`Source ${row[0]} already exists in the DB (name match), will flag as possible duplicate\n`);
                                         Source.create(
                                             makeNewSource(true, row, doc._id),
                                             (function(err, model) {
                                                 if (err) {
-                                                    sourcesReport += `Encountered an error while creating a source in the DB: ${err}. Aborting.\n`;
-                                                    return callback(`Failed: ${sourcesReport}`);
+                                                    sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
+                                                    return callback(`Failed: ${sourcesReport.report}`);
                                                 }
                                                 sources[row[0]] = model;
                                                 return callback(null);
@@ -226,13 +326,13 @@ function parseData(sheets, report, finalcallback) {
                                         );
                                     }
                                     else {
-                                        sourcesReport += `Source ${row[0]} not found in the DB, creating\n`;
+                                        sourcesReport.add(`Source ${row[0]} not found in the DB, creating\n`);
                                         Source.create(
                                             makeNewSource(false, row),
                                             (function(err, model) {
                                                 if (err) {
-                                                    sourcesReport += `Encountered an error while creating a source in the DB: ${err}. Aborting.\n`;
-                                                    return callback(`Failed: ${sourcesReport}`);
+                                                    sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
+                                                    return callback(`Failed: ${sourcesReport.report}`);
                                                 }
                                                 sources[row[0]] = model;
                                                 return callback(null);
@@ -244,23 +344,101 @@ function parseData(sheets, report, finalcallback) {
                         }
                     }
                 );
-            }
-        }
-        
-        function parseCountries(callback) {
-            console.log("STUB COUNTRIES READ\n");
-            callback(null, "STUB COUNTRIES READ\n");
+            };
+            sources = new Object;
+            parseEntity('2.SourceList', 4, 0, sources, processSourceRow, callback);          
         }
         
         function parseCommodities(callback) {
-            console.log("STUB COmm READ\n");
-            callback(null, "STUB COMMODITIES READ\n");
+            var processCommodityRow = function(commoditiesReport, row, callback) {
+                if (row[9].trim() == "") {
+                    return callback(null); //Do nothing
+                }
+                //Commodities are fairly simple, assume main id is correct and unique
+                Commodity.findOne(
+                    {commodity_name: row[9].trim()},
+                    function(err, doc) {  
+                        if (err) {
+                            commoditiesReport.add("Encountered an error while querying the DB. Aborting.\n");
+                            return callback(`Failed: ${commoditiesReport.report}`);
+                        }
+                        else if (doc) {
+                            commoditiesReport.add(`Commodity ${row[9]} already exists in the DB (name match), not adding\n`);
+                            commodities[row[9]] = doc;
+                            return callback(null);
+                        }
+                        else {
+                            Commodity.create(
+                                makeNewCommodity(row),
+                                function(err, model) {
+                                    if (err) {
+                                        commoditiesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                        return callback(`Failed: ${commoditiesReport.report}`);
+                                    }
+                                    commoditiesReport.add(`Added commodity ${row[9]} to the DB.\n`); 
+                                    commodities[row[9]] = model;
+                                    return callback(null);
+                                }
+                            );
+                        }
+                    }
+                );
+            };
+            commodities = new Object;
+            //The list of commodities of relevance for this dataset is taken from the location/status/commodity list
+            parseEntity('5.Projectlocationstatuscommodity', 4, 0, commodities, processCommodityRow, callback);
         }
-        
-        function parseCompanies(callback) {
-            console.log("STUB COmp READ\n");
-            callback(null, "STUB COMPANIES READ\n");
-        }
+    }
+    
+    function parseCompanies(result, callback) {
+        var processCompanyRow = function(companiesReport, row, callback) {
+            if (row[3].trim() == "") {
+                return callback(null); //Do nothing
+            }
+            //Companies - check against name and aliases
+            //TODO - may need some sort of sophisticated duplicate detection here
+            Company.findOne(
+                {$or: [
+                    {company_name: row[3].trim()},
+                    {"aliases.alias": row[3].trim()}
+                ]},
+                function(err, doc) {  
+                    if (err) {
+                        companiesReportReport.add("Encountered an error while querying the DB. Aborting.\n");
+                        return callback(`Failed: ${companiesReportReport.report}`);
+                    }
+                    else if (doc) {
+                        companiesReport.add(`Company ${row[3]} already exists in the DB (name or alias match), not adding\n`);
+                        companies[row[3]] = doc;
+                        return callback(null);
+                    }
+                    else {
+                        var newCompany = makeNewCompany(row);
+                        if (!newCompany) {
+                            companiesReport.add(`Invalid data in row: ${row}. Aborting.\n`);
+                            return callback(`Failed: ${companiesReport.report}`);
+                        }
+                        Company.create(
+                            newCompany,
+                            function(err, model) {
+                                if (err) {
+                                    companiesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                    return callback(`Failed: ${companiesReport.report}`);
+                                }
+                                //Update any created facts
+                                if (model.country_of_incorporation) model.country_of_incorporation.company = model._id;
+                                if (model.company_website) model.company_website.company = model._id;
+                                companiesReport.add(`Added company ${row[3]} to the DB.\n`); 
+                                companies[row[3]] = model;
+                                return callback(null);
+                            }
+                        );
+                    }
+                }
+            );
+        };
+        companies = new Object;
+        parseEntity('6.CompaniesandGroups', 4, 0, companies, processCompanyRow, callback);
     }
     
     function parseProjects(result, callback) {
@@ -288,7 +466,6 @@ function parseData(sheets, report, finalcallback) {
     }
     
     function parseReserves(result, callback) {
-        console.log("parsing reserves, res so far:" + result);
         result += "Reserves READ\n";
         callback(null, result);
     }

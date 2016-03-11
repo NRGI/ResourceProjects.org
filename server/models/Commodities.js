@@ -11,10 +11,7 @@ var commoditySchema, Commodity,
 commoditySchema = new Schema ({
     //Metadata
     commodity_name: String,
-    commodity_code: {
-        type: String,
-        unique: true
-    },
+    commodity_type: String,
     commodity_aliases: [{
         type: ObjectId,
         ref: 'Alias'}],
@@ -40,25 +37,25 @@ function createDefaultCommodities() {
             Commodity.create({
                 _id: '56a13e9942c8bef50ec2e9e8',
                 commodity_name: 'Aluminum',
-                commodity_code: 'al',
+                commodity_type: 'Mining',
                 commodity_aliases: ['56a6ac8f6c1ac5811ae27988','56a6ac8f6c1ac5811ae27989','56a6ac8f6c1ac5811ae2798a']
             });
             Commodity.create({
                 _id: '56a13e9942c8bef50ec2e9eb',
                 commodity_name: 'Gold',
-                commodity_code: 'go',
+                commodity_type: 'Mining',
                 commodity_aliases: ['56a6ac8f6c1ac5811ae2798d','56a6ac8f6c1ac5811ae2798e']
             });
             Commodity.create({
                 _id: '56a13e9942c8bef50ec2e9ee',
                 commodity_name: 'Hydrocarbons',
-                commodity_code: 'hy',
+                commodity_type: 'Oil and Gas',
                 commodity_aliases: ['56a6ac8f6c1ac5811ae2798f','56a6ac8f6c1ac5811ae27990']
             });
             Commodity.create({
                 _id: '56a13e9942c8bef50ec2e9f1',
                 commodity_name: 'Diamonds',
-                commodity_code: 'di',
+                commodity_type: 'Mining',
                 commodity_aliases: ['56a6ac8f6c1ac5811ae27991', '56a6ac8f6c1ac5811ae27992']
             });
             console.log('Commodities created...');
