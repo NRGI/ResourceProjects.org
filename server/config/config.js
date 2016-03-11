@@ -10,7 +10,11 @@ module.exports 	= {
     },
     staging: {
         baseUrl: 'http://dev.resourceprojects.org',
-        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
+        db: '@candidate.32.mongolayer.com:10582,candidate.19.mongolayer.com:10726/rp_dev?replicaSet=set-54c2868c4ae1de388800b2a3',
+        ////db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
+        ////TODO method for attempting connection with different nodes
+        //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
+        ////db: '@aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
     }
