@@ -1,119 +1,62 @@
 .container
-   .page-header
-      h1
-         span(ng-bind-html="commodity.commodity_name|sanitize")
-         =' '
-         small Commodity
-   .row
-      .col-md-12
-         leaflet(center="center",controls="controls",markers="commodity.location",tiles="tiles", height='240px')
-   .info-box
-      h2 Commodity Info
-      table#group-info
-         tbody
-            tr
-               td.project-label(style='width:200px') Code:
-               td.text-uppercase {{commodity.commodity_code}}
-            tr
-               td.project-label(style='width:200px') Commodity name:
-               td
-                  a(href='commodity/{{commodity._id}}')
-                     span(ng-bind-html="commodity.commodity_name|sanitize")
-            tr
-               td.project-label(style='width:200px') Aliases:
-               td.commodity_type
-                  span(ng-repeat="alias in commodity.commodity_aliases")
-                     span {{alias.code}}
-                        span.text-uppercase  ({{alias.reference}})
-                     span(ng-if="!$last") ,
-                     =" "
+    .page-header
+        h1
+            span(ng-bind-html="commodity.commodity_name|sanitize")
+            =' '
+            small Commodity
+    .row
+        .col-md-12
+            leaflet(center="center",controls="controls",markers="commodity.location",tiles="tiles", height='240px')
+    .info-box
+        h2 Commodity Info
+        table#commodity-info
+            tbody
+                tr
+                    td.detail_label.small Code:
+                    td.commodity_code {{commodity.commodity_code}}
+                tr
+                    td.detail_label.small Commodity name:
+                    td.commodity_name
+                        a(href='commodity/{{commodity._id}}')
+                            span(ng-bind-html="commodity.commodity_name|sanitize")
+                tr
+                    td.detail_label.small Aliases:
+                    td.commodity_aliases
+                        span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
+                            span {{alias.code}}
+                                span.text-uppercase  ({{alias.reference}})
+                            span(ng-if="!$last") ,
+                            =" "
+    .row
+        .col-md-3
+            nrgi-project-table(
+            projects="commodity.projects"
+            country="true"
+            type="false"
+            companies="false"
+            commodity="false"
+            status="false")
+        .col-md-3
+            nrgi-contract-table(
+            contracts="commodity.contracts"
+            companies="false"
+            commodity="false"
+            country="true")
+        .col-md-3
+            nrgi-concession-table(
+            concessions="commodity.concessions"
+            type="false"
+            commodity="false"
+            status="false"
+            projects="false")
+        .col-md-3
+            nrgi-company-table(
+            companies="commodity.companies"
+            stake="false"
+            group="true")
 
-   .row
-      .col-md-3
-         h2 Projects
-         table.table.table-striped.projects(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='country') Country
-            tbody
-               tr(ng-repeat='project in commodity.projects',ts-repeat)
-                  td
-                     a(href='project/{{project.project._id}}')
-                        span(ng-bind-html="project.project.proj_name|sanitize")
-                  td.proj_country: text(ng-repeat="country in project.project.proj_country | unique: 'country._id'")
-                     a(href='country/{{country.country.iso2}}')
-                        span(ng-bind-html="country.country.name|sanitize")
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden='true')
-            | Download:
-            =' '
-            a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+%3Fproject+%3Fname+%3Fcountry_name+WHERE+%7B%0A+++%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos%3AprefLabel+%3Fname+.%0A++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++%3Fcountry+a+rp%3ACountry+.%0A++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Projects CSV
-      .col-md-3
-         h2 Contracts
-         table.table.table-striped.projects(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  th.tablesort-sortable-th(ts-criteria='country') Country
-                  th.tablesort-sortable-th(ts-criteria='rc') RC-ID
-            tbody
-               tr(ng-repeat='contract in commodity.contracts',ts-repeat)
-                  td
-                     a(href='contract/{{contract._id}}')
-                        span(ng-bind-html="contract.contract_name|sanitize")
-                  td
-                     a(href='country/{{contract.country._id}}')
-                        span(ng-bind-html="contract.country.iso2|sanitize")
-                  td
-                     a(href='contract/{{contract._id}}')
-                        span(ng-bind-html="contract.contract_id|sanitize")
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden='true')
-            | Download:
-            =' '
-            a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0Aprefix+rp_misc%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2Fmisc%2F%3E%0Aprefix+skos_%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0A%0ASELECT+%3Fproject+%3Fname+%3Fcountry_name+WHERE+%7B%0A+++%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject+a+rp%3AProject++.%0A++++%3Fproject+skos%3AprefLabel+%3Fname+.%0A++++%3Fproject+rp%3AhasLocation+%3Fcountry+.%0A++++%3Fcountry+a+rp%3ACountry+.%0A++++%3Fcountry+skos_%3AprefLabel+%3Fcountry_name+%0A%0A%0A%7D%0AGROUP+BY+%3Fproject+%3Fname%0AORDER+BY+%3Fname%0A&format=text%2Fcsv&timeout=0&debug=on') Contracts CSV
-      .col-md-3
-         h2 Concessions
-         table.table.table-striped.companies(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='concession_name') Name
-                  th.tablesort-sortable-th(ts-criteria='concession_country.iso2') Country
-            tbody
-               tr(ng-repeat='concession in commodity.concessions',ts-repeat)
-                  td
-                     a(href='concession/{{concession._id}}')
-                        span(ng-bind-html="concession.concession_name|sanitize")
-                  td
-                     a(href='country/{{concession.concession_country._id}}')
-                        span(ng-bind-html="concession.concession_country.iso2|sanitize")
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden='true')
-            | Download:
-            =' '
-            a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3Fgroup_name+WHERE+%7B%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject++rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3Fgroup_name%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on') Concessions CSV
-
-      .col-md-3
-
-         h2 Companies
-         table.table.table-striped.companies(ts-wrapper)
-            thead
-               tr
-                  th.tablesort-sortable-th(ts-criteria='name') Name
-                  //th.tablesort-sortable-th(ts-criteria='group') Group
-            tbody
-               tr(
-               ng-repeat="(id, company) in commodity.companies")
-                  td
-                     a(href="company/{{company._id}}")
-                        span(ng-bind-html="company.company_name|sanitize")
-         .download
-            span.glyphicon.glyphicon-download(aria-hidden='true')
-            |  Download:
-            =' '
-            a(href='/sparql?default-graph-uri=&query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0Aprefix+rp%3A+%3Chttp%3A%2F%2Fresourceprojects.org%2Fdef%2F%3E%0A%0ASELECT+%3Fcompany+%3Fcompany_name+%3Fgroup+%3Fgroup_name+WHERE+%7B%0A%0A++++%3Fproject+rp%3AhasCommodity+%3Chttp%3A%2F%2Fresourceprojects.org%2Fcommodity%2FAntimony%3E+.%0A++++%3Fproject++rp%3AhasStake+%3Fstake+.%0A++++%3Fstake+rp%3AhasStakeholder+%3Fcompany+.%0A++++%3Fcompany+a+rp%3ACompany%0A++++OPTIONAL+%7B+%3Fcompany+skos%3AprefLabel+%3Fcompany_name+%7D+%0A++++%0A++++OPTIONAL+%7B+%3FgroupMembership+rp%3Aorganisation+%3Fcompany+.%0A+++++++++++++++%3Fgroup+rp%3AgroupMember+%3FgroupMembership+.%0A+++++++++++++++%3Fgroup+skos%3AprefLabel+%3Fgroup_name%0A++++%7D%0A%7D%0AGROUP+BY+%3Fcompany+%0AORDER+BY+%3Fcompany_name%0A&format=text%2Fcsv&timeout=0&debug=on') Companies CSV
+        .col-md-3
     .advanced-links
-       .container
-          h3
-             a(href='commodity/Antimony') Sources
+        .container
+            h3
+                a(href='') Sources

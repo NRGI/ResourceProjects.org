@@ -26,10 +26,11 @@
 						a(href="{{dataset.source_url}}") {{dataset.source_url}}
 					td 
 						p(ng-repeat="action in dataset.actions")
-							text {{action.name}} 
-							span(ng-if="action.status == 'Success'", class=["label", "label-success"], data-toggle="tooltip", title="{{action.details}}") Success
-							span(ng-if="action.status == 'Started'", class=["label", "label-warning"]) Running
-							span(ng-if="action.status == 'Failed'", class=["label", "label-danger"], data-toggle="tooltip", title="{{action.details}}") Failed
+							text {{action.name}}
+							// TODO: Handle "running/started" case
+							span(ng-if="action.status == 'Success'" class=["label", "label-success"] data-toggle="tooltip" title="{{action.details}}") Success
+							span(ng-if="action.status == 'Started'" class=["label", "label-warning"]) Running
+							span(ng-if="action.status == 'Failed'" class=["label", "label-danger"] data-toggle="tooltip" title="{{action.details}}") Failed
 					td
 						a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
 						span(ng-if="dataset.status.isReadyForChecked")

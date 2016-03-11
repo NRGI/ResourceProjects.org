@@ -37,7 +37,7 @@
                     tr(ng-repeat='company in companies',ts-repeat)
                         td.company_name: a(href='company/{{company._id}}')
                             span(ng-bind-html="company.company_name|sanitize")
-                        td.company_groups: text(ng-repeat="group in company.company_groups")
+                        td.company_groups: text(ng-repeat="group in company.company_groups | unique: '_id'")
                             a(href='group/{{group._id}}')
                                 span(ng-bind-html="group.company_group_name|sanitize")
                             | {{$last ? '' : ', '}}

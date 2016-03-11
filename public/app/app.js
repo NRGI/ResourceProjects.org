@@ -49,6 +49,11 @@ angular.module('app')
                 controller: 'nrgiUserAdminCreateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
+            .when('/admin/create-project', {
+                templateUrl: '/partials/admin/projects/create-project',
+                controller: 'nrgiProjectAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/admin/user-admin', {
                 templateUrl: '/partials/admin/users/user-admin',
                 controller: 'nrgiUserAdminCtrl',
@@ -63,7 +68,7 @@ angular.module('app')
             .when('/profile', {
                 templateUrl: '/partials/account/profile',
                 controller: 'nrgiProfileCtrl',
-                resolve: routeRoleChecks.user
+                resolve: routeRoleChecks.supervisor
             })
             //Entity Routes
             .when('/contracts', {
@@ -81,6 +86,16 @@ angular.module('app')
             .when('/concession/:id', {
                 templateUrl: '/partials/concessions/concession-detail',
                 controller: 'nrgiConcessionDetailCtrl'
+            })
+            .when('/admin/create-concession', {
+                templateUrl: '/partials/admin/concessions/create-concession',
+                controller: 'nrgiConcessionAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/concession-admin/:id', {
+                templateUrl: '/partials/admin/concessions/concession-admin-update',
+                controller: 'nrgiConcessionAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
             })
             //.when('/concessions/map', {
             //    templateUrl: '/partials/projects/map'
@@ -105,6 +120,16 @@ angular.module('app')
                 templateUrl: '/partials/companies/company-detail',
                 controller: 'nrgiCompanyDetailCtrl'
             })
+            .when('/admin/create-company', {
+                templateUrl: '/partials/admin/companies/create-company',
+                controller: 'nrgiCompanyAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/company-admin/:id', {
+                templateUrl: '/partials/admin/companies/company-admin-update',
+                controller: 'nrgiCompanyAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             //
             ////Helper groups
             .when('/countries', {
@@ -115,6 +140,16 @@ angular.module('app')
                 templateUrl: '/partials/countries/country-detail',
                 controller: 'nrgiCountryDetailCtrl'
             })
+            .when('/admin/create-country', {
+                templateUrl: '/partials/admin/countries/create-country',
+                controller: 'nrgiCountryAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/country-admin/:id', {
+                templateUrl: '/partials/admin/countries/country-admin-update',
+                controller: 'nrgiCountryAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/commodities', {
                 templateUrl: '/partials/commodities/commodity-list',
                 controller: 'nrgiCommodityListCtrl'
@@ -123,13 +158,33 @@ angular.module('app')
                 templateUrl: '/partials/commodities/commodity-detail',
                 controller: 'nrgiCommodityDetailCtrl'
             })
+            .when('/admin/create-commodity', {
+                templateUrl: '/partials/admin/commodities/create-commodity',
+                controller: 'nrgiCommodityAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/commodity-admin/:id', {
+                templateUrl: '/partials/admin/commodities/commodity-admin-update',
+                controller: 'nrgiCommodityAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             .when('/groups', {
-                templateUrl: '/partials/companies/group-list',
+                templateUrl: '/partials/groups/group-list',
                 controller: 'nrgiGroupListCtrl'
             })
             .when('/group/:id', {
-                templateUrl: '/partials/companies/group-detail',
+                templateUrl: '/partials/groups/group-detail',
                 controller: 'nrgiGroupDetailCtrl'
+            })
+            .when('/admin/create-group', {
+                templateUrl: '/partials/admin/groups/create-group',
+                controller: 'nrgiGroupAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/group-admin/:id', {
+                templateUrl: '/partials/admin/groups/group-admin-update',
+                controller: 'nrgiGroupAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
             })
             //
             ////Transfers and related facts
@@ -152,6 +207,17 @@ angular.module('app')
                 templateUrl: '/partials/sources/source-detail',
                 controller: 'nrgiSourceDetailCtrl'
             })
+            .when('/admin/create-source', {
+                templateUrl: '/partials/admin/sources/create-source',
+                controller: 'nrgiSourceAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/source-admin/:id', {
+                templateUrl: '/partials/admin/sources/source-admin-update',
+                controller: 'nrgiSourceAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+
             .when('/glossary', {
                 templateUrl: '/partials/common/glossary'
             })
@@ -173,9 +239,15 @@ angular.module('app')
             //.when('/instances/:id', {
             //    templateUrl: '/partials/main/instances'
             //})
+            .otherwise('/', {
+                templateUrl: '/partials/main/main',
+                controller: 'nrgiMainCtrl'
+            })
     });
 
-angular.module('app').run(function($rootScope, $location,$http) {
+angular.module('app').run(function($rootScope, $location,$http,nrgiAuthSrvc,nrgiNotifier) {
+    nrgiAuthSrvc.authenticateUser('jcust', 'admin').then(function(success) {
+    });
     $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
         if(rejection === 'not authorized') {
@@ -183,6 +255,8 @@ angular.module('app').run(function($rootScope, $location,$http) {
         }
     });
     $rootScope.$on('$routeChangeSuccess', function() {
+        console.log(document.body.scrollTop);
         document.body.scrollTop = document.documentElement.scrollTop = 0;
+        console.log(document.body.scrollTop);
     })
 });

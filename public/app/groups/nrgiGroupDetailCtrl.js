@@ -5,13 +5,13 @@ angular.module('app')
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiCompaniesSrvc,
+        nrgiGroupsSrvc,
         $routeParams
     ) {
-        $scope.record_type = 'companyGroups';
         $scope.center=[];
-        nrgiCompaniesSrvc.get({_id: $routeParams.id,record_type:$scope.record_type}, function (success) {
+        nrgiGroupsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.group=success;
+            if($scope.group.location.length>0)
             $scope.center={lat:$scope.group.location[0].lat,lng:$scope.group.location[0].lng,zoom: 3};
         });
 

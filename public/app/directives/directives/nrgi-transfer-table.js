@@ -7,7 +7,8 @@ angular
             restrict: 'EA',
             controller: 'nrgiTransferTableCtrl',
             scope: {
-                transfers: '='
+                transfers: '=',
+                project: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-transfer-table'
         };

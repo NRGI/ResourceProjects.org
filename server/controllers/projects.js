@@ -44,10 +44,11 @@ exports.getProjects = function(req, res) {
 			//.populate('proj_aliases', ' _id alias')
 			.lean()
 			.exec(function(err, projects) {
-				if(projects) {
+				if(projects.length>0) {
 					callback(null, project_count, projects);
 				} else {
-					callback(err);
+					//callback(err);
+					res.send({data: projects, count: project_count});
 				}
 			});
 	}
@@ -55,40 +56,44 @@ exports.getProjects = function(req, res) {
 	function getProjectLinks(project_count, projects, callback) {
 		project_len = projects.length;
 		project_counter = 0;
-		projects.forEach(function (c) {
-			Link.find({project: c._id})
-				.populate('commodity','_id commodity_name')
-				.populate('company')
-				.exec(function(err, links) {
-					++project_counter;
-					link_len = links.length;
-					link_counter = 0;
-					c.proj_commodity = [];
-					c.companies = 0;
-					links.forEach(function(link) {
-						++link_counter;
-						var entity = _.without(link.entities, 'project')[0];
-						switch (entity) {
-							case 'commodity':
-								c.proj_commodity.push({
-									_id: link.commodity._id,
-									commodity_name: link.commodity.commodity_name
-								});
-								break;
-							//
-							case 'company':
-								c.companies += 1;
-								break;
-							//
-							default:
-								console.log('error');
+		if(project_len>0) {
+			projects.forEach(function (c) {
+				Link.find({project: c._id})
+					.populate('commodity', '_id commodity_name')
+					.populate('company')
+					.exec(function (err, links) {
+						++project_counter;
+						link_len = links.length;
+						link_counter = 0;
+						c.proj_commodity = [];
+						c.companies = 0;
+						links.forEach(function (link) {
+							++link_counter;
+							var entity = _.without(link.entities, 'project')[0];
+							switch (entity) {
+								case 'commodity':
+									c.proj_commodity.push({
+										_id: link.commodity._id,
+										commodity_name: link.commodity.commodity_name
+									});
+									break;
+								//
+								case 'company':
+									c.companies += 1;
+									break;
+								//
+								default:
+									console.log('error');
+							}
+						});
+						if (project_counter == project_len && link_counter == link_len) {
+							res.send({data: projects, count: project_count});
 						}
 					});
-					if(project_counter == project_len && link_counter == link_len) {
-						res.send({data:projects, count:project_count});
-					}
-				});
-		});
+			});
+		} else{
+			res.send({data: projects, count: project_count});
+		}
 	}
 };
 exports.getProjectByID = function(req, res) {
@@ -153,10 +158,12 @@ exports.getProjectByID = function(req, res) {
 				}
 			});
 	}
-
-
-// summary
 	function getProjectLinks(project, callback) {
+		project.companies = [];
+		project.commodities = [];
+		project.projects = [];
+		project.concessions = [];
+		project.contracts = [];
 		Link.find({project: project._id})
 			.populate('commodity')
 			.populate('company')
@@ -165,46 +172,51 @@ exports.getProjectByID = function(req, res) {
 			.deepPopulate('company_group')
 			//.deepPopulate('company company.company_group')
 			.exec(function(err, links) {
-				link_len = links.length;
-				link_counter = 0;
-				project.companies = [];
-				project.commodities = {};
-				project.projects = [];
-				project.concessions = [];
-				project.contracts = [];
-				links.forEach(function(link) {
-					++link_counter;
-					var entity = _.without(link.entities, 'project')[0];
-					switch (entity) {
-						case 'commodity':
-							if (!project.commodities.hasOwnProperty(link.commodity_code)) {
-								project.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
-							}
-							break;
-						case 'company':
-							if (!project.companies.hasOwnProperty(link.company._id)) {
-								project.companies.push({
-									_id: link.company._id,
-									company_name: link.company.company_name
+				if(links.length>0) {
+					link_len = links.length;
+					link_counter = 0;
+					links.forEach(function (link) {
+						++link_counter;
+						var entity = _.without(link.entities, 'project')[0];
+						switch (entity) {
+							case 'commodity':
+								if (!project.commodities.hasOwnProperty(link.commodity_code)) {
+									project.commodities.push({
+										_id: link.commodity._id,
+										commodity_name:link.commodity.commodity_name});
+								}
+								break;
+							case 'company':
+								if (!project.companies.hasOwnProperty(link.company._id)) {
+									project.companies.push({
+										_id: link.company._id,
+										company_name: link.company.company_name
+									});
+								}
+								break;
+							case 'concession':
+								project.concessions.push({
+									_id: link.concession._id,
+									concession_name: link.concession.concession_name
 								});
-							}
 							break;
-						case 'concession':
-							project.concessions.push({
-								_id: link.concession._id,
-								concession_name: link.concession.concession_name
-							});
-							break;
-						case 'contract':
-							project.contracts.push(link);
-							break;
-						default:
-							console.log('error');
-					}
-					if(link_counter == link_len) {
-						callback(null, project);
-					}
-				});
+							case 'concession':
+								project.concessions.push({
+									_id: link.concession._id,
+									concession_name: link.concession.concession_name
+								});
+								break;
+							case 'contract':
+								project.contracts.push(link);
+								break;
+							default:
+								console.log('error');
+						}
+						if(link_counter == link_len) {
+							callback(null, project);
+						}
+					});
+				}
 			});
 	}
 
@@ -212,31 +224,24 @@ exports.getProjectByID = function(req, res) {
 		project.coordinates = [];
 		project_counter = 0;
 		project_len = project.proj_coordinates.length;
-		Production.find({production_project: project._id})
-			.populate('production_commodity')
-			.exec(function(err, productions) {
-				_.each(productions, function(productions) {
-					project.productions.push(productions);
+		if(project_len>0) {
+			project.proj_coordinates.forEach(function (loc) {
+				++project_counter;
+				project.coordinates.push({
+					'lat': loc.loc[0],
+					'lng': loc.loc[1],
+					'message': project.proj_name,
+					'timestamp': loc.timestamp
 				});
-				if(project.proj_coordinates) {
-					project.proj_coordinates.forEach(function (loc) {
-						++project_counter;
-						project.coordinates.push({
-							'lat': loc.loc[0],
-							'lng': loc.loc[1],
-							'message': project.proj_name,
-							'timestamp': loc.timestamp
-						});
-						if (project_counter == project_len) {
-							callback(null, project);
-						}
-					})
-				} else {
+				if (project_counter == project_len) {
 					callback(null, project);
 				}
 			});
-	}
+		} else {
+			callback(null, project);
 
+		}
+	}
 	function getCompanyGroup(project, callback) {
 		project_len = project.companies.length;
 		project_counter = 0;
@@ -274,7 +279,6 @@ exports.getProjectByID = function(req, res) {
 };
 exports.getProjectsMap = function(req, res) {
 	var project_len, project_counter;
-	console.log(req.query);
 	async.waterfall([
 		getProject
 	], function (err, result) {
@@ -309,5 +313,56 @@ exports.getProjectsMap = function(req, res) {
 				}
 			});
 	}
+};
+exports.createProject = function(req, res, next) {
+	var projectData = req.body;
+	Project.create(projectData, function(err, project) {
+		if(err){
+			if(err.toString().indexOf('E11000') > -1) {
+				err = new Error('Duplicate Username');
+			}
+			res.status(400)
+			return res.send({reason:err.toString()})
+		}
+	});
+	res.send();
+};
+exports.updateProject = function(req, res) {
+	var projectUpdates = req.body;
+	console.log(projectUpdates);
+	Project.findOne({_id:req.body._id}).exec(function(err, project) {
+		if(err) {
+			res.status(400);
+			return res.send({ reason: err.toString() });
+		}
+		project._id=projectUpdates._id;
+		project.proj_name= projectUpdates.proj_name;
+		project.proj_aliases= projectUpdates.proj_aliases;
+		project.proj_established_source= projectUpdates.proj_established_source;
+		project.proj_country= projectUpdates.proj_country;
+		project.proj_type= projectUpdates.proj_type;
+		//project.proj_commodity= projectUpdates.proj_commodity;
+		project.proj_site_name= projectUpdates.proj_site_name;
+		project.proj_address= projectUpdates.proj_address;
+		project.proj_coordinates= projectUpdates.proj_coordinates;
+		project.proj_status= projectUpdates.proj_status;
+		project.description= projectUpdates.description;
+		project.save(function(err) {
+			if(err)
+				return res.send({ reason: err.toString() });
+		})
+	});
+	res.send();
+};
 
+exports.deleteProject = function(req, res) {
+
+	Project.remove({_id: req.params.id}, function(err) {
+		if(!err) {
+			res.send();
+		}else{
+			return res.send({ reason: err.toString() });
+		}
+	});
+	res.send();
 };

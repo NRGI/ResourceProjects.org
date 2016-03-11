@@ -42,21 +42,21 @@ companySchema = new Schema({
 
     ////Links
     //sources: [source],
-    commodities: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    company_group: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    concessions: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    contracts: [{
-        type: ObjectId,
-        ref: 'Link'}],
-    projects: [{
-        type: ObjectId,
-        ref: 'Link'}]
+    //commodities: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //company_group: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //concessions: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //contracts: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}],
+    //projects: [{
+    //    type: ObjectId,
+    //    ref: 'Link'}]
 });
 //TranModel
 //    .find({ quantityout: 1 },

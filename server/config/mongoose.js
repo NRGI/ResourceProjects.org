@@ -9,7 +9,6 @@ var mongoose 		    = require('mongoose'),
     userModel 		    = require('../models/Users'),
     actionModel 		= require('../models/Actions'),
     datasetModel 		= require('../models/Datasets'),
-
     companyModel        = require('../models/Companies'),
     concessionModel 	= require('../models/Concessions'),
     contractModel 	    = require('../models/Contracts'),
@@ -26,14 +25,26 @@ model_load.forEach(function(model_name) {
     require('../models/' + model_name);
 });
 
-module.exports 	= function(config) {
-    // connect to mongodb
-    mongoose.connect(config.db);
+module.exports 	= function(config, user, pass, env) {
+    if (env === 'local') {
+        mongoose.connect(config.db);
+    } else {
+        mongoose.connect('mongodb://' + user + ':' + pass + config.db);
+    }
+
     var db = mongoose.connection;
-    db.on('error', console.error.bind(console,'connection error...'));
+    db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
-        console.log('Resource Projects db opened');
+        console.log('Resource Projects  db opened');
     });
+
+    //// connect to mongodb
+    //mongoose.connect(config.db);
+    //var db = mongoose.connection;
+    //db.on('error', console.error.bind(console,'connection error...'));
+    //db.once('open', function callback() {
+    //    console.log('Resource Projects db opened');
+    //});
     userModel.createDefaultUsers();
     sourceModel.createDefaultSources();
     companyModel.createDefaultCompanies();

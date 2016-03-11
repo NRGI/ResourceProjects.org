@@ -4,7 +4,7 @@ angular.module('app')
         nrgiCommoditiesSrvc
     ) {
         return {
-            createSource: function(new_commodity_data) {
+            createCommodity: function(new_commodity_data) {
                 var new_commodity = new nrgiCommoditiesSrvc(new_commodity_data);
                 var dfd = $q.defer();
 
@@ -15,7 +15,7 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
-            deleteSource: function(commodity_deletion) {
+            deleteCommodity: function(commodity_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiCommoditiesSrvc();
                 delete_ID.id = commodity_deletion;
@@ -27,7 +27,7 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateSource: function(new_commodity_data) {
+            updateCommodity: function(new_commodity_data) {
                 var dfd = $q.defer();
                 new_commodity_data.$update().then(function() {
                     dfd.resolve();

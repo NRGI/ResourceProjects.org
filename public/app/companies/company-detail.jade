@@ -28,22 +28,22 @@
                         tr
                             td.detail_label.small Aliases:
                             td.company_aliases
-                                text(ng-repeat="alias in company.company_aliases")
+                                text(ng-repeat="alias in company.company_aliases | unique: 'alias'")
                                     | {{alias.alias}}
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Part of:
                             td.company_part-of
-                                text(ng-repeat="group in company.company_groups")
+                                text(ng-repeat="group in company.company_groups | unique: '_id'")
                                     a(href='group/{{group._id}}')
                                         span(ng-bind-html="group.company_group_name|sanitize")
                                     | {{$last ? '' : ', '}}
 
                         tr
                             td.detail_label.small Commodities:
-                            td.company_commodities
-                                text(ng-repeat="commodity in company.commodities")
-                                    a(href='commoddity/{{commodity._id}}')
+                            td.company_commoditiea
+                                text(ng-repeat="commodity in company.commodities | unique: '_id'")
+                                    a(href='commodity/{{commodity._id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
@@ -54,6 +54,22 @@
                             td.detail_label.small Companies House ID:
                             td.company_companies_house_id
                                 a(target="_blank" href='https://beta.companieshouse.gov.uk/company/{{company.companies_house_id}}') {{company.companies_house_id}}
+                        tr
+                            td.detail_label.small Contracts:
+                            td.company_contracts
+                                text(ng-repeat="contract in company.contracts | unique: '_id'")
+                                    a(href='contract/{{contract._id}}')
+                                        | {{contract._id}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Concessions:
+                            td.company_contracts
+                                text(ng-repeat="concession in company.concessions | unique: '_id'")
+                                    a(href='concession/{{concession._id}}')
+                                        | {{concession.concession_name}}
+                                    | {{$last ? '' : ', '}}
+
+
         .col-md-6
             .info-box
                 h2
@@ -67,8 +83,13 @@
 
     .row
         .col-md-12
-            nrgi-project-table(projects="company.projects")
-
+            nrgi-project-table(
+            projects="company.projects"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true"
+            companies="false")
     .row.top-padding-med
         .col-md-6
             nrgi-contract-table(
@@ -81,4 +102,11 @@
             nrgi-concession-table(concessions="company.concessions")
     .row
         .col-md-12
-            nrgi-transfer-table(transfers="company.transfers")
+            nrgi-transfer-table(
+            transfers="company.transfers"
+            project="false")
+
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources

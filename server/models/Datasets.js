@@ -9,11 +9,20 @@ var datasetSchema, Dataset,
 
 datasetSchema = new Schema ({
     name: String,
+    //original_file: String,
     source_url: String,
     created: { type: Date, default: Date.now },
     modified: Date,
     created_by: {type: ObjectId, ref: 'User'},
-    actions: [{type: ObjectId, ref: 'Action'}]
+    //actions: [{type: ObjectId, ref: 'Action'}]
+    actions: [{
+        name: String,
+        started: Date,
+        finished: Date,
+        started_by: {type: ObjectId, ref: 'User'},
+        status: String,
+        details: String
+    }]
 });
 
 Dataset = mongoose.model('Dataset', datasetSchema);

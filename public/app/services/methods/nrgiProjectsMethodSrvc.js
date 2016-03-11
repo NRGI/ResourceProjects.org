@@ -4,7 +4,7 @@ angular.module('app')
         nrgiProjectsSrvc
     ) {
         return {
-            createSource: function(new_project_data) {
+            createProject: function(new_project_data) {
                 var new_project = new nrgiProjectsSrvc(new_project_data);
                 var dfd = $q.defer();
 
@@ -15,7 +15,7 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
-            deleteSource: function(project_deletion) {
+            deleteProject: function(project_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiProjectsSrvc();
                 delete_ID.id = project_deletion;
@@ -27,7 +27,7 @@ angular.module('app')
                 };
                 return dfd.promise;
             },
-            updateSource: function(new_project_data) {
+            updateProject: function(new_project_data) {
                 var dfd = $q.defer();
                 new_project_data.$update().then(function() {
                     dfd.resolve();

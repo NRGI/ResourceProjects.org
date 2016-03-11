@@ -1,121 +1,130 @@
 .container
-   .page-header
-      h1
-         span(ng-bind-html="project.proj_name|sanitize")
-         =' '
-         small Project
-   .row
-      .col-md-12
-         leaflet(center="center",controls="controls",markers="project.coordinates",tiles="tiles", height='240px')
-   .row
-      .col-md-6
-         .info-box
-            h2 Project Info
-            table#project-info
-               tbody
-                  tr
-                     td.detail_label ID:
-                     td.project_id {{project._id}}
-                  tr
-                     td.detail_label.small Project site name:
-                     td.project_site
-                        span(ng-repeat='site in project.proj_site_name')
-                           span {{site.string}}
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Country:
-                     td.project_country: text(ng-repeat="country in project.proj_country | unique: 'iso2'")
-                        a(href='country/{{country.country._id}}')
-                           span(ng-bind-html="country.country.name|sanitize")
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Aliases:
-                     td.project_aliases
-                        span(ng-repeat='alias in project.proj_aliases')
-                           span {{alias.alias}}
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Commodity Type(s):
-                     td.project_type
-                        span(ng-repeat='type in project.proj_type')
-                           span {{type.string | ucfirst}}
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Commodities:
-                     td.project_commodities
-                        text(ng-repeat="commodity in project.proj_commodity | unique: 'project._id'")
-                           a(href='commodity/{{commodity.commodity._id}}')
-                              span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Status:
-                     td.project_status: text(
-                     ng-repeat="status in project.proj_status"
-                     ng-if="project.proj_status.length > 0")
-                        text(ng-if="$last")
-                           | {{status.string | ucfirst}}
-                           text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                  tr
-                     td.detail_label.small Contracts:
-                     td
-                        span(ng-repeat='contract in project.contracts')
-                           a(href='contract/{{contract.contract._id}}')
-                              span(ng-bind-html="contract.contract.contract_id|sanitize")
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Concessions:
-                     td.project_contracts: text(
-                     ng-repeat='concession in project.concessions')
-                           a(href='concession/{{concession._id}}')
-                              span(ng-bind-html="concession.concession_name|sanitize")
-                           | {{$last ? '' : ', '}}
-                  tr
-                     td.detail_label.small Address:
-                     td.project_address: text(
-                     ng-repeat='address in project.proj_address')
-                           span(ng-bind-html="address.string|sanitize")
-                           | {{$last ? '' : ', '}}
+    .page-header
+        h1
+            span(ng-bind-html="project.proj_name|sanitize")
+            =' '
+            small Project
+    .row
+        .col-md-12
+            leaflet(
+            center="center"
+            controls="controls"
+            markers="project.coordinates"
+            tiles="tiles"
+            height='240px')
+    .row
+        .col-md-6
+            .info-box
+                h2 Project Info
+                table#project-info
+                    tbody
 
-                  tr
-                     td.detail_label.small(colspan='2')
-                        p Location(s):
-                        table.table.table-striped.locations(ts-wrapper)
-                           tbody
-                              tr
-                                 th.tablesort-sortable-th(ts-criteria='name') Name
-                                 th.tablesort-sortable-th(ts-criteria='lat') Lat
-                                 th.tablesort-sortable-th(ts-criteria='lng') Lng
-                                 th.location-th
-                              tr(ng-repeat='location in project.coordinates',ts-repeat)
-                                 td.location_name
-                                    text {{location.message}}
-                                 td.location_lat
-                                    span(ng-if='location.lat') {{location.lat}}
-                                 td.location_lng
-                                    span(ng-if='location.lng') {{location.lng}}
-                                 td.location_timestamp
-                                    span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
-      .col-md-6
-         .info-box
-            h2
-               | &nbsp;
-            table#project-info
-               tbody
-                  tr
-                     td.project-label.our-id Desctiption:
-                     td.project-description
-                        span(ng-bind-html="project.description|sanitize")
+                        tr
+                            td.detail_label.small ID:
+                            td.project_id {{project._id}}
+                        tr
+                            td.detail_label.small Project site name:
+                            td.project_site
+                                span(ng-repeat='site in project.proj_site_name')
+                                    span {{site.string}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Country:
+                            td.project_country: text(ng-repeat="country in project.proj_country | unique: 'iso2'")
+                                a(href='country/{{country.country.iso2}}')
+                                    span(ng-bind-html="country.country.name|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Aliases:
+                            td.project_aliases
+                                span(ng-repeat="alias in project.proj_aliases | unique: 'alias'")
+                                    span {{alias.alias}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodity Type(s):
+                            td.project_type
+                                span(ng-repeat='type in project.proj_type')
+                                    span {{type.string | ucfirst}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodities:
+                            td.project_commodities
+                                text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                                    a(href='commodity/{{commodity.commodity._id}}')
+                                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Status:
+                            td.project_status: text(
+                            ng-repeat="status in project.proj_status"
+                            ng-if="project.proj_status.length > 0")
+                                text(ng-if="$last")
+                                    | {{status.string | ucfirst}}
+                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        tr
+                            td.detail_label.small Contracts:
+                            td.project_contracts
+                                span(ng-repeat='contract in project.contracts')
+                                    a(href='contract/{{contract.contract._id}}')
+                                        span(ng-bind-html="contract.contract.contract_id|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Concessions:
+                            td.project_concessions: text(
+                            ng-repeat="concession in project.concessions | unique: '_id'")
+                                a(href='concession/{{concession._id}}')
+                                    span(ng-bind-html="concession.concession_name|sanitize")
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Address:
+                            td.project_address: text(
+                            ng-repeat='address in project.proj_address')
+                                span(ng-bind-html="address.string|sanitize")
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small(colspan='2')
+                                p Location(s):
+                                table.table.table-striped.locations(ts-wrapper)
+                                    tbody
+                                        tr
+                                            th.tablesort-sortable-th(ts-criteria='name') Name
+                                            th.tablesort-sortable-th(ts-criteria='lat') Lat
+                                            th.tablesort-sortable-th(ts-criteria='lng') Lng
+                                            th.location-th
+                                        tr(ng-repeat='location in project.coordinates',ts-repeat)
+                                            td.location_name
+                                                text {{location.message}}
+                                            td.location_lat
+                                                span(ng-if='location.lat') {{location.lat}}
+                                            td.location_lng
+                                                span(ng-if='location.lng') {{location.lng}}
+                                            td.location_timestamp
+                                                span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
+        .col-md-6
+            .info-box
+                h2
+                    | &nbsp;
+                table#project-description
+                    tbody
+                        tr
+                            td.project-label.our-id Desctiption:
+                            td.project-description
+                                span(ng-bind-html="project.description|sanitize")
 
-         nrgi-company-table(companies="project.companies")
-   .row
-      .col-md-12
-         nrgi-production-table(productions="project.productions")
+            nrgi-company-table(
+            companies="project.companies"
+            stake="true"
+            group="true")
+    .row
+        .col-md-12
+            nrgi-production-table(productions="project.productions")
 
-   .row
-      .col-md-12
-         nrgi-transfer-table(transfers="project.transfers")
+    .row
+        .col-md-12
+            nrgi-transfer-table(transfers="project.transfers"
+            project="false")
 
-   .advanced-links
-      .container
-         h3
-            a(href='source/{{project.proj_established_source}}') Sources
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources

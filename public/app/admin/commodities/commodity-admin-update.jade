@@ -1,0 +1,40 @@
+.container.top-padding-med
+   .well
+      form.form-horizontal(name='update_commodity_form')
+         fieldset
+            legend Commodity Information
+            .form-group
+               label.col-md-2.control-label(form="name") Commodity name
+               .col-md-10
+                  input.form-control(
+                  name="name"
+                  type="text"
+                  placeholder="Commodity name"
+                  ng-model="commodity.commodity_name"
+                  required)
+            .form-group
+               label.col-md-2.control-label(form="commodity_code") Code
+               .col-md-10
+                  input.form-control(
+                  name="commodity_code"
+                  type="text"
+                  placeholder="Code"
+                  ng-model="commodity.commodity_code"
+                  )
+            .form-group
+               label.col-md-2.control-label(form="commodity_aliases") Aliases
+               .col-md-10
+                  input.form-control(
+                  name="commodity_aliases"
+                  type="text"
+                  placeholder="Aliases"
+                  )
+                  //ng-model="commodity.commodity_aliases"
+            .form-group
+               .col-md-10.col-md-offset-2
+                  .pull-right
+                     button.btn.btn-primary(ng-click="commodityUpdate()", ng-disabled="") Submit
+                     | &nbsp;
+                     button.btn.btn-danger(ng-click="commodityDelete()", ng-disabled="") Delete
+                     | &nbsp;
+                     a.btn.btn-default(href="/") Cancel

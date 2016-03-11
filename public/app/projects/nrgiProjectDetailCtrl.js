@@ -11,6 +11,7 @@ angular.module('app')
         $scope.projectMarkers=[]; $scope.center=[];
         nrgiProjectsSrvc.get({_id: $routeParams.id}, function (success) {
             $scope.project = success;
+            if($scope.project.coordinates.length>0)
             $scope.center={lat:$scope.project.coordinates[0].lat,lng:$scope.project.coordinates[0].lng,zoom: 5};
         });
 

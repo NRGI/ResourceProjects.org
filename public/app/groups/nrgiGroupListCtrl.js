@@ -5,12 +5,11 @@ angular.module('app')
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiCompaniesSrvc
+        nrgiGroupsSrvc
     ) {
         $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
-        $scope.record_type = 'companyGroups';
         var loadCompanyGroups = function(limit,page){
-            nrgiCompaniesSrvc.query({skip: page, limit: limit,record_type:$scope.record_type}, function (response) {
+            nrgiGroupsSrvc.query({skip: page, limit: limit}, function (response) {
                 $scope.count = response.count;$scope.limit = limit;$scope.page = page;
                 $scope.groups=response.data;
                 $scope.show_count = response.data.length+$scope.page;
