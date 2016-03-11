@@ -49,7 +49,6 @@ module.exports 	= function(config, user, pass, env) {
         console.log('Resource Projects db opened');
     });
 
-
     userModel.createDefaultUsers();
     sourceModel.createDefaultSources();
     companyModel.createDefaultCompanies();
