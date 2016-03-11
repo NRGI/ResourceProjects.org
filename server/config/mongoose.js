@@ -1,5 +1,7 @@
 'use strict';
 var mongoose 		    = require('mongoose'),
+    assert              = require('assert'),
+    fs                  = require('fs'),
     linkModel           = require('../models/Links'),
     aliasModel          = require('../models/Aliases'),
     commodityModel      = require('../models/Commodities'),
@@ -26,12 +28,31 @@ model_load.forEach(function(model_name) {
 });
 
 module.exports 	= function(config, user, pass, env) {
+
     if (env === 'local') {
         mongoose.connect(config.db);
     } else {
+        //var ca = [fs.readFileSync(__dirname + "/servercert.crt")];
+        //var options = {
+        //    mongos: {
+        //        ssl: true,
+        //        sslValidate: true,
+        //        sslCA:ca,
+        //    }
+        //};
         mongoose.connect('mongodb://' + user + ':' + pass + config.db);
+        //db.on('open', function (err) {
+        //    assert.equal(null, err);
+        //    db.db.listCollections().toArray(function(err, collections) {
+        //        assert.equal(null, err);
+        //        collections.forEach(function(collection) {
+        //            console.log(collection);
+        //        });
+        //        db.db.close();
+        //        process.exit(0);
+        //    })
+        //});
     }
-
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
