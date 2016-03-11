@@ -81,16 +81,10 @@ exports.createAction = function(req, res, next) {
     var datasetRef = req.params['id'];
     console.log("STUB: Start an action for dataset " + datasetRef)
     //Create the action and set status "running"
-    Dataset.findByIdAndUpdate(
-        datasetRef,
-        {$push: {"actions": {name: req.body.name, started: Date.now(), status: "Started"/* TODO: uncomment once working//, started_by: req.user._id*/}}},
-        {safe: true, upsert: false},
+    Action.create(
+        {name: req.body.name, started: Date.now(), status: "Started"/* TODO: uncomment once working//, started_by: req.user._id*/},
         function(err, model) {
-            if (!err) {
-                res.status(200);
-                res.send();
-            }
-            else {
+            if (err) {
                 res.status(400);
                 console.log(err);
 	            return res.send({reason:err.toString()})
