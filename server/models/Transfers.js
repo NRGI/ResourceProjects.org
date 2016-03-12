@@ -75,10 +75,7 @@ transferSchema = new Schema ({
         enum: transfer_accounting_basis_enu}
 });
 
-//Link.create({transfer:'56be54f9d7bff9921c93c985',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
-//Link.create({transfer:'56be54f9d7bff9921c93c98a',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
-//Link.create({transfer:'56be54f9d7bff9921c93c988',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
-//Link.create({transfer:'56be54f9d7bff9921c93c986',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
+
 
 
 transferSchema.plugin(mongooseHistory, hst_options);

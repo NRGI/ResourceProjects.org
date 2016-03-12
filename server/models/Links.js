@@ -23,6 +23,7 @@ linkSchema = new Schema({
     concession: {type: ObjectId, ref: 'Concession'},
     contract: {type: ObjectId, ref: 'Contract'},
     project: {type: ObjectId, ref: 'Project'},
+    transfer: {type: ObjectId, ref: 'Transfer'},
     source: {type: ObjectId, ref: 'Source'},
     entities: [{ //linked entity
         type: String,
@@ -83,6 +84,15 @@ function createDefaultLinks() {
             Link.create({_id:'56a8def16666580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',project:'56a930f41b5482a31231ef43',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
 
             //transfer links
+            Link.create({transfer:'56be54f9d7bff9921c93c985',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c98a',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c988',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c986',company:'56a13a758f224f670e6a376e',source:'56a13a758f224f670e6a376a',entities:['company','transfer']});
+
+            Link.create({transfer:'56be54f9d7bff9921c93c985',project:'56a930f41b5482a31231ef42',source:'56a13a758f224f670e6a376a',entities:['project','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c98a',project:'56a930f41b5482a31231ef42',source:'56a13a758f224f670e6a376a',entities:['project','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c988',project:'56a930f41b5482a31231ef42',source:'56a13a758f224f670e6a376a',entities:['project','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c986',project:'56a930f41b5482a31231ef42',source:'56a13a758f224f670e6a376a',entities:['project','transfer']});
             //country
             //companies
             //project
