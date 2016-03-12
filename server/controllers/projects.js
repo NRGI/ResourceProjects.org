@@ -100,11 +100,10 @@ exports.getProjects = function(req, res) {
 
 exports.getProjectByID = function(req, res) {
     var link_counter, link_len,project_counter, project_len;
-
     async.waterfall([
         getProject,
         //getTransfers,
-        //getProductions,
+        getProductions,
         getProjectLinks,
         getProjectCoordinate,
         getCompanyGroup
@@ -113,7 +112,6 @@ exports.getProjectByID = function(req, res) {
             res.send(err);
         }
     });
-
 
     function getProject(callback) {
         Project.findOne({_id:req.params.id})
@@ -242,7 +240,6 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-
 
     function getProjectCoordinate(project, callback) {
         project.coordinates = [];
