@@ -114,6 +114,7 @@ exports.getProjectByID = function(req, res) {
         }
     });
 
+
     function getProject(callback) {
         Project.findOne({_id:req.params.id})
             .populate('proj_country.country')
@@ -235,6 +236,7 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
+
 
     function getProjectCoordinate(project, callback) {
         project.coordinates = [];
