@@ -104,7 +104,7 @@ exports.getProjectByID = function(req, res) {
 	async.waterfall([
 		getProject,
 		getTransfers,
-		getProductions,
+		//getProductions,
 		getProjectLinks,
 		getProjectCoordinate,
 		getCompanyGroup
@@ -145,25 +145,26 @@ exports.getProjectByID = function(req, res) {
 				}
 			});
 	}
-	function getProductions(project, callback) {
-		project.productions = [];
-		Production.find({production_project: project._id})
-			.populate('production_commodity')
-			.exec(function(err, productions) {
-				_.each(productions, function(productions) {
-					project.productions.push(productions);
-				});
-				if(project) {
-					callback(null, project);
-				} else {
-					callback(err);
-				}
-			});
-	}
+	//function getProductions(project, callback) {
+	//	project.productions = [];
+	//	Production.find({production_project: project._id})
+	//		.populate('production_commodity')
+	//		.exec(function(err, productions) {
+	//			_.each(productions, function(productions) {
+	//				project.productions.push(productions);
+	//			});
+	//			if(project) {
+	//				callback(null, project);
+	//			} else {
+	//				callback(err);
+	//			}
+	//		});
+	//}
 	function getProjectLinks(project, callback) {
 		project.companies = [];
 		project.commodities = [];
 		project.projects = [];
+		project.productions = [];
 		project.concessions = [];
 		project.contracts = [];
 		Link.find({project: project._id})
@@ -171,7 +172,7 @@ exports.getProjectByID = function(req, res) {
 			.populate('company')
 			.populate('contract')
 			.populate('concession')
-			.deepPopulate('company_group')
+			.deepPopulate('production production.production_commodity')
 			//.deepPopulate('company company.company_group')
 			.exec(function(err, links) {
 				if(links.length>0) {
@@ -202,11 +203,8 @@ exports.getProjectByID = function(req, res) {
 									concession_name: link.concession.concession_name
 								});
 							break;
-							case 'concession':
-								project.concessions.push({
-									_id: link.concession._id,
-									concession_name: link.concession.concession_name
-								});
+							case 'production':
+								project.productions.push(link.production);
 								break;
 							case 'contract':
 								project.contracts.push(link);
@@ -333,7 +331,6 @@ exports.createProject = function(req, res, next) {
 
 exports.updateProject = function(req, res) {
 	var projectUpdates = req.body;
-	console.log(projectUpdates);
 	Project.findOne({_id:req.body._id}).exec(function(err, project) {
 		if(err) {
 			err = new Error('Error');
