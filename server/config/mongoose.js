@@ -19,7 +19,7 @@ var mongoose 		    = require('mongoose'),
     //licenseModel      = require('../models/Licenses'),
     //productionModel   = require('../models/Production'),
     //reservesModel     = require('../models/Reserves'),
-    transferModel     = require('../models/Transfers'),
+    transferModel       = require('../models/Transfers'),
     productionModel     = require('../models/Production'),
     model_load          = ['Facts'];
 
@@ -61,7 +61,7 @@ module.exports 	= function(config, user, pass, env) {
     aliasModel.createDefaultAliases();
     countryModel.createDefaultCountries();
     transferModel.createDefaultTransfers();
-    productionModel.createDefaultProductions();
+    productionModel.createDefaultProduction();
     //contributorModel.createDefaultContributors();
     datasetModel.createDefaultDatasets();
 
