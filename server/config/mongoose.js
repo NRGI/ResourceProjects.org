@@ -36,7 +36,7 @@ module.exports 	= function(config, user, pass, env) {
             mongos: {
                 ssl: true,
                 sslValidate: true,
-                sslCA:ca,
+                sslCA:ca
             }
         };
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
