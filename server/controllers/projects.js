@@ -348,34 +348,33 @@ exports.createProject = function(req, res, next) {
 };
 
 exports.updateProject = function(req, res) {
-    var projectUpdates = req.body;
-    console.log(projectUpdates);
-    Project.findOne({_id:req.body._id}).exec(function(err, project) {
-        if(err) {
-            err = new Error('Error');
-            res.status(400);
-            return res.send({ reason: err.toString() });
-        }
-        project.proj_name= projectUpdates.proj_name;
-        //project.proj_aliases= projectUpdates.proj_aliases;
-        //project.proj_established_source= projectUpdates.proj_established_source;
-        //project.proj_country= projectUpdates.proj_country;
-        //project.proj_type= projectUpdates.proj_type;
-        ////project.proj_commodity= projectUpdates.proj_commodity;
-        //project.proj_site_name= projectUpdates.proj_site_name;
-        //project.proj_address= projectUpdates.proj_address;
-        //project.proj_coordinates= projectUpdates.proj_coordinates;
-        //project.proj_status= projectUpdates.proj_status;
-        //project.description= projectUpdates.description;
-        project.save(function(err) {
-            if(err) {
-                err = new Error('Error');
-                return res.send({reason: err.toString()});
-            } else{
-                res.send();
-            }
-        })
-    });
+	var projectUpdates = req.body;
+	Project.findOne({_id:req.body._id}).exec(function(err, project) {
+		if(err) {
+			err = new Error('Error');
+			res.status(400);
+			return res.send({ reason: err.toString() });
+		}
+		project.proj_name= projectUpdates.proj_name;
+		//project.proj_aliases= projectUpdates.proj_aliases;
+		//project.proj_established_source= projectUpdates.proj_established_source;
+		//project.proj_country= projectUpdates.proj_country;
+		//project.proj_type= projectUpdates.proj_type;
+		////project.proj_commodity= projectUpdates.proj_commodity;
+		//project.proj_site_name= projectUpdates.proj_site_name;
+		//project.proj_address= projectUpdates.proj_address;
+		//project.proj_coordinates= projectUpdates.proj_coordinates;
+		//project.proj_status= projectUpdates.proj_status;
+		//project.description= projectUpdates.description;
+		project.save(function(err) {
+			if(err) {
+				err = new Error('Error');
+				return res.send({reason: err.toString()});
+			} else{
+				res.send();
+			}
+		})
+	});
 };
 
 exports.deleteProject = function(req, res) {

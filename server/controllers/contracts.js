@@ -73,7 +73,7 @@ exports.getContracts = function(req, res) {
                         commodity.map(function(name){return contract.commodities.push(name);});
                     }
                     if (contract_counter == contract_len) {
-                        callback(null, contract_count, contracts);
+                           callback(null, contract_count, contracts);
                     }
                 });
             });
