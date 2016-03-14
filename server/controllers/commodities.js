@@ -194,55 +194,55 @@ exports.getCommodityByID = function(req, res) {
 				}
 			});
 	}
-	function getContracts(commodity, callback) {
-		commodity.contracts = [];
-		var contract_counter = 0;
-		var contract_len = commodity.contracts_link.length;
-		if(contract_len>0) {
-			_.each(commodity.contracts_link, function (contract) {
-				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-					var body = JSON.parse(body);
-					++contract_counter;
-					commodity.contracts.push({
-						_id: contract._id,
-						contract_name: body.name,
-						contract_country: body.country,
-						contract_commodity: body.resource
-					});
-					if (contract_counter == contract_len) {
-						callback(null, commodity);
-					}
-				});
-			});
-		} else{
-			callback(null, commodity);
-		}
-	}
-	function getContracts(commodity, callback) {
-		commodity.contracts = [];
-		var contract_counter = 0;
-		var contract_len = commodity.contracts_link.length;
-		if(contract_len>0) {
-			_.each(commodity.contracts_link, function (contract) {
-				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-					var body = JSON.parse(body);
-					++contract_counter;
-					commodity.contracts.push({
-						_id: contract._id,
-						contract_name: body.name,
-						contract_country: body.country,
-						contract_commodity: body.resource
-					});
-					if (contract_counter == contract_len) {
-						callback(null, commodity);
-					}
-				});
-
-			});
-		} else{
-			callback(null, commodity);
-		}
-	}
+	//function getContracts(commodity, callback) {
+	//	commodity.contracts = [];
+	//	var contract_counter = 0;
+	//	var contract_len = commodity.contracts_link.length;
+	//	if(contract_len>0) {
+	//		_.each(commodity.contracts_link, function (contract) {
+	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+	//				var body = JSON.parse(body);
+	//				++contract_counter;
+	//				commodity.contracts.push({
+	//					_id: contract._id,
+	//					contract_name: body.name,
+	//					contract_country: body.country,
+	//					contract_commodity: body.resource
+	//				});
+	//				if (contract_counter == contract_len) {
+	//					callback(null, commodity);
+	//				}
+	//			});
+	//		});
+	//	} else{
+	//		callback(null, commodity);
+	//	}
+	//}
+	//function getContracts(commodity, callback) {
+	//	commodity.contracts = [];
+	//	var contract_counter = 0;
+	//	var contract_len = commodity.contracts_link.length;
+	//	if(contract_len>0) {
+	//		_.each(commodity.contracts_link, function (contract) {
+	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+	//				var body = JSON.parse(body);
+	//				++contract_counter;
+	//				commodity.contracts.push({
+	//					_id: contract._id,
+	//					contract_name: body.name,
+	//					contract_country: body.country,
+	//					contract_commodity: body.resource
+	//				});
+	//				if (contract_counter == contract_len) {
+	//					callback(null, commodity);
+	//				}
+	//			});
+    //
+	//		});
+	//	} else{
+	//		callback(null, commodity);
+	//	}
+	//}
 	function getContracts(commodity, callback) {
 		commodity.contracts = [];
 		var contract_counter = 0;
@@ -275,11 +275,11 @@ exports.getCommodityByID = function(req, res) {
 		if (commodity.projects.length>0) {
 			commodity.projects.forEach(function (project) {
 				++project_counter;
-				project.project.proj_coordinates.forEach(function (loc) {
+				project.proj_coordinates.forEach(function (loc) {
 					commodity.location.push({
 						'lat': loc.loc[0],
 						'lng': loc.loc[1],
-						'message': "<a href =\'/project/" + project.project._id + "\'>" + project.project.proj_name + "</a><br>" + project.project.proj_name
+						'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
 					});
 					if (project_counter == project_len) {
 						res.send(commodity);
