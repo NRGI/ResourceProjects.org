@@ -1,13 +1,13 @@
 var Project 		= require('mongoose').model('Project'),
-	Country 		= require('mongoose').model('Country'),
-	Source	 		= require('mongoose').model('Source'),
-	Link 	        = require('mongoose').model('Link'),
-	Transfer 	    = require('mongoose').model('Transfer'),
-	Production 	    = require('mongoose').model('Production'),
-	async           = require('async'),
-	_               = require("underscore"),
-	request         = require('request'),
-	encrypt 		= require('../utilities/encryption');
+    Country 		= require('mongoose').model('Country'),
+    Source	 		= require('mongoose').model('Source'),
+    Link 	        = require('mongoose').model('Link'),
+    Transfer 	    = require('mongoose').model('Transfer'),
+    Production 	    = require('mongoose').model('Production'),
+    async           = require('async'),
+    _               = require("underscore"),
+    request         = require('request'),
+    encrypt 		= require('../utilities/encryption');
 
 exports.getProjects = function(req, res) {
     var project_len, link_len, project_counter, link_counter,
@@ -54,48 +54,48 @@ exports.getProjects = function(req, res) {
             });
     }
 
-	function getProjectLinks(project_count, projects, callback) {
-		project_len = projects.length;
-		project_counter = 0;
-		if(project_len>0) {
-			projects.forEach(function (c) {
-				Link.find({project: c._id})
-					.populate('commodity', '_id commodity_name')
-					.populate('company')
-					.exec(function (err, links) {
-						++project_counter;
-						link_len = links.length;
-						link_counter = 0;
-						c.proj_commodity = [];
-						c.companies = 0;
-						links.forEach(function (link) {
-							++link_counter;
-							var entity = _.without(link.entities, 'project')[0];
-							switch (entity) {
-								case 'commodity':
-									c.proj_commodity.push({
-										_id: link.commodity._id,
-										commodity_name: link.commodity.commodity_name
-									});
-									break;
-								//
-								case 'company':
-									c.companies += 1;
-									break;
-								//
-								default:
-									//console.log('error');
-							}
-						});
-						if (project_counter == project_len && link_counter == link_len) {
-							res.send({data: projects, count: project_count});
-						}
-					});
-			});
-		} else{
-			res.send({data: projects, count: project_count});
-		}
-	}
+    function getProjectLinks(project_count, projects, callback) {
+        project_len = projects.length;
+        project_counter = 0;
+        if(project_len>0) {
+            projects.forEach(function (c) {
+                Link.find({project: c._id})
+                    .populate('commodity', '_id commodity_name')
+                    .populate('company')
+                    .exec(function (err, links) {
+                        ++project_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        c.proj_commodity = [];
+                        c.companies = 0;
+                        links.forEach(function (link) {
+                            ++link_counter;
+                            var entity = _.without(link.entities, 'project')[0];
+                            switch (entity) {
+                                case 'commodity':
+                                    c.proj_commodity.push({
+                                        _id: link.commodity._id,
+                                        commodity_name: link.commodity.commodity_name
+                                    });
+                                    break;
+                                //
+                                case 'company':
+                                    c.companies += 1;
+                                    break;
+                                //
+                                default:
+                                //console.log('error');
+                            }
+                        });
+                        if (project_counter == project_len && link_counter == link_len) {
+                            res.send({data: projects, count: project_count});
+                        }
+                    });
+            });
+        } else{
+            res.send({data: projects, count: project_count});
+        }
+    }
 };
 
 exports.getProjectByID = function(req, res) {
@@ -221,7 +221,6 @@ exports.getProjectByID = function(req, res) {
                                 project.transfers.push(link);
                                 break;
                             case 'production':
-                                console.log(link);
                                 project.production.push(link);
                                 break;
                             default:
@@ -333,8 +332,7 @@ exports.getProjectsMap = function(req, res) {
 };
 
 exports.createProject = function(req, res, next) {
-
-	var projectData = req.body;
+    var projectData = req.body;
 	Project.create(projectData, function(err, project) {
 		if(err){
 			err = new Error('Error');
@@ -347,34 +345,34 @@ exports.createProject = function(req, res, next) {
 };
 
 exports.updateProject = function(req, res) {
-	var projectUpdates = req.body;
-	console.log(projectUpdates);
-	Project.findOne({_id:req.body._id}).exec(function(err, project) {
-		if(err) {
-			err = new Error('Error');
-			res.status(400);
-			return res.send({ reason: err.toString() });
-		}
-		project.proj_name= projectUpdates.proj_name;
-		//project.proj_aliases= projectUpdates.proj_aliases;
-		//project.proj_established_source= projectUpdates.proj_established_source;
-		//project.proj_country= projectUpdates.proj_country;
-		//project.proj_type= projectUpdates.proj_type;
-		////project.proj_commodity= projectUpdates.proj_commodity;
-		//project.proj_site_name= projectUpdates.proj_site_name;
-		//project.proj_address= projectUpdates.proj_address;
-		//project.proj_coordinates= projectUpdates.proj_coordinates;
-		//project.proj_status= projectUpdates.proj_status;
-		//project.description= projectUpdates.description;
-		project.save(function(err) {
-			if(err) {
-				err = new Error('Error');
-				return res.send({reason: err.toString()});
-			} else{
-				res.send();
-			}
-		})
-	});
+    var projectUpdates = req.body;
+    console.log(projectUpdates);
+    Project.findOne({_id:req.body._id}).exec(function(err, project) {
+        if(err) {
+            err = new Error('Error');
+            res.status(400);
+            return res.send({ reason: err.toString() });
+        }
+        project.proj_name= projectUpdates.proj_name;
+        //project.proj_aliases= projectUpdates.proj_aliases;
+        //project.proj_established_source= projectUpdates.proj_established_source;
+        //project.proj_country= projectUpdates.proj_country;
+        //project.proj_type= projectUpdates.proj_type;
+        ////project.proj_commodity= projectUpdates.proj_commodity;
+        //project.proj_site_name= projectUpdates.proj_site_name;
+        //project.proj_address= projectUpdates.proj_address;
+        //project.proj_coordinates= projectUpdates.proj_coordinates;
+        //project.proj_status= projectUpdates.proj_status;
+        //project.description= projectUpdates.description;
+        project.save(function(err) {
+            if(err) {
+                err = new Error('Error');
+                return res.send({reason: err.toString()});
+            } else{
+                res.send();
+            }
+        })
+    });
 };
 
 exports.deleteProject = function(req, res) {
