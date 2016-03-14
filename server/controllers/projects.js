@@ -100,10 +100,11 @@ exports.getProjects = function(req, res) {
 
 exports.getProjectByID = function(req, res) {
     var link_counter, link_len,project_counter, project_len;
+
     async.waterfall([
         getProject,
         //getTransfers,
-        getProductions,
+        //getProductions,
         getProjectLinks,
         getProjectCoordinate,
         getCompanyGroup
@@ -116,7 +117,7 @@ exports.getProjectByID = function(req, res) {
     function getProject(callback) {
         Project.findOne({_id:req.params.id})
             .populate('proj_country.country')
-            .populate('proj_aliases', '_id alias')
+            .populate('proj_aliases', ' _id alias')
             .populate('proj_commodity.commodity')
             .lean()
             .exec(function(err, project) {
@@ -173,11 +174,7 @@ exports.getProjectByID = function(req, res) {
             .populate('company')
             .populate('contract')
             .populate('concession')
-            //.populate('source')
-            //.populate('transfer')
-            //.populate('production')
             .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
-            //.deepPopulate('company company.company_group')
             .exec(function(err, links) {
                 if(links.length>0) {
                     link_len = links.length;
@@ -226,7 +223,6 @@ exports.getProjectByID = function(req, res) {
                                 project.transfers.push(link);
                                 break;
                             case 'production':
-                                //console.log(link);
                                 project.production.push(link);
                                 break;
                             default:
