@@ -26,6 +26,7 @@ linkSchema = new Schema({
     transfer: {type: ObjectId, ref: 'Transfer'},
     production: {type: ObjectId, ref: 'Production'},
     source: {type: ObjectId, ref: 'Source'},
+    production: {type: ObjectId, ref: 'Production'},
     entities: [{ //linked entity
         type: String,
         required:'{PATH} is required!',
