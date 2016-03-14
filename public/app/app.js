@@ -295,8 +295,6 @@ angular.module('app').run(function($rootScope, $location,$http,nrgiAuthSrvc,nrgi
         }
     });
     $rootScope.$on('$routeChangeSuccess', function() {
-        console.log(document.body.scrollTop);
         document.body.scrollTop = document.documentElement.scrollTop = 0;
-        console.log(document.body.scrollTop);
     })
 });

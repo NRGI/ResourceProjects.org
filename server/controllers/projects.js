@@ -113,7 +113,9 @@ exports.getProjectByID = function(req, res) {
             res.send(err);
         }
 
+
     });
+
 
     function getProject(callback) {
         Project.findOne({_id:req.params.id})
@@ -241,6 +243,7 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
+
 
     function getProjectCoordinate(project, callback) {
         project.coordinates = [];
