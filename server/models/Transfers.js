@@ -11,16 +11,16 @@ var transferSchema, Transfer,
     ObjectId        = Schema.Types.ObjectId,
 //    mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Sources'},
-//    HTML            = mongoose.Types.Html,
-//    htmlSettings    = {
-//        type: HTML,
-//        setting: {
-//            allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'del'],
-//            allowedAttributes: {
-//                'a': ['href']
-//            }
-//        }
-//    },
+    //HTML            = mongoose.Types.Html,
+    //htmlSettings    = {
+    //    type: HTML,
+    //    setting: {
+    //        allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'del'],
+    //        allowedAttributes: {
+    //            'a': ['href']
+    //        }
+    //    }
+    //},
     mongooseHistory = require('mongoose-history'),
     hst_options         = {customCollectionName: 'transfer_hst'},
     transfer_audit_type_enu      = {
@@ -54,16 +54,16 @@ transferSchema = new Schema ({
         type: ObjectId,
         ref: 'Country'
     },
-    transfer_concession: {
-        type: ObjectId,
-        ref: 'Concession'
-    },
-    transfer_project: {
-        type: ObjectId,
-        ref: 'Project'
-    },
+    //transfer_concession: {
+    //    type: ObjectId,
+    //    ref: 'Concession'
+    //},
+    //transfer_project: {
+    //    type: ObjectId,
+    //    ref: 'Project'
+    //},
     //transfer_note: htmlSettings,
-    //transfer_note: String,
+    transfer_note: String,
     tranfer_gov_entity: String,
     tranfer_gov_entity_id: String,
     transfer_line_item: String,
@@ -87,7 +87,7 @@ function createDefaultTransfers() {
     Transfer.find({}).exec(function (err, transfers) {
         if (transfers.length === 0) {
             Transfer.create({
-                _id: '56be54f9d7bff9921c93c985',
+                _id: '56be54f9d7bff9dd1c93c985',
                 transfer_type: 'Total',
                 source: '56747e060e8cc07115200ee4',
                 transfer_audit_type: 'government_receipt',

@@ -104,7 +104,7 @@ exports.getProjectByID = function(req, res) {
     async.waterfall([
         getProject,
         //getTransfers,
-        getProductions,
+        //getProductions,
         getProjectLinks,
         getProjectCoordinate,
         getCompanyGroup
@@ -146,26 +146,27 @@ exports.getProjectByID = function(req, res) {
     //            }
     //        });
     //}
-    function getProductions(project, callback) {
-        project.productions = [];
-        Production.find({production_project: project._id})
-            .populate('production_commodity')
-            .exec(function(err, productions) {
-                _.each(productions, function(productions) {
-                    project.productions.push(productions);
-                });
-                if(project) {
-                    callback(null, project);
-                } else {
-                    callback(err);
-                }
-            });
-    }
+    //function getProductions(project, callback) {
+    //    project.productions = [];
+    //    Production.find({production_project: project._id})
+    //        .populate('production_commodity')
+    //        .exec(function(err, productions) {
+    //            _.each(productions, function(productions) {
+    //                project.productions.push(productions);
+    //            });
+    //            if(project) {
+    //                callback(null, project);
+    //            } else {
+    //                callback(err);
+    //            }
+    //        });
+    //}
     function getProjectLinks(project, callback) {
         project.companies = [];
         project.commodities = [];
         project.transfers = [];
         project.projects = [];
+        project.production = [];
         project.concessions = [];
         project.contracts = [];
         Link.find({project: project._id})
@@ -174,7 +175,9 @@ exports.getProjectByID = function(req, res) {
             .populate('contract')
             .populate('concession')
             //.populate('transfer')
-            .deepPopulate('company_group transfer.transfer_company transfer.transfer_country')
+            //.populate('production')
+            .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity')
+            //.deepPopulate('company_group transfer.transfer_company transfer.transfer_country')
             //.deepPopulate('company company.company_group')
             .exec(function(err, links) {
                 if(links.length>0) {
@@ -217,7 +220,12 @@ exports.getProjectByID = function(req, res) {
                             case 'transfer':
                                 project.transfers.push(link);
                                 break;
+                            case 'production':
+                                console.log(link);
+                                project.production.push(link);
+                                break;
                             default:
+                                //console.log(link);
                                 console.log('error');
                         }
                         if(link_counter == link_len) {

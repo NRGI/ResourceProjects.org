@@ -7,7 +7,7 @@ angular
             restrict: 'EA',
             controller: 'nrgiProductionTableCtrl',
             scope: {
-                productions: '='
+                production: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-production-table'
         };
