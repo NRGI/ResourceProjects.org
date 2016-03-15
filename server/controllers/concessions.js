@@ -75,7 +75,7 @@ exports.getConcessions = function(req, res) {
                                 c.projects += 1;
                                 break;
                             default:
-                            console.log(entity, 'link skipped...');
+                                console.log(entity, 'link skipped...');
                         }
                         if(concession_counter == concession_len && link_counter == link_len) {
                             res.send({data:concessions, count:concession_count});
