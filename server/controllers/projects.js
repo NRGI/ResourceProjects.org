@@ -117,7 +117,7 @@ exports.getProjectByID = function(req, res) {
     function getProject(callback) {
         Project.findOne({_id:req.params.id})
             .populate('proj_country.country')
-            .populate('proj_aliases', ' _id alias')
+            .populate('proj_aliases', '_id alias')
             .populate('proj_commodity.commodity')
             .lean()
             .exec(function(err, project) {
@@ -182,7 +182,6 @@ exports.getProjectByID = function(req, res) {
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'project')[0];
-                        //console.log(link);
                         //console.log(link.source);
                         //console.log(link.source._id);
                         if (!project.sources[link.source._id]) {
