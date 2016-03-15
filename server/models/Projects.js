@@ -100,6 +100,7 @@ function createDefaultProjects() {
                 proj_name: 'Procect B',
                 proj_aliases: ['56a939e649434cfc1354d64d'],
                 proj_established_source: '56747e060e8cc07115200ee6',
+                proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                 proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],

@@ -190,7 +190,8 @@ exports.getProjectByID = function(req, res) {
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'project')[0];
-                        //console.log(link.source);
+                        console.log(link);
+                        console.log(link.source);
                         //console.log(link.source._id);
                         if (!project.sources[link.source._id]) {
                             project.sources[link.source._id] = link.source;
