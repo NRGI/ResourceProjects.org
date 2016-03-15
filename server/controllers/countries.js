@@ -1,3 +1,5 @@
+'use strict';
+
 var Country 		= require('mongoose').model('Country'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Link            = require('mongoose').model('Link'),
@@ -7,6 +9,7 @@ var Country 		= require('mongoose').model('Country'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
+
 exports.getCountries = function(req, res) {
     var country_len,country_counter,
         limit = Number(req.params.limit),
@@ -67,7 +70,7 @@ exports.getCountries = function(req, res) {
 };
 
 exports.getCountryByID = function(req, res) {
-	var concession_len,concession_counter,link_counter, link_len,company_counter,company_len,project_counter,project_len;
+	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;
 	async.waterfall([
 		getCountry,
 		getCountryCompanies,
@@ -138,10 +141,11 @@ exports.getCountryByID = function(req, res) {
 								companies: []
 							});
 							_.each(proj.proj_coordinates, function (loc) {
+								//++project_counter;
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
-									'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
+									'message': "<a href =\'/project/" + proj._id + "\'>" + proj.proj_name + "</a><br>" + proj.proj_name
 								});
 							});
 							if (project_counter == project_len) {
@@ -231,17 +235,20 @@ exports.getCountryByID = function(req, res) {
 											_id:link._id,
 											company_group_name: link.company_group.company_group_name
 									});
+									console.log('4');
 									break;
 								default:
 									console.log(entity, 'link skipped...');
 							}
 						});
 						if (link_counter == link_len && company_len==company_counter) {
+							console.log('1');
 							callback(null, country);
 						}
 					});
 			})
 		} else {
+			console.log('3');
 			callback(null, country);
 		}
 	}
@@ -327,46 +334,49 @@ exports.getCountryByID = function(req, res) {
 			});
 	}
 };
-
 exports.createCountry = function(req, res, next) {
 	var countryData = req.body;
 	Country.create(countryData, function(err, country) {
 		if(err){
-			res.status(400)
+			res.status(400);
+			err = new Error('Error');
 			return res.send({reason:err.toString()})
+		} else{
+			res.send();
 		}
 	});
-	res.send();
 };
 exports.updateCountry = function(req, res) {
 	var countryUpdates = req.body;
-	Country.findOne({iso2:req.body._id}).exec(function(err, country) {
+	Country.findOne({_id:req.body._id}).exec(function(err, country) {
 		if(err) {
 			res.status(400);
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
-		country._id=countryUpdates._id;
 		country.iso2= countryUpdates.iso2;
 		country.name= countryUpdates.name;
-		country.country_aliases= countryUpdates.country_aliases;
-		country.country_type= countryUpdates.country_type;
-		country.country_commodity= countryUpdates.country_commodity;
+		//country.country_aliases= countryUpdates.country_aliases;
+		//country.country_type= countryUpdates.country_type;
+		//country.country_commodity= countryUpdates.country_commodity;
 		country.save(function(err) {
-			if(err)
-				return res.send({ reason: err.toString() });
+			if(err) {
+				err = new Error('Error');
+				return res.send({reason: err.toString()});
+			} else{
+				res.send();
+			}
 		})
 	});
-	res.send();
 };
 
 exports.deleteCountry = function(req, res) {
-
 	Country.remove({_id: req.params.id}, function(err) {
 		if(!err) {
 			res.send();
 		}else{
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
 	});
-	res.send();
 };

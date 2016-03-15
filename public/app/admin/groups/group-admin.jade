@@ -1,0 +1,18 @@
+.container.top-padding-med
+	.well
+		legend Company Groups
+		.pull-right
+			.btn-group
+				button.btn.btn-default.pull-right(type='button')
+					a(href='/admin/create-group') Create new project
+		table.table
+			thead
+				tr
+					th.tablesort-sortable-th Name
+					th
+			tbody
+				tr(ng-repeat="group in groups | unique: '_id'")
+					td.group_name
+						span(ng-bind-html="group.company_group_name|sanitize")
+					td
+						a.btn.center-block.btn-default(href="/admin/group-admin/{{group._id}}") Edit

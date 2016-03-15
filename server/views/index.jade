@@ -10,26 +10,37 @@ block main-content
                 a.brand(href='/')
                     img(src='../assets/print-logo.jpg' width='185' height='65' alt='Natural Resource Governance Institute Logo')
                 .nav-collapse
-                    ul.nav.list-inline
-                        li
-                            a(href='/about') About
+                    ul.nav.list-inline.left-padding-lg
                         li
                             a(href='/projects') Projects
                         li
-                            a(href='/concessions') Concessions
+                            a(href='/projects') Payments
                         li
-                            a(href='/companies') Companies
+                            a.dropdown-toggle(data-toggle="dropdown") Other Data
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/concessions') Concessions
+                                li
+                                    a(href='/companies') Companies
+                                li
+                                    a(href='/contracts') Contracts
+                                li
+                                    a(href='/countries') Countries
+                                li
+                                    a(href='/commodities') Commodities
                         li
-                            a(href='/contracts') Contracts
-                        li
-                            a(href='/countries') Countries
-                        li
-                            a(href='/commodities') Commodities
-                        li
-                            a(href='/sources') Sources
-                        li
-                            a(href='/glossary') Glossary
-                    form.navbar-search.pull-left(action='')
+                            a.dropdown-toggle(data-toggle="dropdown") About
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/about') About
+                                li
+                                    a(href='/sources') Sources
+                                li
+                                    a(href='/glossary') Glossary
+
+                    form.navbar-search.pull-right(action='')
                         input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
     section.content
         div(ng-view)

@@ -9,10 +9,11 @@ angular.module('app')
         nrgiCountriesSrvc
 
     ) {
-        $scope.country = nrgiCountriesSrvc.get({_id:$routeParams.id});
+        $scope.country = nrgiCountriesSrvc.get({_id: $routeParams.id});
         $scope.countryUpdate = function() {
             nrgiCountriesMethodSrvc.updateCountry($scope.country).then(function() {
                 nrgiNotifier.notify('Country has been updated');
+                $location.path('/admin/country-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });
@@ -20,8 +21,9 @@ angular.module('app')
 
         $scope.countryDelete = function() {
             var country_deletion = $scope.country._id;
-            nrgiCountriesMethodSrvc.deleteSource(country_deletion).then(function() {
+            nrgiCountriesMethodSrvc.deleteCountry(country_deletion).then(function() {
                 nrgiNotifier.notify('Country has been deleted');
+                $location.path('/admin/country-admin');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });

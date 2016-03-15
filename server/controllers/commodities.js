@@ -243,6 +243,31 @@ exports.getCommodityByID = function(req, res) {
 			callback(null, commodity);
 		}
 	}
+	function getContracts(commodity, callback) {
+		commodity.contracts = [];
+		var contract_counter = 0;
+		var contract_len = commodity.contracts_link.length;
+		if(contract_len>0) {
+			_.each(commodity.contracts_link, function (contract) {
+				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+					var body = JSON.parse(body);
+					++contract_counter;
+					commodity.contracts.push({
+						_id: contract._id,
+						contract_name: body.name,
+						contract_country: body.country,
+						contract_commodity: body.resource
+					});
+					if (contract_counter == contract_len) {
+						callback(null, commodity);
+					}
+				});
+
+			});
+		} else{
+			callback(null, commodity);
+		}
+	}
 	function getProjectLocation(commodity,callback) {
 		var project_counter = 0;
 		commodity.location = [];
@@ -311,39 +336,43 @@ exports.createCommodity = function(req, res, next) {
 	var commodityData = req.body;
 	Commodity.create(commodityData, function(err, commodity) {
 		if(err){
-			res.status(400)
+			res.status(400);
+			err = new Error('Error');
 			return res.send({reason:err.toString()})
+		}else {
+			res.send();
 		}
 	});
-	res.send();
 };
 exports.updateCommodity = function(req, res) {
 	var commodityUpdates = req.body;
 	Commodity.findOne({_id:req.body._id}).exec(function(err, commodity) {
 		if(err) {
 			res.status(400);
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
-		commodity._id=commodityUpdates._id;
 		commodity.commodity_name= commodityUpdates.commodity_name;
 		commodity.commodity_code= commodityUpdates.commodity_code;
 		commodity.commodity_aliases= commodityUpdates.commodity_aliases;
 		commodity.save(function(err) {
-			if(err)
-				return res.send({ reason: err.toString() });
+			if(err) {
+				err = new Error('Error');
+				return res.send({reason: err.toString()});
+			} else {
+				res.send();
+			}
 		})
 	});
-	res.send();
 };
 
 exports.deleteCommodity = function(req, res) {
-
 	Commodity.remove({_id: req.params.id}, function(err) {
 		if(!err) {
 			res.send();
 		}else{
+			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
 	});
-	res.send();
 };

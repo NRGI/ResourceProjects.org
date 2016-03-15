@@ -37,7 +37,7 @@ userSchema.methods = {
         return true;
     },
     hasRole: function(role) {
-        return this.roles.indexOf(role) > -1;
+        return this.role.indexOf(role) > -1;
     }
 };
 

@@ -13,16 +13,16 @@ exports.processData = function(link, callback) {
     var report = "";
     var keytoend =  link.substr(link.indexOf("/d/") + 3, link.length);
     var key = keytoend.substr(0, keytoend.indexOf("/"));
-    report += `Using link ${link}\n`;
+    report += 'Using link ${link}\n';
     if (key.length != 44) {
         report += "Could not detect a valid spreadsheet key in URL\n";
         callback("Failed", report);
         return;
     }
     else {
-        report += `Using GS key ${key}\n`;
+        report += 'Using GS key ${key}\n';
     }
-    var feedurl = `https://spreadsheets.google.com/feeds/worksheets/${key}/public/full?alt=json`;
+    var feedurl = 'https://spreadsheets.google.com/feeds/worksheets/${key}/public/full?alt=json';
     
     var sheets = new Object;
     
@@ -37,7 +37,7 @@ exports.processData = function(link, callback) {
             for (var i=0; i<body.feed.entry.length; i++) {
                 for (var j=0; j<body.feed.entry[i].link.length; j++) {
                     if (body.feed.entry[i].link[j].type == "text/csv") {
-                        report += `Getting data from sheet "${body.feed.entry[i].title.$t}"...\n`;
+                        report += 'Getting data from sheet "${body.feed.entry[i].title.$t}"...\n';
                         request({
                             url: body.feed.entry[i].link[j].href
                         }, function (error, response, sbody) {
@@ -57,7 +57,7 @@ exports.processData = function(link, callback) {
                                 item.title = cd.substring(cd.indexOf("\"") + 1, cd.indexOf(".csv\"")).slice(mainTitle.length -1);
                                 item.link = response.request.uri.href;
                                 item.data = rowdata;
-                                report += `${item.title}: Stored ${rowdata.length} rows\n`;
+                                report += '${item.title}: Stored ${rowdata.length} rows\n';
                                 sheets[item.title] = item;
                                 numProcessed++;
                                 if (numProcessed == numSheets) {
@@ -281,8 +281,8 @@ function parseData(sheets, report, finalcallback) {
             }
             if (err) {
                 console.log("PARSE BASIS: Got an error");
-                basisReport += `Processing of basis info caused an error: ${err}\n`;
-                return callback(`Processing of basis info caused an error: ${err}\n`, basisReport);
+                basisReport += 'Processing of basis info caused an error: ${err}\n';
+                return callback('Processing of basis info caused an error: ${err}\n', basisReport);
             }
             console.log("Finished parse basis");
             callback(null, basisReport);

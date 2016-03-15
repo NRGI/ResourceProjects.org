@@ -1,5 +1,7 @@
 'use strict';
 var mongoose 		    = require('mongoose'),
+    assert              = require('assert'),
+    fs                  = require('fs'),
     linkModel           = require('../models/Links'),
     aliasModel          = require('../models/Aliases'),
     commodityModel      = require('../models/Commodities'),
@@ -29,22 +31,24 @@ module.exports 	= function(config, user, pass, env) {
     if (env === 'local') {
         mongoose.connect(config.db);
     } else {
-        mongoose.connect('mongodb://' + user + ':' + pass + config.db);
+        var ca = [fs.readFileSync(__dirname + "/certs/servercert.crt")];
+        var options = {
+            mongos: {
+                ssl: true,
+                sslValidate: true,
+                sslCA:ca,
+            }
+        };
+        mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
     }
 
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
-        console.log('Resource Projects  db opened');
+        console.log('rgi db opened');
     });
 
-    //// connect to mongodb
-    //mongoose.connect(config.db);
-    //var db = mongoose.connection;
-    //db.on('error', console.error.bind(console,'connection error...'));
-    //db.once('open', function callback() {
-    //    console.log('Resource Projects db opened');
-    //});
+
     userModel.createDefaultUsers();
     sourceModel.createDefaultSources();
     companyModel.createDefaultCompanies();

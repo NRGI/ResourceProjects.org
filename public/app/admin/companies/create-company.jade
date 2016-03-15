@@ -21,15 +21,15 @@
                   placeholder="Website"
                   ng-model="company.company_website.string"
                   )
-            .form-group
-               label.col-md-2.control-label(form="company_aliases") Aliases
-               .col-md-10
-                  input.form-control(
-                  name="company_aliases"
-                  type="text"
-                  placeholder="Aliases"
-                  ng-model="company.company_aliases"
-                  )
+            //.form-group
+            //   label.col-md-2.control-label(form="company_aliases") Aliases
+            //   .col-md-10
+            //      input.form-control(
+            //      name="company_aliases"
+            //      type="text"
+            //      placeholder="Aliases"
+            //      ng-model="company.company_aliases"
+            //      )
             .form-group
                label.col-md-2.control-label(form="open_corporates_id") Open Corporates ID
                .col-md-10
@@ -78,4 +78,4 @@
                      ng-click="companyCreate()"
                      ng-disabled="create_company_form.$invalid") Submit
                      | &nbsp;
-                     a.btn.btn-default(href="/") Cancel
+                     a.btn.btn-default(href="/admin/company-admin") Cancel
