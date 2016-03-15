@@ -25,7 +25,11 @@ var sourceSchema, Source,
 sourceSchema = new Schema({
     source_name: String,
     source_type: String, // loaded, edit. api
-    source_type_id: String,
+    //source_type_id: String,
+    source_type_id: {
+        type: ObjectId,
+        ref: 'SourceType'
+    },
     source_url: String,
     source_archive_url: String,
     source_notes: htmlSettings,

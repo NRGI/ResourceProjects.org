@@ -15,6 +15,7 @@ var mongoose 		    = require('mongoose'),
     concessionModel 	= require('../models/Concessions'),
     contractModel 	    = require('../models/Contracts'),
     projectModel        = require('../models/Projects'),
+    sourceTypeModel     = require('../models/SourceTypes'),
     //contributorModel 	= require('../models/Contributors'),
     //licenseModel      = require('../models/Licenses'),
     //productionModel   = require('../models/Production'),
@@ -62,6 +63,7 @@ module.exports 	= function(config, user, pass, env) {
     countryModel.createDefaultCountries();
     transferModel.createDefaultTransfers();
     productionModel.createDefaultProduction();
+    sourceTypeModel.createDefaultSourceTypes();
     //contributorModel.createDefaultContributors();
     datasetModel.createDefaultDatasets();
 
