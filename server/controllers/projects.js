@@ -283,7 +283,7 @@ exports.getProjectByID = function(req, res) {
                         var entity = _.without(link.entities, 'company')[0];
                         switch (entity) {
                             case 'company_group':
-                                if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+                                if (!company.company_groups.hasOwnProperty(link.company_group._id)) {
                                     company.company_groups.push({
                                         _id: link.company_group._id,
                                         company_group_name: link.company_group.company_group_name
@@ -291,7 +291,7 @@ exports.getProjectByID = function(req, res) {
                                 }
                                 break;
                             default:
-                                console.log('error');
+                                //console.log('error');
                         }
                         if(project_counter == project_len && link_counter == link_len) {
                             res.send(project);
