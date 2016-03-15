@@ -24,12 +24,17 @@ var projectSchema, Project,
         }
     },
     mongooseHistory = require('mongoose-history'),
-    hst_options     = {customCollectionName: 'proj_hst'};
+    hst_options     = {customCollectionName: 'proj_hst'},
+    status_enu  = {
+        values: 'exploration development production on_hold inactive unknown'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
+    };
     //type_enu  = {
     //    values: 'mining oil'.split(' '),
     //    //values: ' project '.split(' '),
     //    message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
     //};
+
 
 projectSchema = new Schema({
     proj_name: String,
@@ -43,7 +48,15 @@ projectSchema = new Schema({
     proj_site_name: [fact],
     proj_address: [fact],
     proj_coordinates: [fact],
-    proj_status: [fact],
+    proj_status: [{
+        source: source,
+        string: {
+            type: String,
+            enum: status_enu,
+            default: 'unknown'},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     description: htmlSettings,
 
     //Links
