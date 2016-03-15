@@ -241,7 +241,6 @@ function parseData(sheets, report, finalcallback) {
         finalcallback("Success", report);
         }
     );
-
     function parseEntity(reportSoFar, sheetname, dropRowsStart, dropRowsEnd, entityObj, processRow, entityName, rowIndex, model, modelKey, rowMaker, callback) {
         var intReport = {
             report: reportSoFar, //Relevant for the series waterfall - report gets passed along
@@ -638,11 +637,7 @@ function parseData(sheets, report, finalcallback) {
                                         return callback(`Failed: ${candcReport.report}`);
                                     }
                                     //Update any created facts
-<<<<<<< HEAD
                                     companiesReport.add(`Linked company ${row[2]} with project ${row[1]} in the DB.\n`);
-=======
-                                    companiesReport.add(`Linked company ${row[2]} with project ${row[1]} in the DB.\n`); 
->>>>>>> 37491fa024cb594a91cd2f8344026890df00c31a
                                     return callback(null);
                                 }
                             );*/
