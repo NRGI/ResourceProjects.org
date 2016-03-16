@@ -99,6 +99,7 @@ exports.getProjects = function(req, res) {
 };
 exports.getProjectByID = function(req, res) {
     var link_counter, link_len,project_counter, project_len;
+
     async.waterfall([
         getProject,
         //getTransfers,
@@ -112,6 +113,7 @@ exports.getProjectByID = function(req, res) {
         }
 
     });
+
 	function getProject(callback) {
         Project.findOne({_id:req.params.id})
             .populate('proj_country.country')
@@ -172,11 +174,10 @@ exports.getProjectByID = function(req, res) {
             .populate('company')
             .populate('contract')
             .populate('concession')
-            .populate('source')
+            //.populate('source')
             //.populate('transfer')
             //.populate('production')
-            .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity')
-            //.deepPopulate('company_group transfer.transfer_company transfer.transfer_country')
+            .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
             //.deepPopulate('company company.company_group')
             .exec(function(err, links) {
                 if(links.length>0) {

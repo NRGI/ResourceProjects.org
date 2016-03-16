@@ -15,6 +15,7 @@ var mongoose 		    = require('mongoose'),
     concessionModel 	= require('../models/Concessions'),
     contractModel 	    = require('../models/Contracts'),
     projectModel        = require('../models/Projects'),
+    sourceTypeModel     = require('../models/SourceTypes'),
     //contributorModel 	= require('../models/Contributors'),
     //licenseModel      = require('../models/Licenses'),
     //productionModel   = require('../models/Production'),
@@ -45,7 +46,7 @@ module.exports 	= function(config, user, pass, env) {
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
-        console.log('rgi db opened');
+        console.log('Resource Projects db opened');
     });
 
 
@@ -62,6 +63,7 @@ module.exports 	= function(config, user, pass, env) {
     countryModel.createDefaultCountries();
     transferModel.createDefaultTransfers();
     productionModel.createDefaultProduction();
+    sourceTypeModel.createDefaultSourceTypes();
     //contributorModel.createDefaultContributors();
     datasetModel.createDefaultDatasets();
 

@@ -22,7 +22,11 @@ var sourceSchema, concessionSchema, Concession,
         }
     },
     mongooseHistory = require('mongoose-history'),
-    hst_options         = {customCollectionName: 'concession_hst'};
+    hst_options         = {customCollectionName: 'concession_hst'},
+    status_enu  = {
+        values: 'exploration development production on_hold inactive unknown'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
+    };
 
 concessionSchema = new Schema ({
     //Metadata
@@ -33,7 +37,15 @@ concessionSchema = new Schema ({
     concession_established_source: source,
     description: htmlSettings,
     concession_country: [fact],
-    concession_status: [fact], //status i.e. exploration, production, etc.
+    concession_status: [{
+        source: source,
+        string: {
+            type: String,
+            enum: status_enu,
+            default: 'unknown'},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
     concession_commodity: [fact],
 
