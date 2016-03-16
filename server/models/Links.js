@@ -51,9 +51,9 @@ function createDefaultLinks() {
             Link.create({_id:'56a8e342b9a34fbb07013c5f',company_group:'56a14d8ee47b92f110ce9a57',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','company_group']});
             Link.create({_id:'56b923ea7a800a0d19c5f872',company_group:'56a14d8ee47b92f110ce9a58',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','company_group']});
             //project-company
-            Link.create({_id:'56b92074a836fc16182ed7de',project:'56a930f41b5482a31231ef42',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','project']});
-            Link.create({_id:'56b92074a836fc16182ed7e0',project:'56a930f41b5482a31231ef43',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee6',entities:['company','project']});
-            Link.create({_id:'56b92074a836fc16182ed7df',project:'56a930f41b5482a31231ef44',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee6',entities:['company','project']});
+            Link.create({_id:'56b92074a836fc16182ed7de',project:'56a930f41b5482a31231ef42',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','project']});
+            Link.create({_id:'56b92074a836fc16182ed7e0',project:'56a930f41b5482a31231ef43',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','project']});
+            Link.create({_id:'56b92074a836fc16182ed7df',project:'56a930f41b5482a31231ef44',company:'56a13a758f224f670e6a376a',source:'56747e060e8cc07115200ee5',entities:['company','project']});
             //company-commodity
             Link.create({_id:'56a8def185d9580a07c58280',commodity:'56a13e9942c8bef50ec2e9e8',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
             Link.create({_id:'56a8def185d9580a07c58281',commodity:'56a13e9942c8bef50ec2e9eb',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee4',entities:['company','commodity']});
