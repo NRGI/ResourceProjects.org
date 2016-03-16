@@ -2,25 +2,25 @@ h2 Production Stats
 table.table.table-striped.projects(ts-wrapper)#transfer-info
     thead
         tr
-            th.tablesort-sortable-th(ts-criteria='prod.production.production_year|parseInt') Year
-            th.tablesort-sortable-th(ts-criteria='prod.production.production_volume') Volume
-            th.tablesort-sortable-th(ts-criteria='prod.production.production_unit') Unit
-            th.tablesort-sortable-th(ts-criteria='prod.production.production_commodity.commodity_name') Commodity
-            th.tablesort-sortable-th(ts-criteria='prod.production.production_price|parseInt') Price
-            th.tablesort-sortable-th(ts-criteria='prod.production.production_price_unit') Price unit
+            th.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
+            th.tablesort-sortable-th(ts-criteria='production_volume') Volume
+            th.tablesort-sortable-th(ts-criteria='production_unit') Unit
+            th.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
+            th.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
+            th.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
     tbody
         tr(
         ng-repeat="prod in production"
         ts-repeat)
             //td {{prod.production.production_commodity}}
-            td.production_year {{prod.production.production_year}}
-            td.production_volume  {{prod.production.production_volume}}
-            td.production_unit {{prod.production.production_unit}}
+            td.production_year {{prod.production_year}}
+            td.production_volume  {{prod.production_volume}}
+            td.production_unit {{prod.production_unit}}
             td.production_commodity
-                a(href='commodity/{{prod.production.production_commodity._id}}')
-                    | {{prod.production.production_commodity.commodity_name}}
-            td.production_price {{prod.production.production_price}}
-            td.production_price_per_unit {{prod.production.production_price_unit}}
+                a(href='commodity/{{prod.production_commodity._id}}')
+                    | {{prod.production_commodity.commodity_name}}
+            td.production_price {{prod.production_price}}
+            td.production_price_per_unit {{prod.production_price_unit}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span

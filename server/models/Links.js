@@ -71,6 +71,10 @@ function createDefaultLinks() {
             Link.create({_id:'56b9207ffffffc16182ed7de',project:'56a930f41b5482a31231ef42',contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entities:['contract','project']});
             Link.create({_id:'56b920dddddddc16182ed7e0',project:'56a930f41b5482a31231ef43',contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee6',entities:['contract','project']});
             Link.create({_id:'56b92hhhhhhhhc16182ed7df',project:'56a930f41b5482a31231ef44',contract:'56a2eb4345d114c30439ec21',source:'56747e060e8cc07115200ee6',entities:['contract','project']});
+            Link.create({_id:'56be54f9d7bff9921c93c985',project:'56a930f41b5482a31231ef42',production:'56be54f9d7bff9921c93c985',entities:['project','production']});
+            Link.create({_id:'56be54f9d7bff9921c93c986',project:'56a930f41b5482a31231ef43',production:'56be54f9d7bff9921c93c986',entities:['project','production']});
+            Link.create({_id:'56be54f9d7bff9921c93c987',project:'56a930f41b5482a31231ef44',production:'56be54f9d7bff9921c93c987',entities:['project','production']});
+            Link.create({_id:'56be54f9d7bff9921c93c988',project:'56a930f41b5482a31231ef44',production:'56be54f9d7bff9921c93c988',entities:['project','production']});
 
             //transfer links
             //country

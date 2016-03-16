@@ -11,7 +11,6 @@ var Concession 		= require('mongoose').model('Concession'),
     async           = require('async'),
     _               = require("underscore");
 
-
 exports.getConcessions = function(req, res) {
     var concession_len, link_len, concession_counter, link_counter,
         limit = Number(req.params.limit),
@@ -20,7 +19,7 @@ exports.getConcessions = function(req, res) {
     async.waterfall([
         concessionCount,
         getConcessionSet,
-        getConcessionLinks,
+        getConcessionLinks
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -53,7 +52,6 @@ exports.getConcessions = function(req, res) {
                 }
             });
     }
-
     function getConcessionLinks(concession_count, concessions, callback) {
         concession_len = concessions.length;
         concession_counter = 0;
@@ -86,7 +84,6 @@ exports.getConcessions = function(req, res) {
         });
     }
 };
-
 exports.getConcessionByID = function(req, res) {
     var link_counter, link_len,concession_counter, concession_len;
 
@@ -234,7 +231,6 @@ exports.getConcessionByID = function(req, res) {
     //    //console.log(company.contract_pull);
     //    //callback(null, company);
     //}
-
     function getCompanyGroup(concession, callback) {
         concession_len = concession.companies.length;
         concession_counter = 0;
@@ -295,7 +291,6 @@ exports.getConcessionByID = function(req, res) {
         }
     }
 };
-
 exports.createConcession = function(req, res, next) {
     var concessionData = req.body;
     Concession.create(concessionData, function(err, concession) {
@@ -309,7 +304,6 @@ exports.createConcession = function(req, res, next) {
     });
 
 };
-
 exports.updateConcession = function(req, res) {
     var concessionUpdates = req.body;
     Concession.findOne({_id:req.body._id}).exec(function(err, concession) {
@@ -319,18 +313,18 @@ exports.updateConcession = function(req, res) {
             return res.send({ reason: err.toString() });
         }
         concession.concession_name= concessionUpdates.concession_name;
-        concession.concession_aliases= concessionUpdates.concession_aliases;
-        concession.concession_established_source= concessionUpdates.concession_established_source;
+        //concession.concession_aliases= concessionUpdates.concession_aliases;
+        //concession.concession_established_source= concessionUpdates.concession_established_source;
         concession.description= concessionUpdates.description;
-        concession.concession_country= concessionUpdates.concession_country;
-        concession.concession_status= concessionUpdates.concession_status;
-        concession.concession_type= concessionUpdates.concession_type;
-        concession.concession_commodity= concessionUpdates.concession_commodity;
-        concession.oo_concession_id= concessionUpdates.oo_concession_id;
-        concession.oo_url_api= concessionUpdates.oo_url_api;
-        concession.oo_url_wiki= concessionUpdates.oo_url_wiki;
-        concession.oo_source_date= concessionUpdates.oo_source_date;
-        concession.oo_details= concessionUpdates.oo_details;
+        //concession.concession_country= concessionUpdates.concession_country;
+        //concession.concession_status= concessionUpdates.concession_status;
+        //concession.concession_type= concessionUpdates.concession_type;
+        //concession.concession_commodity= concessionUpdates.concession_commodity;
+        //concession.oo_concession_id= concessionUpdates.oo_concession_id;
+        //concession.oo_url_api= concessionUpdates.oo_url_api;
+        //concession.oo_url_wiki= concessionUpdates.oo_url_wiki;
+        //concession.oo_source_date= concessionUpdates.oo_source_date;
+        //concession.oo_details= concessionUpdates.oo_details;
         concession.save(function(err) {
             if(err) {
                 err = new Error('Error');
@@ -341,7 +335,6 @@ exports.updateConcession = function(req, res) {
         })
     });
 };
-
 exports.deleteConcession = function(req, res) {
     Concession.remove({_id: req.params.id}, function(err) {
         if(!err) {

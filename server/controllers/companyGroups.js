@@ -321,9 +321,7 @@ exports.updateCompanyGroup = function(req, res) {
 		})
 	});
 };
-
 exports.deleteCompanyGroup = function(req, res) {
-
 	CompanyGroup.remove({_id: req.params.id}, function(err) {
 		if(!err) {
 			res.send();

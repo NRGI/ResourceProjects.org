@@ -238,10 +238,10 @@ function parseData(sheets, report, finalcallback) {
                     function(err, doc) {  
                         if (err) {
                             countriesReport.add("Encountered an error while querying the DB. Aborting.\n");
-                            return callback(`Failed: ${countriesReport.report}`);
+                            return callback('Failed: ${countriesReport.report}');
                         }
                         else if (doc) {
-                            countriesReport.add(`Country ${row[0]} already exists in the DB (iso match), not adding\n`);
+                            countriesReport.add('Country ${row[0]} already exists in the DB (iso match), not adding\n');
                             countries[row[1]] = doc; //Identify by code, this is present in (almost - TODO(?)) all sheets
                             return callback(null);
                         }
@@ -250,10 +250,10 @@ function parseData(sheets, report, finalcallback) {
                                 makeNewCountry(row),
                                 function(err, model) {
                                     if (err) {
-                                        countriesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                        return callback(`Failed: ${countriesReport.report}`);
+                                        countriesReport.add('Encountered an error while updating the DB: ${err}. Aborting.\n');
+                                        return callback('Failed: ${countriesReport.report}');
                                     }
-                                    countriesReport.add(`Added country ${row[0]} to the DB.\n`); 
+                                    countriesReport.add('Added country ${row[0]} to the DB.\n'); 
                                     countries[row[1]] = model;
                                     return callback(null);
                                 }
@@ -279,23 +279,23 @@ function parseData(sheets, report, finalcallback) {
                     function(err, doc) {  
                         if (err) {
                             sourcesReport.add("Encountered an error while querying the DB. Aborting.\n");
-                            return callback(`Failed: ${sourcesReport.report}`);
+                            return callback('Failed: ${sourcesReport.report}');
                         }
                         else if (doc) {
-                            sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), checking content\n`);
+                            sourcesReport.add('Source ${row[0]} already exists in the DB (url match), checking content\n');
                             if (equalDocs(doc, makeNewSource(false, row))) {
-                                sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), not adding\n`);
+                                sourcesReport.add('Source ${row[0]} already exists in the DB (url match), not adding\n');
                                 sources[row[0]] = doc;
                                 return callback(null);
                             }
                             else {
-                                sourcesReport.add(`Source ${row[0]} already exists in the DB (url match),flagging as duplicate\n`);
+                                sourcesReport.add('Source ${row[0]} already exists in the DB (url match),flagging as duplicate\n');
                                 Source.create(
                                     makeNewSource(true, row, doc._id),
                                     function(err, model) {
                                         if (err) {
-                                                sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                                return callback(`Failed: ${sourcesReport.report}`);
+                                                sourcesReport.add('Encountered an error while updating the DB: ${err}. Aborting.\n');
+                                                return callback('Failed: ${sourcesReport.report}');
                                         }
                                         sources[row[0]] = model;
                                         return callback(null);
@@ -308,17 +308,17 @@ function parseData(sheets, report, finalcallback) {
                                 {source_name: row[0].trim()},
                                 (function(err, doc) {
                                     if (err) {
-                                        sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
-                                        return callback(`Failed: ${sourcesReport.report}`);
+                                        sourcesReport.add('Encountered an error while querying the DB: ${err}. Aborting.\n');
+                                        return callback('Failed: ${sourcesReport.report}');
                                     }
                                     else if (doc) {
-                                        sourcesReport.add(`Source ${row[0]} already exists in the DB (name match), will flag as possible duplicate\n`);
+                                        sourcesReport.add('Source ${row[0]} already exists in the DB (name match), will flag as possible duplicate\n');
                                         Source.create(
                                             makeNewSource(true, row, doc._id),
                                             (function(err, model) {
                                                 if (err) {
-                                                    sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
-                                                    return callback(`Failed: ${sourcesReport.report}`);
+                                                    sourcesReport.add('Encountered an error while creating a source in the DB: ${err}. Aborting.\n');
+                                                    return callback('Failed: ${sourcesReport.report}');
                                                 }
                                                 sources[row[0]] = model;
                                                 return callback(null);
@@ -326,13 +326,13 @@ function parseData(sheets, report, finalcallback) {
                                         );
                                     }
                                     else {
-                                        sourcesReport.add(`Source ${row[0]} not found in the DB, creating\n`);
+                                        sourcesReport.add('Source ${row[0]} not found in the DB, creating\n');
                                         Source.create(
                                             makeNewSource(false, row),
                                             (function(err, model) {
                                                 if (err) {
-                                                    sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
-                                                    return callback(`Failed: ${sourcesReport.report}`);
+                                                    sourcesReport.add('Encountered an error while creating a source in the DB: ${err}. Aborting.\n');
+                                                    return callback('Failed: ${sourcesReport.report}');
                                                 }
                                                 sources[row[0]] = model;
                                                 return callback(null);
@@ -360,10 +360,10 @@ function parseData(sheets, report, finalcallback) {
                     function(err, doc) {  
                         if (err) {
                             commoditiesReport.add("Encountered an error while querying the DB. Aborting.\n");
-                            return callback(`Failed: ${commoditiesReport.report}`);
+                            return callback('Failed: ${commoditiesReport.report}');
                         }
                         else if (doc) {
-                            commoditiesReport.add(`Commodity ${row[9]} already exists in the DB (name match), not adding\n`);
+                            commoditiesReport.add('Commodity ${row[9]} already exists in the DB (name match), not adding\n');
                             commodities[row[9]] = doc;
                             return callback(null);
                         }
@@ -372,10 +372,10 @@ function parseData(sheets, report, finalcallback) {
                                 makeNewCommodity(row),
                                 function(err, model) {
                                     if (err) {
-                                        commoditiesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                        return callback(`Failed: ${commoditiesReport.report}`);
+                                        commoditiesReport.add('Encountered an error while updating the DB: ${err}. Aborting.\n');
+                                        return callback('Failed: ${commoditiesReport.report}');
                                     }
-                                    commoditiesReport.add(`Added commodity ${row[9]} to the DB.\n`); 
+                                    commoditiesReport.add('Added commodity ${row[9]} to the DB.\n'); 
                                     commodities[row[9]] = model;
                                     return callback(null);
                                 }
@@ -405,30 +405,30 @@ function parseData(sheets, report, finalcallback) {
                 function(err, doc) {  
                     if (err) {
                         companiesReportReport.add("Encountered an error while querying the DB. Aborting.\n");
-                        return callback(`Failed: ${companiesReportReport.report}`);
+                        return callback('Failed: ${companiesReportReport.report}');
                     }
                     else if (doc) {
-                        companiesReport.add(`Company ${row[3]} already exists in the DB (name or alias match), not adding\n`);
+                        companiesReport.add('Company ${row[3]} already exists in the DB (name or alias match), not adding\n');
                         companies[row[3]] = doc;
                         return callback(null);
                     }
                     else {
                         var newCompany = makeNewCompany(row);
                         if (!newCompany) {
-                            companiesReport.add(`Invalid data in row: ${row}. Aborting.\n`);
-                            return callback(`Failed: ${companiesReport.report}`);
+                            companiesReport.add('Invalid data in row: ${row}. Aborting.\n');
+                            return callback('Failed: ${companiesReport.report}');
                         }
                         Company.create(
                             newCompany,
                             function(err, model) {
                                 if (err) {
-                                    companiesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                    return callback(`Failed: ${companiesReport.report}`);
+                                    companiesReport.add('Encountered an error while updating the DB: ${err}. Aborting.\n');
+                                    return callback('Failed: ${companiesReport.report}');
                                 }
                                 //Update any created facts
                                 if (model.country_of_incorporation) model.country_of_incorporation.company = model._id;
                                 if (model.company_website) model.company_website.company = model._id;
-                                companiesReport.add(`Added company ${row[3]} to the DB.\n`); 
+                                companiesReport.add('Added company ${row[3]} to the DB.\n'); 
                                 companies[row[3]] = model;
                                 return callback(null);
                             }

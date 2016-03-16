@@ -19,9 +19,9 @@
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
-                th.tablesort-sortable-th(ts-criteria='country.name') Country
-                th.tablesort-sortable-th(ts-criteria='contract_type') Commodity Type
-                th.tablesort-sortable-th(ts-criteria='commodities_name') Commodity
+                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
+                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
                 th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
         tbody
             tr(ng-repeat="contract in contracts",ts-repeat)
@@ -32,9 +32,10 @@
                         span(ng-bind-html="rc_info.contract_country.name | sanitize")
                 td.commodity_type: text(ng-repeat="rc_info in contract.rc_info")
                     span(ng-bind="rc_info.contract_type[rc_info.contract_type.length-1].toString()")
-                td.contract_commodities: text(ng-repeat="rc_info in contract.rc_info")
-                    span(ng-bind="rc_info.contract_commodity.toString()")
-                td.contract_projects: span(ng-if="contract.projects!=0") {{contract.projects}}
+                td.contract_commodities: text(ng-repeat="commodity in contract.commodity")
+                    a(href='commodity/{{ commodity._id }}')
+                        span(ng-bind="commodity.commodity_name")
+                td.contract_projects: span {{contract.projects}}
 
     nrgi-list-nav(
     page="page"

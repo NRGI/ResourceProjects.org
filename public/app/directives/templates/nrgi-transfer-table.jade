@@ -14,17 +14,17 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
         tr(
         ng-repeat="transfer in transfers"
         ts-repeat)
-            td.transfer_year {{transfer.transfer.transfer_year}}
-            td.transfer_company: a(href="company/{{transfer.transfer.transfer_company._id}}")
-                span(ng-bind-html="transfer.transfer.transfer_company.company_name|sanitize")
+            td.transfer_year {{transfer.transfer_year}}
+            td.transfer_company: a(href="company/{{transfer.transfer_company._id}}")
+                span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
             td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.transfer_company._id}}")
                 span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
-            td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.transfer.transfer_country.iso2}}")
-                span(ng-bind-html="transfer.transfer.transfer_country.name|sanitize")
-            td.transfer_type {{transfer.transfer.transfer_type}}
-            td.transfer_unit {{transfer.transfer.transfer_unit}}
-            td.transfer_value {{transfer.transfer.transfer_value}}
-            td.transfer_audit_type {{transfer.transfer.transfer_audit_type}}
+            td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.transfer_country.iso2}}")
+                span(ng-bind-html="transfer.transfer_country.name|sanitize")
+            td.transfer_type {{transfer.transfer_type}}
+            td.transfer_unit {{transfer.transfer_unit}}
+            td.transfer_value {{transfer.transfer_value}}
+            td.transfer_audit_type {{transfer.transfer_audit_type}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span

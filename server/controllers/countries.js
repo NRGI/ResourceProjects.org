@@ -68,7 +68,6 @@ exports.getCountries = function(req, res) {
         });
     }
 };
-
 exports.getCountryByID = function(req, res) {
 	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;
 	async.waterfall([
@@ -235,20 +234,17 @@ exports.getCountryByID = function(req, res) {
 											_id:link._id,
 											company_group_name: link.company_group.company_group_name
 									});
-									console.log('4');
 									break;
 								default:
 									console.log(entity, 'link skipped...');
 							}
 						});
 						if (link_counter == link_len && company_len==company_counter) {
-							console.log('1');
 							callback(null, country);
 						}
 					});
 			})
 		} else {
-			console.log('3');
 			callback(null, country);
 		}
 	}
@@ -369,7 +365,6 @@ exports.updateCountry = function(req, res) {
 		})
 	});
 };
-
 exports.deleteCountry = function(req, res) {
 	Country.remove({_id: req.params.id}, function(err) {
 		if(!err) {
