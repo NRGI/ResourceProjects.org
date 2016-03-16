@@ -171,7 +171,6 @@ var makeNewProject = function(newRow) {
     if (newRow[3].trim() != "") project.proj_address = [{string: newRow[3].trim(), source: sources[newRow[0]]._id}];
     if (newRow[6].trim() != "") project.proj_coordinates = [{loc: [parseFloat(newRow[6].trim()), parseFloat(newRow[7].trim())], source: sources[newRow[0]]._id}];
     if (newRow[9].trim() != "") project.proj_commodity = [{commodity: commodities[newRow[9].trim()]._id, source: sources[newRow[0]]._id}];
-
     return project;
 }
 
@@ -242,8 +241,6 @@ function parseData(sheets, report, finalcallback) {
         finalcallback("Success", report);
         }
     );
-    
-    ;
 
     function parseEntity(reportSoFar, sheetname, dropRowsStart, dropRowsEnd, entityObj, processRow, entityName, rowIndex, model, modelKey, rowMaker, callback) {
         var intReport = {
@@ -293,7 +290,6 @@ function parseData(sheets, report, finalcallback) {
             //The list of countries of relevance for this dataset is taken from the project list
             parseEntity("", '1.ProjectList', 3, 2, countries, processGenericRow, "Country", 1, Country, "iso2", makeNewCountry, callback);
         }
-
         function parseCommodities(callback) {
             //TODO: In some sheets only a group is named...
             commodities = new Object;
@@ -545,6 +541,7 @@ function parseData(sheets, report, finalcallback) {
                                 if (model.proj_coordinates.length > 0) for (fact in model.proj_coordinates) { fact.project = model._id; }
                                 if (model.proj_status.length > 0) for (fact in model.proj_status) { fact.project = model._id; }
                                 projectsReport.add(`Added project ${row[rowIndex]} to the DB.\n`);
+
                                 projects[row[rowIndex]] = model;
                                 return callback(null);
                             }
@@ -641,7 +638,11 @@ function parseData(sheets, report, finalcallback) {
                                         return callback(`Failed: ${candcReport.report}`);
                                     }
                                     //Update any created facts
+<<<<<<< HEAD
                                     companiesReport.add(`Linked company ${row[2]} with project ${row[1]} in the DB.\n`);
+=======
+                                    companiesReport.add(`Linked company ${row[2]} with project ${row[1]} in the DB.\n`); 
+>>>>>>> 37491fa024cb594a91cd2f8344026890df00c31a
                                     return callback(null);
                                 }
                             );*/

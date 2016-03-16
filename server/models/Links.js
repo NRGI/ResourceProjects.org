@@ -103,8 +103,6 @@ function createDefaultLinks() {
             Link.create({production:'56be54f9d7bff9921c93c989',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','production']});
             Link.create({production:'56be54f9d7bff9921c93c990',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','production']});
 
-
-
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
