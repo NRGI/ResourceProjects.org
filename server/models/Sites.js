@@ -56,6 +56,7 @@ function createDefaultSites() {
     Site.find({}).exec(function(err, sites) {
         if(sites.length === 0) {
            Site.create({
+               _id: '56eb117c0007bf5b2a3e4b71',
                site_name: 'Test site 1',
                field: false,
                site_type: [{source: '56747e060e8cc07115200ee3', string: 'mining'}],
@@ -67,6 +68,7 @@ function createDefaultSites() {
                description: '<p>yes</p><p>no</p>'
            });
             Site.create({
+                _id: '56eb117c0007bf5b2a3e4b76',
                 site_name: 'Test field 1',
                 field: true,
                 site_type: [{source: '56747e060e8cc07115200ee3', string: 'oil'}],

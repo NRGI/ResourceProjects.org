@@ -172,12 +172,15 @@ exports.getProjectByID = function(req, res) {
         project.production = [];
         project.concessions = [];
         project.contracts = [];
+        project.sites = [];
+        project.fields = [];
         project.sources = {};
         Link.find({project: project._id})
             .populate('commodity')
             .populate('company')
             .populate('contract')
             .populate('concession')
+            .populate('site')
             .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
             .exec(function(err, links) {
                 if(links.length>0) {
