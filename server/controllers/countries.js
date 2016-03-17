@@ -68,7 +68,6 @@ exports.getCountries = function(req, res) {
         });
     }
 };
-
 exports.getCountryByID = function(req, res) {
 	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;
 	async.waterfall([
@@ -365,7 +364,6 @@ exports.updateCountry = function(req, res) {
 		})
 	});
 };
-
 exports.deleteCountry = function(req, res) {
 	Country.remove({_id: req.params.id}, function(err) {
 		if(!err) {

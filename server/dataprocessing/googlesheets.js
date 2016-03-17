@@ -670,4 +670,4 @@ function parseData(sheets, report, finalcallback) {
         result += "Reserves READ\n";
         callback(null, result);
     }
-}
+};

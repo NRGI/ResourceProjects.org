@@ -20,7 +20,7 @@ exports.getContracts = function(req, res) {
         getContractSet,
         getContractRCData,
         getCommodity,
-        getContractLinks,
+        getContractLinks
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -35,7 +35,6 @@ exports.getContracts = function(req, res) {
             }
         });
     }
-
     function getContractSet(contract_count, callback) {
         Contract.find(req.query)
             .sort({
@@ -73,7 +72,7 @@ exports.getContracts = function(req, res) {
                         commodity.map(function(name){return contract.commodities.push(name);});
                     }
                     if (contract_counter == contract_len) {
-                           callback(null, contract_count, contracts);
+                        callback(null, contract_count, contracts);
                     }
                 });
             });
@@ -87,22 +86,24 @@ exports.getContracts = function(req, res) {
         contracts.forEach(function (contract) {
             ++contract_counter;
             contract.commodity=[];
-            contract.commodities.forEach(function (commodity_name) {
-                if(commodity_name!=undefined) {
-                    Commodity.find({commodity_name: commodity_name})
-                        .exec(function (err, commodity) {
-                            commodity.map(function (name) {
-                                return contract.commodity.push({
-                                    commodity_name: commodity_name,
-                                    _id: name._id
+            if(contract.commodities.length>0) {
+                contract.commodities.forEach(function (commodity_name) {
+                    if (commodity_name != undefined) {
+                        Commodity.find({commodity_name: commodity_name})
+                            .exec(function (err, commodity) {
+                                commodity.map(function (name) {
+                                    return contract.commodity.push({
+                                        commodity_name: commodity_name,
+                                        _id: name._id
+                                    });
                                 });
+                                if (contract_counter == contract_len) {
+                                    callback(null, contract_count, contracts);
+                                }
                             });
-                            if (contract_counter == contract_len) {
-                                callback(null, contract_count, contracts);
-                            }
-                        });
-                }
-            })
+                    }
+                })
+            }else if(contract_counter == contract_len) {callback(null, contract_count, contracts);}
         })
     }
     function getContractLinks(contract_count, contracts, callback) {
@@ -115,20 +116,23 @@ exports.getContracts = function(req, res) {
                     link_len = links.length;
                     link_counter = 0;
                     c.projects = 0;
-                    links.forEach(function(link) {
-                        ++link_counter;
-                        var entity = _.without(link.entities, 'contract')[0]
-                        switch (entity) {
-                            case 'project':
-                                c.projects += 1;
-                                break;
-                            default:
-                            //console.log(entity, 'link skipped...');
-                        }
+                    if(link_len>0) {
+                        links.forEach(function (link) {
+                            ++link_counter;
+                            var entity = _.without(link.entities, 'contract')[0]
+                            switch (entity) {
+                                case 'project':
+                                    c.projects += 1;
+                                    break;
+                                default:
+                                //console.log(entity, 'link skipped...');
+                            } if (contract_counter == contract_len && link_counter == link_len) {
+                                res.send({data: contracts, count: contract_count});
+                            }
 
-                    });
-                    if(contract_counter == contract_len && link_counter == link_len) {
-                        res.send({data:contracts, count:contract_count});
+                        });
+                    } else if (contract_counter == contract_len) {
+                        res.send({data: contracts, count: contract_count});
                     }
                 });
         });

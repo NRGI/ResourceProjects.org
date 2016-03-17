@@ -33,8 +33,9 @@
                 td.commodity_type: text(ng-repeat="rc_info in contract.rc_info")
                     span(ng-bind="rc_info.contract_type[rc_info.contract_type.length-1].toString()")
                 td.contract_commodities: text(ng-repeat="commodity in contract.commodity")
-                    span(ng-bind="commodity.commodity_name")
-                td.contract_projects: span(ng-if="contract.projects!=0") {{contract.projects}}
+                    a(href='commodity/{{ commodity._id }}')
+                        span(ng-bind="commodity.commodity_name")
+                td.contract_projects: span {{contract.projects}}
 
     nrgi-list-nav(
     page="page"
