@@ -52,6 +52,7 @@ exports.getProjects = function(req, res) {
                 }
             });
     }
+
     function getProjectLinks(project_count, projects, callback) {
         project_len = projects.length;
         project_counter = 0;
@@ -85,7 +86,7 @@ exports.getProjects = function(req, res) {
                                     break;
                                 //
                                 default:
-                                //console.log('error');
+                                    console.log('error');
                             }
                         });
                         if (project_counter == project_len && link_counter == link_len) {
@@ -104,8 +105,8 @@ exports.getProjectByID = function(req, res) {
 
     async.waterfall([
         getProject,
-        //getTransfers,
-        //getProductions,
+        getTransfers,
+        getProductions,
         getProjectLinks,
         getProjectCoordinate,
         getCompanyGroup
@@ -129,38 +130,40 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-    //function getTransfers(project, callback) {
-    //    project.transfers = [];
-    //    Transfer.find({transfer_project: project._id})
-    //        .populate('transfer_country')
-    //        .populate('transfer_company', '_id company_name')
-    //        .exec(function(err, transfers) {
-    //            console.log(transfers);
-    //            _.each(transfers, function(transfer) {
-    //                project.transfers.push(transfer);
-    //            });
-    //            if(project) {
-    //                callback(null, project);
-    //            } else {
-    //                callback(err);
-    //            }
-    //        });
-    //}
-    //function getProductions(project, callback) {
-    //    project.productions = [];
-    //    Production.find({production_project: project._id})
-    //        .populate('production_commodity')
-    //        .exec(function(err, productions) {
-    //            _.each(productions, function(productions) {
-    //                project.productions.push(productions);
-    //            });
-    //            if(project) {
-    //                callback(null, project);
-    //            } else {
-    //                callback(err);
-    //            }
-    //        });
-    //}
+
+    function getTransfers(project, callback) {
+        project.transfers = [];
+        Transfer.find({transfer_project: project._id})
+            .populate('transfer_country')
+            .populate('transfer_company', '_id company_name')
+            .exec(function(err, transfers) {
+                console.log(transfers);
+                _.each(transfers, function(transfer) {
+                    project.transfers.push(transfer);
+                });
+                if(project) {
+                    callback(null, project);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+    function getProductions(project, callback) {
+        project.productions = [];
+        Production.find({production_project: project._id})
+            .populate('production_commodity')
+            .exec(function(err, productions) {
+                _.each(productions, function(productions) {
+                    project.productions.push(productions);
+                });
+                if(project) {
+                    callback(null, project);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+
     function getProjectLinks(project, callback) {
         project.companies = [];
         project.commodities = [];
@@ -221,11 +224,10 @@ exports.getProjectByID = function(req, res) {
                                 project.transfers.push(link.transfer);
                                 break;
                             case 'production':
-                                project.production.push(link);
+                                project.production.push(link.production);
                                 break;
                             default:
-                                //console.log(link);
-                                console.log('error');
+                                console.log('switch (entity) error');
                         }
                         if(link_counter == link_len) {
                             callback(null, project);
@@ -282,7 +284,7 @@ exports.getProjectByID = function(req, res) {
                                     }
                                     break;
                                 default:
-                                    console.log('error');
+                                    console.log('company_group error');
                             }
                             if (project_counter == project_len && link_counter == link_len) {
                                 res.send(project);

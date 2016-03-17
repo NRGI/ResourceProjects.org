@@ -64,8 +64,8 @@ transferSchema = new Schema ({
     //},
     //transfer_note: htmlSettings,
     transfer_note: String,
-    tranfer_gov_entity: String,
-    tranfer_gov_entity_id: String,
+    transfer_gov_entity: String,
+    transfer_gov_entity_id: String,
     transfer_line_item: String,
     transfer_level: {
         type: String,

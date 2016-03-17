@@ -89,8 +89,8 @@ exports.getConcessionByID = function(req, res) {
 
     async.waterfall([
         getConcession,
-        getTransfers,
         getConcessionLinks,
+        getProjectLinks,
         getCompanyGroup,
         getProjectLocation
         //getContracts,
@@ -114,29 +114,12 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
-    function getTransfers(concession, callback) {
-        concession.transfers = [];
-        Transfer.find({transfer_concession: concession._id})
-            .populate('transfer_country')
-            .populate('transfer_company', '_id company_name')
-            .exec(function(err, transfers) {
-                _.each(transfers, function(transfer) {
-                    concession.transfers.push(transfer);
-                });
-                if(concession) {
-                    callback(null, concession);
-                } else {
-                    callback(err);
-                }
-            });
-    }
     function getConcessionLinks(concession, callback) {
         Link.find({concession: concession._id})
             .populate('commodity')
             .populate('contract')
             .populate('company')
-            //.populate('concession', 'concession_name concession_country concession_type commodities')
-            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity source.source_type_id')
+            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity production.production_commodity transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
             //.deepPopulate()
             .exec(function(err, links) {
                 link_len = links.length;
@@ -145,6 +128,8 @@ exports.getConcessionByID = function(req, res) {
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
+                concession.transfers = [];
+                concession.production = [];
                 concession.sources = {};
                 if(link_len>0) {
                     //concession.concessions = {};
@@ -182,12 +167,16 @@ exports.getConcessionByID = function(req, res) {
                             case 'project':
                                 concession.projects.push(link.project);
                                 break;
-
+                            case 'transfer':
+                                concession.transfers.push(link.transfer);
+                                break;
+                            case 'production':
+                                concession.production.push(link.production);
+                                break;
                             default:
                                 console.log(entity, 'link skipped...');
                         }
                         if (link_counter == link_len) {
-
                             callback(null, concession);
                             //res.send(concession);
                         }
@@ -241,12 +230,49 @@ exports.getConcessionByID = function(req, res) {
     //    //console.log(company.contract_pull);
     //    //callback(null, company);
     //}
+    function getProjectLinks(concession, callback) {
+        proj_len = concession.projects.length;
+        concession_counter = 0;
+        if(proj_len>0) {
+            concession.projects.forEach(function (project) {
+                Link.find({project: project._id, $or:[ {entities:'transfer'}, {entities:'production'} ] })
+                    .deepPopulate('transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
+                    .exec(function (err, links) {
+                        ++concession_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        links.forEach(function (link) {
+                            if (!concession.sources[link.source._id]) {
+                                concession.sources[link.source._id] = link.source;
+                            }
+                            ++link_counter;
+                            var entity = _.without(link.entities, 'project')[0];
+                            switch (entity) {
+                                case 'transfer':
+                                    concession.transfers.push(link.transfer);
+                                    break;
+                                case 'production':
+                                    concession.production.push(link.production);
+                                    break;
+                                default:
+                                console.log(entity, 'link skipped...');
+                            }
+                        });
+                        if (concession_counter == proj_len && link_counter == link_len) {
+                            callback(null, concession);
+                        }
+                    });
+            });
+        } else {
+            callback(null, concession);
+        }
+    }
     function getCompanyGroup(concession, callback) {
         concession_len = concession.companies.length;
         concession_counter = 0;
         if(concession_len>0) {
             concession.companies.forEach(function (company) {
-                Link.find({company: company._id})
+                Link.find({company: company._id, entities:'company_group'})
                     .populate('company_group', '_id company_group_name')
                     .exec(function (err, links) {
                         ++concession_counter;
@@ -254,6 +280,9 @@ exports.getConcessionByID = function(req, res) {
                         link_counter = 0;
                         company.company_groups = [];
                             links.forEach(function (link) {
+                                if (!concession.sources[link.source._id]) {
+                                    concession.sources[link.source._id] = link.source;
+                                }
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'company')[0];
                                 switch (entity) {
