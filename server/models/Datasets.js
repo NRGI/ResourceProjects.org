@@ -34,7 +34,7 @@ function createDefaultDatasets() {
             Dataset.create({
                 name: "A Google Sheet",
                 original_file: 'sources.ods',
-                source_url: 'http://nrgi.org/sources.ods',
+                source_url: 'https://docs.google.com/spreadsheets/d/1j9IDzCxCd2a70viGa8UejqWfxJDrUS87u7ROl8p8Hgc/pub?output=csv',
                 created: Date.now(),
                 modified: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',

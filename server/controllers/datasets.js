@@ -94,7 +94,7 @@ exports.createAction = function(req, res, next) {
                 {$push: {"actions": model._id}},
                 {safe: true, upsert: false},
                 function(err, dmodel) {
-                    if (!err) {
+                    if (!err && dmodel) {
                         if (req.body.name == "Extract from Google Sheets") {
                             console.log("Starting import from " + dmodel.name);
                             res.status(200);
@@ -115,11 +115,16 @@ exports.createAction = function(req, res, next) {
                             });
                         }
                     }
-                    else {
-                        res.status(400);
-                        console.log(err);
-                        return res.send({reason:err.toString()})
-                    }
+                    else {  
+                        if (err) {
+                            res.status(400);
+                            return res.send({reason:err.toString()})
+                        }
+                        else {
+                            res.status(404);
+                            res.send();
+                        }
+                    }  
                 }
             );
         }
