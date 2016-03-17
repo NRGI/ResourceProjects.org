@@ -62,11 +62,10 @@
                                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                         tr
                             td.detail_label.small Contracts:
-                            td.project_contracts
-                                span(ng-repeat='contract in project.contracts')
-                                    a(href='contract/{{contract.contract._id}}')
-                                        span(ng-bind-html="contract.contract.contract_id|sanitize")
-                                    | {{$last ? '' : ', '}}
+                            td.project_contracts: span(ng-repeat='contract in project.contracts')
+                                a(href='contract/{{contract.contract._id}}')
+                                    span(ng-bind-html="contract.contract_id|sanitize")
+                                | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Concessions:
                             td.project_concessions: text(
