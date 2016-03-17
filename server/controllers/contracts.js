@@ -94,7 +94,8 @@ exports.getContracts = function(req, res) {
                                 commodity.map(function (name) {
                                     return contract.commodity.push({
                                         commodity_name: commodity_name,
-                                        _id: name._id
+                                        _id: name._id,
+                                        commodity_id: name.commodity_id
                                     });
                                 });
                                 if (contract_counter == contract_len) {
@@ -304,7 +305,8 @@ exports.getContractByID = function(req, res) {
                             commodity.map(function (name) {
                                 return contract.commodity.push({
                                     commodity_name: commodity_name,
-                                    _id: name._id
+                                    _id: name._id,
+                                    commodity_id: name.commodity_id
                                 });
                             });
                             if (commodity_counter == commodity_len) {

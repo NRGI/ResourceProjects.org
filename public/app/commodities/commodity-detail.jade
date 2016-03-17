@@ -17,8 +17,7 @@
                 tr
                     td.detail_label.small Commodity name:
                     td.commodity_name
-                        a(href='commodity/{{commodity._id}}')
-                            span(ng-bind-html="commodity.commodity_name|sanitize")
+                        span(ng-bind-html="commodity.commodity_name|sanitize")
                 tr
                     td.detail_label.small Aliases:
                     td.commodity_aliases

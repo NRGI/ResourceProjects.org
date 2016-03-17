@@ -134,7 +134,8 @@ exports.getCompanyGroupByID = function(req, res) {
 									companyGroup.commodities.push({
 										_id: link.commodity._id,
 										commodity_code: link.commodity.commodity_code,
-										commodity_name: link.commodity.commodity_name
+										commodity_name: link.commodity.commodity_name,
+										commodity_id: link.commodity.commodity_id
 									})
 								}
 								break;

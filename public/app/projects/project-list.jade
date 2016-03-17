@@ -42,9 +42,8 @@
                 td.proj_type: text(ng-repeat="type in project.proj_type")
                     text(ng-if="$last") {{type.string | ucfirst}}
                 td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: '_id'")
-                    a(href='commodity/{{commodity._id}}')
-                        span(ng-bind-html="commodity.commodity_name|sanitize")
-                    | {{$last ? '' : ', '}}
+                    nrgi-commodity-rout(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                        | {{$last ? '' : ', '}}
                 td.proj_status: text(ng-repeat="status in project.proj_status")
                     text(ng-if="$last")
                         | {{status.string | ucfirst}}

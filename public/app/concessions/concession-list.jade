@@ -36,8 +36,7 @@
                         td.concession_type: text(ng-repeat="type in concession.concession_type")
                             text(ng-if="$last") {{type.string | ucfirst}}
                         td.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
-                            a(href='/commodity/{{commodity.commodity._id}}')
-                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                            nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
                             | {{$last ? '' : ', '}}
                         td.concession_status: text(ng-repeat="status in concession.concession_status")
                             text(ng-if="$last")

@@ -34,7 +34,8 @@ exports.searchText = function(req, res) {
 					result[counter-1]={name:re[$field],
 						type:model.name.toLowerCase(),
 						_id: re.id,
-						iso2:re.iso2
+						iso2:re.iso2,
+						commodity_id: re.commodity_id
 					};
 				});
 				if(models_counter==models_len){

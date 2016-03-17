@@ -153,7 +153,11 @@ exports.getConcessionByID = function(req, res) {
                         switch (entity) {
                             case 'commodity':
                                 if (!concession.commodities.hasOwnProperty(link.commodity_code)) {
-                                    concession.commodities[link.commodity.commodity_code] = link.commodity.commodity_name;
+                                    concession.commodities.push({
+                                        _id: link.commodity._id,
+                                        commodity_name: link.commodity.commodity_name,
+                                        commodity_id: link.commodity.commodity_id
+                                    });
                                 }
                                 break;
                             case 'company':

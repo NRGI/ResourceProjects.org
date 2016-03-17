@@ -58,7 +58,7 @@ exports.getProjects = function(req, res) {
         if(project_len>0) {
             projects.forEach(function (c) {
                 Link.find({project: c._id})
-                    .populate('commodity', '_id commodity_name')
+                    .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
                     .exec(function (err, links) {
                         ++project_counter;
@@ -74,7 +74,8 @@ exports.getProjects = function(req, res) {
                                     if(link.commodity) {
                                         c.proj_commodity.push({
                                             _id: link.commodity._id,
-                                            commodity_name: link.commodity.commodity_name
+                                            commodity_name: link.commodity.commodity_name,
+                                            commodity_id: link.commodity.commodity_id
                                         });
                                     }
                                     break;
@@ -198,7 +199,8 @@ exports.getProjectByID = function(req, res) {
                                     if (!project.commodities.hasOwnProperty(link.commodity_code)) {
                                         project.commodities.push({
                                             _id: link.commodity._id,
-                                            commodity_name: link.commodity.commodity_name
+                                            commodity_name: link.commodity.commodity_name,
+                                            commodity_id: link.commodity.commodity_id
                                         });
                                     }
                                 }

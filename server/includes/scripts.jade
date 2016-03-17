@@ -37,6 +37,8 @@ script(type='text/javascript').
                 }
                 else if(obj.type=='companygroup'){
                     window.location = '/group/' + obj._id;
+                } else if(obj.type=='commodity'){
+                    window.location = '/commodity/' + obj.commodity_id;
                 }else {
                     window.location = '/' + obj.type + '/' + obj._id;
                 }
@@ -96,6 +98,7 @@ script(type="text/javascript", src="/app/directives/directives/nrgi-transfer-tab
 script(type="text/javascript", src="/app/directives/directives/nrgi-sources-table.js")
 //  general
 script(type="text/javascript", src="/app/directives/directives/nrgi-list-nav.js")
+script(type="text/javascript", src="/app/directives/directives/nrgi-commodity-rout.js")
 
 //- DIRECTIVE CTRLS
 //  tables
@@ -108,6 +111,7 @@ script(type="text/javascript", src="/app/directives/controllers/nrgiSourcesTable
 script(type="text/javascript", src="/app/directives/controllers/nrgiTransferTableCtrl.js")
 //  general
 script(type="text/javascript", src="/app/directives/controllers/nrgiListNavCtrl.js")
+script(type="text/javascript", src="/app/directives/controllers/nrgiCoommodityRoutCtrl.js")
 
 
 //- SERVICES

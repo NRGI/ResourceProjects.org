@@ -3,13 +3,23 @@
 angular.module('app')
     .controller('nrgiCommodityDetailCtrl', function (
         $scope,
+        $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiCommoditiesSrvc,
-        $routeParams
+        $location
     ) {
+        var id = window.localStorage.getItem('id');
+        var rout = window.localStorage.getItem('rout');
+        var location = $location.path();
+        location = location.split('/commodity/')[1];
+        if(id!=undefined && rout==location && rout!=undefined){
+           var commodity_id=id;
+        }else{
+            $location.path('/commodities');
+        }
         $scope.center=[];
-        nrgiCommoditiesSrvc.get({_id: $routeParams.id}, function (response) {
+        nrgiCommoditiesSrvc.get({_id: commodity_id}, function (response) {
             $scope.commodity=response;
             if($scope.commodity.location.length>0)
             $scope.center={lat:$scope.commodity.location[0].lat,lng:$scope.commodity.location[0].lng,zoom: 5};

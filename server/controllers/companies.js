@@ -158,7 +158,8 @@ exports.getCompanyByID = function(req, res) {
                                 if (!company.commodities.hasOwnProperty(link.commodity_code)) {
                                     company.commodities.push({
                                         _id: link.commodity._id,
-                                        commodity_name: link.commodity.commodity_name
+                                        commodity_name: link.commodity.commodity_name,
+                                        commodity_id: link.commodity.commodity_id
                                     });
                                 }
                                 break;
