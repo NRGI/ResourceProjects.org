@@ -218,7 +218,7 @@ exports.getProjectByID = function(req, res) {
                                 project.transfers.push(link.transfer);
                                 break;
                             case 'production':
-                                project.production.push(link);
+                                project.production.push(link.production);
                                 break;
                             default:
                                 //console.log(link);

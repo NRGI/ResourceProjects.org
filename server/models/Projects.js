@@ -37,6 +37,8 @@ var projectSchema, Project,
 
 
 projectSchema = new Schema({
+    //TODO add regex validator
+    proj_id: String,
     proj_name: String,
     proj_aliases: [{
         type: ObjectId,
@@ -96,7 +98,8 @@ function createDefaultProjects() {
         if(projects.length === 0) {
             Project.create({
                 _id:'56a930f41b5482a31231ef42',
-                proj_name: 'Procect A',
+                proj_id: 'ad-jufi-yqceeo',
+                proj_name: 'Jubilee Field',
                 proj_aliases: ['56a939e649434cfc1354d64b','56a939e649434cfc1354d64c'],
                 proj_established_source: '56747e060e8cc07115200ee3',
                 proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
@@ -110,7 +113,8 @@ function createDefaultProjects() {
             });
             Project.create({
                 _id:'56a930f41b5482a31231ef43',
-                proj_name: 'Procect B',
+                proj_id: 'ad-agne-11geq3',
+                proj_name: 'Agnes',
                 proj_aliases: ['56a939e649434cfc1354d64d'],
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
@@ -118,30 +122,32 @@ function createDefaultProjects() {
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [79.22885591,  -44.84381911]}],
-                proj_status: [{source: '56747e060e8cc07115200ee6', string: 'discovery'}],
+                proj_status: [{source: '56747e060e8cc07115200ee6', string: 'development'}],
                 description: '<p>yes</p><p>no</p>',
             });
             Project.create({
                 _id:'56a930f41b5482a31231ef44',
-                proj_name: 'Procect C',
+                proj_id: 'ag-proc-11geq3',
+                proj_name: 'Project C',
                 proj_aliases: ['56a939e649434cfc1354d64e'],
                 proj_established_source: '56747e060e8cc07115200ee5',
                 proj_country: [{source: '56747e060e8cc07115200ee5', country: '56a8d7d08e7079da05d6b542'}],
                 proj_type: [{source: '56747e060e8cc07115200ee5', string: 'mining'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name c'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee5', loc: [25.17521251, -13.32094082]}],
-                proj_status: [{source: '56747e060e8cc07115200ee5', string: 'discovery'}],
+                proj_status: [{source: '56747e060e8cc07115200ee5', string: 'on_hold'}],
                 description: '<p>yes</p><p>no</p>'
             });
             Project.create({
                 _id:'56a930f41b5482a31231ef45',
-                proj_name: 'Procect D',
+                proj_id: 'ae-alri-yqcee',
+                proj_name: 'Alpamarca Rio Pallanga',
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
                 proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name d'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [-154.09667961, -43.52395855]}],
-                proj_status: [{source: '56747e060e8cc07115200ee6', string: 'spent'}],
+                proj_status: [{source: '56747e060e8cc07115200ee6', string: 'production'}],
                 description: '<p>yes</p><p>no</p>'
             });
             console.log('Projects created...');
