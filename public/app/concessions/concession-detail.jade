@@ -85,9 +85,11 @@
             stake='true')
     .row
         .col-md-12
+            nrgi-production-table(production="concession.production")
+    .row
+        .col-md-12
             nrgi-transfer-table(transfers="concession.transfers")
 
-    .advanced-links
-        .container
-            h3
-                a(href='') Sources
+    .row
+        .col-md-12
+            nrgi-sources-table(sources="concession.sources")
