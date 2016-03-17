@@ -1,18 +1,17 @@
 .container
-   .page-header
-      h1
-         span(ng-bind-html="group.company_group_name|sanitize")
-         =' '
-         small Group of Companies
-   .row
-      .col-md-12
-         leaflet(
-         center="center",
-         controls="controls",
-         markers="group.location",
-         tiles="tiles",
-         height='240px')
-
+    .page-header
+        h1
+            span(ng-bind-html="group.company_group_name|sanitize")
+            =' '
+            small Group of Companies
+    .row
+        .col-md-12
+            leaflet(
+            center="center",
+            controls="controls",
+            markers="group.location",
+            tiles="tiles",
+            height='240px')
    .row
       .col-md-6
          .info-box
@@ -54,42 +53,40 @@
                      td.project-label.small Desctiption:
                      td.description
                         span(ng-bind-html="group.description|sanitize")
+    .row
+        .col-md-6
+            nrgi-project-table(
+            projects="group.projects"
+            country="true"
+            type="true"
+            companies="false"
+            commodity="false")
 
-   .row
-      .col-md-6
-         nrgi-project-table(
-         projects="group.projects"
-         country="true"
-         type="true"
-         companies="false"
-         commodity="false")
+        .col-md-6
+            nrgi-company-table(
+            companies="group.companies"
+            stake="false"
+            group="false")
 
-      .col-md-6
-         nrgi-company-table(
-         companies="group.companies"
-         stake="false"
-         group="false")
+    .row
+        .col-md-6
+            nrgi-contract-table(
+            contracts="group.contracts"
+            companies="false"
+            commodity="true"
+            country="true")
 
-   .row
-      .col-md-6
-         nrgi-contract-table(
-         contracts="group.contracts"
-         companies="false"
-         commodity="true"
-         country="true")
+        .col-md-6
+            nrgi-concession-table(
+            concessions="group.concessions"
+            commodity="true"
+            type="true"
+            status="false"
+            projects="false")
 
-      .col-md-6
-         nrgi-concession-table(
-         concessions="group.concessions"
-         commodity="true"
-         type="true"
-         status="false"
-         projects="false")
-
-   nrgi-transfer-table(
-   transfers="group.transfers"
-   project="false")
-
+    nrgi-transfer-table(
+    transfers="group.transfers"
+    project="false")
    .row
       .col-md-12
          nrgi-sources-table(sources="group.sources")

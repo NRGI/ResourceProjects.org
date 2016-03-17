@@ -270,6 +270,32 @@ exports.getCompanyGroupByID = function(req, res) {
 			callback(null, companyGroup);
 		}
 	}
+	function getTransfers(companyGroup, callback) {
+		companyGroup.transfers = [];
+		company_counter = 0;
+		company_len = companyGroup.companies.length;
+		var transfer_counter = 0;var transfer_len;
+		if(company_len>0) {
+			companyGroup.companies.forEach(function (company) {
+				++company_counter;
+				Transfer.find({transfer_company: company._id})
+					.populate('transfer_country')
+					.populate('transfer_company', '_id company_name')
+					.exec(function (err, transfers) {
+						transfer_len = transfers.length;
+						_.each(transfers, function (transfer) {
+							++transfer_counter;
+							companyGroup.transfers.push(transfer);
+							if (company_counter == company_len && transfer_len==transfer_counter) {
+								callback(null, companyGroup);
+							}
+						});
+					});
+			});
+		} else{
+			callback(null, companyGroup);
+		}
+	}
 	function getProjectLocation(companyGroup,callback) {
 		var project_counter = 0;
 		companyGroup.location = [];

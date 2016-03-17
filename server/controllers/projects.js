@@ -113,7 +113,6 @@ exports.getProjectByID = function(req, res) {
         if (err) {
             res.send(err);
         }
-
     });
 
 	function getProject(callback) {
@@ -176,11 +175,7 @@ exports.getProjectByID = function(req, res) {
             .populate('company')
             .populate('contract')
             .populate('concession')
-            //.populate('source')
-            //.populate('transfer')
-            //.populate('production')
             .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
-            //.deepPopulate('company company.company_group')
             .exec(function(err, links) {
                 if(links.length>0) {
                     link_len = links.length;
@@ -188,10 +183,10 @@ exports.getProjectByID = function(req, res) {
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'project')[0];
-                        if(link.source!=undefined) {
-                            if (!project.sources[link.source._id]) {
-                                project.sources[link.source._id] = link.source;
-                            }
+                        //console.log(link.source);
+                        //console.log(link.source._id);
+                        if (!project.sources[link.source._id]) {
+                            project.sources[link.source._id] = link.source;
                         }
                         switch (entity) {
                             case 'commodity':
@@ -226,7 +221,7 @@ exports.getProjectByID = function(req, res) {
                                 project.transfers.push(link.transfer);
                                 break;
                             case 'production':
-                                project.production.push(link.production);
+                                project.production.push(link);
                                 break;
                             default:
                                 //console.log(link);
@@ -260,7 +255,6 @@ exports.getProjectByID = function(req, res) {
             });
         } else {
             callback(null, project);
-
         }
     }
     function getCompanyGroup(project, callback) {
@@ -309,7 +303,6 @@ exports.getProjectsMap = function(req, res) {
         if (err) {
             res.send(err);
         }
-
     });
 
     function getProject(callback) {

@@ -223,7 +223,7 @@ angular.module('app')
                 controller: 'nrgiGroupAdminUpdateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
-            .when('/sources', {
+           .when('/sources', {
                 templateUrl: '/partials/sources/source-list',
                 controller: 'nrgiSourceListCtrl'
             })

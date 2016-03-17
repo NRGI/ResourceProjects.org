@@ -53,7 +53,7 @@ module.exports	= function(app) {
 	app.delete('/api/projects/:id', projects.deleteProject);
 
 	/////////////////////////
-	///// COMPANIES CRUD ////////
+	///// COMPANIES CRUD ////
 	/////////////////////////
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
@@ -106,12 +106,50 @@ module.exports	= function(app) {
 	/////////////////////////
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
-	
+
 	//USERS CRUD - TODO: protect with admin
 	app.get('/api/datasets', datasets.getDatasets);
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
 	app.get('/api/datasets/:id', datasets.getDatasetByID);
 	
+	//Create a dataset
+	app.post('/api/datasets', datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', datasets.createAction);
+	//TODO consider implementing a get?
+
+	// POST
+	app.post('/api/sources',  sources.createSource);
+	// PUT
+	app.put('/api/sources',  sources.updateSource);
+	// DELETE
+	app.delete('/api/sources/:id', sources.deleteSource);
+
+	//DATASETS - TODO: protect with admin
+
+	//USERS CRUD - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+
+	//Create a dataset
+	app.post('/api/datasets', datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', datasets.createAction);
+	//TODO consider implementing a get?
+
+	// POST
+	app.post('/api/sources',  sources.createSource);
+	// PUT
+	app.put('/api/sources',  sources.updateSource);
+	// DELETE
+	app.delete('/api/sources/:id', sources.deleteSource);
+
+	//DATASETS - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+
 	//Create a dataset
 	app.post('/api/datasets', datasets.createDataset);
 	//Start an ETL step
@@ -177,7 +215,6 @@ module.exports	= function(app) {
 	app.all('/api/*', function(req, res) {
 		res.sendStatus(404);
 	});
-	
 	app.get('*', function(req, res) {
 		res.render('index', {
 			bootstrappedUser: req.user

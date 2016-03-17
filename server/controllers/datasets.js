@@ -119,11 +119,11 @@ exports.createAction = function(req, res, next) {
                         res.status(400);
                         console.log(err);
                         return res.send({reason:err.toString()})
-                    }  
+                    }
                 }
             );
         }
     ); 
     //TODO: Perform the action
     //TODO: Perform following actions
-}
+};

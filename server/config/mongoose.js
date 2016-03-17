@@ -37,7 +37,7 @@ module.exports 	= function(config, user, pass, env) {
             mongos: {
                 ssl: true,
                 sslValidate: true,
-                sslCA:ca,
+                sslCA:ca
             }
         };
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
@@ -48,7 +48,6 @@ module.exports 	= function(config, user, pass, env) {
     db.once('open', function callback() {
         console.log('Resource Projects db opened');
     });
-
 
     userModel.createDefaultUsers();
     sourceModel.createDefaultSources();

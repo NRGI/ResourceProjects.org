@@ -301,7 +301,7 @@ exports.getContractByID = function(req, res) {
     function getCommodity(contract, callback) {
         var commodity_len = contract.commodities.length;
         var commodity_counter = 0;
-            contract.commodity=[];
+        contract.commodity=[];
         if(commodity_len>0) {
             contract.commodities.forEach(function (commodity_name) {
                 if (commodity_name != undefined) {

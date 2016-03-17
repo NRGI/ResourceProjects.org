@@ -142,7 +142,6 @@ exports.getCountryByID = function(req, res) {
 								companies: []
 							});
 							_.each(proj.proj_coordinates, function (loc) {
-								//++project_counter;
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
