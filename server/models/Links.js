@@ -115,8 +115,9 @@ function createDefaultLinks() {
             Link.create({site:'56eb117c0007bf5b2a3e4b71',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','project']});
             Link.create({site:'56eb117c0007bf5b2a3e4b76',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','project']});
             Link.create({site:'56eb117c0007bf5b2a3e4b76',project:'56a930f41b5482a31231ef44',source:'56747e060e8cc07115200ee3',entities:['site','project']});
-            // //site-transfer
-            // Link.create({transfer:'56be54f9d7bff9dd1c93c985',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','transfer']});
+            //site-transfer
+            Link.create({transfer:'56be54f9d7bfflll1c93c985',site:'56eb117c0007bf5b2a3e4b71',source:'56747e060e8cc07115200ee3',entities:['site','transfer']});
+            Link.create({transfer:'56be54f9dffff9dd1c93c985',site:'56eb117c0007bf5b2a3e4b76',source:'56747e060e8cc07115200ee3',entities:['site','transfer']});
             // //site-production
             // Link.create({production:'',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','production']});
 

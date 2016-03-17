@@ -28,8 +28,8 @@ var transferSchema, Transfer,
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select government_receipt or company_payment.'
     },
     transfer_level_enu      = {
-        values: 'country project'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country or project.'
+        values: 'country project site field'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country, site, field or project.'
     },
     transfer_accounting_basis_enu      = {
         values: 'cash accrual'.split(' '),
@@ -96,7 +96,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
-                transfer_concession: '56a2b8236e585b7316655794',
+                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -115,7 +115,7 @@ function createDefaultTransfers() {
                 transfer_value: 4102721984,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
-                transfer_concession: '56a2b8236e585b7316655794',
+                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -134,7 +134,7 @@ function createDefaultTransfers() {
                 transfer_value: 4102721984,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
-                transfer_concession: '56a2b8236e585b7316655794',
+                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -153,7 +153,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
-                transfer_concession: '56a2b8236e585b7316655794',
+                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -172,7 +172,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
-                transfer_concession: '56a2b8236e585b7316655794',
+                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -191,7 +191,7 @@ function createDefaultTransfers() {
                 transfer_value: 1394922844,
                 transfer_company: '56a13a758f224f670e6a376e',
                 transfer_country: '56a7e6c02302369318e16bb8',
-                transfer_concession: '56a2b8236e585b7316655794',
+                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
@@ -200,7 +200,47 @@ function createDefaultTransfers() {
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash'
             });
-            console.log('Projects created...');
+            Transfer.create({
+                _id: '56be54f9d7bfflll1c93c985',
+                transfer_type: 'Total site',
+                source: '56747e060e8cc07115200ee4',
+                transfer_audit_type: 'government_receipt',
+                transfer_year: 2009,
+                transfer_unit: 'USD',
+                transfer_value: 1394922844,
+                transfer_company: '56a13a758f224f670e6a376e',
+                transfer_country: '56a7e6c02302369318e16bb8',
+                // transfer_concession: '56a2b8236e585b7316655794',
+                //transfer_note: '',
+                //transfer_note: '',
+                //tranfer_gov_entity: '',
+                //tranfer_gov_entity_id: '',
+                //transfer_line_item: '',
+                transfer_level: 'site',
+                transfer_accounting_basis: 'cash'
+            });
+            Transfer.create({
+                _id: '56be54f9dffff9dd1c93c985',
+                transfer_type: 'Total field',
+                source: '56747e060e8cc07115200ee4',
+                transfer_audit_type: 'government_receipt',
+                transfer_year: 2009,
+                transfer_unit: 'USD',
+                transfer_value: 1394922844,
+                transfer_company: '56a13a758f224f670e6a376e',
+                transfer_country: '56a7e6c02302369318e16bb8',
+                // transfer_concession: '56a2b8236e585b7316655794',
+                //transfer_note: '',
+                //transfer_note: '',
+                //tranfer_gov_entity: '',
+                //tranfer_gov_entity_id: '',
+                //transfer_line_item: '',
+                transfer_level: 'field',
+                transfer_accounting_basis: 'cash'
+            });
+            console.log('Transfers created...');
+        } else {
+            console.log(String(transfers.length), 'transfers exist...')
         }
     });
 }
