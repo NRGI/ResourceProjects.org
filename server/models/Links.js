@@ -104,6 +104,11 @@ function createDefaultLinks() {
             Link.create({production:'56be54f9d7bff9921c93c988',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','production']});
             Link.create({production:'56be54f9d7bff9921c93c989',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','production']});
             Link.create({production:'56be54f9d7bff9921c93c990',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','production']});
+            //concession-transfer
+            Link.create({transfer:'56be54f9d7bff9dd1c93c985',concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee3',entities:['concession','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c98a',concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee3',entities:['concession','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c988',concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee3',entities:['concession','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c986',concession:'56a2b8236e585b7316655794',source:'56747e060e8cc07115200ee3',entities:['concession','transfer']});
 
             //country
             //companies

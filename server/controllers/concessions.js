@@ -89,7 +89,7 @@ exports.getConcessionByID = function(req, res) {
 
     async.waterfall([
         getConcession,
-        getTransfers,
+        //getTransfers,
         getConcessionLinks,
         getCompanyGroup,
         getProjectLocation
@@ -114,29 +114,30 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
-    function getTransfers(concession, callback) {
-        concession.transfers = [];
-        Transfer.find({transfer_concession: concession._id})
-            .populate('transfer_country')
-            .populate('transfer_company', '_id company_name')
-            .exec(function(err, transfers) {
-                _.each(transfers, function(transfer) {
-                    concession.transfers.push(transfer);
-                });
-                if(concession) {
-                    callback(null, concession);
-                } else {
-                    callback(err);
-                }
-            });
-    }
+    //function getTransfers(concession, callback) {
+    //    concession.transfers = [];
+    //    Transfer.find({transfer_concession: concession._id})
+    //        .populate('transfer_country')
+    //        .populate('transfer_company', '_id company_name')
+    //        .exec(function(err, transfers) {
+    //            _.each(transfers, function(transfer) {
+    //                concession.transfers.push(transfer);
+    //            });
+    //            if(concession) {
+    //                callback(null, concession);
+    //            } else {
+    //                callback(err);
+    //            }
+    //        });
+    //}
     function getConcessionLinks(concession, callback) {
         Link.find({concession: concession._id})
             .populate('commodity')
             .populate('contract')
             .populate('company')
+            .populate('transfer')
             //.populate('concession', 'concession_name concession_country concession_type commodities')
-            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity')
+            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
             //.deepPopulate()
             .exec(function(err, links) {
                 link_len = links.length;
@@ -145,9 +146,11 @@ exports.getConcessionByID = function(req, res) {
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
+                concession.transfers = [];
                 if(link_len>0) {
                     //concession.concessions = {};
                     links.forEach(function (link) {
+                        console.log(link);
                         ++link_counter;
                         var entity = _.without(link.entities, 'concession')[0]
                         switch (entity) {
@@ -172,8 +175,11 @@ exports.getConcessionByID = function(req, res) {
                             case 'project':
                                 concession.projects.push(link.project);
                                 break;
-
+                            case 'transfer':
+                                concession.transfers.push(link.transfer);
+                                break;
                             default:
+
                                 console.log(entity, 'link skipped...');
                         }
                         if (link_counter == link_len) {
@@ -256,7 +262,7 @@ exports.getConcessionByID = function(req, res) {
                                         }
                                         break;
                                     default:
-                                        console.log(entity, 'link skipped...');
+                                        //console.log(entity, 'link skipped...');
                                 }
                             });
                         if (concession_counter == concession_len && link_counter == link_len) {
