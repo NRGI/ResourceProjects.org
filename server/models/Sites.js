@@ -23,13 +23,13 @@ var siteSchema, Site,
         }
     },
     mongooseHistory = require('mongoose-history'),
-    hst_options     = {customCollectionName: 'site_hst'};
-////type_enu  = {
-////    values: 'mining oil'.split(' '),
-////    //values: ' project '.split(' '),
-////    message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
-////};
-//
+    hst_options     = {customCollectionName: 'site_hst'},
+    type_enu  = {
+       values: 'mining oil'.split(' '),
+       //values: ' project '.split(' '),
+       message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
+    };
+
 siteSchema = new Schema({
     site_name: String,
     field: Boolean,
@@ -55,21 +55,31 @@ Site = mongoose.model('Site', siteSchema);
 function createDefaultSites() {
     Site.find({}).exec(function(err, sites) {
         if(sites.length === 0) {
-//            Site.create({
-//                _id:'56a930f41b5482a31231ef42',
-//                proj_name: 'Procect A',
-//                proj_aliases: ['56a939e649434cfc1354d64b','56a939e649434cfc1354d64c'],
-//                proj_established_source: '56747e060e8cc07115200ee3',
-//                proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
-//                proj_type: [{source: '56747e060e8cc07115200ee3', string: 'mining'}],
-//                proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
-//                proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name a'}],
-//                proj_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
-//                proj_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [11.15392307, 17.50168983]}],
-//                proj_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
-//                description: '<p>yes</p><p>no</p>'
-//            });
-//            console.log('Sites created...');
+           Site.create({
+               site_name: 'Test site 1',
+               field: false,
+               site_type: [{source: '56747e060e8cc07115200ee3', string: 'mining'}],
+               site_aliases: ['56a939e64ddd4cfc1354d64b'],
+               site_established_source: '56747e060e8cc07115200ee3',
+               site_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
+               site_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
+               site_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [14.15392307, 19.50168983]}],
+               description: '<p>yes</p><p>no</p>'
+           });
+            Site.create({
+                site_name: 'Test field 1',
+                field: true,
+                site_type: [{source: '56747e060e8cc07115200ee3', string: 'oil'}],
+                site_aliases: ['56a939e64ddffffc1354d64b'],
+                site_established_source: '56747e060e8cc07115200ee3',
+                site_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
+                site_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
+                site_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [31.15392307, 47.50168983]}],
+                description: '<p>yes</p><p>no</p>'
+            });
+           console.log('Sites created...');
+        } else {
+            console.log(String(sites.length), 'sites exist...')
         }
     });
 };

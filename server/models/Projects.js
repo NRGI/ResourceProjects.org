@@ -151,6 +151,8 @@ function createDefaultProjects() {
                 description: '<p>yes</p><p>no</p>'
             });
             console.log('Projects created...');
+        } else {
+            console.log(String(projects.length), 'projects exist...')
         }
     });
 };

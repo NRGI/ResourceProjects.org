@@ -8,8 +8,8 @@ var aliasSchema, Alias,
     Schema   = mongoose.Schema,
     ObjectId = mongoose.Schema.Types.ObjectId,
     model_enu  = {
-        values: 'commodity company_group company concession project'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select commodity,  or .'
+        values: 'commodity company_group company concession project sites'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select correct model.'
     };
 
 aliasSchema = new Schema({
@@ -66,7 +66,13 @@ function createDefaultAliases() {
             Alias.create({_id:'56a939e649434cfc1354d64d', alias: 'project bbb', language:'en', model: 'project', source:'56747e060e8cc07115200ee4'});
             Alias.create({_id:'56a939e649434cfc1354d64e', alias: 'project ccc', language:'en', model: 'project', source:'56747e060e8cc07115200ee3'});
 
+            //sites
+            Alias.create({_id:'56a939e64ddd4cfc1354d64b', alias: 'site 1111', language:'en', model: 'sites', source:'56747e060e8cc07115200ee4'});
+            Alias.create({_id:'56a939e64ddffffc1354d64b', alias: 'field 1111', language:'en', model: 'sites', source:'56747e060e8cc07115200ee4'});
+
             console.log('Aliases created...')
+        } else {
+            console.log(String(aliases.length), 'aliases exist...')
         }
     });
 };
