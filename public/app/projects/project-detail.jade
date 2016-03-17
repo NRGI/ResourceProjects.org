@@ -87,6 +87,7 @@
                                             th.tablesort-sortable-th(ts-criteria='name') Name
                                             th.tablesort-sortable-th(ts-criteria='lat') Lat
                                             th.tablesort-sortable-th(ts-criteria='lng') Lng
+                                            th.tablesort-sortable-th(ts-criteria='lng') Type
                                             th.location-th
                                         tr(ng-repeat='location in project.coordinates',ts-repeat)
                                             td.location_name
@@ -95,6 +96,8 @@
                                                 span(ng-if='location.lat') {{location.lat}}
                                             td.location_lng
                                                 span(ng-if='location.lng') {{location.lng}}
+                                            td.location_type
+                                                span(ng-if='location.type') {{location.type}}
                                             td.location_timestamp
                                                 span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
         .col-md-6
