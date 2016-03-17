@@ -240,11 +240,20 @@ exports.getProjectByID = function(req, res) {
                                     transfer_type: link.transfer.transfer_type,
                                     transfer_unit: link.transfer.transfer_unit,
                                     transfer_value: link.transfer.transfer_value,
-                                    transfer_audit_type: link.transfer.transfer_audit_type
-                                });
+                                    transfer_audit_type: link.transfer.transfer_audit_type});
                                 break;
                             case 'production':
-                                project.production.push(link.production);
+                                project.production.push({
+                                    _id: link.production._id,
+                                    production_year: link.production.production_year,
+                                    production_volume: link.production.production_volume,
+                                    production_unit: link.production.production_unit,
+                                    production_commodity: {
+                                        _id: link.production.production_commodity._id,
+                                        commodity_name: link.production.production_commodity.commodity_name,
+                                        commodity_id: link.production.production_commodity.commodity_id},
+                                    production_price: link.production.production_price,
+                                    production_price_unit: link.production.production_price_unit});
                                 break;
                             default:
                                 console.log('switch (entity) error');
