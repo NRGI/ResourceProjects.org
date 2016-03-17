@@ -79,7 +79,10 @@
         .col-md-6
             nrgi-project-table(projects="concession.projects")
         .col-md-6
-            nrgi-company-table(companies="concession.companies" stake='true')
+            nrgi-company-table(
+            companies="concession.companies"
+            group='true'
+            stake='true')
     .row
         .col-md-12
             nrgi-transfer-table(transfers="concession.transfers")
