@@ -195,6 +195,10 @@ exports.getProjectByID = function(req, res) {
                             project.sources[link.source._id] = link.source;
                         }
                         switch (entity) {
+                            case 'site':
+                                console.log(link);
+                                // project.production.push(link.production);
+                                break;
                             case 'commodity':
                                 if(link.commodity) {
                                     if (!project.commodities.hasOwnProperty(link.commodity_code)) {
@@ -267,7 +271,7 @@ exports.getProjectByID = function(req, res) {
         project_counter = 0;
         if (project_len > 0) {
             project.companies.forEach(function (company) {
-                Link.find({company: company._id})
+                Link.find({company: company._id,entities:'company_group'})
                     .populate('company_group', '_id company_group_name')
                     .exec(function (err, links) {
                         ++project_counter;
