@@ -119,7 +119,7 @@ exports.getConcessionByID = function(req, res) {
             .populate('commodity')
             .populate('contract')
             .populate('company')
-            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity production.production_commodity source.source_type_id')
+            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity production.production_commodity transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
             //.deepPopulate()
             .exec(function(err, links) {
                 link_len = links.length;
@@ -128,6 +128,8 @@ exports.getConcessionByID = function(req, res) {
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
+                concession.transfers = [];
+                concession.production = [];
                 concession.sources = {};
                 if(link_len>0) {
                     //concession.concessions = {};
@@ -158,6 +160,12 @@ exports.getConcessionByID = function(req, res) {
                                 break;
                             case 'project':
                                 concession.projects.push(link.project);
+                                break;
+                            case 'transfer':
+                                concession.transfers.push(link.transfer);
+                                break;
+                            case 'production':
+                                concession.production.push(link.production);
                                 break;
                             default:
                                 console.log(entity, 'link skipped...');
@@ -217,8 +225,6 @@ exports.getConcessionByID = function(req, res) {
     //    //callback(null, company);
     //}
     function getProjectLinks(concession, callback) {
-        concession.transfers = [];
-        concession.production = [];
         proj_len = concession.projects.length;
         concession_counter = 0;
         if(proj_len>0) {
@@ -230,7 +236,9 @@ exports.getConcessionByID = function(req, res) {
                         link_len = links.length;
                         link_counter = 0;
                         links.forEach(function (link) {
-                            //console.log(link);
+                            if (!concession.sources[link.source._id]) {
+                                concession.sources[link.source._id] = link.source;
+                            }
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
                             switch (entity) {
@@ -258,7 +266,7 @@ exports.getConcessionByID = function(req, res) {
         concession_counter = 0;
         if(concession_len>0) {
             concession.companies.forEach(function (company) {
-                Link.find({company: company._id})
+                Link.find({company: company._id, entities:'company_group'})
                     .populate('company_group', '_id company_group_name')
                     .exec(function (err, links) {
                         ++concession_counter;
@@ -266,6 +274,9 @@ exports.getConcessionByID = function(req, res) {
                         link_counter = 0;
                         company.company_groups = [];
                             links.forEach(function (link) {
+                                if (!concession.sources[link.source._id]) {
+                                    concession.sources[link.source._id] = link.source;
+                                }
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'company')[0];
                                 switch (entity) {
@@ -278,7 +289,7 @@ exports.getConcessionByID = function(req, res) {
                                         }
                                         break;
                                     default:
-                                        //console.log(entity, 'link skipped...');
+                                        console.log(entity, 'link skipped...');
                                 }
                             });
                         if (concession_counter == concession_len && link_counter == link_len) {
