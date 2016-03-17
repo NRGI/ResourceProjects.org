@@ -196,7 +196,7 @@ exports.getProjectByID = function(req, res) {
                         }
                         switch (entity) {
                             case 'site':
-                                console.log(link);
+                                // console.log(link.site);
                                 // project.production.push(link.production);
                                 break;
                             case 'commodity':
@@ -228,7 +228,20 @@ exports.getProjectByID = function(req, res) {
                                 project.contracts.push(link.contract);
                                 break;
                             case 'transfer':
-                                project.transfers.push(link.transfer);
+                                project.transfers.push({
+                                    _id: link.transfer._id,
+                                    transfer_year: link.transfer.transfer_year,
+                                    transfer_company: {
+                                        company_name: link.transfer.transfer_company.company_name,
+                                        _id:link.transfer.transfer_company._id},
+                                    transfer_country: {
+                                        name: link.transfer.transfer_country.name,
+                                        iso2: link.transfer.transfer_country.iso2},
+                                    transfer_type: link.transfer.transfer_type,
+                                    transfer_unit: link.transfer.transfer_unit,
+                                    transfer_value: link.transfer.transfer_value,
+                                    transfer_audit_type: link.transfer.transfer_audit_type
+                                });
                                 break;
                             case 'production':
                                 project.production.push(link.production);
