@@ -183,8 +183,6 @@ exports.getProjectByID = function(req, res) {
                                     field: link.site.field,
                                     site_name: link.site.site_name,
                                 });
-
-
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
                                         project.site_coordinates.fields.push({

@@ -23,10 +23,12 @@
                             td.project_id {{project.proj_id | uppercase}}
                         tr
                             td.detail_label.small Project site name:
-                            td.project_site
-                                span(ng-repeat='site in project.proj_site_name')
-                                    span {{site.string}}
-                                    | {{$last ? '' : ', '}}
+                            td.project_site: text(ng-repeat="site in project.sites | unique: '_id'")
+                                a(href='site/{{site._id}}')
+                                    | {{site.site_name}}
+                                    span(ng-if="site.field") &nbsp; (field)
+                                    span(ng-if="!site.field") &nbsp; (site)
+                                | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Country:
                             td.project_country: text(ng-repeat="country in project.proj_country | unique: 'iso2'")
@@ -35,10 +37,9 @@
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Aliases:
-                            td.project_aliases
-                                span(ng-repeat="alias in project.proj_aliases | unique: 'alias'")
-                                    span {{alias.alias}}
-                                    | {{$last ? '' : ', '}}
+                            td.project_aliases: span(ng-repeat="alias in project.proj_aliases | unique: 'alias'")
+                                span {{alias.alias}}
+                                | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Commodity Type(s):
                             td.project_type
