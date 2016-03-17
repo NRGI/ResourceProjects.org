@@ -106,9 +106,7 @@ exports.getProjectByID = function(req, res) {
     async.waterfall([
         getProject,
         getTransfers,
-        // getProductions,
         getProjectLinks,
-        getSiteCoordinate,
         getProjectCoordinate,
         getCompanyGroup
     ], function (err, result) {
@@ -149,22 +147,6 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-    // function getProductions(project, callback) {
-    //     project.productions = [];
-    //     Production.find({production_project: project._id})
-    //         .populate('production_commodity')
-    //         .exec(function(err, productions) {
-    //             _.each(productions, function(productions) {
-    //                 project.productions.push(productions);
-    //             });
-    //             if(project) {
-    //                 callback(null, project);
-    //             } else {
-    //                 callback(err);
-    //             }
-    //         });
-    // }
-
     function getProjectLinks(project, callback) {
         project.companies = [];
         project.commodities = [];
@@ -305,9 +287,6 @@ exports.getProjectByID = function(req, res) {
                 project.coordinates.push(field_loc);
             })
         }
-        // _.union(project.coordinates, project.site_coordinates.sites, project.site_coordinates.fields)
-        // project.coordinates.concat(project.site_coordinates.sites, project.site_coordinates.fields);
-        console.log(project.coordinates);
         project_counter = 0;
         project_len = project.proj_coordinates.length;
         if(project_len>0) {
@@ -327,31 +306,6 @@ exports.getProjectByID = function(req, res) {
         } else {
             callback(null, project);
         }
-    }
-    function getSiteCoordinate(project, callback) {
-        // project.coordinates = [];
-        // project_counter = 0;
-        // project_len = project.proj_coordinates.length;
-        // if(project_len>0) {
-        //     project.proj_coordinates.forEach(function (loc) {
-        //         console.log(loc);
-        //         ++project_counter;
-        //         project.coordinates.push({
-        //             'lat': loc.loc[0],
-        //             'lng': loc.loc[1],
-        //             'message': project.proj_name,
-        //             'timestamp': loc.timestamp,
-        //             'type': 'project'
-        //         });
-        //         if (project_counter == project_len) {
-        //             callback(null, project);
-        //         }
-        //     });
-        // } else {
-        //     callback(null, project);
-        // }
-        callback(null, project);
-
     }
     function getCompanyGroup(project, callback) {
         project_len = project.companies.length;
