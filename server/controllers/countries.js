@@ -219,18 +219,25 @@ exports.getCountryByID = function(req, res) {
 	function getCompanyGroupLinks(country, callback) {
 		company_counter = 0;
 		link_counter = 0;
+		country.sources = {};
 		company_len = country.companies.length;
 		if(company_len>0) {
 			_.each(country.companies,function (company) {
 				++company_counter;
 				Link.find({company: company._id})
 					.populate('company_group','_id company_group_name')
+					.deepPopulate('source.source_type_id')
 					.exec(function (err, links) {
 						link_len = links.length;
 						link_counter = 0;
 						links.forEach(function (link) {
 							++link_counter;
 							var entity = _.without(link.entities, 'company')[0];
+							if(link.source!=undefined) {
+								if (!country.sources[link.source._id]) {
+									country.sources[link.source._id] = link.source;
+								}
+							}
 							switch (entity) {
 								case 'company_group':
 									company.company_groups.push({
@@ -261,12 +268,18 @@ exports.getCountryByID = function(req, res) {
 				project.companies = 0;
 				Link.find({project: project._id})
 					.populate('company_group','_id company_group_name')
+					.deepPopulate('source.source_type_id')
 					.exec(function (err, links) {
 						link_len = links.length;
 						link_counter = 0;
 						links.forEach(function (link) {
 							++link_counter;
 							var entity = _.without(link.entities, 'project')[0];
+							if(link.source!=undefined) {
+								if (!country.sources[link.source._id]) {
+									country.sources[link.source._id] = link.source;
+								}
+							}
 							switch (entity) {
 								case 'company':
 									project.companies += 1;
@@ -285,32 +298,39 @@ exports.getCountryByID = function(req, res) {
 		}
 	}
 	function getConcessionLinks(country, callback) {
-		concession_counter = 0;
 		link_counter = 0;
 		concession_len = country.concessions.length;
 		if(concession_len>0) {
+			concession_counter = 0;
 			_.each(country.concessions, function (concession) {
-				++concession_counter;
 				concession.projects = 0;
 				Link.find({concession: concession._id})
 					.populate('project')
+					.deepPopulate('source.source_type_id')
 					.exec(function (err, links) {
+						++concession_counter;
 						link_len = links.length;
 						link_counter = 0;
-						links.forEach(function (link) {
-							++link_counter;
-							var entity = _.without(link.entities, 'concession')[0];
-							switch (entity) {
-								case 'project':
-									concession.projects += 1;
-									break;
-								default:
-									console.log(entity, 'link skipped...');
-							}
-						});
-						console.log(link_counter ,link_len, concession_counter,concession_len);
-						if (link_counter == link_len && concession_counter==concession_len) {
-							callback(null, country);
+						if(link_len>0) {
+							links.forEach(function (link) {
+								++link_counter;
+								var entity = _.without(link.entities, 'concession')[0];
+								if (link.source != undefined) {
+									if (!country.sources[link.source._id]) {
+										country.sources[link.source._id] = link.source;
+									}
+								}
+								switch (entity) {
+									case 'project':
+										concession.projects += 1;
+										break;
+									default:
+										console.log(entity, 'link skipped...');
+								}
+								if (link_counter == link_len && concession_counter==concession_len) {
+									callback(null, country);
+								}
+							});
 						}
 					});
 			})

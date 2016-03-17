@@ -116,11 +116,12 @@ exports.getCompanyGroupByID = function(req, res) {
 		companyGroup.companies = [];
 		companyGroup.commodities = [];
 		companyGroup.concessions = [];
+		companyGroup.sources = {};
 		Link.find({company_group: companyGroup._id})
 			.populate('company','_id company_name')
 			.populate('commodity')
 			.populate('contract')
-			//.deepPopulate()
+			.deepPopulate('source.source_type_id')
 			.exec(function(err, links) {
 				link_len = links.length;
 				if(link_len>0) {
@@ -128,6 +129,11 @@ exports.getCompanyGroupByID = function(req, res) {
 					links.forEach(function (link) {
 						++link_counter;
 						var entity = _.without(link.entities, 'company_group')[0];
+						if(link.source!=undefined) {
+							if (!companyGroup.sources[link.source._id]) {
+								companyGroup.sources[link.source._id] = link.source;
+							}
+						}
 						switch (entity) {
 							case 'commodity':
 								if (!companyGroup.commodities.hasOwnProperty(link.commodity_code)) {

@@ -53,7 +53,10 @@
             projects="true")
     .row
         nrgi-transfer-table(transfers="country.transfers" project="true")
-    .advanced-links
-        .container
-            h3
-                a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources
+    .row
+        .col-md-12
+            nrgi-sources-table(sources="country.sources")
+    //.advanced-links
+    //    .container
+    //        h3
+    //            a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources

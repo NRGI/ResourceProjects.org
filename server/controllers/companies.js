@@ -140,19 +140,25 @@ exports.getCompanyByID = function(req, res) {
         company.projects = [];
         company.contracts_link = [];
         company.concessions = [];
+        company.sources = {};
         Link.find({company: company._id})
             .populate('company_group','_id company_group_name')
             .populate('commodity')
             .populate('contract')
             .deepPopulate('project project.proj_country.country project.proj_commodity.commodity ' +
-            'concession concession.concession_country.country concession.concession_commodity.commodity')
+            'concession concession.concession_country.country concession.concession_commodity.commodity source.source_type_id')
             .exec(function(err, links) {
                 link_len = links.length;
                 if(link_len>0) {
                     link_counter = 0;
                     links.forEach(function (link) {
                         ++link_counter;
-                        var entity = _.without(link.entities, 'company')[0]
+                        var entity = _.without(link.entities, 'company')[0];
+                        if(link.source!=undefined) {
+                            if (!company.sources[link.source._id]) {
+                                company.sources[link.source._id] = link.source;
+                            }
+                        }
                         switch (entity) {
                             case 'commodity':
                                 if (!company.commodities.hasOwnProperty(link.commodity_code)) {

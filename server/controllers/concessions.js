@@ -136,7 +136,7 @@ exports.getConcessionByID = function(req, res) {
             .populate('contract')
             .populate('company')
             //.populate('concession', 'concession_name concession_country concession_type commodities')
-            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity')
+            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity source.source_type_id')
             //.deepPopulate()
             .exec(function(err, links) {
                 link_len = links.length;
@@ -145,11 +145,17 @@ exports.getConcessionByID = function(req, res) {
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
+                concession.sources = {};
                 if(link_len>0) {
                     //concession.concessions = {};
                     links.forEach(function (link) {
                         ++link_counter;
-                        var entity = _.without(link.entities, 'concession')[0]
+                        var entity = _.without(link.entities, 'concession')[0];
+                        if(link.source!=undefined) {
+                            if (!concession.sources[link.source._id]) {
+                                concession.sources[link.source._id] = link.source;
+                            }
+                        }
                         switch (entity) {
                             case 'commodity':
                                 if (!concession.commodities.hasOwnProperty(link.commodity_code)) {
