@@ -22,33 +22,33 @@ script(type="text/javascript", src="/vendor/angular-underscore/angular-underscor
 script(type="text/javascript", src="/vendor/restangular/dist/restangular.js")
 script(type="text/javascript", src="/vendor/ng-csv/build/ng-csv.js")
 script(type="text/javascript", src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js")
-script(type='text/javascript').
-    $(document).ready(function(){
-        $('.typeahead').typeahead({
-            source: function (query, process) {
-                $('.typeahead').addClass('wait');
-                return $.get('/api/search', {query: query.toString() }, function (data) {
-
-                    $('.typeahead').removeClass('wait');
-                    return process(data);
-                }, 'json');
-            },
-            afterSelect: function (obj) {
-                $('.typeahead').attr('disabled', true);
-                if(obj.type=='country'){
-                    window.location = '/' + obj.type + '/' + obj.iso2;
-                }
-                else if(obj.type=='companygroup'){
-                    window.location = '/group/' + obj._id;
-                } else if(obj.type=='commodity'){
-                    window.location = '/commodity/' + obj.commodity_id;
-                }else {
-                    window.location = '/' + obj.type + '/' + obj._id;
-                }
-            },
-            displayText: function(item){ return item.name;}
-        });
-    });
+//script(type='text/javascript').
+//    $(document).ready(function(){
+//        $('.typeahead').typeahead({
+//            source: function (query, process) {
+//                $('.typeahead').addClass('wait');
+//                return $.get('/api/search', {query: query.toString() }, function (data) {
+//
+//                    $('.typeahead').removeClass('wait');
+//                    return process(data);
+//                }, 'json');
+//            },
+//            afterSelect: function (obj) {
+//                $('.typeahead').attr('disabled', true);
+//                if(obj.type=='country'){
+//                    window.location = '/' + obj.type + '/' + obj.iso2;
+//                }
+//                else if(obj.type=='companygroup'){
+//                    window.location = '/group/' + obj._id;
+//                } else if(obj.type=='commodity'){
+//                    window.location = '/commodity/' + obj.commodity_id;
+//                }else {
+//                    window.location = '/' + obj.type + '/' + obj._id;
+//                }
+//            },
+//            displayText: function(item){ return item.name;}
+//        });
+//    });
 
 //- MAIN APP
 script(type="text/javascript", src="/app/app.js")
