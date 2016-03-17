@@ -259,7 +259,6 @@ exports.getProjectByID = function(req, res) {
     function getCompanyGroup(project, callback) {
         project_len = project.companies.length;
         project_counter = 0;
-<<<<<<< HEAD
         if (project_len > 0) {
             project.companies.forEach(function (company) {
                 Link.find({company: company._id})
