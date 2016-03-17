@@ -20,7 +20,7 @@
                     tbody
                         tr
                             td.detail_label.small ID:
-                            td.project_id {{project._id}}
+                            td.project_id {{project.proj_id | uppercase}}
                         tr
                             td.detail_label.small Project site name:
                             td.project_site
@@ -123,9 +123,3 @@
     .row
         .col-md-12
             nrgi-sources-table(sources="project.sources")
-
-    //.advanced-links
-    //    .container
-    //        h3
-    //            a(href='') Sources
-    //        .row {{project.sources}}
