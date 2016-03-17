@@ -32,4 +32,5 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
     span
         |  Download:
         =' '
-        a(href="") Payments CSV
+        a(href="" ng-csv="csv_transfers" csv-header="getHeaderTransfers()" filename="productions.csv") Payments CSV
+

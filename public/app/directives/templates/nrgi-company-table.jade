@@ -19,4 +19,4 @@ table.table.table-striped.companies(ts-wrapper)#company-info
     span.glyphicon.glyphicon-download(aria-hidden="true")
     span  Download:
         =' '
-        a(href="") Companies CSV
+        a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV

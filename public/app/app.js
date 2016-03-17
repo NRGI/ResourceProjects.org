@@ -7,7 +7,8 @@ angular.module('app', [
     'ngResource',
     'ngRoute',
     'tableSort',
-    'ngCsv'
+    'ngCsv',
+    'ngSanitize'
 ]);
 
 angular.module('app')
