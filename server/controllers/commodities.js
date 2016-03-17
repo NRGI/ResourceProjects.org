@@ -13,7 +13,7 @@ exports.getCommodities = function(req, res) {
 	async.waterfall([
 		commodityCount,
 		getCommoditySet,
-		getCommodityLinks,
+		getCommodityLinks
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -29,7 +29,6 @@ exports.getCommodities = function(req, res) {
 			}
 		});
 	}
-
 	function getCommoditySet(commodity_count, callback) {
 		Commodity.find(req.query)
 			.sort({
@@ -46,7 +45,6 @@ exports.getCommodities = function(req, res) {
 				}
 			});
 	}
-
 	function getCommodityLinks(commodity_count, commodities, callback) {
 		commodity_len = commodities.length;
 		commodity_counter = 0;
@@ -185,11 +183,10 @@ exports.getCommodityByID = function(req, res) {
 							case 'project':
 								commodity.projects.push(link.project);
 								break;
-
 							default:
 								console.log(entity, 'link skipped...');
 						}
-						if (link_counter == link_len) {
+						if(link_counter == link_len) {
 							//res.send(commodity);
 							callback(null, commodity);
 						}
@@ -198,7 +195,6 @@ exports.getCommodityByID = function(req, res) {
 					callback(null, commodity);
 				}
 			});
-
 	}
 	function getContracts(commodity, callback) {
 		commodity.contracts = [];
@@ -322,7 +318,6 @@ exports.updateCommodity = function(req, res) {
 		})
 	});
 };
-
 exports.deleteCommodity = function(req, res) {
 	Commodity.remove({_id: req.params.id}, function(err) {
 		if(!err) {

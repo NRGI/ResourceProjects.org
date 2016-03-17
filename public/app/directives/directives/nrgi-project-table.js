@@ -10,9 +10,7 @@ angular
                 projects: '=',
                 country: '=',
                 type: '=',
-                companies: '=',
-                commodity: '=',
-                status: '='
+                companies: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-project-table'
         };

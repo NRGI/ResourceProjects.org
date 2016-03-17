@@ -24,12 +24,17 @@ var projectSchema, Project,
         }
     },
     mongooseHistory = require('mongoose-history'),
-    hst_options     = {customCollectionName: 'proj_hst'};
+    hst_options     = {customCollectionName: 'proj_hst'},
+    status_enu  = {
+        values: 'exploration development production on_hold inactive unknown'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
+    };
     //type_enu  = {
     //    values: 'mining oil'.split(' '),
     //    //values: ' project '.split(' '),
     //    message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
     //};
+
 
 projectSchema = new Schema({
     proj_name: String,
@@ -43,7 +48,15 @@ projectSchema = new Schema({
     proj_site_name: [fact],
     proj_address: [fact],
     proj_coordinates: [fact],
-    proj_status: [fact],
+    proj_status: [{
+        source: source,
+        string: {
+            type: String,
+            enum: status_enu,
+            default: 'unknown'},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     description: htmlSettings,
 
     //Links
@@ -100,6 +113,7 @@ function createDefaultProjects() {
                 proj_name: 'Procect B',
                 proj_aliases: ['56a939e649434cfc1354d64d'],
                 proj_established_source: '56747e060e8cc07115200ee6',
+                proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                 proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
                 proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],

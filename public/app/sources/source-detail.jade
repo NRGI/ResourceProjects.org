@@ -1,45 +1,45 @@
 .container
-   .page-header
-      h1
-         span(ng-bind-html="source.source_name|sanitize")
-         =' '
-         small Source
-   .row
-      .col-md-6
-         .info-box
-            table#source-info
-               tbody
-                  tr
-                     td.detail_label.small Type:
-                     td.source_type {{source.source_type}}
-                  tr
-                     td.detail_label.small Source date:
-                     td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
-                  tr
-                     td.detail_label.small Retrieved date:
-                     td.retrieve_date {{source.retrieve_date| date:'yyyy-MM-dd'}}
-                  tr
-                     td.detail_label.small Access source:
-                     td.source_url
-                        text(ng-if="source.source_url")
-                           a(ng-href='https://{{source.source_url}}', target='_blank') Link
-                           =' '
-                           | (Direct link to data in HTML report)
-                  tr
-                     td.detail_label.small Access archive:
-                     td.source_archive_url
-                        text(ng-if="source.source_archive_url")
-                           a(href='https://{{source.source_archive_url}}', target='_blank') Link
-                           =' '
-                           | (Google sheet)
-                  tr
-                     td.detail_label.small Created:
-                     td.create_author(ng-if="source.create_author.length > 0") {{source.create_author[0].first_name}} {{source.create_author[0].last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
-      .col-md-6
-         .info-box
-            table#source-description
-               tbody
-                  tr
-                     td.project-label.small Desctiption:
-                     td.source_notes
-                        span(ng-bind-html="source.source_notes|sanitize")
+    .page-header
+        h1
+            span(ng-bind-html="source.source_name|sanitize")
+            =' '
+            small Source
+    .row
+        .col-md-6
+            .info-box
+                table#project-info
+                    tbody
+                        tr
+                            td.project-label.our-id Type:
+                            td {{source.source_type}}
+                        tr
+                            td.project-label.website Source date:
+                            td {{source.source_date| date:'yyyy-MM-dd'}}
+                        tr
+                            td.project-label.website Retrieved date:
+                            td {{source.retrieve_date| date:'yyyy-MM-dd'}}
+                        tr
+                            td.project-label.part-of Access source:
+                            td
+                                a(ng-href='https://{{source.source_url}}', target='_blank') Link
+                                =' '
+                                | (Direct link to data in HTML report)
+                        tr
+                            td.project-label.part-of Access archive:
+                            td
+                                a(href='https://{{source.source_archive_url}}', target='_blank') Link
+                                =' '
+                                | (Google sheet)
+                        tr
+                            td.project-label.open-corporates Created:
+                            td {{source.create_author.first_name}} {{source.create_author.last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
+
+        .col-md-6
+            .info-box
+                table#source-description
+
+                    tbody
+                        tr
+                            td.project-label.our-id Desctiption:
+                            td
+                                span(ng-bind-html="source.source_notes|sanitize")

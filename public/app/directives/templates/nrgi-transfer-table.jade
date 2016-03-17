@@ -19,6 +19,8 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
                 span(ng-bind-html="transfer.transfer_project.proj_name|sanitize")
             td.transfer_company: a(href="company/{{transfer.transfer_company._id}}")
                 span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
+            td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.transfer_company._id}}")
+                span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
             td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.transfer_country.iso2}}")
                 span(ng-bind-html="transfer.transfer_country.name|sanitize")
             td.transfer_type {{transfer.transfer_type}}

@@ -33,6 +33,8 @@
                                 a(href='country/{{country.country.iso2}}')
                                     span(ng-bind-html="country.country.name|sanitize")
                                 | {{$last ? '' : ', '}}
+                            //td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
+                            //    a(href='country/{{country.country._id}}')
                         tr
                             td.detail_label.small Status:
                             td.concession_status: text(

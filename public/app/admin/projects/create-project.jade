@@ -1,97 +1,98 @@
 .container.top-padding-med
-   .well
-      form.form-horizontal(name='create_project_form')
-         fieldset
-            legend New Project Information
-            .form-group
-               label.col-md-2.control-label(form="proj_name") Project Name
-               .col-md-10
-                  input.form-control(
-                  name="proj_name"
-                  type="text"
-                  placeholder="Project Name"
-                  ng-model="project.proj_name"
-                  required)
-            .form-group
-               label.col-md-2.control-label(form="proj_aliases") Project Aliases
-               .col-md-10
-                  input.form-control(
-                  name="proj_aliases"
-                  type="text"
-                  placeholder="Project aliases"
-                  )
-                  //ng-model="project.proj_aliases"
-            .form-group
-               label.col-md-2.control-label(form="proj_country") Country
-               .col-md-10
-                  select.form-control(
-                  ng-model="project.proj_country.country"
-                  ng-options="item._id as item.name for item in country.data"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_type") Commodity Type(s)
-               .col-md-10
-                  input.form-control(
-                  name="proj_type"
-                  type="text"
-                  placeholder="Commodity Type(s)"
-                  ng-model="project.proj_type.string"
-                  )
-            //.form-group
-            //   label.col-md-2.control-label(form="proj_commodity") Commodities
-            //   .col-md-10
-            //      select.form-control(
-            //      ng-model="project.proj_commodity.commodity"
-            //      ng-options="item._id as item.commodity_name for item in commodity.data"
-            //      )
-            .form-group
-               label.col-md-2.control-label(form="proj_site_name") Project Site Name
-               .col-md-10
-                  input.form-control(
-                  name="proj_site_name"
-                  type="text"
-                  placeholder="Project site name"
-                  ng-model="project.proj_site_name.string"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_address") Address
-               .col-md-10
-                  input.form-control(
-                  name="proj_address"
-                  type="text"
-                  placeholder="Address"
-                  ng-model="project.proj_address.string"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_coordinates") Location(s)
-               .col-md-10
-                  input.form-control(
-                  name="proj_coordinates"
-                  type="text"
-                  placeholder="Location(s)"
-                  ng-model="project.proj_coordinates"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="proj_status") Status
-               .col-md-10
-                  input.form-control(
-                  name="proj_status"
-                  type="text"
-                  placeholder="Status"
-                  ng-model="project.proj_status.string"
-                  )
-            .form-group
-               label.col-md-2.control-label(form="description") Description
-               .col-md-10
-                  textarea.form-control(
-                  name="description"
-                  ng-model="project.description"
-                  )
-            .form-group
-               .col-md-10.col-md-offset-2
-                  .pull-right
-                     button.btn.btn-primary(
-                     ng-click="projectCreate()"
-                     ng-disabled="create_project_form.$invalid") Submit
-                     | &nbsp;
-                     a.btn.btn-default(href="/admin/project-admin") Cancel
+    .well
+        form.form-horizontal(name='create_project_form')
+            fieldset
+                legend New Project Information
+                .form-group
+                    label.col-md-2.control-label(form="proj_name") Project Name
+                    .col-md-10
+                        input.form-control(
+                        name="proj_name"
+                        type="text"
+                        placeholder="Project Name"
+                        ng-model="project.proj_name"
+                        required)
+                .form-group
+                    label.col-md-2.control-label(form="proj_aliases") Project Aliases
+                    .col-md-10
+                        input.form-control(
+                        name="proj_aliases"
+                        type="text"
+                        placeholder="Project aliases"
+                        )
+                        //ng-model="project.proj_aliases"
+
+                .form-group
+                    label.col-md-2.control-label(form="proj_country") Country
+                    .col-md-10
+                        select.form-control(
+                        ng-model="project.proj_country.country"
+                        ng-options="item._id as item.name for item in country.data"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="proj_type") Commodity Type(s)
+                    .col-md-10
+                        input.form-control(
+                        name="proj_type"
+                        type="text"
+                        placeholder="Commodity Type(s)"
+                        ng-model="project.proj_type.string"
+                        )
+                //.form-group
+                //   label.col-md-2.control-label(form="proj_commodity") Commodities
+                //   .col-md-10
+                //      select.form-control(
+                //      ng-model="project.proj_commodity.commodity"
+                //      ng-options="item._id as item.commodity_name for item in commodity.data"
+                //      )
+                .form-group
+                    label.col-md-2.control-label(form="proj_site_name") Project Site Name
+                    .col-md-10
+                        input.form-control(
+                        name="proj_site_name"
+                        type="text"
+                        placeholder="Project site name"
+                        ng-model="project.proj_site_name.string"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="proj_address") Address
+                    .col-md-10
+                        input.form-control(
+                        name="proj_address"
+                        type="text"
+                        placeholder="Address"
+                        ng-model="project.proj_address.string"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="proj_coordinates") Location(s)
+                    .col-md-10
+                        input.form-control(
+                        name="proj_coordinates"
+                        type="text"
+                        placeholder="Location(s)"
+                        ng-model="project.proj_coordinates"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="proj_status") Status
+                    .col-md-10
+                        input.form-control(
+                        name="proj_status"
+                        type="text"
+                        placeholder="Status"
+                        ng-model="project.proj_status.string"
+                        )
+                .form-group
+                    label.col-md-2.control-label(form="description") Description
+                    .col-md-10
+                        textarea.form-control(
+                        name="description"
+                        ng-model="project.description"
+                        )
+                .form-group
+                    .col-md-10.col-md-offset-2
+                        .pull-right
+                            button.btn.btn-primary(
+                            ng-click="projectCreate()"
+                            ng-disabled="create_project_form.$invalid") Submit
+                            | &nbsp;
+                            a.btn.btn-default(href="/") Cancel

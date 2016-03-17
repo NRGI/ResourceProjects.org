@@ -1,62 +1,62 @@
 .container
-   .page-header
-      h1
-         span(ng-bind-html="commodity.commodity_name|sanitize")
-         =' '
-         small Commodity
-   .row
-      .col-md-12
-         leaflet(center="center",controls="controls",markers="commodity.location",tiles="tiles", height='240px')
-   .info-box
-      h2 Commodity Info
-      table#commodity-info
-         tbody
-            tr
-               td.detail_label.small Code:
-               td.commodity_code {{commodity.commodity_code}}
-            tr
-               td.detail_label.small Commodity name:
-               td.commodity_name
-                  a(href='commodity/{{commodity._id}}')
-                     span(ng-bind-html="commodity.commodity_name|sanitize")
-            tr
-               td.detail_label.small Aliases:
-               td.commodity_aliases
-                  span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
-                     span {{alias.code}}
-                        span.text-uppercase  ({{alias.reference}})
-                     span(ng-if="!$last") ,
-                     =" "
+    .page-header
+        h1
+            span(ng-bind-html="commodity.commodity_name|sanitize")
+            =' '
+            small Commodity
+    .row
+        .col-md-12
+            leaflet(center="center" controls="controls" markers="commodity.location" tiles="tiles" height='240px')
+    .info-box
+        h2 Commodity Info
+        table#commodity-info
+            tbody
+                tr
+                    td.detail_label.small Code:
+                    td.commodity_code {{commodity.commodity_code}}
+                tr
+                    td.detail_label.small Commodity name:
+                    td.commodity_name
+                        a(href='commodity/{{commodity._id}}')
+                            span(ng-bind-html="commodity.commodity_name|sanitize")
+                tr
+                    td.detail_label.small Aliases:
+                    td.commodity_aliases
+                        span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
+                            span {{alias.code}}
+                                span.text-uppercase  ({{alias.reference}})
+                            span(ng-if="!$last") ,
+                            =" "
+    .row
+        .col-md-3
+            nrgi-project-table(
+            projects="commodity.projects"
+            country="true"
+            type="false"
+            companies="false"
+            commodity="false"
+            status="false")
+        .col-md-3
+            nrgi-contract-table(
+            contracts="commodity.contracts"
+            companies="false"
+            commodity="false"
+            country="true")
+        .col-md-3
+            nrgi-concession-table(
+            concessions="commodity.concessions"
+            type="false"
+            commodity="false"
+            status="false"
+            projects="false")
+        .col-md-3
+            nrgi-company-table(
+            companies="commodity.companies"
+            stake="false"
+            group="true")
 
-   .row
-      .col-md-3
-         nrgi-project-table(
-         projects="commodity.projects"
-         country="true"
-         type="false"
-         companies="false"
-         commodity="false"
-         status="false")
-      .col-md-3
-         nrgi-contract-table(
-         contracts="commodity.contracts"
-         companies="false"
-         commodity="false"
-         country="true")
-      .col-md-3
-         nrgi-concession-table(
-         concessions="commodity.concessions"
-         type="false"
-         commodity="false"
-         status="false"
-         projects="false")
-      .col-md-3
-         nrgi-company-table(
-         companies="commodity.companies"
-         stake="false"
-         group="true")
-
-   .advanced-links
-       .container
-          h3
-             a(href='') Sources
+        .col-md-3
+    .advanced-links
+        .container
+            h3
+                a(href='') Sources

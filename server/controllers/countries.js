@@ -1,26 +1,29 @@
-var Country 		= require('mongoose').model('Country'),
-	Transfer 	    = require('mongoose').model('Transfer'),
-	Link            = require('mongoose').model('Link'),
-	Project 		= require('mongoose').model('Project'),
-	Company 		= require('mongoose').model('Company'),
-	Concession 		= require('mongoose').model('Concession'),
-	async           = require('async'),
-	_               = require("underscore"),
-	request         = require('request');
-exports.getCountries = function(req, res) {
-	var country_len,country_counter,
-		limit = Number(req.params.limit),
-		skip = Number(req.params.skip);
+'use strict';
 
-	async.waterfall([
-		countryCount,
-		getCountrySet,
-		getCountryProjectCount
-	], function (err, result) {
-		if (err) {
-			res.send(err);
-		}
-	});
+var Country 		= require('mongoose').model('Country'),
+    Transfer 	    = require('mongoose').model('Transfer'),
+    Link            = require('mongoose').model('Link'),
+    Project 		= require('mongoose').model('Project'),
+    Company 		= require('mongoose').model('Company'),
+    Concession 		= require('mongoose').model('Concession'),
+    async           = require('async'),
+    _               = require("underscore"),
+    request         = require('request');
+
+exports.getCountries = function(req, res) {
+    var country_len,country_counter,
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
+
+    async.waterfall([
+        countryCount,
+        getCountrySet,
+        getCountryProjectCount
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        }
+    });
 
     function countryCount(callback) {
         Country.find({}).count().exec(function(err, country_count) {
@@ -62,12 +65,12 @@ exports.getCountries = function(req, res) {
                 }
             });
 
-		});
-	}
+        });
+    }
 };
-
 exports.getCountryByID = function(req, res) {
-	var concession_len,concession_counter,link_counter, link_len,company_counter,company_len,project_counter,project_len;
+	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;
+
 	async.waterfall([
 		getCountry,
 		getCountryCompanies,
@@ -115,6 +118,7 @@ exports.getCountryByID = function(req, res) {
 				} else {
 					callback(null, country);
 				}
+				//res.send(country);
 			});
 	}
 	function getCountryProjects(country, callback) {
@@ -138,13 +142,12 @@ exports.getCountryByID = function(req, res) {
 								companies: []
 							});
 							_.each(proj.proj_coordinates, function (loc) {
-
+								//++project_counter;
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
 									'message': "<a href =\'/project/" + proj._id + "\'>" + proj.proj_name + "</a><br>" + proj.proj_name
 								});
-
 							});
 							if (project_counter == project_len) {
 								callback(null, country);
@@ -203,10 +206,11 @@ exports.getCountryByID = function(req, res) {
 						contract_commodity: contract.resource,
 						companies:contract.company_name
 					});
-					if (contract_counter == contract_len) {
-						callback(null, country);
-					}
+
 				});
+				if (contract_counter == contract_len) {
+					callback(null, country);
+				}
 			} else {
 				callback(null, country);
 			}
@@ -218,10 +222,10 @@ exports.getCountryByID = function(req, res) {
 		company_len = country.companies.length;
 		if(company_len>0) {
 			_.each(country.companies,function (company) {
+				++company_counter;
 				Link.find({company: company._id})
 					.populate('company_group','_id company_group_name')
 					.exec(function (err, links) {
-						++company_counter;
 						link_len = links.length;
 						link_counter = 0;
 						links.forEach(function (link) {
@@ -253,11 +257,11 @@ exports.getCountryByID = function(req, res) {
 		project_len = country.projects.length;
 		if(project_len>0) {
 			_.each(country.projects, function (project) {
+				++project_counter;
 				project.companies = 0;
 				Link.find({project: project._id})
 					.populate('company_group','_id company_group_name')
 					.exec(function (err, links) {
-						++project_counter;
 						link_len = links.length;
 						link_counter = 0;
 						links.forEach(function (link) {
@@ -286,11 +290,11 @@ exports.getCountryByID = function(req, res) {
 		concession_len = country.concessions.length;
 		if(concession_len>0) {
 			_.each(country.concessions, function (concession) {
+				++concession_counter;
 				concession.projects = 0;
 				Link.find({concession: concession._id})
 					.populate('project')
 					.exec(function (err, links) {
-						++concession_counter;
 						link_len = links.length;
 						link_counter = 0;
 						links.forEach(function (link) {
@@ -304,6 +308,7 @@ exports.getCountryByID = function(req, res) {
 									console.log(entity, 'link skipped...');
 							}
 						});
+						console.log(link_counter ,link_len, concession_counter,concession_len);
 						if (link_counter == link_len && concession_counter==concession_len) {
 							callback(null, country);
 						}
@@ -329,9 +334,6 @@ exports.getCountryByID = function(req, res) {
 			});
 	}
 };
-
-
-
 exports.createCountry = function(req, res, next) {
 	var countryData = req.body;
 	Country.create(countryData, function(err, country) {
@@ -367,7 +369,6 @@ exports.updateCountry = function(req, res) {
 		})
 	});
 };
-
 exports.deleteCountry = function(req, res) {
 	Country.remove({_id: req.params.id}, function(err) {
 		if(!err) {

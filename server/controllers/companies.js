@@ -1,8 +1,6 @@
 var Company 		= require('mongoose').model('Company'),
-    //CompanyGroup 	= require('mongoose').model('CompanyGroup'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
-    //Country			= require('mongoose').model('Country'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -31,7 +29,6 @@ exports.getCompanies = function(req, res) {
             }
         });
     }
-
     function getCompanySet(company_count, callback) {
         Company.find(req.query)
             .sort({
@@ -50,7 +47,6 @@ exports.getCompanies = function(req, res) {
                 }
             });
     }
-
     function getCompanyLinks(company_count, companies, callback) {
         company_len = companies.length;
         company_counter = 0;
@@ -92,8 +88,6 @@ exports.getCompanies = function(req, res) {
         });
     }
 };
-
-
 exports.getCompanyByID = function(req, res) {
     var link_counter, link_len;
 
@@ -214,7 +208,6 @@ exports.getCompanyByID = function(req, res) {
                             case 'project':
                                 company.projects.push(link.project);
                                 break;
-
                             default:
                                 console.log(entity, 'link skipped...');
                         }
@@ -274,7 +267,6 @@ exports.getCompanyByID = function(req, res) {
             res.send(company);
         }
     }
-
 };
 exports.createCompany = function(req, res, next) {
     var companyData = req.body;
@@ -312,7 +304,6 @@ exports.updateCompany = function(req, res) {
         })
     });
 };
-
 exports.deleteCompany = function(req, res) {
     Company.remove({_id: req.params.id}, function(err) {
         if(!err) {

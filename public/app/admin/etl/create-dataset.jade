@@ -1,0 +1,31 @@
+.container.top-padding-med
+	.well
+		form.form-horizontal(name='create_dataset_form')
+			fieldset
+				legend Create new dataset
+				.form-group
+					label.col-md-2.control-label(form="first_name") Name
+					.col-md-10
+						input.form-control(
+						name="name"
+						type="text"
+						placeholder="Name of the Dataset"
+						ng-model="name"
+						required)
+				.form-group
+					label.col-md-2.control-label(form="last_name") Source URL
+					.col-md-10
+						input.form-control(
+						name="source_url"
+						type="text"
+						placeholder="http://"
+						ng-model="source_url"
+						required)
+				.form-group
+					.col-md-10.col-md-offset-2
+						.pull-right
+							button.btn.btn-primary(
+							ng-click="datasetCreate()"
+							ng-disabled="create_dataset_form.$invalid") Submit
+							| &nbsp;
+							a.btn.btn-default(href="/") Cancel

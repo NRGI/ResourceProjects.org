@@ -12,7 +12,6 @@ angular.module('app')
         $scope.project=[];
         $scope.country = nrgiCountriesSrvc.query({skip: 0, limit: 0});
         $scope.commodity = nrgiCommoditiesSrvc.query({skip: 0, limit: 0});
-
         $scope.projectCreate = function() {
             nrgiProjectsMethodSrvc.createProject($scope.project).then(function() {
                 nrgiNotifier.notify('Project created!');

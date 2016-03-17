@@ -1,0 +1,14 @@
+h2 Sources
+//.row(ng-repeat="(key, value) in sources")
+//    | {{value}}
+table.table.table-striped.projects(ts-wrapper)#project-sources
+    thead
+        tr
+            th Name
+            th Type
+    tbody
+        tr(ng-repeat="(key, value) in sources")
+            td.source_id: a(href='source/{{key}}')
+                span(ng-bind-html="value.source_name|sanitize")
+            td.source_type: a(href='source_type/{{value.source_type_id._id}}')
+                span(ng-bind-html="value.source_type_id.source_type_name|sanitize")

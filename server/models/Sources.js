@@ -25,7 +25,10 @@ var sourceSchema, Source,
 sourceSchema = new Schema({
     source_name: String,
     source_type: String, // loaded, edit. api
-    source_type_id: String,
+    //source_type_id: String,
+    source_type_id: {
+        type: ObjectId,
+        ref: 'SourceType'},
     source_url: String,
     source_archive_url: String,
     source_notes: htmlSettings,
@@ -41,7 +44,19 @@ sourceSchema = new Schema({
             ref: 'User'}],
     create_date: {
         type: Date,
-        default: Date.now}
+        default: Date.now},
+    possible_duplicate: {
+        type: Boolean,
+        default: false
+    },
+    duplicate: {
+        type: ObjectId,
+        ref: 'Source'
+    },
+    staged: {
+        type: Boolean,
+        default: true
+    },
 });
 
 sourceSchema.plugin(mongooseHistory, hst_options);
@@ -55,7 +70,7 @@ function createDefaultSources() {
                 _id: '56747e060e8cc07115200ee4',
                 source_name: 'source 1',
                 source_type: 'source id 1',
-                source_type_id: 'source_id_1',
+                source_type_id: '56e873691d1d2a3824141427',
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
@@ -65,7 +80,7 @@ function createDefaultSources() {
                 _id: '56747e060e8cc07115200ee5',
                 source_name: 'source 2',
                 source_type: 'source id 2',
-                source_type_id: 'source_id_2',
+                source_type_id: '56e873691d1d2a3824141427',
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
@@ -75,7 +90,7 @@ function createDefaultSources() {
                 _id: '56747e060e8cc07115200ee6',
                 source_name: 'source 3',
                 source_type: 'source id 3',
-                source_type_id: 'source_id_3',
+                source_type_id: '56e873691d1d2a3824141427',
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes',
@@ -85,7 +100,7 @@ function createDefaultSources() {
                 _id: '56747e060e8cc07115200ee3',
                 source_name: 'source 4',
                 source_type: 'source id 4',
-                source_type_id: 'source_id_4',
+                source_type_id: '56e873691d1d2a3824141428',
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes'

@@ -1,14 +1,17 @@
-var auth 		= require('./auth'),
-    search 		= require('../controllers/search'),
-	users 		= require('../controllers/users'),
-	commodities = require('../controllers/commodities'),
-	concessions = require('../controllers/concessions'),
-	companies 	= require('../controllers/companies'),
-	projects 	= require('../controllers/projects'),
-	contracts 	= require('../controllers/contracts'),
+
+var auth 			= require('./auth'),
+    search 			= require('../controllers/search'),
+	users 			= require('../controllers/users'),
+	datasets  		= require('../controllers/datasets'),
+	commodities 	= require('../controllers/commodities'),
+	concessions 	= require('../controllers/concessions'),
+	companies 		= require('../controllers/companies'),
+	projects 		= require('../controllers/projects'),
+	contracts 		= require('../controllers/contracts'),
 	companyGroups 	= require('../controllers/companyGroups'),
-	countries 	= require('../controllers/countries'),
-	sources 	= require('../controllers/sources');
+	countries 		= require('../controllers/countries'),
+	sources 		= require('../controllers/sources');
+	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
 	// assessments = require('../controllers/assessments');
@@ -17,9 +20,7 @@ var auth 		= require('./auth'),
 
 module.exports	= function(app) {
 
-
 	app.get('/api/search', search.searchText);
-
 
 	//CONTRACTS
 	app.get('/api/contracts/:limit/:skip', contracts.getContracts);
@@ -50,7 +51,6 @@ module.exports	= function(app) {
 	app.put('/api/projects',  projects.updateProject);
 	// DELETE
 	app.delete('/api/projects/:id', projects.deleteProject);
-
 
 	/////////////////////////
 	///// COMPANIES CRUD ////////
@@ -106,6 +106,38 @@ module.exports	= function(app) {
 	/////////////////////////
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
+	
+	//USERS CRUD - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+	
+	//Create a dataset
+	app.post('/api/datasets', datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', datasets.createAction);
+	//TODO consider implementing a get?
+
+	// POST
+	app.post('/api/sources',  sources.createSource);
+	// PUT
+	app.put('/api/sources',  sources.updateSource);
+	// DELETE
+	app.delete('/api/sources/:id', sources.deleteSource);
+
+	//DATASETS - TODO: protect with admin
+
+	//USERS CRUD - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+
+	//Create a dataset
+	app.post('/api/datasets', datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', datasets.createAction);
+	//TODO consider implementing a get?
+
 	// POST
 	app.post('/api/sources',  sources.createSource);
 	// PUT
@@ -128,43 +160,6 @@ module.exports	= function(app) {
 
 	// DELETE
 	app.delete('/api/users/:id', auth.requiresRole('admin'), users.deleteUser);
-
-	// /////////////////////////////
-	// ///// QUESTIONS CRUD ////////
-	// /////////////////////////////
-	// // GET
-	// app.get('/api/questions', questions.getQuestions);
-	// app.get('/api/questions/:id', questions.getQuestionsByID);
-	// app.get('/api/question-text/:id', questions.getQuestionTextByID);
-	
-	// // PUT
-	// app.put('/api/questions', auth.requiresRole('supervisor'), questions.updateQuestion);
-
-	// // DELETE
-	// app.delete('/api/questions/:id', auth.requiresRole('supervisor'), questions.deleteQuestion);
-
-	// //////////////////////////////////////
-	// ///// ASSESSMENT ANSWERS CRUD ////////
-	// //////////////////////////////////////
-	// // GET
-	// app.get('/api/answers', auth.requiresApiLogin, answers.getAnswers);
-	// app.get('/api/answers/:answer_ID', auth.requiresApiLogin, answers.getAnswersByID);
-	
-	// // POST
-	// app.post('/api/answers', auth.requiresApiLogin, answers.createAnswers);
-	// // app.get('/api/answers/:answer_ID', auth.requiresApiLogin, assessments.getAnswersByID);
-	// // app.get('/api/answers/:answer_ID', auth.requiresApiLogin, assessments.getAnswersByID);
-	
-	// ///////////////////////////////////////
-	// ///// ASSESSMENT OVERVIEW CRUD/////////
-	// ///////////////////////////////////////
-	// // GET
-	// app.get('/api/assessments', auth.requiresApiLogin, assessments.getAssessments);
-	// app.get('/api/assessments/:assessment_ID', auth.requiresApiLogin, assessments.getAssessmentsByID);
-	
-	// // PUT
-	// app.put('/api/assessments/:assessment_ID', auth.requiresApiLogin, assessments.updateAssessment);
-
 	////////////////////
 	///// OTHER ////////
 	////////////////////
@@ -182,7 +177,7 @@ module.exports	= function(app) {
 	app.all('/api/*', function(req, res) {
 		res.sendStatus(404);
 	});
-
+	
 	app.get('*', function(req, res) {
 		res.render('index', {
 			bootstrappedUser: req.user

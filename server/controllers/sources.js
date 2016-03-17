@@ -30,7 +30,6 @@ exports.getSources = function(req, res) {
 			}
 		});
 	}
-
 	function getSourceSet(source_count, callback) {
 		Source.find(req.query)
 			.sort({
@@ -95,7 +94,6 @@ exports.getSourceByID = function(req, res) {
 			});
 	}
 };
-
 exports.createSource = function(req, res, next) {
 	var sourceData = req.body;
 	Source.create(sourceData, function(err, source) {
@@ -134,7 +132,6 @@ exports.updateSource = function(req, res) {
 		})
 	});
 };
-
 exports.deleteSource = function(req, res) {
 	Source.remove({_id: req.params.id}, function(err) {
 		if(!err) {

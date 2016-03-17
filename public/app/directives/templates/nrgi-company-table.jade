@@ -7,7 +7,7 @@ table.table.table-striped.companies(ts-wrapper)#company-info
             th.tablesort-sortable-th(ng-if="stake==true") Stake
     tbody
         tr(
-        ng-repeat="company in companies | unique: '_id'",ts-repeat)
+        ng-repeat="company in companies",ts-repeat)
             td.company_name: a(href="company/{{company._id}}")
                     span(ng-bind-html="company.company_name|sanitize")
             td.company_groups(ng-if="group==true"): text(ng-repeat="group in company.company_groups | unique: '_id'")
