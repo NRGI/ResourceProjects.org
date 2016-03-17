@@ -21,8 +21,7 @@ var sourceTypeSchema, SourceType,
 
 sourceTypeSchema = new Schema({
     source_type_name: String,
-    source_type_id: String, // loaded, edit. api
-    //source_type_id: String,
+    source_type_id: String,
     source_type_authority: String,
     source_type_examples: String,
     source_type_url_type: String,
