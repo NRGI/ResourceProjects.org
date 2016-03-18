@@ -305,6 +305,65 @@ exports.getProjectByID = function(req, res) {
             callback(null, project);
         }
     }
+    // function getProjectLinks(concession, callback) {
+    //     proj_len = concession.projects.length;
+    //     concession_counter = 0;
+    //     if(proj_len>0) {
+    //         concession.projects.forEach(function (project) {
+    //             Link.find({project: project._id, $or:[ {entities:'transfer'}, {entities:'production'} ] })
+    //                 .deepPopulate('transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
+    //                 .exec(function (err, links) {
+    //                     ++concession_counter;
+    //                     link_len = links.length;
+    //                     link_counter = 0;
+    //                     links.forEach(function (link) {
+    //                         if (!concession.sources[link.source._id]) {
+    //                             concession.sources[link.source._id] = link.source;
+    //                         }
+    //                         ++link_counter;
+    //                         var entity = _.without(link.entities, 'project')[0];
+    //                         switch (entity) {
+    //                             case 'transfer':
+    //                                 concession.transfers.push({
+    //                                     _id: link.transfer._id,
+    //                                     transfer_year: link.transfer.transfer_year,
+    //                                     transfer_company: {
+    //                                         company_name: link.transfer.transfer_company.company_name,
+    //                                         _id:link.transfer.transfer_company._id},
+    //                                     transfer_country: {
+    //                                         name: link.transfer.transfer_country.name,
+    //                                         iso2: link.transfer.transfer_country.iso2},
+    //                                     transfer_type: link.transfer.transfer_type,
+    //                                     transfer_unit: link.transfer.transfer_unit,
+    //                                     transfer_value: link.transfer.transfer_value,
+    //                                     transfer_audit_type: link.transfer.transfer_audit_type});
+    //                                 break;
+    //                             case 'production':
+    //                                 concession.production.push({
+    //                                     _id: link.production._id,
+    //                                     production_year: link.production.production_year,
+    //                                     production_volume: link.production.production_volume,
+    //                                     production_unit: link.production.production_unit,
+    //                                     production_commodity: {
+    //                                         _id: link.production.production_commodity._id,
+    //                                         commodity_name: link.production.production_commodity.commodity_name,
+    //                                         commodity_id: link.production.production_commodity.commodity_id},
+    //                                     production_price: link.production.production_price,
+    //                                     production_price_unit: link.production.production_price_unit});
+    //                                 break;
+    //                             default:
+    //                                 console.log(entity, 'link skipped...');
+    //                         }
+    //                     });
+    //                     if (concession_counter == proj_len && link_counter == link_len) {
+    //                         callback(null, concession);
+    //                     }
+    //                 });
+    //         });
+    //     } else {
+    //         callback(null, concession);
+    //     }
+    // }
     function getCompanyGroup(project, callback) {
         project_len = project.companies.length;
         project_counter = 0;
