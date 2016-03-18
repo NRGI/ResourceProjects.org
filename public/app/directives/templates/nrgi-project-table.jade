@@ -23,15 +23,14 @@ table.table.table-striped.projects(ts-wrapper)#project-info
                 | {{$last ? '' : ', '}}
             td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
                 nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
-                    | {{$last ? '' : ', '}}
-            td.proj_status: text(ng-repeat="status in project.proj_status")
-                text(ng-if="$last")
-                    | {{status.string | ucfirst}}
-                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                | {{$last ? '' : ', '}}
+            td.proj_status(ng-if="status==true"): text(ng-repeat="status in project.proj_status")
+                text(ng-if="$last") {{status.string | ucfirst}}
+                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
             td(ng-if="companies==true") {{project.companies}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span
         |  Download:
         =' '
-        a(href="") Projects CSV
+        a(href="" ng-csv="csv_project" csv-header="getHeaderProjects()" filename="projects.csv") Projects CSV
