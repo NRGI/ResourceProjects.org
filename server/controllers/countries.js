@@ -145,7 +145,7 @@ exports.getCountryByID = function(req, res) {
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
-									'message': "<a href =\'/project/" + proj._id + "\'>" + proj.proj_name + "</a><br>" + proj.proj_name
+									'message':  proj.proj_name
 								});
 							});
 							if (project_counter == project_len) {

@@ -32,7 +32,7 @@ exports.processData = function(link, callback) {
     }
     var feedurl = `https://spreadsheets.google.com/feeds/worksheets/${key}/public/full?alt=json`;
     var sheets = new Object;
-    
+
     request({
         url: feedurl,
         json: true
@@ -61,7 +61,7 @@ exports.processData = function(link, callback) {
                                 }
                                 var item = new Object;
                                 var cd = response.headers['content-disposition'];
-                                
+
                                 item.title = body.feed.entry[i].title.$t;
                                 item.link = response.request.uri.href;
                                 item.data = rowdata;
@@ -101,7 +101,7 @@ var sources, countries, commodities, companies, projects;
 var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
     newRow[7] = parseGsDate(newRow[7]);
     newRow[8] = parseGsDate(newRow[8]);
-   
+
     var source = {
         source_name: newRow[0],
         source_type: newRow[2], //TODO: unnecessary?
@@ -173,12 +173,12 @@ var makeNewCompany = function(newRow) {
         }
         else return false; //error
     }
-    
+
     if (newRow[7] != "") {
         //TODO: Also should check aliases in each object
         returnObj.link = {company_group: company_groups[newRow[8]]._id};
     }
-    
+
     returnObj.obj = company;
     return returnObj;
 }
@@ -215,7 +215,7 @@ var updateProjectFacts = function(doc, row, report)
         }
     }
     else if (doc.proj_commodity) delete doc.proj_commodity; //Don't push
-    
+
     if (row[10] != "") {
         var notfound = true;
         if (doc.proj_status) {
@@ -235,7 +235,7 @@ var updateProjectFacts = function(doc, row, report)
         }
     }
     else if (doc.proj_status) delete doc.proj_status; //Don't push
-    
+
     //TODO... projects with mulitple countries, really?
     if (row[5] != "") {
         var notfound = true;
@@ -278,7 +278,7 @@ var makeNewProduction = function(newRow) {
         //production_project: projects[newRow[3]]._id,
         source: sources[newRow[0]]._id
     }
-    
+
     if (newRow[7] != "") {
         production.production_unit = newRow[7];
     }
@@ -291,7 +291,7 @@ var makeNewProduction = function(newRow) {
     if (newRow[10] != "") {
         production.production_price_per_unit = newRow[10];
     }
-    
+
     return production;
 }
 
@@ -301,21 +301,21 @@ var makeNewTransfer = function(newRow, transfer_audit_type) {
         console.log("SERIOUS ERROR: Missing country in the DB");
         return false;
     }
-        
+
     var transfer = {
         source: sources[newRow[0]]._id,
         transfer_country: countries[newRow[2]]._id,
         transfer_audit_type: transfer_audit_type
     };
-    
+
     if (newRow[3] != "") {
         transfer.transfer_company = companies[newRow[3]]._id;
     }
-    
+
     if (newRow[4] != "") {
         transfer.transfer_line_item = newRow[4];
     }
-    
+
     if (newRow[5] != "") {
         transfer.transfer_level = "project";
         //transfer.transfer_project = projects[newRow[5]]._id;
@@ -323,7 +323,7 @@ var makeNewTransfer = function(newRow, transfer_audit_type) {
     else {
         transfer.transfer_level = "country";
     }
-    
+
     if (transfer_audit_type == "government_receipt") {
         transfer.transfer_year = parseInt(newRow[13]);
         transfer.transfer_type = newRow[17];
@@ -342,7 +342,7 @@ var makeNewTransfer = function(newRow, transfer_audit_type) {
         if (newRow[8] != "") transfer.transfer_accounting_basis = newRow[8];
     }
     else return false;
-    
+
     return transfer;
 }
 
@@ -360,42 +360,42 @@ equalDocs = function(masterDoc, newDoc) {
 }
 
 processGenericRow = function(report, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-        if ((row[rowIndex] == "") || (row[rowIndex][0] == "#")) {
-            report.add(entityName + ": Empty row or label.\n");
-            return callback(null); //Do nothing
-        }
-        var finderObj = {};
-        finderObj[modelKey] = row[rowIndex];
-        model.findOne(
-            finderObj,
-            function(err, doc) {  
-                if (err) {
-                    report.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
-                    return callback(`Failed: ${report.report}`);
-                }
-                else if (doc) {
-                    report.add(`${entityName} ${row[rowIndex]} already exists in the DB (name match), not adding\n`);
-                    destObj[row[rowIndex]] = doc;
-                    return callback(null);
-                }
-                else {
-                    model.create(
-                        makerFunction(row),
-                        function(err, createdModel) {
-                            if (err) {
-                                report.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                return callback(`Failed: ${report.report}`);
-                            }
-                            report.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`); 
-                            destObj[row[rowIndex]] = createdModel;
-                            return callback(null);
-                        }
-                    );
-                }
-            }
-        );
+    if ((row[rowIndex] == "") || (row[rowIndex][0] == "#")) {
+        report.add(entityName + ": Empty row or label.\n");
+        return callback(null); //Do nothing
     }
-    
+    var finderObj = {};
+    finderObj[modelKey] = row[rowIndex];
+    model.findOne(
+        finderObj,
+        function(err, doc) {
+            if (err) {
+                report.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
+                return callback(`Failed: ${report.report}`);
+            }
+            else if (doc) {
+                report.add(`${entityName} ${row[rowIndex]} already exists in the DB (name match), not adding\n`);
+                destObj[row[rowIndex]] = doc;
+                return callback(null);
+            }
+            else {
+                model.create(
+                    makerFunction(row),
+                    function(err, createdModel) {
+                        if (err) {
+                            report.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                            return callback(`Failed: ${report.report}`);
+                        }
+                        report.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`);
+                        destObj[row[rowIndex]] = createdModel;
+                        return callback(null);
+                    }
+                );
+            }
+        }
+    );
+}
+
 //This handles companies and company groups
 //Not the maker function returns an object with a sub-object
 processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
@@ -409,7 +409,7 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
     queryEntry1[modelKey] = row[rowIndex];
     var queryEntry2 = {};
     queryEntry2[modelKey+'_aliases.alias'] = row[rowIndex]; //TODO!!! Cannot be searched this way (no pre-population)
-    
+
     model.findOne(
         {$or: [
             queryEntry1,
@@ -432,7 +432,6 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                 };
                 if (!skipTest) {
                     link.company = company_id;
-                    console.log("Searching for " + util.inspect(link));
                     Link.findOne(
                         link,
                         function (err, lmodel) {
@@ -481,7 +480,7 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                             companiesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                             return callback(`Failed: ${companiesReport.report}`);
                         }
-                        companiesReport.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`); 
+                        companiesReport.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`);
                         destObj[row[rowIndex]] = cmodel;
                         if (newObj.link) {
                             testAndCreateLink(true, newObj.link, cmodel._id);
@@ -496,25 +495,25 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
 
 function parseData(sheets, report, finalcallback) {
     async.waterfall([
-        parseBasis,
-        parseCompanyGroups,
-        parseCompanies,
-        parseProjects,
-        parseConcessionsAndContracts,
-        parseProduction,
-        parseTransfers,
-        parseReserves
-    ], function (err, report) {
-        if (err) {
-            console.log("PARSE: Got an error\n");
-            return finalcallback("Failed", report)
-        }
-        finalcallback("Success", report);
+            parseBasis,
+            parseCompanyGroups,
+            parseCompanies,
+            parseProjects,
+            parseConcessionsAndContracts,
+            parseProduction,
+            parseTransfers,
+            parseReserves
+        ], function (err, report) {
+            if (err) {
+                console.log("PARSE: Got an error\n");
+                return finalcallback("Failed", report)
+            }
+            finalcallback("Success", report);
         }
     );
-    
+
     ;
-    
+
     function parseEntity(reportSoFar, sheetname, dropRowsStart, dropRowsEnd, entityObj, processRow, entityName, rowIndex, model, modelKey, rowMaker, callback) {
         var intReport = {
             report: reportSoFar, //Relevant for the series waterfall - report gets passed along
@@ -532,15 +531,15 @@ function parseData(sheets, report, finalcallback) {
             callback(null, intReport.report); //All good
         });
     }
-    
+
     function parseBasis(callback) {
         var basisReport = report + "Processing basis info\n";
-        
+
         async.parallel([
             parseSources,
             parseCountries,
             parseCommodities
-        ], (function (err, resultsarray) {            
+        ], (function (err, resultsarray) {
             console.log("PARSE BASIS: Finished parallel tasks OR got an error");
             for (var r=0; r<resultsarray.length; r++) {
                 if (!resultsarray[r]) {
@@ -576,7 +575,7 @@ function parseData(sheets, report, finalcallback) {
                 }
             });
         }
-        
+
         function parseCommodities(callback) {
             //TODO: In some sheets only a group is named...
             commodities = new Object;
@@ -594,7 +593,7 @@ function parseData(sheets, report, finalcallback) {
                 //TODO - may need some sort of sophisticated duplicate detection here
                 Source.findOne(
                     {source_url: row[4].toLowerCase()},
-                    function(err, doc) {  
+                    function(err, doc) {
                         if (err) {
                             sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
                             return callback(`Failed: ${sourcesReport.report}`);
@@ -612,8 +611,8 @@ function parseData(sheets, report, finalcallback) {
                                     makeNewSource(true, row, doc._id),
                                     function(err, model) {
                                         if (err) {
-                                                sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                                return callback(`Failed: ${sourcesReport.report}`);
+                                            sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                            return callback(`Failed: ${sourcesReport.report}`);
                                         }
                                         sources[row[0]] = model;
                                         return callback(null);
@@ -665,21 +664,21 @@ function parseData(sheets, report, finalcallback) {
             };
             sources = new Object;
             //TODO - refactor processSourceRow to use generic row or similar?
-            parseEntity("", '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);          
+            parseEntity("", '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);
         }
 
     }
-    
+
     function parseCompanyGroups(result, callback) {
         company_groups = new Object;
         parseEntity(result, '6. Companies and Groups', 3, 0, company_groups, processCompanyRow, "CompanyGroup", 7, CompanyGroup, "company_group_name", makeNewCompanyGroup, callback);
     }
-    
+
     function parseCompanies(result, callback) {
         companies = new Object;
         parseEntity(result, '6. Companies and Groups', 3, 0, companies, processCompanyRow, "Company", 3, Company, "company_name", makeNewCompany, callback);
     }
-    
+
     //TODO: make more generic, entity names etc.
     function createSiteProjectLink (siteId, projectId, report, lcallback) {
         Link.create({project: projectId, site: siteId, entities: ['project', 'site']},
@@ -695,55 +694,55 @@ function parseData(sheets, report, finalcallback) {
             }
         );
     }
-    
+
     function parseProjects(result, callback) {
         var processProjectRow = function(projectsReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             if ((row[rowIndex] == "") || (row[1] == "#project")) {
                 projectsReport.add("Projects: Empty row or label.\n");
                 return callback(null); //Do nothing
             }
-            
-            function updateOrCreateProject(projDoc, wcallback) {
-                    var doc_id = null;
-                    
-                    if (!projDoc) {
-                        projDoc = makeNewProject(row);
-                    }
-                    else {
-                        doc_id = projDoc._id;
-                        projDoc = projDoc.toObject();
-                        delete projDoc._id; //Don't send id back in to Mongo
-                        delete projDoc.__v; //https://github.com/Automattic/mongoose/issues/1933
-                    }
-                    
-                    final_doc = updateProjectFacts(projDoc, row, projectsReport);
-                    
-                    if (!final_doc) {
-                        projectsReport.add(`Invalid data in row: ${row}. Aborting.\n`);
-                        return wcallback(`Failed: ${projectsReport.report}`);
-                    }
 
-                    //console.log("Sent:\n" + util.inspect(final_doc));
-                    
-                    if (!doc_id) doc_id = new ObjectId;
-                    Project.findByIdAndUpdate(
-                        doc_id,
-                        final_doc,
-                        {setDefaultsOnInsert: true, upsert: true, new: true},
-                        function(err, model) {
-                            if (err) {
-                                //console.log(err);
-                                projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                return wcallback(`Failed: ${projectsReport.report}`);
-                            }
-                            //console.log("Returned\n: " + model)
-                            projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
-                            projects[row[rowIndex]] = model;
-                            return wcallback(null, model); //Continue to site stuff
+            function updateOrCreateProject(projDoc, wcallback) {
+                var doc_id = null;
+
+                if (!projDoc) {
+                    projDoc = makeNewProject(row);
+                }
+                else {
+                    doc_id = projDoc._id;
+                    projDoc = projDoc.toObject();
+                    delete projDoc._id; //Don't send id back in to Mongo
+                    delete projDoc.__v; //https://github.com/Automattic/mongoose/issues/1933
+                }
+
+                final_doc = updateProjectFacts(projDoc, row, projectsReport);
+
+                if (!final_doc) {
+                    projectsReport.add(`Invalid data in row: ${row}. Aborting.\n`);
+                    return wcallback(`Failed: ${projectsReport.report}`);
+                }
+
+                //console.log("Sent:\n" + util.inspect(final_doc));
+
+                if (!doc_id) doc_id = new ObjectId;
+                Project.findByIdAndUpdate(
+                    doc_id,
+                    final_doc,
+                    {setDefaultsOnInsert: true, upsert: true, new: true},
+                    function(err, model) {
+                        if (err) {
+                            //console.log(err);
+                            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                            return wcallback(`Failed: ${projectsReport.report}`);
                         }
-                    );
+                        //console.log("Returned\n: " + model)
+                        projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`);
+                        projects[row[rowIndex]] = model;
+                        return wcallback(null, model); //Continue to site stuff
+                    }
+                );
             }
-            
+
             function createSiteAndLink(projDoc, wcallback) {
                 if (row[2] != "") {
                     Site.findOne(
@@ -770,7 +769,7 @@ function parseData(sheets, report, finalcallback) {
                                             return wcallback(null);
                                         }
                                         else {
-                                            createSiteProjectLink(sitemodel._id, projDoc._id, projectsReport, wcallback);  
+                                            createSiteProjectLink(sitemodel._id, projDoc._id, projectsReport, wcallback);
                                         }
                                     }
                                 );
@@ -797,7 +796,7 @@ function parseData(sheets, report, finalcallback) {
                     return wcallback(null);
                 }
             }
-            
+
             //Projects - check against name and aliases
             //TODO - may need some sort of sophisticated duplicate detection here
             Project.findOne(
@@ -816,7 +815,7 @@ function parseData(sheets, report, finalcallback) {
                         projects[row[rowIndex]] = doc; //Basis data is always the same, OK if this gets called multiple times              
                         async.waterfall( //Waterfall because we want to be able to cope with a result or error being returned
                             [updateOrCreateProject.bind(null, doc),
-                             createSiteAndLink], //Gets proj. id passed as result
+                                createSiteAndLink], //Gets proj. id passed as result
                             function (err, result) {
                                 if (err) {
                                     return callback(`Failed: ${projectsReport.report}`);
@@ -832,7 +831,7 @@ function parseData(sheets, report, finalcallback) {
                         projectsReport.add(`Project ${row[rowIndex]} not found, creating.\n`);
                         async.waterfall( //Waterfall because we want to be able to cope with a result or error being returned
                             [updateOrCreateProject.bind(null, null), //Proj = null = create it please
-                             createSiteAndLink], //Gets proj. id passed as result
+                                createSiteAndLink], //Gets proj. id passed as result
                             function (err, result) {
                                 if (err) {
                                     return callback(`Failed: ${projectsReport.report}`);
@@ -850,7 +849,7 @@ function parseData(sheets, report, finalcallback) {
         projects = new Object;
         parseEntity(result, '5. Project location, status, commodity', 3, 0, projects, processProjectRow, "Project", 1, Project, "proj_name", makeNewProject, callback);
     }
-    
+
     function parseConcessionsAndContracts(result, callback) {
         //First linked companies
         var processCandCRowCompanies = function(row, callback) {
@@ -865,7 +864,7 @@ function parseData(sheets, report, finalcallback) {
                         company: companies[row[2]]._id,
                         project: projects[row[1]]._id
                     },
-                    function(err, doc) {  
+                    function(err, doc) {
                         if (err) {
                             compReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                             return callback(`Failed: ${compReport}`);
@@ -888,7 +887,7 @@ function parseData(sheets, report, finalcallback) {
                                         compReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                                         return callback(`Failed: ${compReport}`);
                                     }
-                                    compReport += (`Linked company ${row[2]} with project ${row[1]} in the DB.\n`); 
+                                    compReport += (`Linked company ${row[2]} with project ${row[1]} in the DB.\n`);
                                     return callback(null, compReport);
                                 }
                             );
@@ -905,7 +904,7 @@ function parseData(sheets, report, finalcallback) {
                 Contract.findOne({
                         contract_id: row[7]
                     },
-                    function(err, doc) {  
+                    function(err, doc) {
                         if (err) {
                             contReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                             return callback(`Failed: ${contReport}`);
@@ -913,39 +912,39 @@ function parseData(sheets, report, finalcallback) {
                         else if (doc) { //Found contract, now see if its linked
                             contReport += (`Contract ${row[7]} exists, checking for link\n`);
                             Link.findOne(
-                            {
-                                contract: doc._id,
-                                project: projects[row[1]]._id
-                            },
-                            function(err, ldoc) {  
-                                if (err) {
-                                    contReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
-                                    return callback(`Failed: ${contReport}`);
-                                }
-                                else if (ldoc) {
-                                    contReport += (`Contract ${row[7]} is already linked with project ${row[1]}, not adding\n`);
-                                    return callback(null, contReport);
-                                }
-                                else {
-                                    var newContractLink = {
-                                        contract: doc._id,
-                                        project: projects[row[1]]._id,
-                                        source: sources[row[0]]._id,
-                                        entities:['contract','project']
-                                    };
-                                    Link.create(
-                                        newContractLink,
-                                        function(err, model) {
-                                            if (err) {
-                                                contReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                                return callback(`Failed: ${contReport}`);
+                                {
+                                    contract: doc._id,
+                                    project: projects[row[1]]._id
+                                },
+                                function(err, ldoc) {
+                                    if (err) {
+                                        contReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
+                                        return callback(`Failed: ${contReport}`);
+                                    }
+                                    else if (ldoc) {
+                                        contReport += (`Contract ${row[7]} is already linked with project ${row[1]}, not adding\n`);
+                                        return callback(null, contReport);
+                                    }
+                                    else {
+                                        var newContractLink = {
+                                            contract: doc._id,
+                                            project: projects[row[1]]._id,
+                                            source: sources[row[0]]._id,
+                                            entities:['contract','project']
+                                        };
+                                        Link.create(
+                                            newContractLink,
+                                            function(err, model) {
+                                                if (err) {
+                                                    contReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                                    return callback(`Failed: ${contReport}`);
+                                                }
+                                                contReport += (`Linked contract ${row[7]} with project ${row[1]} in the DB.\n`);
+                                                return callback(null, contReport);
                                             }
-                                            contReport += (`Linked contract ${row[7]} with project ${row[1]} in the DB.\n`); 
-                                            return callback(null, contReport);
-                                        }
-                                    );
-                                }
-                            });
+                                        );
+                                    }
+                                });
                         }
                         else { //No contract, create and link
                             var newContract = {
@@ -973,7 +972,7 @@ function parseData(sheets, report, finalcallback) {
                                                 contReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                                                 return callback(`Failed: ${contReport}`);
                                             }
-                                            contReport += (`Linked contract ${row[7]} with project ${row[1]} in the DB.\n`); 
+                                            contReport += (`Linked contract ${row[7]} with project ${row[1]} in the DB.\n`);
                                             return callback(null, contReport);
                                         }
                                     );
@@ -993,9 +992,9 @@ function parseData(sheets, report, finalcallback) {
                     {$or: [
                         {concession_name: row[8]},
                         {"concession_aliases.alias": row[8]} //TODO, alias population
-                        ]
+                    ]
                     },
-                    function(err, doc) {  
+                    function(err, doc) {
                         if (err) {
                             concReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                             return callback(`Failed: ${concReport}`);
@@ -1003,39 +1002,39 @@ function parseData(sheets, report, finalcallback) {
                         else if (doc) { //Found concession, now see if its linked
                             concReport += (`Contract ${row[8]} exists, checking for link\n`);
                             Link.findOne(
-                            {
-                                concession: doc._id,
-                                project: projects[row[1]]._id
-                            },
-                            function(err, ldoc) {  
-                                if (err) {
-                                    concReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
-                                    return callback(`Failed: ${concReport}`);
-                                }
-                                else if (ldoc) {
-                                    concReport += (`Concession ${row[8]} is already linked with project ${row[1]}, not adding\n`);
-                                    return callback(null, concReport);
-                                }
-                                else {
-                                    var newConcessionLink = {
-                                        concession: doc._id,
-                                        project: projects[row[1]]._id,
-                                        source: sources[row[0]]._id,
-                                        entities:['concession','project']
-                                    };
-                                    Link.create(
-                                        newConcessionLink,
-                                        function(err, model) {
-                                            if (err) {
-                                                concReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                                return callback(`Failed: ${concReport}`);
+                                {
+                                    concession: doc._id,
+                                    project: projects[row[1]]._id
+                                },
+                                function(err, ldoc) {
+                                    if (err) {
+                                        concReport += (`Encountered an error (${err}) while querying the DB. Aborting.\n`);
+                                        return callback(`Failed: ${concReport}`);
+                                    }
+                                    else if (ldoc) {
+                                        concReport += (`Concession ${row[8]} is already linked with project ${row[1]}, not adding\n`);
+                                        return callback(null, concReport);
+                                    }
+                                    else {
+                                        var newConcessionLink = {
+                                            concession: doc._id,
+                                            project: projects[row[1]]._id,
+                                            source: sources[row[0]]._id,
+                                            entities:['concession','project']
+                                        };
+                                        Link.create(
+                                            newConcessionLink,
+                                            function(err, model) {
+                                                if (err) {
+                                                    concReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                                    return callback(`Failed: ${concReport}`);
+                                                }
+                                                concReport += (`Linked concession ${row[8]} with project ${row[1]} in the DB.\n`);
+                                                return callback(null, concReport);
                                             }
-                                            concReport += (`Linked concession ${row[8]} with project ${row[1]} in the DB.\n`); 
-                                            return callback(null, concReport);
-                                        }
-                                    );
-                                }
-                            });
+                                        );
+                                    }
+                                });
                         }
                         else { //No concession, create and link
                             var newConcession = {
@@ -1067,7 +1066,7 @@ function parseData(sheets, report, finalcallback) {
                                                 concReport += (`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                                                 return callback(`Failed: ${concReport}`);
                                             }
-                                            concReport += (`Linked concession ${row[8]} with project ${row[1]} in the DB.\n`); 
+                                            concReport += (`Linked concession ${row[8]} with project ${row[1]} in the DB.\n`);
                                             return callback(null, concReport);
                                         }
                                     );
@@ -1079,7 +1078,7 @@ function parseData(sheets, report, finalcallback) {
             }
             else return callback(null, "No concession found in row\n");
         };
-        
+
         var processCandCRow = function(candcReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             if ((row[0] == "#source") || ((row[2] == "") && (row[7] == "") && (row[8] == ""))) {
                 candcReport.add("Concessions and Contracts: Empty row or label.\n");
@@ -1090,9 +1089,9 @@ function parseData(sheets, report, finalcallback) {
                 return callback(`Failed: ${candcReport.report}`);
             }
             async.parallel([
-                processCandCRowCompanies.bind(null, row),
-                processCandCRowContracts.bind(null, row),
-                processCandCRowConcessions.bind(null, row)
+                    processCandCRowCompanies.bind(null, row),
+                    processCandCRowContracts.bind(null, row),
+                    processCandCRowConcessions.bind(null, row)
                 ],
                 function (err, resultsarray) {
                     for (var r=0; r<resultsarray.length; r++) {
@@ -1111,7 +1110,7 @@ function parseData(sheets, report, finalcallback) {
         }
         parseEntity(result, '7. Contracts, concessions and companies', 4, 0, null, processCandCRow, null, null, null, null, null, callback);
     }
-    
+
     //TODO: This is definitely a candidate for bringing into genericrow with custom query
     function parseProduction(result, callback) {
         var processProductionRow = function(prodReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
@@ -1127,7 +1126,7 @@ function parseData(sheets, report, finalcallback) {
                 return callback(`Failed: ${prodReport}`);
             }
             //Here we depend on links, use controller
-            
+
             //Production - match (ideally) by (country???) + project (if present???) + year + commodity
             //BUT (TODO) there is currently no easy way of grabbing country & project
             Production.findOne(
@@ -1135,7 +1134,7 @@ function parseData(sheets, report, finalcallback) {
                     production_commodity: commodities[row[8]]._id,
                     production_year: parseInt(row[5]),
                 },
-                function(err, doc) {  
+                function(err, doc) {
                     if (err) {
                         prodReport.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                         return callback(`Failed: ${prodReport.report}`);
@@ -1163,11 +1162,11 @@ function parseData(sheets, report, finalcallback) {
                                             return callback(`Failed: ${prodReport.report}`);
                                         }
                                         else {
-                                            prodReport.add(`Added production ${row[3]}/${row[8]}/${row[5]} to the DB and linked to project.\n`); 
+                                            prodReport.add(`Added production ${row[3]}/${row[8]}/${row[5]} to the DB and linked to project.\n`);
                                             return callback(null);
                                         }
                                     }
-                                ); 
+                                );
                             }
                         );
                     }
@@ -1176,9 +1175,9 @@ function parseData(sheets, report, finalcallback) {
         };
         parseEntity(result, '8. Production', 3, 0, null, processProductionRow, null, null, null, null, null, callback);
     }
-    
+
     function parseTransfers(result, callback) {
-        var processTransferRow = function(transReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {         
+        var processTransferRow = function(transReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             //This serves 2 purposes, check for blank row${util.inspect(query)s and skip rows with no value
             if (((row[21] == "") && (row[9] == "")) || (row[0] == "#source")) {
                 transReport.add("Transfers: Empty row or label, or no volume data.\n");
@@ -1201,7 +1200,7 @@ function parseData(sheets, report, finalcallback) {
                 transfer_type = "payment";
             }
             else returnInvalid();
-            
+
             //TODO: How to match without projects in the transfers any more?
             var query = {transfer_country: countries[row[2]]._id, transfer_audit_type: transfer_audit_type};
             if (row[5] != "") {
@@ -1209,11 +1208,11 @@ function parseData(sheets, report, finalcallback) {
                 query.transfer_level = "project";
             }
             else query.transfer_level = "country";
-            
+
             if (row[3] != "") {
                 query.transfer_company = companies[row[3]]._id;
             }
-            
+
             if (transfer_type == "payment") {
                 query.transfer_year = parseInt(row[6]);
                 query.transfer_type = row[8];
@@ -1231,7 +1230,7 @@ function parseData(sheets, report, finalcallback) {
 
             Transfer.findOne(
                 query,
-                function(err, doc) {  
+                function(err, doc) {
                     if (err) {
                         transReport.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                         return callback(`Failed: ${transReport.report}`);
@@ -1264,14 +1263,14 @@ function parseData(sheets, report, finalcallback) {
                                                 return callback(`Failed: ${transReport.report}`);
                                             }
                                             else {
-                                                transReport.add(`Added transfer (${util.inspect(query)}) with project link to the DB.\n`); 
+                                                transReport.add(`Added transfer (${util.inspect(query)}) with project link to the DB.\n`);
                                                 return callback(null);
                                             }
                                         }
                                     );
                                 }
                                 else {
-                                    transReport.add(`Added transfer (${util.inspect(query)}) to the DB without project link.\n`); 
+                                    transReport.add(`Added transfer (${util.inspect(query)}) to the DB without project link.\n`);
                                     return callback(null);
                                 }
                             }
@@ -1282,7 +1281,7 @@ function parseData(sheets, report, finalcallback) {
         };
         parseEntity(result, '10. Payments and receipts', 3, 0, null, processTransferRow, null, null, null, null, null, callback);
     }
-    
+
     function parseReserves(result, callback) {
         result += "Reserves IGNORED\n";
         callback(null, result);
