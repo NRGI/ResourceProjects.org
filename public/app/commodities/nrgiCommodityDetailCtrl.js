@@ -22,9 +22,12 @@ angular.module('app')
         nrgiCommoditiesSrvc.get({_id: commodity_id}, function (response) {
             $scope.commodity=response;
             if($scope.commodity.location.length>0)
-            $scope.center={lat:$scope.commodity.location[0].lat,lng:$scope.commodity.location[0].lng,zoom: 5};
+                angular.forEach($scope.commodity.projects, function (project, i) {
+                    var id =project._id;
+                    $scope.commodity.location[i].message = "<nrgi-project-routing id='{{id}}' project='{{project.proj_id}}' name='{{"+project.proj_name+"}}'></nrgi-project-routing>"
+                });
+           $scope.center={lat:$scope.commodity.location[0].lat,lng:$scope.commodity.location[0].lng,zoom: 5};
         });
-
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",

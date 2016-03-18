@@ -362,7 +362,7 @@ exports.getConcessionByID = function(req, res) {
                     concession.location.push({
                         'lat': loc.loc[0],
                         'lng': loc.loc[1],
-                        'message': "<a href =\'/project/" + project._id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
+                        'message': project.proj_name
                     });
                     if (project_counter == project_len) {
                         res.send(concession);
