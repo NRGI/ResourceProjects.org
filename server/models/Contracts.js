@@ -26,15 +26,15 @@ function createDefaultContracts() {
         if(contracts.length === 0) {
             Contract.create({
                 _id: '56a2eb4345d114c30439ec20',
-               contract_id: 'ocds-591adf-PE6396832160RC',
+               contract_id: 'ocds-591adf-YE2702919895RC',
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec22',
-                contract_id: 'ocds-591adf-PE6396832160RC--OTHER',
+                contract_id: 'ocds-591adf-PH9670211788RC',
             });
             Contract.create({
                 _id: '56a2eb4345d114c30439ec21',
-                contract_id: 'ocds-591adf-PE6396832160RC'
+                contract_id: 'ocds-591adf-PH0149652678RC'
             });
             console.log('Contracts created...');
         }

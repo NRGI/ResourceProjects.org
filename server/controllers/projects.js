@@ -44,6 +44,7 @@ exports.getProjects = function(req, res) {
             .lean()
             .exec(function(err, projects) {
                 if(projects.length>0) {
+                    //TODO clean up returned data if we see performance lags
                     callback(null, project_count, projects);
                 } else {
                     //callback(err);

@@ -46,9 +46,10 @@ exports.getConcessions = function(req, res) {
             .lean()
             .exec(function(err, concessions) {
                 if(concessions) {
+                    //TODO clean up returned data if we see performance lags
                     callback(null, concession_count, concessions);
                 } else {
-                    callback(err);
+                    res.send({data: concessions, count: concession_count});
                 }
             });
     }
@@ -57,7 +58,7 @@ exports.getConcessions = function(req, res) {
         concession_counter = 0;
 
         concessions.forEach(function (c) {
-            Link.find({concession: c._id})
+            Link.find({concession: c._id, entities: 'project'})
                 .populate('company_group','_id company_group_name')
                 .populate('project')
                 .exec(function(err, links) {
