@@ -167,7 +167,14 @@ exports.getConcessionByID = function(req, res) {
                                 }
                                 break;
                             case 'project':
-                                concession.projects.push(link.project);
+                                concession.projects.push({
+                                    _id: link.project._id,
+                                    proj_name: link.project.proj_name,
+                                    proj_id: link.project.proj_id,
+                                    proj_commodity: link.project.proj_commodity,
+                                    proj_status: link.project.proj_status,
+                                    proj_coordinates: link.project.proj_coordinates
+                                });
                                 break;
                             case 'transfer':
                                 concession.transfers.push({

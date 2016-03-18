@@ -13,10 +13,9 @@ var sourceSchema, contractSchema, Contract,
 
 
 contractSchema = new Schema ({
-    contract_id: String //from rc.org
-    //contract_name: String, //from rc.org
-    //contract_type: [fact], //geographic type i.e. onshore, off shore, etc.
-    //country: [fact]
+    contract_id: String, //from rc.org
+    oo_contract_id: String, //from open oil repository
+    contract_url: String //for tracking non-RC contracts
 });
 
 Contract = mongoose.model('Contract', contractSchema);
