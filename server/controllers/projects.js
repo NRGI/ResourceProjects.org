@@ -156,6 +156,7 @@ exports.getProjectByID = function(req, res) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'project')[0];
                         if (!project.sources[link.source._id]) {
+                            //TODO clean up returned data if performance lags
                             project.sources[link.source._id] = link.source;
                         }
                         switch (entity) {
@@ -272,6 +273,7 @@ exports.getProjectByID = function(req, res) {
                         link_counter = 0;
                         links.forEach(function (link) {
                             if (!project.sources[link.source._id]) {
+                                //TODO clean up returned data if performance lags
                                 project.sources[link.source._id] = link.source;
                             }
                             ++link_counter;
@@ -367,6 +369,10 @@ exports.getProjectByID = function(req, res) {
                         company.company_groups = [];
                         if (link_len > 0) {
                             links.forEach(function (link) {
+                                if (!project.sources[link.source._id]) {
+                                    //TODO clean up returned data if performance lags
+                                    project.sources[link.source._id] = link.source;
+                                }
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'company')[0];
                                 switch (entity) {

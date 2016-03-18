@@ -22,6 +22,12 @@
                             td.detail_label ID:
                             td.concession_id {{concession._id}}
                         tr
+                            td.detail_label.small Open Oil ID:
+                            td.concession_open_oil_id
+                                a(href='')
+                                    | {{concession.oo_concession_id}}
+                                | &nbsp; (TODO work figure out OO link pattern)
+                        tr
                             td.detail_label.small Aliases:
                             td.concession_aliases
                                 span(ng-repeat="alias in concession.concession_aliases | unique: 'alias'")
@@ -47,21 +53,16 @@
                             td.detail_label.small Commodities:
                             td.concession_commodities
                                 text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
-                                    a(href='commodity/{{commodity.commodity._id}}')
+                                    a(href='commodity/{{commodity.commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
-                        tr
-                            td.detail_label.small Open Oil ID:
-                            td.concession_open_oil_id
-                                a(href='')
-                                    | {{concession.oo_concession_id}}
                             //td.company_open_corporates_id
                             //    a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr
                             td.detail_label.small Contract:
                             td.concession_conracts
                                 text(ng-repeat="contract in concession.contracts | unique: '_id'")
-                                    a(href="http://www.resourcecontracts.org/contract/{{contract}}")
+                                    a(href="contract/{{contract}}")
                                         span(ng-bind-html="contract|sanitize")
                                     | {{$last ? '' : ', '}}
 

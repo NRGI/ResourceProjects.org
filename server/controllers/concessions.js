@@ -139,6 +139,7 @@ exports.getConcessionByID = function(req, res) {
                         var entity = _.without(link.entities, 'concession')[0];
                         if(link.source!=undefined) {
                             if (!concession.sources[link.source._id]) {
+                                //TODO clean up returned data if performance lags
                                 concession.sources[link.source._id] = link.source;
                             }
                         }
