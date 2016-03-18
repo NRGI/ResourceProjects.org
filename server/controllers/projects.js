@@ -149,8 +149,6 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-<<<<<<< HEAD
-=======
     function getProductions(project, callback) {
         project.productions = [];
         Production.find({production_project: project._id})
@@ -167,7 +165,6 @@ exports.getProjectByID = function(req, res) {
             });
     }
     */
->>>>>>> Add CompanyGroup import, Company<->Group links, improve controller for handling company links, prep for move to links for transfers and productions
     function getProjectLinks(project, callback) {
         project.companies = [];
         project.commodities = [];
