@@ -32,4 +32,4 @@ table.table.table-striped.concessions(ts-wrapper)#concessions-info
     span
         |  Download:
         =' '
-        a(href="") Concessions CSV
+        a(href="" ng-csv="csv_concessions" csv-header="getHeaderConcessions()" filename="companies.csv") Concessions CSV
