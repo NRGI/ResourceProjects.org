@@ -23,19 +23,19 @@ table.table.table-striped.sites(ts-wrapper)#site-info
             td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
                 text(ng-if="$last") {{status.string | ucfirst}}
                 text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-//            td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
-//                a(href='country/{{country.country.iso2}}')
-//                    span(ng-bind-html="country.country.name|sanitize")
-//                | {{$last ? '' : ', '}}
-//            td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
-//                | {{type.string | ucfirst}}
-//                | {{$last ? '' : ', '}}
-
-
-//            td(ng-if="companies==true") {{project.companies}}
-//.download
-//    span.glyphicon.glyphicon-download(aria-hidden='true')
+            //td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
+            //    a(href='country/{{country.country.iso2}}')
+            //        span(ng-bind-html="country.country.name|sanitize")
+            //    | {{$last ? '' : ', '}}
+            //td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
+            //    | {{type.string | ucfirst}}
+            //    | {{$last ? '' : ', '}}
+            //
+            //
+            //td(ng-if="companies==true") {{project.companies}}
+.download
+    span.glyphicon.glyphicon-download(aria-hidden='true')
 //    span
 //        |  Download:
 //        =' '
-//        a(href="" ng-csv="csv_project" csv-header="getHeaderProjects()" filename="projects.csv") Projects CSV
+//        a(href="" ng-csv="csv_site" csv-header="getHeaderSites()" filename="sites.csv") Site CSV

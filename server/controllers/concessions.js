@@ -271,6 +271,7 @@ exports.getConcessionByID = function(req, res) {
                             }
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
+                            console.log(link.project);
                             switch (entity) {
                                 case 'transfer':
                                     concession.transfers.push({
@@ -361,7 +362,6 @@ exports.getConcessionByID = function(req, res) {
                                 //TODO clean up returned data if performance lags
                                 concession.sources[link.source._id] = link.source;
                             }
-                            console.log(link);
                             ++link_counter;
                             var entity = _.without(link.entities, 'site')[0];
                             switch (entity) {
@@ -465,7 +465,6 @@ exports.getConcessionByID = function(req, res) {
         if(project_len>0) {
             concession.projects.forEach(function (project) {
                 ++project_counter;
-                console.log(project);
                 project.proj_coordinates.forEach(function (loc) {
                     concession.proj_coordinates.push({
                         'lat': loc.loc[0],
@@ -484,39 +483,7 @@ exports.getConcessionByID = function(req, res) {
             res.send(concession);
         }
     }
-    // function getProjectCoordinate(project, callback) {
-    //     project.coordinates = [];
-    //     if (project.site_coordinates.sites.length>0) {
-    //         project.site_coordinates.sites.forEach(function (site_loc) {
-    //             project.coordinates.push(site_loc);
-    //         })
-    //     }
-    //     if (project.site_coordinates.fields.length>0) {
-    //         project.site_coordinates.fields.forEach(function (field_loc) {
-    //             project.coordinates.push(field_loc);
-    //         })
-    //     }
-    //     project_counter = 0;
-    //     project_len = project.proj_coordinates.length;
-    //     if(project_len>0) {
-    //         project.proj_coordinates.forEach(function (loc) {
-    //             ++project_counter;
-    //             project.coordinates.push({
-    //                 'lat': loc.loc[0],
-    //                 'lng': loc.loc[1],
-    //                 'message': project.proj_name,
-    //                 'timestamp': loc.timestamp,
-    //                 'type': 'project',
-    //                 'id': project.proj_id
-    //             });
-    //             if (project_counter == project_len) {
-    //                 callback(null, project);
-    //             }
-    //         });
-    //     } else {
-    //         callback(null, project);
-    //     }
-    // }
+
 };
 exports.createConcession = function(req, res, next) {
     var concessionData = req.body;
