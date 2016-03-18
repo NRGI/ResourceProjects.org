@@ -28,4 +28,4 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
     span
         |  Download:
         =' '
-        a(href="") Contracts CSV
+        a(href="" ng-csv="csv_contracts" csv-header="getHeaderContracts()" filename="contracts.csv") Contracts CSV
