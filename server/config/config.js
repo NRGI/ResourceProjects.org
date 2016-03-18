@@ -6,7 +6,7 @@ module.exports 	= {
         baseUrl: 'http://localhost:3030',
         db: 'mongodb://localhost/rp_local',
         rootPath: rootPath,
-        port: process.env.PORT || 3016
+        port: process.env.PORT || 3030
     },
     staging : {
         baseUrl: 'http://dev.resourceprojects.org',
