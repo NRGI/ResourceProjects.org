@@ -202,7 +202,7 @@ function createDefaultTransfers() {
             });
             Transfer.create({
                 _id: '56be54f9d7bfflll1c93c985',
-                transfer_type: 'Total site',
+                transfer_type: 'Total',
                 source: '56747e060e8cc07115200ee4',
                 transfer_audit_type: 'government_receipt',
                 transfer_year: 2009,
@@ -221,7 +221,7 @@ function createDefaultTransfers() {
             });
             Transfer.create({
                 _id: '56be54f9dffff9dd1c93c985',
-                transfer_type: 'Total field',
+                transfer_type: 'Total',
                 source: '56747e060e8cc07115200ee4',
                 transfer_audit_type: 'government_receipt',
                 transfer_year: 2009,

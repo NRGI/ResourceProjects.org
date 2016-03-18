@@ -44,6 +44,7 @@ productionSchema = new Schema ({
     },
     production_price: Number,
     production_price_unit: String,
+    production_level: String,
     //production_note: htmlSettings
     production_note: String
 });
@@ -64,6 +65,7 @@ function createDefaultProduction() {
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
+                production_level: 'project',
                 production_price_unit: 'USD'
             });
             Production.create({
@@ -74,6 +76,7 @@ function createDefaultProduction() {
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
+                production_level: 'project',
                 production_price_unit: 'USD'
             });
             Production.create({
@@ -84,6 +87,7 @@ function createDefaultProduction() {
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
+                production_level: 'project',
                 production_price_unit: 'USD'
             });
             Production.create({
@@ -94,6 +98,7 @@ function createDefaultProduction() {
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
+                production_level: 'project',
                 production_price_unit: 'USD'
             });
             Production.create({
@@ -104,6 +109,7 @@ function createDefaultProduction() {
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
+                production_level: 'project',
                 production_price_unit: 'USD'
             });
             Production.create({
@@ -114,6 +120,29 @@ function createDefaultProduction() {
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
+                production_level: 'project',
+                production_price_unit: 'USD'
+            });
+            Production.create({
+                _id: '56be54f9d7bff99ppp93c990',
+                source: '56747e060e8cc07115200ee4',
+                production_year: 2009,
+                production_unit: 'barrels',
+                production_volume: 105491,
+                production_commodity: '56a13e9942c8bef50ec2e9e8',
+                production_price: 154,
+                production_level: 'site',
+                production_price_unit: 'USD'
+            });
+            Production.create({
+                _id: '56be54f9000ff9921c93c990',
+                source: '56747e060e8cc07115200ee4',
+                production_year: 2009,
+                production_unit: 'barrels',
+                production_volume: 105491,
+                production_commodity: '56a13e9942c8bef50ec2e9e8',
+                production_price: 154,
+                production_level: 'field',
                 production_price_unit: 'USD'
             });
             console.log('Production figures created...');
