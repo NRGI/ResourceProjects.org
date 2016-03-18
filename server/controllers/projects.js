@@ -426,7 +426,7 @@ exports.getProjectsMap = function(req, res) {
                             data.push({
                                 'lat':loc.loc[0],
                                 'lng':loc.loc[1],
-                                'message':"<a href =\'/project/"+ project._id +"\'>"+project.proj_name+"</a><br>"+project.proj_name
+                                'message':project.proj_name
                             })
                         })
                     });
