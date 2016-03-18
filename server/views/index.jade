@@ -30,7 +30,6 @@ block main-content
                                 li
                                     a(href='/commodities') Commodities
                         li
-
                             a.dropdown-toggle(data-toggle="dropdown") About
                                 b.caret
                             ul.dropdown-menu
@@ -40,6 +39,26 @@ block main-content
                                     a(href='/sources') Sources
                                 li
                                     a(href='/glossary') Glossary
+                        li
+                            a.dropdown-toggle(data-toggle="dropdown") Admin
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/admin/etl/datasets') Manage Data Imports
+                                li
+                                    a(href='/admin/create-source') Create Source
+                                li
+                                    a(href='/admin/create-project') Create Project
+                                li
+                                    a(href='/admin/create-country') Create Country
+                                li
+                                    a(href='/admin/create-concession') Create Concession
+                                li
+                                    a(href='/admin/create-commodity') Create Commodity
+                                li
+                                    a(href='/admin/create-company') Create Company
+                                li
+                                    a(href='/admin/create-group') Create Group
 
                     form.navbar-search.pull-right(action='')
                         input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
@@ -73,24 +92,24 @@ block main-content
                             //    a(href='/namedGraphs') Named Graphs
                             //li
                             //    a(href='/sparql') SPARQL
-                        h4.block-title Admin
-                        ul.list-unstyled
-                            li
-                                a(href='/admin/etl/datasets') Manage Data Imports
-                            li
-                                a(href='/admin/create-source') Create Source
-                            li
-                                a(href='/admin/create-project') Create Project
-                            li
-                                a(href='/admin/create-country') Create Country
-                            li
-                                a(href='/admin/create-concession') Create Concession
-                            li
-                                a(href='/admin/create-commodity') Create Commodity
-                            li
-                                a(href='/admin/create-company') Create Company
-                            li
-                                a(href='/admin/create-group') Create Group
+                        //h4.block-title Admin
+                        //ul.list-unstyled
+                        //    li
+                        //        a(href='/admin/etl/datasets') Manage Data Imports
+                        //    li
+                        //        a(href='/admin/create-source') Create Source
+                        //    li
+                        //        a(href='/admin/create-project') Create Project
+                        //    li
+                        //        a(href='/admin/create-country') Create Country
+                        //    li
+                        //        a(href='/admin/create-concession') Create Concession
+                        //    li
+                        //        a(href='/admin/create-commodity') Create Commodity
+                        //    li
+                        //        a(href='/admin/create-company') Create Company
+                        //    li
+                        //        a(href='/admin/create-group') Create Group
                     .col-lg-3
                         h4.block-title Links
                         ul.list-unstyled
