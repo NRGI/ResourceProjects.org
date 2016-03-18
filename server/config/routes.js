@@ -164,17 +164,14 @@ module.exports	= function(app) {
 	app.delete('/api/sources/:id', sources.deleteSource);
 
 	//DATASETS - TODO: protect with admin
-
-	//USERS CRUD - TODO: protect with admin
 	app.get('/api/datasets', datasets.getDatasets);
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
 	app.get('/api/datasets/:id', datasets.getDatasetByID);
 
 	//Create a dataset
-	app.post('/api/datasets', datasets.createDataset);
+	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Start an ETL step
-	app.post('/api/datasets/:id/actions', datasets.createAction);
-	//TODO consider implementing a get?
+	app.post('/api/datasets/:id/actions', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createAction);
 
 	// POST
 	app.post('/api/sources',  sources.createSource);

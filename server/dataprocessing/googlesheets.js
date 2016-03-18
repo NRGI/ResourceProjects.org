@@ -432,7 +432,6 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                 };
                 if (!skipTest) {
                     link.company = company_id;
-                    console.log("Searching for " + util.inspect(link));
                     Link.findOne(
                         link,
                         function (err, lmodel) {
