@@ -130,6 +130,8 @@ exports.getConcessionByID = function(req, res) {
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
+                concession.sites = [];
+                concession.site_coordinates = {sites: [], fields: []};
                 concession.transfers = [];
                 concession.production = [];
                 concession.sources = {};
@@ -208,7 +210,36 @@ exports.getConcessionByID = function(req, res) {
                                     production_level: link.production.production_level});
                                 break;
                             case 'site':
-                                console.log(link);
+                                console.log(link.site);
+                                concession.sites.push({
+                                    _id: link.site._id,
+                                    field: link.site.field,
+                                    site_name: link.site.site_name,
+                                });
+                                if (link.site.field && link.site.site_coordinates.length>0) {
+                                    link.site.site_coordinates.forEach(function (loc) {
+                                        concession.site_coordinates.fields.push({
+                                            'lat': loc.loc[0],
+                                            'lng': loc.loc[1],
+                                            'message': link.site.site_name,
+                                            'timestamp': loc.timestamp,
+                                            'type': 'field',
+                                            'id': link.site._id
+                                        });
+                                    });
+                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
+                                    link.site.site_coordinates.forEach(function (loc) {
+                                        concession.site_coordinates.sites.push({
+                                            'lat': loc.loc[0],
+                                            'lng': loc.loc[1],
+                                            'message': link.site.site_name,
+                                            'timestamp': loc.timestamp,
+                                            'type': 'site',
+                                            'id': link.site._id
+                                        });
+                                    });
+                                }
+                                // console.log(link);
                             default:
                                 console.log(entity, 'link skipped...');
                         }

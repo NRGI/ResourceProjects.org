@@ -7,7 +7,9 @@ angular
             restrict: 'EA',
             controller: 'nrgiSiteTableCtrl',
             scope: {
-                sites: '='
+                sites: '=',
+                commodity: '=',
+                status: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-site-table'
         };
