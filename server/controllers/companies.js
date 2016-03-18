@@ -51,7 +51,7 @@ exports.getCompanies = function(req, res) {
         company_len = companies.length;
         company_counter = 0;
         companies.forEach(function (c) {
-            Link.find({company: c._id})
+            Link.find({company: c._id, $or:[ {entities:'company_group'}, {entities:'project'} ] })
                 .populate('company_group','_id company_group_name')
                 .populate('project')
                 .exec(function(err, links) {
@@ -77,7 +77,7 @@ exports.getCompanies = function(req, res) {
                                 break;
                             //
                             default:
-                                //console.log(entity, 'link skipped...');
+                                console.log(entity, 'link skipped...');
                         }
 
                     });
