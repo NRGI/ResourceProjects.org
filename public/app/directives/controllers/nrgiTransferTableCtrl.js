@@ -4,34 +4,40 @@ angular
     .module('app')
     .controller('nrgiTransferTableCtrl', function ($scope) {
         setTimeout(function(){
-            $scope.csv_transfers =[];
-            if($scope.project!=true){
-                $scope.getHeaderTransfers = function () {return ['Year', 'Paid by', 'Paid to', 'Payment Type', 'Currency', 'Value', 'Payment or receipt?']};
-                angular.forEach($scope.transfers, function(transfer) {
-                    $scope.csv_transfers.push({
-                        'year': transfer.transfer_year,
-                        'transfer_company': transfer.transfer_company.company_name,
-                        'transfer_country': transfer.transfer_country.name,
-                        'transfer_type': transfer.transfer_type,
-                        'transfer_unit': transfer.transfer_unit,
-                        'transfer_value': transfer.transfer_value,
-                        'transfer_audit_type': transfer.transfer_audit_type
-                    });
+            $scope.csv_transfers =[]; var header_transfer=[]; var fields=[];
+            var headers = [
+                {name:'Year',status:true,field:'transfer_year'},
+                {name:'Project',status:$scope.project,field:'transfer_company'},
+                {name:'Paid by',status:!$scope.project,field:'transfer_company'},
+                {name:'Paid to',status:true,field:'transfer_country'},
+                {name:'Payment Type',status:true,field:'transfer_type'},
+                {name:'Currency',status:true,field:'transfer_unit'},
+                {name:'Value ',status:true,field:'transfer_value'},
+                {name:'Payment or receipt?',status:true,field:'transfer_audit_type'}];
+            angular.forEach(headers, function(header) {
+                if(header.status!=false&&header.status!= undefined){
+                    header_transfer.push(header.name);
+                    fields.push(header.field);
+                }
+            });
+            $scope.getHeaderTransfers = function () {return header_transfer};
+            angular.forEach($scope.transfers, function(transfer,key) {
+                $scope.csv_transfers[key] = [];
+                angular.forEach(fields, function (field) {
+                    if(field=='transfer_country') {
+                        var country_name = transfer[field].name.toString();
+                        country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                        $scope.csv_transfers[key].push(country_name);
+                    }
+                    if(field=='transfer_company') {
+                        var company_name = transfer[field].company_name.toString();
+                        company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
+                        $scope.csv_transfers[key].push(company_name);
+                    }
+                    if(field!='transfer_company'&&field!='transfer_country') {
+                        $scope.csv_transfers[key].push(transfer[field])
+                    }
                 })
-            }else{
-                $scope.getHeaderTransfers = function () {return ['Year', 'Project', 'Paid by', 'Payment Type', 'Currency', 'Value', 'Payment or receipt?']};
-                angular.forEach($scope.transfers, function(transfer) {
-                    $scope.csv_transfers.push({
-                        'year': transfer.transfer_year,
-                        'transfer_company': transfer.transfer_company.company_name,
-                        'transfer_country': transfer.transfer_country.name,
-                        'transfer_type': transfer.transfer_type,
-                        'transfer_unit': transfer.transfer_unit,
-                        'transfer_value': transfer.transfer_value,
-                        'transfer_audit_type': transfer.transfer_audit_type
-                    });
-                })
-            }
-
+            });
         },2000)
     });

@@ -124,7 +124,7 @@ exports.getConcessionByID = function(req, res) {
             .exec(function(err, links) {
                 link_len = links.length;
                 link_counter = 0;
-                concession.commodities = {};
+                concession.commodities = [];
                 concession.projects = [];
                 concession.companies = [];
                 concession.contracts = [];
@@ -253,7 +253,7 @@ exports.getConcessionByID = function(req, res) {
     //    //callback(null, company);
     //}
     function getProjectLinks(concession, callback) {
-        proj_len = concession.projects.length;
+        var proj_len = concession.projects.length;
         concession_counter = 0;
         if(proj_len>0) {
             concession.projects.forEach(function (project) {
