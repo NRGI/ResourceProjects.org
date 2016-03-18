@@ -23,7 +23,6 @@ exports.getProjects = function(req, res) {
             res.send(err);
         }
     });
-
     function projectCount(callback) {
         Project.find({}).count().exec(function(err, project_count) {
             if(project_count) {
@@ -52,13 +51,12 @@ exports.getProjects = function(req, res) {
                 }
             });
     }
-
     function getProjectLinks(project_count, projects, callback) {
         project_len = projects.length;
         project_counter = 0;
         if(project_len>0) {
             projects.forEach(function (c) {
-                Link.find({project: c._id})
+                Link.find({project: c._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
                     .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
                     .exec(function (err, links) {
@@ -260,39 +258,6 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-    function getProjectCoordinate(project, callback) {
-        project.coordinates = [];
-        if (project.site_coordinates.sites.length>0) {
-            project.site_coordinates.sites.forEach(function (site_loc) {
-                project.coordinates.push(site_loc);
-            })
-        }
-        if (project.site_coordinates.fields.length>0) {
-            project.site_coordinates.fields.forEach(function (field_loc) {
-                project.coordinates.push(field_loc);
-            })
-        }
-        project_counter = 0;
-        project_len = project.proj_coordinates.length;
-        if(project_len>0) {
-            project.proj_coordinates.forEach(function (loc) {
-                ++project_counter;
-                project.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': project.proj_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'project',
-                    'id': project.proj_id
-                });
-                if (project_counter == project_len) {
-                    callback(null, project);
-                }
-            });
-        } else {
-            callback(null, project);
-        }
-    }
     function getSiteLinks(project, callback) {
         site_len = project.sites.length;
         site_counter = 0;
@@ -354,6 +319,39 @@ exports.getProjectByID = function(req, res) {
             callback(null, project);
         }
     }
+    function getProjectCoordinate(project, callback) {
+        project.coordinates = [];
+        if (project.site_coordinates.sites.length>0) {
+            project.site_coordinates.sites.forEach(function (site_loc) {
+                project.coordinates.push(site_loc);
+            })
+        }
+        if (project.site_coordinates.fields.length>0) {
+            project.site_coordinates.fields.forEach(function (field_loc) {
+                project.coordinates.push(field_loc);
+            })
+        }
+        project_counter = 0;
+        project_len = project.proj_coordinates.length;
+        if(project_len>0) {
+            project.proj_coordinates.forEach(function (loc) {
+                ++project_counter;
+                project.coordinates.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': project.proj_name,
+                    'timestamp': loc.timestamp,
+                    'type': 'project',
+                    'id': project.proj_id
+                });
+                if (project_counter == project_len) {
+                    callback(null, project);
+                }
+            });
+        } else {
+            callback(null, project);
+        }
+    }
     function getCompanyGroup(project, callback) {
         project_len = project.companies.length;
         project_counter = 0;
@@ -397,6 +395,7 @@ exports.getProjectByID = function(req, res) {
         }
     }
 };
+
 exports.getProjectsMap = function(req, res) {
     var project_len, project_counter;
     async.waterfall([
@@ -432,18 +431,6 @@ exports.getProjectsMap = function(req, res) {
                 }
             });
     }
-};
-exports.createProject = function(req, res, next) {
-    var projectData = req.body;
-	Project.create(projectData, function(err, project) {
-		if(err){
-			err = new Error('Error');
-			res.status(400);
-			return res.send({reason:err.toString()})
-		} else{
-			res.send();
-		}
-	});
 };
 exports.createProject = function(req, res, next) {
 	var projectData = req.body;
