@@ -24,6 +24,10 @@ var siteSchema, Site,
     },
     mongooseHistory = require('mongoose-history'),
     hst_options     = {customCollectionName: 'site_hst'},
+    status_enu  = {
+        values: 'exploration development production on_hold inactive unknown'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
+    },
     type_enu  = {
        values: 'mining oil'.split(' '),
        //values: ' project '.split(' '),
@@ -33,7 +37,14 @@ var siteSchema, Site,
 siteSchema = new Schema({
     site_name: String,
     field: Boolean,
-    site_type: [fact],
+    site_type: [{
+        source: source,
+        string: {
+            type: String,
+            enum: type_enu},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     site_aliases: [{
         type: ObjectId,
         ref: 'Alias'}],
@@ -41,8 +52,16 @@ siteSchema = new Schema({
     site_address: [fact],
     site_country: [fact],
     site_coordinates: [fact],
+    site_status: [{
+        source: source,
+        string: {
+            type: String,
+            enum: status_enu,
+            default: 'unknown'},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     description: htmlSettings
-//    site_status: [fact],
 });
 
 siteSchema.plugin(mongooseHistory, hst_options);
@@ -65,6 +84,7 @@ function createDefaultSites() {
                site_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
                site_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                site_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [14.15392307, 19.50168983]}],
+               site_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
                description: '<p>yes</p><p>no</p>'
            });
             Site.create({
@@ -77,6 +97,7 @@ function createDefaultSites() {
                 site_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
                 site_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                 site_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [31.15392307, 47.50168983]}],
+                site_status: [{source: '56747e060e8cc07115200ee6', string: 'development'}],
                 description: '<p>yes</p><p>no</p>'
             });
            console.log('Sites created...');

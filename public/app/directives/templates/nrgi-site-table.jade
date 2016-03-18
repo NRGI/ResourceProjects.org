@@ -1,5 +1,5 @@
 h2 Sites and Fields
-.row {{sites}}
+//.row {{sites}}
 table.table.table-striped.sites(ts-wrapper)#site-info
     thead
         tr
@@ -20,7 +20,7 @@ table.table.table-striped.sites(ts-wrapper)#site-info
             td.site_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
                 nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
                 | {{$last ? '' : ', '}}
-            td.site_status(ng-if="status==true"): text(ng-repeat="status in site.proj_status")
+            td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
                 text(ng-if="$last") {{status.string | ucfirst}}
                 text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
 //            td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
