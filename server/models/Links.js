@@ -118,8 +118,9 @@ function createDefaultLinks() {
             //site-transfer
             Link.create({transfer:'56be54f9d7bfflll1c93c985',site:'56eb117c0007bf5b2a3e4b71',source:'56747e060e8cc07115200ee3',entities:['site','transfer']});
             Link.create({transfer:'56be54f9dffff9dd1c93c985',site:'56eb117c0007bf5b2a3e4b76',source:'56747e060e8cc07115200ee3',entities:['site','transfer']});
-            // //site-production
-            // Link.create({production:'',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','production']});
+            //site-production
+            Link.create({production:'56be54f9d7bff99ppp93c990',site:'56eb117c0007bf5b2a3e4b71',source:'56747e060e8cc07115200ee3',entities:['site','production']});
+            Link.create({production:'56be54f9000ff9921c93c990',site:'56eb117c0007bf5b2a3e4b76',source:'56747e060e8cc07115200ee3',entities:['site','production']});
 
 
 
