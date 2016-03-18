@@ -3,10 +3,10 @@ var rootPath 	= path.normalize(__dirname + '/../../');
 
 module.exports 	= {
     local: {
-        baseUrl: 'http://localhost:3030',
+        baseUrl: 'http://localhost:3051',
         db: 'mongodb://localhost/rp_local',
         rootPath: rootPath,
-        port: process.env.PORT || 3030
+        port: process.env.PORT || 3051
     },
     staging : {
         baseUrl: 'http://dev.resourceprojects.org',
