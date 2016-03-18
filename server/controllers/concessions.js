@@ -163,7 +163,7 @@ exports.getConcessionByID = function(req, res) {
                                 break;
                             case 'contract':
                                 if (!_.contains(concession.contracts, link.contract.contract_id)) {
-                                    concession.contracts.push(link.contract.contract_id);
+                                    concession.contracts.push(link.contract);
                                 }
                                 break;
                             case 'project':

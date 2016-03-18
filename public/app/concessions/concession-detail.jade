@@ -62,9 +62,10 @@
                             td.detail_label.small Contract:
                             td.concession_conracts
                                 text(ng-repeat="contract in concession.contracts | unique: '_id'")
-                                    a(href="contract/{{contract}}")
-                                        span(ng-bind-html="contract|sanitize")
-                                    | {{$last ? '' : ', '}}
+                                    text(ng-if="contract.contract_id")
+                                        a(href="contract/{{contract.contract_id}}")
+                                            span(ng-bind-html="contract.contract_id|sanitize")
+                                        | {{$last ? '' : ', '}}
 
         .col-md-6
             .info-box
