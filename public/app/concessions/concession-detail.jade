@@ -78,7 +78,11 @@
                                 span(ng-bind-html="concession.description|sanitize")
     .row
         .col-md-6
-            nrgi-project-table(projects="concession.projects")
+            nrgi-project-table(
+            projects="concession.projects"
+            commodity="true"
+            status="true")
+            //nrgi-project-table(projects="concession.projects")
         .col-md-6
             nrgi-company-table(
             companies="concession.companies"
