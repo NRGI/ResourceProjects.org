@@ -271,7 +271,6 @@ exports.getConcessionByID = function(req, res) {
                             }
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
-                            console.log(link.project);
                             switch (entity) {
                                 case 'transfer':
                                     concession.transfers.push({
