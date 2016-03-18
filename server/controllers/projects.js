@@ -173,7 +173,8 @@ exports.getProjectByID = function(req, res) {
                                             'lng': loc.loc[1],
                                             'message': link.site.site_name,
                                             'timestamp': loc.timestamp,
-                                            'type': 'field'
+                                            'type': 'field',
+                                            'id': link.site._id
                                         });
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
@@ -183,7 +184,8 @@ exports.getProjectByID = function(req, res) {
                                             'lng': loc.loc[1],
                                             'message': link.site.site_name,
                                             'timestamp': loc.timestamp,
-                                            'type': 'site'
+                                            'type': 'site',
+                                            'id': link.site._id
                                         });
                                     });
                                 }
@@ -280,7 +282,8 @@ exports.getProjectByID = function(req, res) {
                     'lng': loc.loc[1],
                     'message': project.proj_name,
                     'timestamp': loc.timestamp,
-                    'type': 'project'
+                    'type': 'project',
+                    'id': project.proj_id
                 });
                 if (project_counter == project_len) {
                     callback(null, project);
