@@ -120,6 +120,7 @@ exports.getConcessionByID = function(req, res) {
             .populate('commodity')
             .populate('contract')
             .populate('company')
+            .populate('site')
             .deepPopulate('project project.proj_country.country project.proj_commodity.commodity production.production_commodity transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
             //.deepPopulate()
             .exec(function(err, links) {
@@ -189,6 +190,7 @@ exports.getConcessionByID = function(req, res) {
                                     transfer_type: link.transfer.transfer_type,
                                     transfer_unit: link.transfer.transfer_unit,
                                     transfer_value: link.transfer.transfer_value,
+                                    transfer_level: link.transfer.transfer_level,
                                     transfer_audit_type: link.transfer.transfer_audit_type});
                                 break;
                             case 'production':
@@ -202,8 +204,11 @@ exports.getConcessionByID = function(req, res) {
                                         commodity_name: link.production.production_commodity.commodity_name,
                                         commodity_id: link.production.production_commodity.commodity_id},
                                     production_price: link.production.production_price,
-                                    production_price_unit: link.production.production_price_unit});
+                                    production_price_unit: link.production.production_price_unit,
+                                    production_level: link.production.production_level});
                                 break;
+                            case 'site':
+                                console.log(link);
                             default:
                                 console.log(entity, 'link skipped...');
                         }
@@ -292,6 +297,7 @@ exports.getConcessionByID = function(req, res) {
                                         transfer_type: link.transfer.transfer_type,
                                         transfer_unit: link.transfer.transfer_unit,
                                         transfer_value: link.transfer.transfer_value,
+                                        transfer_level: link.transfer.transfer_level,
                                         transfer_audit_type: link.transfer.transfer_audit_type});
                                     break;
                                 case 'production':
@@ -305,7 +311,8 @@ exports.getConcessionByID = function(req, res) {
                                             commodity_name: link.production.production_commodity.commodity_name,
                                             commodity_id: link.production.production_commodity.commodity_id},
                                         production_price: link.production.production_price,
-                                        production_price_unit: link.production.production_price_unit});
+                                        production_price_unit: link.production.production_price_unit,
+                                        production_level: link.production.production_level});
                                     break;
                                 default:
                                 console.log(entity, 'link skipped...');

@@ -78,12 +78,12 @@
                             td.concession_description
                                 span(ng-bind-html="concession.description|sanitize")
     .row
-        .col-md-6
+        .col-md-4
             nrgi-project-table(
             projects="concession.projects"
             commodity="true"
             status="true")
-        .col-md-6
+        .col-md-4
             nrgi-company-table(
             companies="concession.companies"
             group='true'
