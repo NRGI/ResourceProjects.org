@@ -12,8 +12,8 @@ table.table.table-striped.projects(ts-wrapper)#project-info
         tr(
         ng-repeat="project in projects | unique: '_id'"
         ts-repeat)
-            td.proj_id: a(href='project/{{project._id}}')
-                span(ng-bind-html="project.proj_name|sanitize")
+            td.proj_id
+                nrgi-project-routing(id='project._id' project='project.proj_id' name='project.proj_name' )
             td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                 a(href='country/{{country.country.iso2}}')
                     span(ng-bind-html="country.country.name|sanitize")
