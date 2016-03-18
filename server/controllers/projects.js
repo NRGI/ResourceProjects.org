@@ -105,12 +105,14 @@ exports.getProjectByID = function(req, res) {
 
     async.waterfall([
         getProject,
-        getTransfers,
+        //getTransfers,
+        //getProductions,
         getProjectLinks,
         getProjectCoordinate,
         getCompanyGroup
     ], function (err, result) {
         if (err) {
+            console.log(err);
             res.send(err);
         }
     });
@@ -129,7 +131,7 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-
+    /*
     function getTransfers(project, callback) {
         project.transfers = [];
         Transfer.find({transfer_project: project._id})
@@ -147,6 +149,25 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
+<<<<<<< HEAD
+=======
+    function getProductions(project, callback) {
+        project.productions = [];
+        Production.find({production_project: project._id})
+            .populate('production_commodity')
+            .exec(function(err, productions) {
+                _.each(productions, function(productions) {
+                    project.productions.push(productions);
+                });
+                if(project) {
+                    callback(null, project);
+                } else {
+                    callback(err);
+                }
+            });
+    }
+    */
+>>>>>>> Add CompanyGroup import, Company<->Group links, improve controller for handling company links, prep for move to links for transfers and productions
     function getProjectLinks(project, callback) {
         project.companies = [];
         project.commodities = [];
@@ -369,32 +390,37 @@ exports.getProjectByID = function(req, res) {
         project_counter = 0;
         if (project_len > 0) {
             project.companies.forEach(function (company) {
-                Link.find({company: company._id,entities:'company_group'})
+                Link.find({company: company._id, entities: 'company_group'})
                     .populate('company_group', '_id company_group_name')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
                         link_counter = 0;
                         company.company_groups = [];
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'company')[0];
-                            switch (entity) {
-                                case 'company_group':
-                                    if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                        company.company_groups.push({
-                                            _id: link.company_group._id,
-                                            company_group_name: link.company_group.company_group_name
-                                        });
-                                    }
-                                    break;
-                                default:
-                                    console.log('company_group error');
-                            }
-                            if (project_counter == project_len && link_counter == link_len) {
-                                res.send(project);
-                            }
-                        });
+                        if (link_len > 0) {
+                            links.forEach(function (link) {
+                                ++link_counter;
+                                var entity = _.without(link.entities, 'company')[0];
+                                switch (entity) {
+                                    case 'company_group':
+                                        if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+                                            company.company_groups.push({
+                                                _id: link.company_group._id,
+                                                company_group_name: link.company_group.company_group_name
+                                            });
+                                        }
+                                        break;
+                                    default:
+                                        console.log('link doesn\'t specify a company_group but rather a ${entity}');
+                                }
+                                if (project_counter == project_len && link_counter == link_len) {
+                                    res.send(project);
+                                }
+                            });
+                        }
+                        else if (project_counter == project_len) {
+                            res.send(project);
+                        }
                     });
             });
         } else {
