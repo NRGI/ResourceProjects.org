@@ -78,21 +78,27 @@ exports.createDataset = function(req, res, next) {
 };
 
 exports.createAction = function(req, res, next) {
-    var datasetRef = req.params['id'];
-    console.log("STUB: Start an action for dataset " + datasetRef)
+    var user_id;
+    if (!req.user) {
+        user_id = null;
+    }
+    else {
+        user_id = req.user._id;
+    }
+    console.log("Starting an action for dataset " + req.params['id']);
     //Create the action and set status "running"
     Action.create(
-        {name: req.body.name, started: Date.now(), status: "Started"/* TODO: uncomment once working//, started_by: req.user._id*/},
-        function(err, model) {
+        {name: req.body.name, started: Date.now(), status: "Started", started_by: user_id},
+        function(err, amodel) {
             if (err) {
                 res.status(400);
                 console.log(err);
 	            return res.send({reason:err.toString()})
             }
             Dataset.findByIdAndUpdate(
-                datasetRef,
-                {$push: {"actions": model._id}},
-                {safe: true, upsert: false},
+                req.params['id'],
+                {$push: {"actions": amodel._id}},
+                {safe: true, upsert: false, new: true},
                 function(err, dmodel) {
                     if (!err && dmodel) {
                         if (req.body.name == "Extract from Google Sheets") {
@@ -105,10 +111,10 @@ exports.createAction = function(req, res, next) {
                                 console.log("Status: " + status + "\n");
                                 console.log("Report: " + report + "\n");
                                 Action.findByIdAndUpdate(
-                                    model._id,
+                                    amodel._id,
                                     {finished: Date.now(), status: status, details: report},
-                                    {safe: true, upsert: false},
-                                    function(err, amodel) {
+                                    {safe: true, upsert: false, new: true},
+                                    function(err, ramodel) {
                                         if (err) console.log("Failed to update an action: " + err);
                                     }
                                 );
