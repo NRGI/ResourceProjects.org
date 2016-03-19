@@ -47,6 +47,9 @@ module.exports 	= function(config, user, pass, env) {
     db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
         console.log('Resource Projects db opened');
+        console.log('\n========================');
+        console.log('mongoose version: %s', mongoose.version);
+        console.log('========================\n\n');
     });
 
     userModel.createDefaultUsers();

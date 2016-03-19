@@ -244,6 +244,8 @@ function createDefaultCommodities() {
             Commodity.create({commodity_name:'Oil',commodity_type:'oil_and_gas',commodity_id:'oil'});
             Commodity.create({commodity_name:'Gas',commodity_type:'oil_and_gas',commodity_id:'gas'});
             console.log('Commodities created...');
+        } else {
+            console.log(String(commodities.length), 'commodities exist...')
         }
     });
 };

@@ -75,6 +75,8 @@ function createDefaultCompanyGroups() {
                 open_corporates_group_id: 'junkid'
             });
             console.log('Company Groups created...');
+        } else {
+            console.log(String(company_groups.length), 'company groups exist...')
         }
     });
 };

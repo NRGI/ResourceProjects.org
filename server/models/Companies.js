@@ -144,6 +144,8 @@ function createDefaultCompanies() {
                 companies_house_id: '03323845'
             });
             console.log('Companies created...');
+        } else {
+            console.log(String(companies.length), 'companies exist...')
         }
     });
 };
