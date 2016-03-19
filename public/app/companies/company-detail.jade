@@ -67,7 +67,7 @@
                                 span(ng-bind-html="company.description|sanitize")
 
     .row
-        .col-md-12
+        .col-md-6
             nrgi-project-table(
             projects="company.projects"
             country="true"
@@ -75,6 +75,10 @@
             status="true"
             type="true"
             companies="false")
+        .col-md-6
+            nrgi-site-table(
+            sites="company.sites"
+            status="true")
     .row.top-padding-med
         .col-md-6
             nrgi-contract-table(
