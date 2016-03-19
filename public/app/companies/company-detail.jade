@@ -53,20 +53,6 @@
                             td.detail_label.small Companies House ID:
                             td.company_companies_house_id
                                 a(target="_blank" href='https://beta.companieshouse.gov.uk/company/{{company.companies_house_id}}') {{company.companies_house_id}}
-                        tr
-                            td.detail_label.small Contracts:
-                            td.company_contracts
-                                text(ng-repeat="contract in company.contracts | unique: '_id'")
-                                    a(href='contract/{{contract._id}}')
-                                        | {{contract._id}}
-                                    | {{$last ? '' : ', '}}
-                        tr
-                            td.detail_label.small Concessions:
-                            td.company_contracts
-                                text(ng-repeat="concession in company.concessions | unique: '_id'")
-                                    a(href='concession/{{concession._id}}')
-                                        | {{concession.concession_name}}
-                                    | {{$last ? '' : ', '}}
 
 
         .col-md-6
