@@ -15,7 +15,7 @@ exports.getCompanyGroups = function(req, res) {
         companyGroupCount,
         getCompanyGroupSet,
         getCompanyGroupLinks,
-        // getLinkedCompanyProjects
+        getLinkedCompanyProjects
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -39,18 +39,18 @@ exports.getCompanyGroups = function(req, res) {
             .skip(skip)
             .limit(limit)
             .lean()
-            .exec(function(err, companiesGroup) {
-                if(companiesGroup) {
-                    callback(null, companyGroup_count, companiesGroup);
+            .exec(function(err, companyGroups) {
+                if(companyGroups) {
+                    callback(null, companyGroup_count, companyGroups);
                 } else {
                     callback(err);
                 }
             });
     }
-    function getCompanyGroupLinks(companyGroup_count, companyGroup, callback) {
-        companyGroup_len = companyGroup.length;
+    function getCompanyGroupLinks(companyGroup_count, companyGroups, callback) {
+        companyGroup_len = companyGroups.length;
         companyGroup_counter = 0;
-        companyGroup.forEach(function (c) {
+        companyGroups.forEach(function (c) {
             Link.find({company_group: c._id, $or:[ {entities:'company'}, {entities:'project'} ] })
                 .populate('company')
                 .populate('project')
@@ -60,7 +60,6 @@ exports.getCompanyGroups = function(req, res) {
                     link_counter = 0;
                     c.company_count = 0;
                     c.companies = [];
-                    c.project_count = 0;
                     links.forEach(function(link) {
                         ++link_counter;
 
@@ -80,106 +79,44 @@ exports.getCompanyGroups = function(req, res) {
                         }
                     });
                     if(companyGroup_counter == companyGroup_len && link_counter == link_len) {
-                        res.send({data:companyGroup, count:companyGroup_count});
+                        // res.send({data:companyGroup, count:companyGroup_count});
+                        callback(null, companyGroup_count, companyGroups);
                     }
                 });
         });
     }
-    function getLinkedCompanyProjects (companyGroup_count, companyGroup){
-
+    function getLinkedCompanyProjects (companyGroup_count, companyGroups, callback){
+        companyGroup_len = companyGroups.length;
+        companyGroup_counter = 0;
+        if(companyGroup_len>0) {
+            async.forEach(companyGroups, function (group) {
+                ++companyGroup_counter;
+                companies_len = group.companies.length;
+                companies_counter = 0;
+                company_query = [];
+                group.project_count = 0;
+                if (companies_len>0) {
+                    async.forEachOfSeries(group.companies, function (c) {
+                        ++companies_counter;
+                        company_query.push({company: c._id});
+                    });
+                    Link.find({$or: company_query, entities:'project'}).count()
+                        .exec(function(err, proj_count) {
+                            group.project_count = proj_count;
+                        });
+                    if (companyGroup_counter == companyGroup_len && companies_counter == companies_len) {
+                        res.send({data:companyGroups, count:companyGroup_count});
+                    }
+                } else {
+                    if (companyGroup_counter == companyGroup_len && companies_counter == companies_len) {
+                        res.send({data:companyGroups, count:companyGroup_count});
+                    }
+                }
+            });
+        } else {
+            res.send({data:companyGroups, count:companyGroup_count});
+        }
     }
-    // function getProjectLinks(concession, callback) {
-    // 	var proj_len = concession.projects.length;
-    // 	concession_counter = 0;
-    // 	if(proj_len>0) {
-    // 		concession.projects.forEach(function (project) {
-    // 			Link.find({project: project._id, $or:[ {entities:'transfer'}, {entities:'production'}, {entities:'site'} ] })
-    // 				.populate('site')
-    // 				.deepPopulate('transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
-    // 				.exec(function (err, links) {
-    // 					++concession_counter;
-    // 					link_len = links.length;
-    // 					link_counter = 0;
-    // 					links.forEach(function (link) {
-    // 						if (!concession.sources[link.source._id]) {
-    // 							concession.sources[link.source._id] = link.source;
-    // 						}
-    // 						++link_counter;
-    // 						var entity = _.without(link.entities, 'project')[0];
-    // 						switch (entity) {
-    // 							case 'transfer':
-    // 								concession.transfers.push({
-    // 									_id: link.transfer._id,
-    // 									transfer_year: link.transfer.transfer_year,
-    // 									transfer_company: {
-    // 										company_name: link.transfer.transfer_company.company_name,
-    // 										_id:link.transfer.transfer_company._id},
-    // 									transfer_country: {
-    // 										name: link.transfer.transfer_country.name,
-    // 										iso2: link.transfer.transfer_country.iso2},
-    // 									transfer_type: link.transfer.transfer_type,
-    // 									transfer_unit: link.transfer.transfer_unit,
-    // 									transfer_value: link.transfer.transfer_value,
-    // 									transfer_level: link.transfer.transfer_level,
-    // 									transfer_audit_type: link.transfer.transfer_audit_type});
-    // 								break;
-    // 							case 'production':
-    // 								concession.production.push({
-    // 									_id: link.production._id,
-    // 									production_year: link.production.production_year,
-    // 									production_volume: link.production.production_volume,
-    // 									production_unit: link.production.production_unit,
-    // 									production_commodity: {
-    // 										_id: link.production.production_commodity._id,
-    // 										commodity_name: link.production.production_commodity.commodity_name,
-    // 										commodity_id: link.production.production_commodity.commodity_id},
-    // 									production_price: link.production.production_price,
-    // 									production_price_unit: link.production.production_price_unit,
-    // 									production_level: link.production.production_level});
-    // 								break;
-    // 							case 'site':
-    // 								concession.sites.push({
-    // 									_id: link.site._id,
-    // 									field: link.site.field,
-    // 									site_name: link.site.site_name,
-    // 								});
-    // 								if (link.site.field && link.site.site_coordinates.length>0) {
-    // 									link.site.site_coordinates.forEach(function (loc) {
-    // 										concession.site_coordinates.fields.push({
-    // 											'lat': loc.loc[0],
-    // 											'lng': loc.loc[1],
-    // 											'message': link.site.site_name,
-    // 											'timestamp': loc.timestamp,
-    // 											'type': 'field',
-    // 											'id': link.site._id
-    // 										});
-    // 									});
-    // 								} else if (!link.site.field && link.site.site_coordinates.length>0) {
-    // 									link.site.site_coordinates.forEach(function (loc) {
-    // 										concession.site_coordinates.sites.push({
-    // 											'lat': loc.loc[0],
-    // 											'lng': loc.loc[1],
-    // 											'message': link.site.site_name,
-    // 											'timestamp': loc.timestamp,
-    // 											'type': 'site',
-    // 											'id': link.site._id
-    // 										});
-    // 									});
-    // 								}
-    // 								break;
-    // 							default:
-    // 								console.log(entity, 'link skipped...');
-    // 						}
-    // 					});
-    // 					if (concession_counter == proj_len && link_counter == link_len) {
-    // 						callback(null, concession);
-    // 					}
-    // 				});
-    // 		});
-    // 	} else {
-    // 		callback(null, concession);
-    // 	}
-    // }
 };
 exports.getCompanyGroupByID = function(req, res) {
     var link_counter, link_len, company_counter, company_len;
