@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 
 var factSchema, Fact,
     Schema      = mongoose.Schema,
+    mixedSchema = Schema.Types.Mixed,
     ObjectId    = Schema.Types.ObjectId,
     source      = {type: ObjectId, ref: 'Source'};
 
@@ -34,18 +35,14 @@ factSchema = new Schema({
         type: [Number],  // [<longitude>, <latitude>]
         index: '2d'      // create the geospatial index
     },
-    //poly: {
-    //    type: {
-    //        type: String,
-    //        enum: ['LineString', 'Polygon'],
-    //        default: 'Polygon'
-    //    },
-    //    coordinates: [
-    //        { type: [
-    //            { type: [ Number ] }
-    //        ] }
-    //    ]
-    //}
+    polygon: {
+       type: {
+           type: String,
+           enum: ['LineString', 'Polygon'],
+           default: 'Polygon'
+       },
+       coordinates: mixedSchema
+    }
 });
 
 module.exports = factSchema;
