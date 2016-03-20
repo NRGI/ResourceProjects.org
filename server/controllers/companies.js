@@ -93,10 +93,9 @@ exports.getCompanyByID = function(req, res) {
 
     async.waterfall([
         getCompany,
-        getTransfers,
         getCompanyLinks,
-        getContracts,
-        getProjectLocation
+        // getContracts,
+        // getProjectLocation
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -116,36 +115,22 @@ exports.getCompanyByID = function(req, res) {
                 }
             });
     }
-    function getTransfers(company, callback) {
-        company.transfers = [];
-        Transfer.find({transfer_company: company._id})
-            .populate('transfer_country')
-            .populate('transfer_company', '_id company_name')
-            .populate('transfer_project', '_id proj_name')
-            .exec(function(err, transfers) {
-                _.each(transfers, function(transfer) {
-                    company.transfers.push(transfer);
-                });
-                if(company) {
-                    callback(null, company);
-                } else {
-                    callback(err);
-                }
-            });
-    }
     function getCompanyLinks(company, callback) {
         company.company_groups = [];
         company.commodities = [];
         company.projects = [];
         company.contracts_link = [];
+        company.production = [];
+        company.transfers = [];
+        company.sites = [];
+        company.site_coordinates = {sites: [], fields: []};
         company.concessions = [];
         company.sources = {};
         Link.find({company: company._id})
             .populate('company_group','_id company_group_name')
             .populate('commodity')
             .populate('contract')
-            .deepPopulate('project project.proj_country.country project.proj_commodity.commodity ' +
-            'concession concession.concession_country.country concession.concession_commodity.commodity source.source_type_id')
+            .deepPopulate('project site.site_country.country site.site_commodity.commodity project.proj_country.country project.proj_commodity.commodity transfer.transfer_company transfer.transfer_country production.production_commodity concession concession.concession_country.country concession.concession_commodity.commodity source.source_type_id')
             .exec(function(err, links) {
                 link_len = links.length;
                 if(link_len>0) {
@@ -159,6 +144,39 @@ exports.getCompanyByID = function(req, res) {
                             }
                         }
                         switch (entity) {
+                            case 'site':
+                                company.sites.push({
+                                    _id: link.site._id,
+                                    field: link.site.field,
+                                    site_name: link.site.site_name,
+                                    site_type: link.site.site_type,
+                                    site_status: link.site.site_status,
+                                    site_commodity: link.site.site_commodity
+                                });
+                                if (link.site.field && link.site.site_coordinates.length>0) {
+                                    link.site.site_coordinates.forEach(function (loc) {
+                                        company.site_coordinates.fields.push({
+                                            'lat': loc.loc[0],
+                                            'lng': loc.loc[1],
+                                            'message': link.site.site_name,
+                                            'timestamp': loc.timestamp,
+                                            'type': 'field',
+                                            'id': link.site._id
+                                        });
+                                    });
+                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
+                                    link.site.site_coordinates.forEach(function (loc) {
+                                        company.site_coordinates.sites.push({
+                                            'lat': loc.loc[0],
+                                            'lng': loc.loc[1],
+                                            'message': link.site.site_name,
+                                            'timestamp': loc.timestamp,
+                                            'type': 'site',
+                                            'id': link.site._id
+                                        });
+                                    });
+                                }
+                                break;
                             case 'commodity':
                                 if (!company.commodities.hasOwnProperty(link.commodity_code)) {
                                     company.commodities.push({
@@ -186,43 +204,83 @@ exports.getCompanyByID = function(req, res) {
                                         concession_commodities: link.concession.concession_commodity,
                                         concession_status: link.concession.concession_status
                                     });
-                                    //company.concessions[link.concession._id+'kkk'] = {
-                                    //    concession_name: link.concession.concession_name,
-                                    //    concession_country: _.find(link.concession.concession_country.reverse().country),
-                                    //    concession_type: _.find(link.concession.concession_type.reverse()),
-                                    //    concession_commodities: link.concession.concession_commodity,
-                                    //    concession_status: link.concession.concession_status
-                                    //};
                                 }
                                 break;
                             case 'contract':
-                                //if (!company.contracts.hasOwnProperty(link.contract.contract_id)) {
-                                //    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + link.contract.contract_id + '/metadata', function (err, res, body) {
-                                //        if (!err && res.statusCode == 200) {
-                                //            company.contracts[link.contract.contract_id] = {
-                                //                contract_name: body.name,
-                                //                contract_country: body.country,
-                                //                contract_commodity: body.resource
-                                //            };
-                                //        }
-                                //    });
-                                //}
-                                if (!_.contains(company.contracts_link, link.contract.contract_id)) {
-                                    company.contracts_link.push({_id:link.contract.contract_id});
-                                }
+                                company.contracts_link.push(link.contract);
+                                // if (!_.contains(company.contracts_link, link.contract.contract_id)) {
+                                //     company.contracts_link.push(link.contract);
+                                // }
                                 break;
                             case 'project':
-                                company.projects.push(link.project);
+                                company.projects.push({
+                                    _id: link.project._id,
+                                    proj_name: link.project.proj_name,
+                                    proj_id: link.project.proj_id,
+                                    proj_country: link.project.proj_country,
+                                    proj_type: link.project.proj_type,
+                                    proj_commodity: link.project.proj_commodity,
+                                    proj_status: link.project.proj_status
+                                });
+                                break;
+                            case 'transfer':
+                                company.transfers.push({
+                                    _id: link.transfer._id,
+                                    transfer_year: link.transfer.transfer_year,
+                                    transfer_company: {
+                                        company_name: link.transfer.transfer_company.company_name,
+                                        _id:link.transfer.transfer_company._id},
+                                    transfer_country: {
+                                        name: link.transfer.transfer_country.name,
+                                        iso2: link.transfer.transfer_country.iso2},
+                                    transfer_type: link.transfer.transfer_type,
+                                    transfer_unit: link.transfer.transfer_unit,
+                                    transfer_value: link.transfer.transfer_value,
+                                    transfer_level: link.transfer.transfer_level,
+                                    transfer_audit_type: link.transfer.transfer_audit_type});
+                                break;
+                            case 'production':
+                                company.production.push({
+                                    _id: link.production._id,
+                                    production_year: link.production.production_year,
+                                    production_volume: link.production.production_volume,
+                                    production_unit: link.production.production_unit,
+                                    production_commodity: {
+                                        _id: link.production.production_commodity._id,
+                                        commodity_name: link.production.production_commodity.commodity_name,
+                                        commodity_id: link.production.production_commodity.commodity_id},
+                                    production_price: link.production.production_price,
+                                    production_price_unit: link.production.production_price_unit,
+                                    production_level: link.production.production_level});
                                 break;
                             default:
                                 console.log(entity, 'link skipped...');
                         }
                         if (link_counter == link_len) {
-                            callback(null, company);
+                            // callback(null, company);
+                            res.send(company);
                         }
                     });
                 } else{
+                    // callback(null, company);
+                    res.send(company);
+                }
+            });
+    }
+    function getTransfers(company, callback) {
+        company.transfers = [];
+        Transfer.find({transfer_company: company._id})
+            .populate('transfer_country')
+            .populate('transfer_company', '_id company_name')
+            .populate('transfer_project', '_id proj_name')
+            .exec(function(err, transfers) {
+                _.each(transfers, function(transfer) {
+                    company.transfers.push(transfer);
+                });
+                if(company) {
                     callback(null, company);
+                } else {
+                    callback(err);
                 }
             });
     }

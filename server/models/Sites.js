@@ -52,6 +52,7 @@ siteSchema = new Schema({
     site_address: [fact],
     site_country: [fact],
     site_coordinates: [fact],
+    site_commodity: [fact],
     site_status: [{
         source: source,
         string: {
@@ -65,9 +66,9 @@ siteSchema = new Schema({
 });
 
 siteSchema.plugin(mongooseHistory, hst_options);
-//projectSchema.plugin(searchPlugin,{
-//    fields:['proj_name']
-//});
+siteSchema.plugin(searchPlugin,{
+   fields:['site_name']
+});
 
 Site = mongoose.model('Site', siteSchema);
 
@@ -84,6 +85,7 @@ function createDefaultSites() {
                site_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
                site_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                site_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [14.15392307, 19.50168983]}],
+               site_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
                site_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
                description: '<p>yes</p><p>no</p>'
            });

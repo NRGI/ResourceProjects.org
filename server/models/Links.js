@@ -87,10 +87,14 @@ function createDefaultLinks() {
             Link.create({commodity:'56a13e9942c8bef50ec2e9e8',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
             Link.create({commodity:'56a13e9942c8bef50ec2e9eb',project:'56a930f41b5482a31231ef43',source:'56747e060e8cc07115200ee6',entities:['project','commodity']});
             //company-transfer
-            Link.create({transfer:'56be54f9d7bff9921c93c985',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','transfer']});
-            Link.create({transfer:'56be54f9d7bff9921c93c98a',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','transfer']});
-            Link.create({transfer:'56be54f9d7bff9921c93c988',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','transfer']});
-            Link.create({transfer:'56be54f9d7bff9921c93c986',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','transfer']});
+            Link.create({transfer:'56be54f9d7bff9921c93c989',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','transfer']});
+            Link.create({transfer:'56be54f9d7bfflll1c93c985',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','transfer']});
+            //company-production
+            Link.create({production:'56be54f9d7bff9921c93c985',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','production']});
+            Link.create({production:'56be54f9d7bff9921c93c986',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['company','production']});
+            //project-site
+            Link.create({site:'56eb117c0007bf5b2a3e4b71',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['site','company']});
+            Link.create({site:'56eb117c0007bf5b2a3e4b76',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['site','company']});
             //project-transfer
             Link.create({transfer:'56be54f9d7bff9dd1c93c985',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','transfer']});
             Link.create({transfer:'56be54f9d7bff9921c93c98a',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['project','transfer']});
