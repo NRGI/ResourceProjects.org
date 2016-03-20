@@ -255,14 +255,14 @@ exports.getConcessionByID = function(req, res) {
     }
     function getProjectLinks(concession, callback) {
         var proj_len = concession.projects.length;
-        concession_counter = 0;
+        proj_counter = 0;
         if(proj_len>0) {
             concession.projects.forEach(function (project) {
                 Link.find({project: project._id, $or:[ {entities:'transfer'}, {entities:'production'}, {entities:'site'} ] })
                     .populate('site')
                     .deepPopulate('transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
                     .exec(function (err, links) {
-                        ++concession_counter;
+                        ++proj_counter;
                         link_len = links.length;
                         link_counter = 0;
                         links.forEach(function (link) {
@@ -336,7 +336,7 @@ exports.getConcessionByID = function(req, res) {
                                 console.log(entity, 'link skipped...');
                             }
                         });
-                        if (concession_counter == proj_len && link_counter == link_len) {
+                        if (proj_counter == proj_len && link_counter == link_len) {
                             callback(null, concession);
                         }
                     });

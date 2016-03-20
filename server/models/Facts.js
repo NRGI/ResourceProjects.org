@@ -38,8 +38,7 @@ factSchema = new Schema({
     polygon: {
        type: {
            type: String,
-           enum: ['LineString', 'Polygon'],
-           default: 'Polygon'
+           enum: ['LineString', 'Polygon']
        },
        coordinates: mixedSchema
     }

@@ -9,7 +9,9 @@ angular
             scope: {
                 sites: '=',
                 commodity: '=',
-                status: '='
+                status: '=',
+                country: '=',
+                type: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-site-table'
         };

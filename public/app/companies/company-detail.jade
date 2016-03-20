@@ -9,7 +9,7 @@
             leaflet(
             center="center"
             controls="controls"
-            markers="company.location"
+            markers="company.proj_coordinates"
             tiles="tiles"
             height='300px')
     .row
@@ -78,7 +78,10 @@
         .col-md-6
             nrgi-site-table(
             sites="company.sites"
-            status="true")
+            country="true"
+            commodity="true"
+            status="true"
+            type="true")
     .row.top-padding-med
         .col-md-6
             nrgi-contract-table(

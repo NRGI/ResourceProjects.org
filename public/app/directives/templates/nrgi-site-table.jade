@@ -4,10 +4,10 @@ table.table.table-striped.sites(ts-wrapper)#site-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='site_name') Name
+            th.tablesort-sortable-th(ng-if="country==true" ts-criteria='site_country[site_country.length - 1].country.name') Country
+            th.tablesort-sortable-th(ng-if="type==true" ts-criteria='site_type[site_type.length - 1].string') Commodity Type
             th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='site_commodity[proj_commodity.length - 1].commodity.commodity_name') Commodity
             th.tablesort-sortable-th(ng-if="status==true" ts-criteria='site_status[proj_status.length - 1].string') Status
-            //th.tablesort-sortable-th(ng-if="country==true" ts-criteria='proj_country[proj_country.length - 1].country.name') Country
-            //th.tablesort-sortable-th(ng-if="type==true" ts-criteria='proj_type[proj_type.length - 1].string') Commodity Type
             //th.tablesort-sortable-th(ng-if="status==true" ts-criteria='proj_status[proj_status.length - 1].string') Status
             //th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies|parseInt') Companies
 
@@ -17,19 +17,21 @@ table.table.table-striped.sites(ts-wrapper)#site-info
         ts-repeat)
             td.site_id: a(href='site/{{site._id}}')
                 span(ng-bind-html="site.site_name|sanitize")
+            td.site_country(ng-if="country==true"): text(ng-repeat="country in site.site_country | unique: 'country._id'")
+                a(href='country/{{country.country.iso2}}')
+                    span(ng-bind-html="country.country.name|sanitize")
+                | {{$last ? '' : ', '}}
+            td.site_type(ng-if="type==true"): text(ng-repeat="type in site.site_type")
+                | {{type.string | ucfirst}}
+                | {{$last ? '' : ', '}}
             td.site_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
                 nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
                 | {{$last ? '' : ', '}}
             td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
                 text(ng-if="$last") {{status.string | ucfirst}}
                 text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-            //td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
-            //    a(href='country/{{country.country.iso2}}')
-            //        span(ng-bind-html="country.country.name|sanitize")
-            //    | {{$last ? '' : ', '}}
-            //td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
-            //    | {{type.string | ucfirst}}
-            //    | {{$last ? '' : ', '}}
+
+
             //
             //
             //td(ng-if="companies==true") {{project.companies}}
