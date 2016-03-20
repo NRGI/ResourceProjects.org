@@ -98,7 +98,6 @@ exports.getProjects = function(req, res) {
         }
     }
 };
-
 exports.getProjectByID = function(req, res) {
     var link_counter, link_len,project_counter, project_len;
 
@@ -114,7 +113,6 @@ exports.getProjectByID = function(req, res) {
             res.send(err);
         }
     });
-
 	function getProject(callback) {
         Project.findOne({_id:req.params.id})
             .populate('proj_country.country')
@@ -402,7 +400,6 @@ exports.getProjectByID = function(req, res) {
         }
     }
 };
-
 exports.getProjectsMap = function(req, res) {
     var project_len, project_counter;
     async.waterfall([

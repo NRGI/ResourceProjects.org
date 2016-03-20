@@ -102,7 +102,6 @@ exports.getCompanyByID = function(req, res) {
             res.send(err);
         }
     });
-
     function getCompany(callback) {
         Company.findOne({_id:req.params.id})
             .populate('company_aliases', ' _id alias')
