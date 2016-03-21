@@ -121,8 +121,6 @@ exports.getProjectByID = function(req, res) {
     }
     function getProjectLinks(project, callback) {
         project.companies = [];
-        project.commodities = [];
-        project.transfers = [];
         project.projects = [];
         project.concessions = [];
         project.contracts = [];
@@ -130,12 +128,11 @@ exports.getProjectByID = function(req, res) {
         project.site_coordinates = {sites: [], fields: []};
         project.sources = {};
         Link.find({project: project._id})
-            .populate('commodity')
             .populate('company')
             .populate('contract')
             .populate('concession')
             .populate('site')
-            .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
+            .deepPopulate('company_group source.source_type_id')
             .exec(function(err, links) {
                 if(links.length>0) {
                     link_len = links.length;
@@ -329,12 +326,12 @@ exports.getProjectByID = function(req, res) {
                                     transfer_level: transfer.transfer_level,
                                     transfer_audit_type: transfer.transfer_audit_type
                                 });
-                                if (site_counter===site_counter && transfers_counter===transfers_len) {
+                                if (site_counter===site_len && transfers_counter===transfers_len) {
                                     callback(null, project);
                                 }
                             });
                         } else {
-                            if (site_counter===site_counter && transfers_counter===transfers_len) {
+                            if (site_counter===site_len && transfers_counter===transfers_len) {
                                 callback(null, project);
                             }
                         }
@@ -363,7 +360,7 @@ exports.getProjectByID = function(req, res) {
                                     //TODO clean up returned data if performance lags
                                     project.sources[prod.source._id] = prod.source;
                                 }
-                                ++transfers_counter;
+                                ++production_counter;
                                 project.production.push({
                                     _id: prod._id,
                                     production_year: prod.production_year,
@@ -376,12 +373,12 @@ exports.getProjectByID = function(req, res) {
                                     production_price: prod.production_price,
                                     production_price_unit: prod.production_price_unit,
                                     production_level: prod.production_level});
-                                if (site_counter===site_counter && production_counter===production_len) {
+                                if (site_counter===site_len && production_counter===production_len) {
                                     callback(null, project);
                                 }
                             });
                         } else {
-                            if (site_counter===site_counter && production_counter===production_len) {
+                            if (site_counter===site_len && production_counter===production_len) {
                                 callback(null, project);
                             }
                         }

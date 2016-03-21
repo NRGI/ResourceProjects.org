@@ -23,6 +23,7 @@ var productionSchema, Production,
     country         = {type: ObjectId, ref: 'Country'},
     project         = {type: ObjectId, ref: 'Project'},
     site            = {type: ObjectId, ref: 'Site'},
+    concession      = {type: ObjectId, ref: 'Concession'},
     //HTML            = mongoose.Types.Html,
     //htmlSettings    = {
     //    type: HTML,
@@ -52,7 +53,9 @@ productionSchema = new Schema ({
     //LINKS
     country: country,
     project: project,
-    site: site
+    site: site,
+    concession: concession
+
 });
 
 productionSchema.plugin(mongooseHistory, hst_options);
@@ -72,7 +75,8 @@ function createDefaultProduction() {
                 production_price: 154,
                 production_level: 'project',
                 production_price_unit: 'USD',
-                project: '56a930f41b5482a31231ef42'
+                project: '56a930f41b5482a31231ef42',
+                concession: '56a2b8236e585b7316655794'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c986',
@@ -84,7 +88,8 @@ function createDefaultProduction() {
                 production_price: 154,
                 production_level: 'project',
                 production_price_unit: 'USD',
-                project: '56a930f41b5482a31231ef42'
+                project: '56a930f41b5482a31231ef42',
+                concession: '56a2b8236e585b7316655794'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c987',

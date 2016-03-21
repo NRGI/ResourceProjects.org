@@ -15,6 +15,7 @@ var transferSchema, Transfer,
     country         = {type: ObjectId, ref: 'Country'},
     project         = {type: ObjectId, ref: 'Project'},
     site            = {type: ObjectId, ref: 'Site'},
+    concession      = {type: ObjectId, ref: 'Concession'},
     //HTML            = mongoose.Types.Html,
     //htmlSettings    = {
     //    type: HTML,
@@ -64,11 +65,8 @@ transferSchema = new Schema ({
     company: company,
     country: country,
     project: project,
-    site: site
-    //transfer_concession: {
-    //    type: ObjectId,
-    //    ref: 'Concession'
-    //},
+    site: site,
+    concession: concession
 
 });
 
@@ -96,8 +94,8 @@ function createDefaultTransfers() {
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8',
-                project: '56a930f41b5482a31231ef42'
-                // concession: '56a2b8236e585b7316655794',
+                project: '56a930f41b5482a31231ef42',
+                concession: '56a2b8236e585b7316655794'
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c98a',
@@ -136,8 +134,8 @@ function createDefaultTransfers() {
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8',
-                project: '56a930f41b5482a31231ef42'
-                // concession: '56a2b8236e585b7316655794',
+                project: '56a930f41b5482a31231ef42',
+                concession: '56a2b8236e585b7316655794'
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c986',

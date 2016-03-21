@@ -11,7 +11,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.tablesort-sortable-th(ts-criteria='production_level') Level
     tbody
         tr(
-        ng-repeat="prod in production"
+        ng-repeat="prod in production | unique: '_id'"
         ts-repeat)
             //td {{prod.production.production_commodity}}
             td.production_year {{prod.production_year}}
