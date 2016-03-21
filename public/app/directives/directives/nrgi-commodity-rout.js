@@ -2,16 +2,16 @@
 
 angular
     .module('app')
-    .directive('nrgiCommodityRout', function() {
+    .directive('nrgiCommodityRoute', function() {
         return {
             restrict: 'EA',
-            controller: 'nrgiCommodityRoutCtrl',
+            controller: 'nrgiCommodityRouteCtrl',
             scope: {
                 id: '=',
                 name:'=',
                 commodity:'='
             },
-            templateUrl: '/partials/directives/templates/nrgi-commodity-rout'
+            templateUrl: '/partials/directives/templates/nrgi-commodity-route'
         };
     });
 

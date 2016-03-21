@@ -43,7 +43,7 @@
                             td.detail_label.small Commodities:
                             td.company_commoditiea
                                 text(ng-repeat="commodity in company.commodities | unique: '_id'")
-                                    nrgi-commodity-rout(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                                    nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
                             td.detail_label.small Open Corporates ID:
