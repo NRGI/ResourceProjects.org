@@ -99,7 +99,7 @@ exports.getProjects = function(req, res) {
     }
 };
 exports.getProjectByID = function(req, res) {
-    var link_counter, link_len, project_counter, project_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
+    var site_len, site_counter, link_counter, link_len, project_counter, project_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
 
     async.waterfall([
         getProject,
@@ -117,7 +117,7 @@ exports.getProjectByID = function(req, res) {
         }
     });
 	function getProject(callback) {
-        Project.findOne({_id:req.params.id})
+        Project.findOne({proj_id:req.params.id})
             .populate('proj_country.country')
             .populate('proj_aliases', '_id alias')
             .populate('proj_commodity.commodity')
@@ -505,9 +505,12 @@ exports.getProjectsMap = function(req, res) {
                         ++project_counter;
                         project.proj_coordinates.forEach(function (loc) {
                             data.push({
-                                'lat':loc.loc[0],
-                                'lng':loc.loc[1],
-                                'message':project.proj_name
+                                'lat': loc.loc[0],
+                                'lng': loc.loc[1],
+                                'message': project.proj_name,
+                                'timestamp': loc.timestamp,
+                                'type': 'project',
+                                'id': project.proj_id
                             })
                         })
                     });

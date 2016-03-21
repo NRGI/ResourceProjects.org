@@ -6,12 +6,7 @@
             small Project
     .row
         .col-md-12
-            leaflet(
-            center="center"
-            controls="controls"
-            markers="project.coordinates"
-            tiles="tiles"
-            height='240px')
+            nrgi-leaflet(data='project.coordinates' project='true')
     .row
         .col-md-6
             .info-box
@@ -50,8 +45,9 @@
                             td.detail_label.small Commodities:
                             td.project_commodities
                                 text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
-                                    nrgi-commodity-route(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
-                                        | {{$last ? '' : ', '}}
+                                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Status:
                             td.project_status: text(

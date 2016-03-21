@@ -342,7 +342,10 @@ exports.getCompanyGroupByID = function(req, res) {
                     companyGroup.location.push({
                         'lat': loc.loc[0],
                         'lng': loc.loc[1],
-                        'message': project.proj_name
+                        'message': project.proj_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'project',
+                        'id': project.proj_id
                         //'message': "<a href =\'/project/" + project.proj_id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
                     });
                     if (project_counter == project_len) {
