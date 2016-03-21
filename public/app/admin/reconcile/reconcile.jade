@@ -1,0 +1,42 @@
+.container.top-padding-med
+    .well
+        legend Reconciliation (De-duplification) Management
+        p This page shows all unresolved duplicates. Duplicates are "removed" by marking them as resolved and the course of action taken. Hence, when new data comes in and matches the data in a duplicate rather than the intended original, you will not need to perform the reconciliation process again.
+        .pull-right
+            form.form-inline
+                .form-group
+                    input.form-control(
+                    ng-model="search_text"
+                    placeholder="Filter")
+                .form-group.margin-left-med
+                    select.form-control(
+                    ng-model="sort_order"
+                    ng-options="item.value as item.text for item in sort_options")
+        table.table
+            thead
+                tr
+                    th Identifier
+                    th Creation
+                    th Available Actions
+                    th Reviewer Notes
+            tbody
+                tr(ng-repeat="duplicate in datasets | filter:search_text | orderBy:sort_order")
+                    td
+                        text Original: {{dataset.name}}
+                        br
+                        text Duplicate: {{dataset.name}}
+                    td Created by SOMEONE on SOMEDATE in action SOMEACTION for dataset SOMEDATASET
+                    td
+                        a.btn.btn-danger(data-toggle="tooltip" title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
+                            span(class="glyphicon glyphicon-remove")
+                        &nbsp;
+                        a.btn.btn-warning(data-toggle="tooltip" title="If the name of the entity represents an alias, store its name as such, then remove it and move all linked data to the original entity.")
+                            span(class="glyphicon glyphicon-paste")
+                        &nbsp;
+                        a.btn.btn-warning(data-toggle="tooltip" title="Move all linked data to the original entity and copy this entity's details into the original. You will then be redirected to the edit page for the original entity to clean up.")
+                            span(class="glyphicon glyphicon-transfer")
+                        &nbsp;
+                        a.btn.btn-success(data-toggle="tooltip" title="Mark this entity as a fully-fledged independent entity. No changes to the suspected original are made.")
+                            span(class="glyphicon glyphicon-check")
+                    td
+                        textarea(placeholder="Space for notes")

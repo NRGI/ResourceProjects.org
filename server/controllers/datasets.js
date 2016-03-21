@@ -1,4 +1,5 @@
 var Dataset 		= require('mongoose').model('Dataset'),
+    Duplicate		= require('mongoose').model('Duplicate'),
     Action 		    = require('mongoose').model('Action'),
     async           = require('async'),
     _               = require("underscore"),
@@ -41,8 +42,32 @@ exports.getDatasets = function(req, res) {
             .lean()
             .exec(function(err, datasets) {
                 if(datasets) {
-                    res.send({data:datasets, count:dataset_count});
-                } else {
+                    async.each(datasets, function (dataset, ecallback) {
+                        var action_ids = [];
+                        var action_id;
+                        for (action_id of dataset.actions) {
+                            action_ids.push(action_id);
+                        }
+                        Duplicate.find(
+                            { created_from: { $in: action_ids } },
+                            function (err, duplicates) {
+                                if (duplicates.length > 0) {
+                                    dataset.hasDuplicates = true;
+                                }
+                                else dataset.hasDuplicates = false;
+                                    ecallback(null); //This one finished
+                                }
+                            );
+                        },
+                        function (err) {
+                           if (err) callback(err);
+                           else {
+                               res.send({data:datasets, count:dataset_count});
+                           }
+                        }
+                    );
+                }
+                else {
                     callback(err);
                 }
             });
@@ -101,7 +126,7 @@ exports.createAction = function(req, res, next) {
                 {safe: true, upsert: false, new: true},
                 function(err, dmodel) {
                     if (!err && dmodel) {
-                        if (req.body.name == "Extract from Google Sheets") {
+                        if (req.body.name == "Import from Google Sheets") {
                             console.log("Starting import from " + dmodel.name);
                             res.status(200);
                             res.send();
@@ -135,6 +160,15 @@ exports.createAction = function(req, res, next) {
             );
         }
     ); 
-    //TODO: Perform the action
-    //TODO: Perform following actions
 };
+
+exports.getActionReport = function(req, res, next) {
+    Action.findOne({_id: req.params.action_id},
+                   function (err, action) {
+                        if (err) {
+                            return next(err);
+                        }
+                        else req.report = action.details;
+                        next();
+                   });
+}

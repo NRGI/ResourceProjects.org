@@ -61,6 +61,11 @@ angular.module('app')
                 controller: 'nrgiUserAdminUpdateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
+            .when('/admin/reconcile', {
+                templateUrl: '/partials/admin/reconcile/reconcile',
+                controller: 'nrgiReconcileCtrl'/*,
+                resolve: routeRoleChecks.supervisor -- TODO */
+            })
             // User Account Routes
             .when('/profile', {
                 templateUrl: '/partials/account/profile',

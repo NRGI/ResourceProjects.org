@@ -11,6 +11,7 @@ var mongoose 		    = require('mongoose'),
     userModel 		    = require('../models/Users'),
     actionModel 		= require('../models/Actions'),
     datasetModel 		= require('../models/Datasets'),
+    duplicateModel 		= require('../models/Duplicates'),
     companyModel        = require('../models/Companies'),
     concessionModel 	= require('../models/Concessions'),
     contractModel 	    = require('../models/Contracts'),
@@ -68,7 +69,9 @@ module.exports 	= function(config, user, pass, env) {
     sourceTypeModel.createDefaultSourceTypes();
     siteModel.createDefaultSites();
     //contributorModel.createDefaultContributors();
+    actionModel.createDefaultActions();
     datasetModel.createDefaultDatasets();
+    duplicateModel.createDefaultDuplicates();
 
 
 
