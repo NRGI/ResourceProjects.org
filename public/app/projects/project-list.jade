@@ -42,9 +42,9 @@
                     | {{$last ? '' : ', '}}
                 td.proj_type: text(ng-repeat="type in project.proj_type")
                     text(ng-if="$last") {{type.string | ucfirst}}
-                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: '_id'")
-                    a(href='commodity/{{commodity.commodity_id}}')
-                        span(ng-bind-html="commodity.commodity_name|sanitize")
+                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.proj_status: text(ng-repeat="status in project.proj_status")
                     text(ng-if="$last")

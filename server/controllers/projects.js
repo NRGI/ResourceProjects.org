@@ -40,7 +40,7 @@ exports.getProjects = function(req, res) {
             .skip(skip)
             .limit(limit)
             .populate('proj_country.country', '_id iso2 name')
-            //.populate('proj_aliases', ' _id alias')
+            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id')
             .lean()
             .exec(function(err, projects) {
                 if(projects.length>0) {
@@ -56,34 +56,23 @@ exports.getProjects = function(req, res) {
         project_len = projects.length;
         project_counter = 0;
         if(project_len>0) {
-            projects.forEach(function (c) {
-                Link.find({project: c._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
+            projects.forEach(function (project) {
+                // Link.find({project: project._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
+                Link.find({project: project._id, entities:'company' })
                     .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
                         link_counter = 0;
-                        c.proj_commodity = [];
-                        c.companies = 0;
+                        project.companies = 0;
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
                             switch (entity) {
-                                case 'commodity':
-                                    if(link.commodity) {
-                                        c.proj_commodity.push({
-                                            _id: link.commodity._id,
-                                            commodity_name: link.commodity.commodity_name,
-                                            commodity_id: link.commodity.commodity_id
-                                        });
-                                    }
-                                    break;
-                                //
                                 case 'company':
-                                    c.companies += 1;
+                                    project.companies += 1;
                                     break;
-                                //
                                 default:
                                     console.log('error');
                             }
