@@ -1,5 +1,5 @@
 angular.module('app')
-    .controller('nrgiEtlCtrl', function(
+    .controller('nrgiReconcileCtrl', function(
             $scope,
             $route,
             nrgiDatasetSrvc,
