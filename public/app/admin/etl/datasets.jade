@@ -27,13 +27,20 @@
                     td
                         p(ng-repeat="action in dataset.actions")
                             text {{action.name}} &nbsp;
-                            // TODO: Handle "running/started" case
-                            span(ng-if="action.status == 'Success'" class=["label", "label-success"] data-toggle="tooltip" title="{{action.details}}") Success
+                            a(ng-if="action.status == 'Success'" class=["label", "label-success"] data-toggle="tooltip" title="{{action.details.substr(0, 100) + '\n(Click to read full report)'}}" href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}" target="_new") Success
                             span(ng-if="action.status == 'Started'" class=["label", "label-warning"]) Running
-                            span(ng-if="action.status == 'Failed'" class=["label", "label-danger"] data-toggle="tooltip" title="{{action.details}}") Failed
+                            span(ng-if="action.status == 'Failed'" class=["label", "label-danger"] data-toggle="tooltip" title="{{action.details.substr(0, 100) + '\n(Click to read full report)'}}") Failed
                     td
-                        .row.bottom-padding-med
-                            a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
+                        .row
+                            span(ng-if="dataset.type == 'Google Sheets'")
+                                a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
+                            span(ng-if="dataset.type != 'Google Sheets'")
+                                a.btn.center-block.btn-default.disabled() Import
+                        .row
+                            span(ng-if="dataset.hasDuplicates")
+                                a.btn.center-block.btn-default(href="/admin/reconcile") Reconcile
+                            span(ng-if="!dataset.hasDuplicates")
+                                a.btn.center-block.btn-default.disabled() Reconcile
                         .row
                             span(ng-if="dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned

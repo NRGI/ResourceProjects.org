@@ -131,6 +131,18 @@ function createDefaultCompanies() {
                 companies_house_id: '03323845',
             });
             Company.create({
+                _id: '56a13a758d224f670e6b377a',
+                company_name: 'company 2 b\'s duplicate!',
+                company_established_source: '56747e060e8cc07115200ee4',
+                description: '<p>A duplicate</p>',
+                country_of_incorporation: [{source: '56747e060e8cc07115200ee4', country: '56a7e6c02302369318e16bb8'}],
+                countries_of_operation: [{source: '56747e060e8cc07115200ee4', country: '56a7e6c02302369318e16bb8'}, {source: '56747e060e8cc07115200ee5', country: '56a7e6c02302369318e16bba'}],
+                company_website: {source: '56747e060e8cc07115200ee4', string: 'http://google.com'},
+                //External mapping
+                open_corporates_id: 'gb/06774082',
+                companies_house_id: '03323845',
+            });
+            Company.create({
                 _id: '56a13a758f224f670e6a376c',
                 company_name: 'company 3 c',
                 company_aliases: ['56a7d55eb04a1f2214b7b1e0','56a7d55eb04a1f2214b7b1df'],

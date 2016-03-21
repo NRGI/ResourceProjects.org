@@ -21,4 +21,22 @@ actionSchema = new Schema({
 
 Action = mongoose.model('Action', actionSchema);
 
-module.exports = actionSchema;
+function createDefaultActions() {
+    Action.find({}).exec(function(err, actions) {
+        if(actions.length === 0) {
+            console.log('Creating dummy action for CS API Import');
+            Action.create({
+                _id: '56737e170e4ac07115211ee4',
+                dataset: '56737e170e8cc07115211ee4',
+                name: 'Incremental import',
+                started: Date.now(),
+                finished: Date.now(),
+                started_by: '56d011292cb1766d0c308ec0',
+                status: 'Success',
+                details: 'One duplicate was detected'
+            });
+        }
+    });
+};
+
+exports.createDefaultActions = createDefaultActions;
