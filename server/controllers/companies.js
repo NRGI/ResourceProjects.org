@@ -1,6 +1,7 @@
 var Company 		= require('mongoose').model('Company'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
+    Commodity 	    = require('mongoose').model('Commodity'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -95,6 +96,7 @@ exports.getCompanyByID = function(req, res) {
         getCompany,
         getCompanyLinks,
         getContracts,
+        getCommodity,
         getProjectLinks,
         getSiteLinks,
         getProjectCoordinate
@@ -289,8 +291,39 @@ exports.getCompanyByID = function(req, res) {
                         callback(null, company);
                     }
                 });
-
             });
+        } else{
+            callback(null, company);
+        }
+    }
+    function getCommodity(company, callback) {
+        var contract_len = company.contracts.length;
+        var contract_counter = 0;
+        if(contract_len>0) {
+            company.contracts.forEach(function (contract) {
+                contract.commodity=[];
+                var commodity_len = contract.contract_commodity.length;
+                if(commodity_len>0) {
+                    contract.contract_commodity.forEach(function (commodity_name) {
+                        if (commodity_name != undefined) {
+                            Commodity.find({commodity_name: commodity_name})
+                                .exec(function (err, commodity) {
+                                    ++contract_counter;
+                                    commodity.map(function (name) {
+                                        return contract.commodity.push({
+                                            commodity_name: commodity_name,
+                                            _id: name._id,
+                                            commodity_id: name.commodity_id
+                                        });
+                                    });
+                                    if (contract_counter == contract_len) {
+                                        callback(null, company);
+                                    }
+                                });
+                        }
+                    })
+                }
+            })
         } else{
             callback(null, company);
         }

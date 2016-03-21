@@ -6,6 +6,7 @@ var Country 		= require('mongoose').model('Country'),
     Project 		= require('mongoose').model('Project'),
     Company 		= require('mongoose').model('Company'),
     Concession 		= require('mongoose').model('Concession'),
+	Commodity 		= require('mongoose').model('Commodity'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -77,6 +78,7 @@ exports.getCountryByID = function(req, res) {
 		getCountryProjects,
 		getCountryConcessions,
 		getContracts,
+		getCommodity,
 		getCompanyGroupLinks,
 		getProjectLinks,
 		getConcessionLinks,
@@ -194,6 +196,7 @@ exports.getCountryByID = function(req, res) {
 	}
 	function getContracts(country, callback) {
 		country.contracts = [];
+		country.commodities = [];
 		request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&country_code=' + country.iso2.toLowerCase(), function (err, res, body) {
 			var body = JSON.parse(body);
 			body = body.results;
@@ -209,7 +212,6 @@ exports.getCountryByID = function(req, res) {
 						contract_commodity: contract.resource,
 						companies:contract.company_name
 					});
-
 				});
 				if (contract_counter == contract_len) {
 					callback(null, country);
@@ -218,6 +220,38 @@ exports.getCountryByID = function(req, res) {
 				callback(null, country);
 			}
 		});
+	}
+	function getCommodity(country, callback) {
+		var contract_len = country.contracts.length;
+		var contract_counter = 0;
+		if(contract_len>0) {
+			country.contracts.forEach(function (contract) {
+				contract.commodity=[];
+				var commodity_len = contract.contract_commodity.length;
+				if(commodity_len>0) {
+					contract.contract_commodity.forEach(function (commodity_name) {
+						if (commodity_name != undefined) {
+							Commodity.find({commodity_name: commodity_name})
+								.exec(function (err, commodity) {
+									++contract_counter;
+									commodity.map(function (name) {
+										return contract.commodity.push({
+											commodity_name: commodity_name,
+											_id: name._id,
+											commodity_id: name.commodity_id
+										});
+									});
+									if (contract_counter == contract_len) {
+										callback(null, country);
+									}
+								});
+						}
+					})
+				}
+			})
+		} else{
+			callback(null, country);
+		}
 	}
 	function getCompanyGroupLinks(country, callback) {
 		company_counter = 0;
