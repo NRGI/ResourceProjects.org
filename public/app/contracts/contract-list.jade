@@ -25,7 +25,7 @@
                 th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
         tbody
             tr(ng-repeat="contract in contracts | unique: '_id'",ts-repeat)
-                td.contract_id: a(href='contract/{{ contract._id }}')
+                td.contract_id: a(href='contract/{{ contract.contract_id }}')
                     span(ng-bind-html="contract.contract_id | sanitize")
                 td.contract_countries: text(ng-repeat="rc_info in contract.rc_info")
                     a(href='country/{{ rc_info.contract_country.code }}')
