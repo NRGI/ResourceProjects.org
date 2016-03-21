@@ -172,6 +172,13 @@ module.exports	= function(app) {
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
 	app.get('/api/datasets/:id', datasets.getDatasetByID);
 
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
 	//Create a dataset
 	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Start an ETL step
