@@ -23,7 +23,7 @@
                     td.detail_label.small Commodities:
                         td.country_commodities
                             text(ng-repeat="commodity in country.country_commodity | unique: 'commodity._id'")
-                                nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
+                                nrgi-commodity-route(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
                                 | {{$last ? '' : ', '}}
     .row
         .col-md-6
