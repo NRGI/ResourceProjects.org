@@ -109,7 +109,7 @@ exports.getCommodityByID = function(req, res) {
 	});
 
 	function getCommodity(callback) {
-		Commodity.findOne({_id:req.params.id})
+		Commodity.findOne({commodity_id:req.params.id})
 			.populate('commodity_aliases', ' _id code reference')
 			.lean()
 			.exec(function(err, commodity) {
@@ -361,7 +361,10 @@ exports.getCommodityByID = function(req, res) {
 					commodity.location.push({
 						'lat': loc.loc[0],
 						'lng': loc.loc[1],
-						'message': project.proj_name
+						'message': project.proj_name,
+						'timestamp': loc.timestamp,
+						'type': 'project',
+						'id': project.proj_id
 					});
 				if (project_counter == project_len) {
 						callback(null, commodity);

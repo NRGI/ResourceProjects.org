@@ -33,7 +33,8 @@
                 td.commodity_type: text(ng-repeat="rc_info in contract.rc_info")
                     span(ng-bind="rc_info.contract_type[rc_info.contract_type.length-1].toString()")
                 td.contract_commodities: text(ng-repeat="commodity in contract.commodity")
-                    nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                    a(href='commodity/{{commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.contract_projects: span {{contract.projects}}
 

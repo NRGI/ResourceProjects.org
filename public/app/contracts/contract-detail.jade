@@ -6,12 +6,7 @@
             small Contract
     .row
         .col-md-6
-            leaflet(
-            center="center"
-            controls="controls"
-            markers="contract.location"
-            tiles="tiles"
-            height='240px')
+            nrgi-leaflet(data='contract.location')
 
         .col-md-6
             .info-box
@@ -25,7 +20,8 @@
                             td.detail_label.small Commodities:
                             td.commodities
                                 text(ng-repeat="commodity in contract.commodity | unique: '_id'")
-                                    nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Concessions:

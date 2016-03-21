@@ -137,6 +137,7 @@ exports.getCountryByID = function(req, res) {
 							country.projects.push({
 								_id: proj._id,
 								proj_name: proj.proj_name,
+								proj_id: proj.proj_id,
 								proj_commodity: proj.proj_commodity,
 								proj_status: proj.proj_status,
 								companies: []
@@ -145,7 +146,10 @@ exports.getCountryByID = function(req, res) {
 								country.location.push({
 									'lat': loc.loc[0],
 									'lng': loc.loc[1],
-									'message':  proj.proj_name
+									'message': proj.proj_name,
+									'timestamp': loc.timestamp,
+									'type': 'project',
+									'id': proj.proj_id
 								});
 							});
 							if (project_counter == project_len) {
