@@ -158,7 +158,7 @@ exports.getContractByID = function(req, res) {
     });
 
     function getContract(callback) {
-        Contract.findOne({_id: req.params.id})
+        Contract.findOne({contract_id: req.params.id})
             .lean()
             .exec(function(err, contract) {
                 if(contract) {

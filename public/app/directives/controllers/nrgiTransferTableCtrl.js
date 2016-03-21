@@ -13,6 +13,7 @@ angular
                 {name:'Payment Type',status:true,field:'transfer_type'},
                 {name:'Currency',status:true,field:'transfer_unit'},
                 {name:'Value ',status:true,field:'transfer_value'},
+                {name:'Level ',status:true,field:'transfer_level'},
                 {name:'Payment or receipt?',status:true,field:'transfer_audit_type'}];
             angular.forEach(headers, function(header) {
                 if(header.status!=false&&header.status!= undefined){

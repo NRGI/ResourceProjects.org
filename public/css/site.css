@@ -395,9 +395,9 @@ li .glyphicon[disabled] {
   cursor: not-allowed;
   color: #777 !important;
 }
-.angular-leaflet-map{
+.angular-leaflet-map {
   height: 240px;
 }
 #projectMap>.angular-leaflet-map {
-    height: 540px!important;
-  }
+  height: 540px !important;
+}
