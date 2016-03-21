@@ -22,7 +22,7 @@ table.table.table-striped.projects(ts-wrapper)#project-info
                 | {{type.string | ucfirst}}
                 | {{$last ? '' : ', '}}
             td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
-                nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
+                nrgi-commodity-route(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
                 | {{$last ? '' : ', '}}
             td.proj_status(ng-if="status==true"): text(ng-repeat="status in project.proj_status")
                 text(ng-if="$last") {{status.string | ucfirst}}
