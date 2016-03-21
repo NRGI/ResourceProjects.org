@@ -111,7 +111,7 @@ exports.getContracts = function(req, res) {
         contract_len = contracts.length;
         contract_counter = 0;
         contracts.forEach(function (c) {
-            Link.find({contract: c._id})
+            Link.find({contract: c._id, entities: 'project'})
                 .exec(function(err, links) {
                     ++contract_counter;
                     link_len = links.length;
