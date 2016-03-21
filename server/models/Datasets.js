@@ -13,7 +13,8 @@ datasetSchema = new Schema ({
     created: { type: Date, default: Date.now },
     created_by: {type: ObjectId, ref: 'User'},
     actions: [{type: ObjectId, ref: 'Action'}],
-    type: { type: String, default: 'Google Sheets'}
+    type: { type: String, default: 'Google Sheets'},
+    actions: [{type: ObjectId, ref: 'Action'}]
 });
 
 Dataset = mongoose.model('Dataset', datasetSchema);
