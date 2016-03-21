@@ -10,7 +10,11 @@ var transferSchema, Transfer,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
 //    mixedSchema     = Schema.Types.Mixed,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
+    company         = {type: ObjectId, ref: 'Company'},
+    country         = {type: ObjectId, ref: 'Country'},
+    project         = {type: ObjectId, ref: 'Project'},
+    site            = {type: ObjectId, ref: 'Site'},
     //HTML            = mongoose.Types.Html,
     //htmlSettings    = {
     //    type: HTML,
@@ -46,22 +50,6 @@ transferSchema = new Schema ({
     transfer_year: Number,
     transfer_unit: String,
     transfer_value: Number,
-    transfer_company: {
-        type: ObjectId,
-        ref: 'Company'
-    },
-    transfer_country: {
-        type: ObjectId,
-        ref: 'Country'
-    },
-    //transfer_concession: {
-    //    type: ObjectId,
-    //    ref: 'Concession'
-    //},
-    //transfer_project: {
-    //    type: ObjectId,
-    //    ref: 'Project'
-    //},
     //transfer_note: htmlSettings,
     transfer_note: String,
     transfer_gov_entity: String,
@@ -72,16 +60,21 @@ transferSchema = new Schema ({
         enum: transfer_level_enu},
     transfer_accounting_basis: {
         type: String,
-        enum: transfer_accounting_basis_enu}
+        enum: transfer_accounting_basis_enu},
+    company: company,
+    country: country,
+    project: project,
+    site: site
+    //transfer_concession: {
+    //    type: ObjectId,
+    //    ref: 'Concession'
+    //},
+
 });
-
-
-
 
 transferSchema.plugin(mongooseHistory, hst_options);
 transferSchema.plugin(deepPopulate);
 Transfer = mongoose.model('Transfer', transferSchema);
-
 
 function createDefaultTransfers() {
     Transfer.find({}).exec(function (err, transfers) {
@@ -94,16 +87,17 @@ function createDefaultTransfers() {
                 transfer_year: 2009,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'project',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8',
+                project: '56a930f41b5482a31231ef42'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c98a',
@@ -113,16 +107,17 @@ function createDefaultTransfers() {
                 transfer_year: 2012,
                 transfer_unit: 'USD',
                 transfer_value: 4102721984,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'project',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8',
+                project: '56a930f41b5482a31231ef42'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c988',
@@ -132,16 +127,17 @@ function createDefaultTransfers() {
                 transfer_year: 2012,
                 transfer_unit: 'USD',
                 transfer_value: 4102721984,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'project',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8',
+                project: '56a930f41b5482a31231ef42'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c986',
@@ -151,16 +147,17 @@ function createDefaultTransfers() {
                 transfer_year: 2010,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'project',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8',
+                project: '56a930f41b5482a31231ef42'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c987',
@@ -170,16 +167,16 @@ function createDefaultTransfers() {
                 transfer_year: 2011,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'project',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c989',
@@ -189,54 +186,56 @@ function createDefaultTransfers() {
                 transfer_year: 2015,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'project',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bfflll1c93c985',
-                transfer_type: 'Total',
+                transfer_type: 'Total site',
                 source: '56747e060e8cc07115200ee4',
                 transfer_audit_type: 'government_receipt',
                 transfer_year: 2009,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'site',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8',
+                site: '56eb117c0007bf5b2a3e4b71'
+                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9dffff9dd1c93c985',
-                transfer_type: 'Total',
+                transfer_type: 'Total field',
                 source: '56747e060e8cc07115200ee4',
                 transfer_audit_type: 'government_receipt',
                 transfer_year: 2009,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                transfer_company: '56a13a758f224f670e6a376e',
-                transfer_country: '56a7e6c02302369318e16bb8',
-                // transfer_concession: '56a2b8236e585b7316655794',
                 //transfer_note: '',
                 //transfer_note: '',
                 //tranfer_gov_entity: '',
                 //tranfer_gov_entity_id: '',
                 //transfer_line_item: '',
                 transfer_level: 'field',
-                transfer_accounting_basis: 'cash'
+                transfer_accounting_basis: 'cash',
+                company: '56a13a758f224f670e6a376e',
+                country: '56a7e6c02302369318e16bb8',
+                site: '56eb117c0007bf5b2a3e4b76'
+                // concession: '56a2b8236e585b7316655794',
             });
             console.log('Transfers created...');
         } else {

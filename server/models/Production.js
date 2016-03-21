@@ -19,7 +19,10 @@ var productionSchema, Production,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
 //    mixedSchema     = Schema.Types.Mixed,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
+    country         = {type: ObjectId, ref: 'Country'},
+    project         = {type: ObjectId, ref: 'Project'},
+    site            = {type: ObjectId, ref: 'Site'},
     //HTML            = mongoose.Types.Html,
     //htmlSettings    = {
     //    type: HTML,
@@ -40,19 +43,21 @@ productionSchema = new Schema ({
     production_volume: Number,
     production_commodity: {
         type: ObjectId,
-        ref: 'Commodity'
-    },
+        ref: 'Commodity'},
     production_price: Number,
     production_price_unit: String,
     production_level: String,
     //production_note: htmlSettings
-    production_note: String
+    production_note: String,
+    //LINKS
+    country: country,
+    project: project,
+    site: site
 });
 
 productionSchema.plugin(mongooseHistory, hst_options);
 productionSchema.plugin(deepPopulate);
 Production = mongoose.model('Production', productionSchema);
-
 
 function createDefaultProduction() {
     Production.find({}).exec(function (err, production) {
@@ -66,7 +71,8 @@ function createDefaultProduction() {
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
                 production_level: 'project',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                project: '56a930f41b5482a31231ef42'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c986',
@@ -77,7 +83,8 @@ function createDefaultProduction() {
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
                 production_level: 'project',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                project: '56a930f41b5482a31231ef42'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c987',
@@ -88,7 +95,8 @@ function createDefaultProduction() {
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
                 production_level: 'project',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                project: '56a930f41b5482a31231ef42'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c988',
@@ -110,7 +118,8 @@ function createDefaultProduction() {
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
                 production_level: 'project',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                project: '56a930f41b5482a31231ef42'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c990',
@@ -121,7 +130,8 @@ function createDefaultProduction() {
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
                 production_level: 'project',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                project: '56a930f41b5482a31231ef42'
             });
             Production.create({
                 _id: '56be54f9d7bff99ppp93c990',
@@ -130,9 +140,10 @@ function createDefaultProduction() {
                 production_unit: 'barrels',
                 production_volume: 105491,
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
-                production_price: 154,
+                production_price: 15400000,
                 production_level: 'site',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                site: '56eb117c0007bf5b2a3e4b71'
             });
             Production.create({
                 _id: '56be54f9000ff9921c93c990',
@@ -146,6 +157,8 @@ function createDefaultProduction() {
                 production_price_unit: 'USD'
             });
             console.log('Production figures created...');
+        } else {
+            console.log(String(production.length), 'production figures exist...')
         }
     });
 }
