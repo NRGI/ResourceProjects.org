@@ -469,7 +469,7 @@ exports.getConcessionByID = function(req, res) {
         }
     }
     function getProjectProduction(concession, callback) {
-        proj_len = concession.sites.length;
+        proj_len = concession.projects.length;
         proj_counter = 0;
         if(proj_len>0) {
             concession.projects.forEach(function (project) {

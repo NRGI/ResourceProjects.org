@@ -33,7 +33,7 @@ var transferSchema, Transfer,
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select government_receipt or company_payment.'
     },
     transfer_level_enu      = {
-        values: 'country project site field'.split(' '),
+        values: 'country project site field concession'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country, site, field or project.'
     },
     transfer_accounting_basis_enu      = {

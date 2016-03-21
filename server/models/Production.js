@@ -24,6 +24,10 @@ var productionSchema, Production,
     project         = {type: ObjectId, ref: 'Project'},
     site            = {type: ObjectId, ref: 'Site'},
     concession      = {type: ObjectId, ref: 'Concession'},
+    transfer_level_enu      = {
+        values: 'country project site field concession'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country, site, field or project.'
+    },
     //HTML            = mongoose.Types.Html,
     //htmlSettings    = {
     //    type: HTML,
@@ -48,6 +52,9 @@ productionSchema = new Schema ({
     production_price: Number,
     production_price_unit: String,
     production_level: String,
+    production_level: {
+        type: String,
+        enum: transfer_level_enu},
     //production_note: htmlSettings
     production_note: String,
     //LINKS

@@ -53,10 +53,14 @@
             type="true")
     .row.top-padding-med
         .col-md-12
-            nrgi-production-table(production="contract.production")
+            nrgi-production-table(
+            production="contract.production"
+            project_link="true")
     .row.top-padding-med
         .col-md-12
-            nrgi-transfer-table(transfers="contract.transfers")
+            nrgi-transfer-table(
+            transfers="contract.transfers"
+            project_link="true")
 
     .row.top-padding-med
         .col-md-12

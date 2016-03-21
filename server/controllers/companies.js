@@ -91,7 +91,7 @@ exports.getCompanies = function(req, res) {
     }
 };
 exports.getCompanyByID = function(req, res) {
-    var link_counter, link_len, production_counter, production_len, proj_len, proj_counter, transfers_counter, transfers_len;
+    var link_counter, link_len, production_counter, production_len, proj_len, proj_counter, transfers_counter, transfers_len, concession_len, concession_counter, site_len, site_counter;
 
     async.waterfall([
         getCompany,
@@ -106,8 +106,10 @@ exports.getCompanyByID = function(req, res) {
         getProjectTransfers,
         getProjectProduction,
         getSiteTransfers,
-        getProjectCoordinate,
-        getSiteProduction
+        getSiteProduction,
+        getConcessionTransfers,
+        getConcessionProduction,
+        getProjectCoordinate
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -592,7 +594,7 @@ exports.getCompanyByID = function(req, res) {
         }
     }
     function getProjectProduction(company, callback) {
-        proj_len = company.sites.length;
+        proj_len = company.projects.length;
         proj_counter = 0;
         if(proj_len>0) {
             company.projects.forEach(function (project) {
@@ -716,7 +718,7 @@ exports.getCompanyByID = function(req, res) {
                                     //TODO clean up returned data if performance lags
                                     company.sources[prod.source._id] = prod.source;
                                 }
-                                ++transfers_counter;
+                                ++production_counter;
                                 company.production.push({
                                     _id: prod._id,
                                     production_year: prod.production_year,
@@ -729,7 +731,7 @@ exports.getCompanyByID = function(req, res) {
                                     production_price: prod.production_price,
                                     production_price_unit: prod.production_price_unit,
                                     production_level: prod.production_level,
-                                    project: {
+                                    site: {
                                         _id: site._id,
                                         site_id: site.proj_id,
                                         site_name: site.proj_name
@@ -741,6 +743,112 @@ exports.getCompanyByID = function(req, res) {
                             });
                         } else {
                             if (site_counter===site_len && production_counter===production_len) {
+                                callback(null, company);
+                            }
+                        }
+                    });
+
+            });
+        } else {
+            callback(null, company);
+        }
+    }
+    function getConcessionTransfers(company, callback) {
+        concession_len = company.concessions.length;
+        concession_counter = 0;
+        if(concession_len>0) {
+            company.concessions.forEach(function (concession) {
+                Transfer.find({concession:concession._id})
+                    .populate('company country')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function(err, transfers) {
+                        ++concession_counter;
+                        transfers_counter = 0;
+                        transfers_len = transfers.length;
+                        if (transfers_len>0) {
+                            transfers.forEach(function (transfer) {
+                                if (!company.sources[transfer.source._id]) {
+                                    //TODO clean up returned data if performance lags
+                                    company.sources[transfer.source._id] = transfer.source;
+                                }
+                                ++transfers_counter;
+                                company.transfers.push({
+                                    _id: transfer._id,
+                                    transfer_year: transfer.transfer_year,
+                                    transfer_company: {
+                                        company_name: transfer.company.company_name,
+                                        _id: transfer.company._id},
+                                    transfer_country: {
+                                        name: transfer.country.name,
+                                        iso2: transfer.country.iso2},
+                                    transfer_type: transfer.transfer_type,
+                                    transfer_unit: transfer.transfer_unit,
+                                    transfer_value: transfer.transfer_value,
+                                    transfer_level: transfer.transfer_level,
+                                    transfer_audit_type: transfer.transfer_audit_type,
+                                    concession: {
+                                        _id: concession._id,
+                                        concession_name: concession.concession_name
+                                    }
+                                });
+                                if (concession_counter===concession_len && transfers_counter===transfers_len) {
+                                    callback(null, company);
+                                }
+                            });
+                        } else {
+                            if (concession_counter===concession_len && transfers_counter===transfers_len) {
+                                callback(null, company);
+                            }
+                        }
+                    });
+
+            });
+        } else {
+            callback(null, company);
+        }
+    }
+    function getConcessionProduction(company, callback) {
+        concession_len = company.concessions.length;
+        concession_counter = 0;
+        if(concession_len>0) {
+            company.concessions.forEach(function (concession) {
+                Production.find({concession:concession._id})
+                    .populate('production_commodity')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function(err, production) {
+                        ++concession_counter;
+                        production_counter = 0;
+                        production_len = production.length;
+                        if (production_len>0) {
+                            production.forEach(function (prod) {
+                                if (!company.sources[prod.source._id]) {
+                                    //TODO clean up returned data if performance lags
+                                    company.sources[prod.source._id] = prod.source;
+                                }
+                                ++production_counter;
+                                company.production.push({
+                                    _id: prod._id,
+                                    production_year: prod.production_year,
+                                    production_volume: prod.production_volume,
+                                    production_unit: prod.production_unit,
+                                    production_commodity: {
+                                        _id: prod.production_commodity._id,
+                                        commodity_name: prod.production_commodity.commodity_name,
+                                        commodity_id: prod.production_commodity.commodity_id},
+                                    production_price: prod.production_price,
+                                    production_price_unit: prod.production_price_unit,
+                                    production_level: prod.production_level,
+                                    concession: {
+                                        _id: concession._id,
+                                        concession_name: concession.concession_name
+                                    }
+                                });
+                                if (concession_counter===concession_len && production_counter===production_len) {
+                                    callback(null, company);
+                                }
+                            });
+                        } else {
+                            if (concession_counter===concession_len && production_counter===production_len) {
                                 callback(null, company);
                             }
                         }
