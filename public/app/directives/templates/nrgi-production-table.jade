@@ -9,6 +9,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
             th.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
             th.tablesort-sortable-th(ts-criteria='production_level') Level
+            th.tablesort-sortable-th(ng-if="project=true" ts-criteria='project_id') Project
     tbody
         tr(
         ng-repeat="prod in production | unique: '_id'"
@@ -23,6 +24,8 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             td.production_price {{prod.production_price}}
             td.production_price_per_unit {{prod.production_price_unit}}
             td.production_level {{prod.production_level}}
+            td.project(ng-if="project===true"): a(href="project/{{prod.project.proj_id}}")
+                span(ng-bind-html="prod.project.proj_name|sanitize")
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span

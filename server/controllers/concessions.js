@@ -499,7 +499,7 @@ exports.getConcessionByID = function(req, res) {
                                     production_price: prod.production_price,
                                     production_price_unit: prod.production_price_unit,
                                     production_level: prod.production_level});
-                                if (site_counter===proj_len && production_counter===production_len) {
+                                if (proj_counter===proj_len && production_counter===production_len) {
                                     callback(null, concession);
                                 }
                             });

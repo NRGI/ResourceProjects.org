@@ -42,8 +42,9 @@
 
                         tr
                             td.detail_label.small Commodities:
-                            td.company_commoditiea
-                                text(ng-repeat="commodity in company.commodities | unique: '_id'")
+                            td.company_commodities
+                                //| {{company.commodities}}
+                                text(ng-repeat="commodity in company.commodities")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
@@ -105,7 +106,9 @@
             project="false")
     .row
         .col-md-12
-            nrgi-production-table(production="company.production")
+            nrgi-production-table(
+            production="company.production"
+            project="true")
 
     .row
         .col-md-12
