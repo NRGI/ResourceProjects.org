@@ -25,7 +25,7 @@ table.table.table-striped.sites(ts-wrapper)#site-info
                 | {{type.string | ucfirst}}
                 | {{$last ? '' : ', '}}
             td.site_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
-                nrgi-commodity-route(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
+                nrgi-commodity-rout(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
                 | {{$last ? '' : ', '}}
             td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
                 text(ng-if="$last") {{status.string | ucfirst}}
