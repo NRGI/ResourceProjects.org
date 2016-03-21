@@ -18,9 +18,10 @@
                             td.contract_id {{contract.contract_id}}
                         tr
                             td.detail_label.small Commodities:
-                            td.commodities: text(ng-repeat="commodity in contract.commodity | unique: '_id'")
-                                nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
-                                | {{$last ? '' : ', '}}
+                            td.commodities
+                                text(ng-repeat="commodity in contract.commodity | unique: '_id'")
+                                    nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                                    | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Concessions:
                             td.concessions: text(ng-repeat="concession in contract.concessions | unique: '_id'")
