@@ -107,7 +107,7 @@ function createDefaultSources() {
             });
             console.log('Sources created...');
         } else {
-            console.log(String(sources.length), 'source figures exist...')
+            console.log(String(sources.length), 'sources exist...')
         }
     });
 };

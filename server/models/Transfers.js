@@ -239,7 +239,7 @@ function createDefaultTransfers() {
             });
             console.log('Transfers created...');
         } else {
-            console.log(String(transfers.length), 'transfers exist...')
+            console.log(String(transfers.length), 'transfer figures exist...')
         }
     });
 }

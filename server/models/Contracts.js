@@ -36,6 +36,8 @@ function createDefaultContracts() {
                 contract_id: 'ocds-591adf-PH0149652678RC'
             });
             console.log('Contracts created...');
+        } else {
+            console.log(String(contracts.length), 'contracts exist...')
         }
     });
 };

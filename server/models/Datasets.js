@@ -40,6 +40,8 @@ function createDefaultDatasets() {
             }, function(err, model) {
             console.log(err);
             });
+        } else {
+            console.log(String(datasets.length), 'datasets exist...')
         }
     });
 };

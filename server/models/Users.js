@@ -44,8 +44,8 @@ userSchema.methods = {
 User = mongoose.model('User', userSchema);
 
 function createDefaultUsers() {
-    User.find({}).exec(function(err, collection) {
-        if(collection.length === 0) {
+    User.find({}).exec(function(err, users) {
+        if(users.length === 0) {
             var salt, hash;
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'jcust');
@@ -97,6 +97,8 @@ function createDefaultUsers() {
                 created_by: '569976c21dad48f614cc8125'});
 
             console.log('Users created...');
+        } else {
+            console.log(String(users.length), 'users exist...')
         }
     })
 };

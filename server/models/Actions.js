@@ -35,6 +35,8 @@ function createDefaultActions() {
                 status: 'Success',
                 details: 'One duplicate was detected'
             });
+        } else {
+            console.log(String(actions.length), 'actions exist...')
         }
     });
 };
