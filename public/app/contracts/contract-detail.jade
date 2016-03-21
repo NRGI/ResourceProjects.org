@@ -5,9 +5,14 @@
             =' '
             small Contract
     .row
-        .col-md-12
-            leaflet(center="center",controls="controls",markers="contract.location",tiles="tiles",height='240px')
-    .row
+        .col-md-6
+            leaflet(
+            center="center"
+            controls="controls"
+            markers="contract.location"
+            tiles="tiles"
+            height='240px')
+
         .col-md-6
             .info-box
                 h2 Contract Info
@@ -28,13 +33,14 @@
                                 a(href='concession/{{concession._id}}')
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}
-        .col-md-6
+    .row.top-padding-med
+        .col-md-12
             nrgi-company-table(
             companies="contract.companies"
             stake='true'
             group='true')
-    .row
-        .col-md-12
+    .row.top-padding-med
+        .col-md-6
             nrgi-project-table(
             projects="contract.projects"
             country="true"
@@ -42,13 +48,20 @@
             status="true"
             type="true"
             companies="false")
-    .row
+        .col-md-6
+            nrgi-site-table(
+            sites="contract.sites"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true")
+    .row.top-padding-med
         .col-md-12
             nrgi-production-table(production="contract.production")
-    .row
+    .row.top-padding-med
         .col-md-12
             nrgi-transfer-table(transfers="contract.transfers")
 
-    .row
+    .row.top-padding-med
         .col-md-12
             nrgi-sources-table(sources="contract.sources")
