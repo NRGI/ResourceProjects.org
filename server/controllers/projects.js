@@ -89,7 +89,7 @@ exports.getProjects = function(req, res) {
 };
 exports.getProjectByID = function(req, res) {
     var site_len, site_counter, link_counter, link_len, project_counter, project_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
-    
+
     async.waterfall([
         getProject,
         getProjectLinks,
