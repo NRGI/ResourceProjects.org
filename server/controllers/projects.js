@@ -137,7 +137,6 @@ exports.getProjectByID = function(req, res) {
         project.contracts = [];
         project.sites = [];
         project.site_coordinates = {sites: [], fields: []};
-        project.fields = [];
         project.sources = {};
         Link.find({project: project._id})
             .populate('commodity')

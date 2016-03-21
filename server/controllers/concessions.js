@@ -404,7 +404,7 @@ exports.getConcessionByID = function(req, res) {
                     });
             });
         } else {
-            callback(null, project);
+            callback(null, concession);
         }
     }
     function getCompanyGroup(concession, callback) {
