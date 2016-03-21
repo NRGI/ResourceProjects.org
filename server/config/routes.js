@@ -182,6 +182,13 @@ module.exports	= function(app) {
 		    res.render('actionreport', {report: req.report});
 	});
 
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
 	//Create a dataset
 	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Start an ETL step
