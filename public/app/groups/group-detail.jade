@@ -31,7 +31,7 @@
                          td.detail_label.small Commodities:
                          td.commodities
                             text(ng-repeat="commodity in group.commodities | unique: '_id'")
-                               nrgi-commodity-rout(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                               nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
                                   | {{$last ? '' : ', '}}
                       tr
                          td.detail_label.small Open Corporate ID:
