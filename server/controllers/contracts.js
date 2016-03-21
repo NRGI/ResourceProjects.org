@@ -111,7 +111,6 @@ exports.getContracts = function(req, res) {
         contract_len = contracts.length;
         contract_counter = 0;
         contracts.forEach(function (c) {
-            //TODO switch to count() if performance lags
             Link.find({contract: c._id, entities: 'project'})
                 .exec(function(err, links) {
                     ++contract_counter;
@@ -127,7 +126,7 @@ exports.getContracts = function(req, res) {
                                     c.projects += 1;
                                     break;
                                 default:
-                                    console.log(entity, 'link skipped...');
+                                //console.log(entity, 'link skipped...');
                             } if (contract_counter == contract_len && link_counter == link_len) {
                                 res.send({data: contracts, count: contract_count});
                             }
@@ -171,7 +170,6 @@ exports.getContractByID = function(req, res) {
             });
     }
     function getContractRCData(contract, callback) {
-        //TODO deal with OO and URL only contracts
         request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
             contract.rc_info = [];
             contract.commodities=[];
