@@ -3,6 +3,7 @@
 angular
     .module('app')
     .controller('nrgiTransferTableCtrl', function ($scope) {
+        console.log($scope)
         setTimeout(function(){
             $scope.csv_transfers =[]; var header_transfer=[]; var fields=[];
             var headers = [

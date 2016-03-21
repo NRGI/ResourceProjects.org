@@ -11,6 +11,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value
             th.tablesort-sortable-th(ts-criteria='transfer_level') Level
             th.tablesort-sortable-th(ts-criteria='transfer_audit_type') Payment or receipt?
+            //th.tablesort-sortable-th(ng-if="project_link=true" ts-criteria='project.proj_name') Project
     tbody
         tr(
         ng-repeat="transfer in transfers | unique: '_id'"
@@ -29,6 +30,8 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             td.transfer_value {{transfer.transfer_value}}
             td.transfer_level {{transfer.transfer_level}}
             td.transfer_audit_type {{transfer.transfer_audit_type}}
+            //td.project(ng-if="project_link===true"): a(href="project/{{transfer.project.proj_id}}")
+            //    span(ng-bind-html="prod.transfer.proj_name|sanitize")
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span
