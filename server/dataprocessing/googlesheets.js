@@ -1,4 +1,5 @@
-var Source = require('mongoose').model('Source'),
+var SourceType = require('mongoose').model('SourceType'),
+    Source = require('mongoose').model('Source'),
     Country = require('mongoose').model('Country'),
     Commodity = require('mongoose').model('Commodity'),
     CompanyGroup = require('mongoose').model('CompanyGroup'),
@@ -69,7 +70,13 @@ exports.processData = function(link, callback) {
                                 sheets[item.title] = item;
                                 numProcessed++;
                                 if (numProcessed == numSheets) {
-                                    parseData(sheets, report, callback);
+                                    var reporter = {
+                                        text: report,
+                                        add: function(more) {
+                                            this.text += more;
+                                        }
+                                    }
+                                    parseData(sheets, reporter, callback);
                                 }
                             });
                         }).bind(null, i));
@@ -96,16 +103,21 @@ function parseGsDate(input) {
 }
 
 //Data needed for inter-entity reference
-var sources, countries, commodities, companies, projects;
+var sourceTypes, sources, countries, commodities, companies, projects;
 
+//TODO: Move to new duplicates model
 var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
     newRow[7] = parseGsDate(newRow[7]);
     newRow[8] = parseGsDate(newRow[8]);
    
+   if (!sourceTypes[newRow[2]]) {
+       console.log("SERIOUS ERROR: Missing source type in the DB");
+       return false;
+   }
+   
     var source = {
         source_name: newRow[0],
-        source_type: newRow[2], //TODO: unnecessary?
-        /* TODO? source_type_id: String, */
+        source_type_id: sourceTypes[newRow[2]]._id,
         source_url: newRow[4],
         source_url_type: newRow[5], //TODO: unnecessary?
         /* TODO? source_url_type_id: String, */
@@ -131,6 +143,7 @@ var makeNewCommodity = function(newRow) {
 }
 
 var makeNewCompanyGroup = function(newRow) {
+    //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var companyg = {
         company_group_name: newRow[7]
@@ -148,13 +161,14 @@ var makeNewCompanyGroup = function(newRow) {
 }
 
 var makeNewCompany = function(newRow) {
+    //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var company = {
         company_name: newRow[3]
     };
 
     if (newRow[5] != "") {
-        company.open_corporates_id = newRow[5];
+        company.open_corporates_id = newRow[5]; //Note currently URL in spreadsheet
     }
     if (newRow[2] != "") {
         //TODO: This is not very helpful for the end user
@@ -359,43 +373,6 @@ equalDocs = function(masterDoc, newDoc) {
     return true;
 }
 
-processGenericRow = function(report, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-        if ((row[rowIndex] == "") || (row[rowIndex][0] == "#")) {
-            report.add(entityName + ": Empty row or label.\n");
-            return callback(null); //Do nothing
-        }
-        var finderObj = {};
-        finderObj[modelKey] = row[rowIndex];
-        model.findOne(
-            finderObj,
-            function(err, doc) {  
-                if (err) {
-                    report.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
-                    return callback(`Failed: ${report.report}`);
-                }
-                else if (doc) {
-                    report.add(`${entityName} ${row[rowIndex]} already exists in the DB (name match), not adding\n`);
-                    destObj[row[rowIndex]] = doc;
-                    return callback(null);
-                }
-                else {
-                    model.create(
-                        makerFunction(row),
-                        function(err, createdModel) {
-                            if (err) {
-                                report.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                return callback(`Failed: ${report.report}`);
-                            }
-                            report.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`); 
-                            destObj[row[rowIndex]] = createdModel;
-                            return callback(null);
-                        }
-                    );
-                }
-            }
-        );
-    }
-    
 //This handles companies and company groups
 //Not the maker function returns an object with a sub-object
 processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
@@ -495,7 +472,10 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
 
 function parseData(sheets, report, finalcallback) {
     async.waterfall([
-        parseBasis,
+        parseSourceTypes.bind(null, report),
+        parseSources,
+        parseCountries,
+        parseCommodities,
         parseCompanyGroups,
         parseCompanies,
         parseProjects,
@@ -503,172 +483,195 @@ function parseData(sheets, report, finalcallback) {
         parseProduction,
         parseTransfers,
         parseReserves
+        //links throughout!//
     ], function (err, report) {
         if (err) {
             console.log("PARSE: Got an error\n");
-            return finalcallback("Failed", report)
+            return finalcallback("Failed", report.text)
         }
-        finalcallback("Success", report);
+        finalcallback("Success", report.text);
         }
     );
-    
-    ;
-    
+
     function parseEntity(reportSoFar, sheetname, dropRowsStart, dropRowsEnd, entityObj, processRow, entityName, rowIndex, model, modelKey, rowMaker, callback) {
-        var intReport = {
-            report: reportSoFar, //Relevant for the series waterfall - report gets passed along
-            add: function(text) {
-                this.report += text;
-            }
-        }
         //Drop first X, last Y rows
         var data = sheets[sheetname].data.slice(dropRowsStart, (sheets[sheetname].data.length - dropRowsEnd));
         //TODO: for some cases parallel is OK: differentiate
-        async.eachSeries(data, processRow.bind(null, intReport, entityObj, entityName, rowIndex, model, modelKey, rowMaker), function (err) { //"A callback which is called when all iteratee functions have finished, or an error occurs."
+        async.eachSeries(data, processRow.bind(null, reportSoFar, entityObj, entityName, rowIndex, model, modelKey, rowMaker), function (err) { //"A callback which is called when all iteratee functions have finished, or an error occurs."
             if (err) {
-                return callback(err, intReport.report); //Giving up
+                return callback(err, reportSoFar); //Giving up
             }
-            callback(null, intReport.report); //All good
+            callback(null, reportSoFar); //All good
+        });
+    }
+        
+    function parseSourceTypes(result, callback) {
+        //Complete source type list is in the DB
+        result.add("Getting source types from database...\n");
+        sourceTypes = new Object;
+        SourceType.find({}, function (err, stresult) {
+            if (err) {
+                result.add(`Got an error: ${err}\n`);
+                callback(err, streport);
+            }
+            else {
+                result.add(`Found ${stresult.length} source types\n`);
+                var st;
+                for (st of stresult) {
+                    sourceTypes[st.source_type_name] = st;
+                }
+                callback(null, result);
+            }
+        });
+    };
+
+    function parseCountries(result, callback) {
+        //Complete country list is in the DB
+        result.add("Getting countries from database...\n");
+        countries = new Object;
+        Country.find({}, function (err, cresult) {
+            if (err) {
+                result.add(`Got an error: ${err}\n`);
+                callback(err, creport);
+            }
+            else {
+                result.add(`Found ${cresult.length} countries\n`);
+                var ctry;
+                for (ctry of cresult) {
+                    countries[ctry.iso2] = ctry;
+                }
+                callback(null, result);
+            }
         });
     }
     
-    function parseBasis(callback) {
-        var basisReport = report + "Processing basis info\n";
-        
-        async.parallel([
-            parseSources,
-            parseCountries,
-            parseCommodities
-        ], (function (err, resultsarray) {            
-            console.log("PARSE BASIS: Finished parallel tasks OR got an error");
-            for (var r=0; r<resultsarray.length; r++) {
-                if (!resultsarray[r]) {
-                    basisReport += "** NO RESULT **\n";
-                }
-                else basisReport += resultsarray[r];
-            }
+    function parseCommodities(result, callback) {
+        //Complete commodity list is in the DB
+        result.add("Getting commodities from database...\n");
+        commodities = new Object;
+        Commodity.find({}, function (err, cresult) {
             if (err) {
-                console.log("PARSE BASIS: Got an error");
-                basisReport += `Processing of basis info caused an error: ${err}\n`;
-                return callback(`Processing of basis info caused an error: ${err}\n`, basisReport);
+                result.add(`Got an error: ${err}\n`);
+                callback(err, creport);
             }
-            console.log("Finished parse basis");
-            callback(null, basisReport);
-        }));
-
-        function parseCountries(callback) {
-            //Complete country list is in the DB
-            var creport = "Getting countries from database...\n";
-            countries = new Object;
-            Country.find({}, function (err, cresult) {
-                if (err) {
-                    creport += `Got an error: ${err}`;
-                    callback(err, creport);
+            else {
+                result.add(`Found ${cresult.length} commodities\n`);
+                var cmty;
+                for (cmty of cresult) {
+                    commodity[cmty.commodity_name] = cmty;
                 }
-                else {
-                    creport += `Found ${cresult.length} countries`;
-                    var ctry;
-                    for (ctry of cresult) {
-                        countries[ctry.iso2] = ctry;
+                callback(null, result);
+            }
+        });
+    }
+
+    function parseSources(result, callback) {
+        var processSourceRow = function(sourcesReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
+            if ((row[0] == "") || (row[0] == "#source")) {
+                sourcesReport.add("Sources: Empty row or label.\n");
+                return callback(null); //Do nothing
+            }
+            //TODO - may need some sort of sophisticated duplicate detection here
+            Source.findOne(
+                {source_url: row[4].toLowerCase()},
+                null, //return everything
+                { sort: { create_date: 1 } }, //Find OLDEST (use that for comparison instead of some other duplicate - important where we create duplicates)
+                function(err, doc) {  
+                    if (err) {
+                        sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
+                        return callback(`Failed: ${sourcesReport.report}`);
                     }
-                    callback(null, creport);
-                }
-            });
-        }
-        
-        function parseCommodities(callback) {
-            //TODO: In some sheets only a group is named...
-            commodities = new Object;
-            //The list of commodities of relevance for this dataset is taken from the location/status/commodity list
-            parseEntity("", '5. Project location, status, commodity', 3, 0, commodities, processGenericRow, "Commodity", 9, Commodity, "commodity_name", makeNewCommodity, callback);
-        }
-
-        function parseSources(callback) {
-            var processSourceRow = function(sourcesReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-                if ((row[0] == "") || (row[0] == "#source")) {
-                    sourcesReport.add("Sources: Empty row or label.\n");
-                    return callback(null); //Do nothing
-                }
-                //TODO: Find OLDEST (use that for comparison instead of some other duplicate - important where we create duplicates)
-                //TODO - may need some sort of sophisticated duplicate detection here
-                Source.findOne(
-                    {source_url: row[4].toLowerCase()},
-                    function(err, doc) {  
-                        if (err) {
-                            sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
+                    else if (doc) {
+                        sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), checking content\n`);
+                        var newSource = makeNewSource(false, row);
+                        if (!newSource) {
+                            sourcesReport.add(`Invalid data in row: ${row}. Aborting.\n`);
                             return callback(`Failed: ${sourcesReport.report}`);
                         }
-                        else if (doc) {
-                            sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), checking content\n`);
-                            if (equalDocs(doc, makeNewSource(false, row))) {
-                                sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), not adding\n`);
-                                sources[row[0]] = doc;
-                                return callback(null);
-                            }
-                            else {
-                                sourcesReport.add(`Source ${row[0]} already exists in the DB (url match),flagging as duplicate\n`);
-                                Source.create(
-                                    makeNewSource(true, row, doc._id),
-                                    function(err, model) {
-                                        if (err) {
-                                                sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                                return callback(`Failed: ${sourcesReport.report}`);
-                                        }
-                                        sources[row[0]] = model;
-                                        return callback(null);
-                                    }
-                                );
-                            }
+                        if (equalDocs(doc, newSource)) {
+                            sourcesReport.add(`Source ${row[0]} already exists in the DB (url match), not adding\n`);
+                            sources[row[0]] = doc;
+                            return callback(null);
                         }
                         else {
-                            Source.findOne(
-                                {source_name: row[0]},
-                                (function(err, doc) {
+                            sourcesReport.add(`Source ${row[0]} already exists in the DB (url match),flagging as duplicate\n`);
+                            var newSource = makeNewSource(true, row, doc._id);
+                            if (!newSource) {
+                                sourcesReport.add(`Invalid data in row: ${row}. Aborting.\n`);
+                                return callback(`Failed: ${sourcesReport.report}`);
+                            }
+                            Source.create(
+                                newSource,
+                                function(err, model) {
                                     if (err) {
-                                        sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
-                                        return callback(`Failed: ${sourcesReport.report}`);
+                                            sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                            return callback(`Failed: ${sourcesReport.report}`);
                                     }
-                                    else if (doc) {
-                                        sourcesReport.add(`Source ${row[0]} already exists in the DB (name match), will flag as possible duplicate\n`);
-                                        Source.create(
-                                            makeNewSource(true, row, doc._id),
-                                            (function(err, model) {
-                                                if (err) {
-                                                    sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
-                                                    return callback(`Failed: ${sourcesReport.report}`);
-                                                }
-                                                sources[row[0]] = model;
-                                                return callback(null);
-                                            })
-                                        );
-                                    }
-                                    else {
-                                        sourcesReport.add(`Source ${row[0]} not found in the DB, creating\n`);
-                                        Source.create(
-                                            makeNewSource(false, row),
-                                            (function(err, model) {
-                                                if (err) {
-                                                    sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
-                                                    return callback(`Failed: ${sourcesReport.report}`);
-                                                }
-                                                sources[row[0]] = model;
-                                                return callback(null);
-                                            })
-                                        );
-                                    }
-                                })
+                                    sources[row[0]] = model;
+                                    return callback(null);
+                                }
                             );
                         }
                     }
-                );
-            };
-            sources = new Object;
-            //TODO - refactor processSourceRow to use generic row or similar?
-            parseEntity("", '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);          
-        }
-
+                    else {
+                        Source.findOne(
+                            {source_name: row[0]},
+                            null,
+                            { sort: { create_date: 1 } }, //Find OLDEST (use that for comparison instead of some other duplicate - important where we create duplicates)
+                            (function(err, doc) {
+                                if (err) {
+                                    sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
+                                    return callback(`Failed: ${sourcesReport.report}`);
+                                }
+                                else if (doc) {
+                                    sourcesReport.add(`Source ${row[0]} already exists in the DB (name match), will flag as possible duplicate\n`);
+                                    var newSource = makeNewSource(true, row, doc._id);
+                                    if (!newSource) {
+                                        sourcesReport.add(`Invalid data in row: ${row}. Aborting.\n`);
+                                        return callback(`Failed: ${sourcesReport.report}`);
+                                    }
+                                    Source.create(
+                                        newSource,
+                                        (function(err, model) {
+                                            if (err) {
+                                                sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
+                                                return callback(`Failed: ${sourcesReport.report}`);
+                                            }
+                                            sources[row[0]] = model;
+                                            return callback(null);
+                                        })
+                                    );
+                                }
+                                else {
+                                    sourcesReport.add(`Source ${row[0]} not found in the DB, creating\n`);
+                                    var newSource = makeNewSource(false, row);
+                                    if (!newSource) {
+                                        sourcesReport.add(`Invalid data in row: ${row}. Aborting.\n`);
+                                        return callback(`Failed: ${sourcesReport.report}`);
+                                    }
+                                    Source.create(
+                                        newSource,
+                                        (function(err, model) {
+                                            if (err) {
+                                                sourcesReport.add(`Encountered an error while creating a source in the DB: ${err}. Aborting.\n`);
+                                                return callback(`Failed: ${sourcesReport.report}`);
+                                            }
+                                            sources[row[0]] = model;
+                                            return callback(null);
+                                        })
+                                    );
+                                }
+                            })
+                        );
+                    }
+                }
+            );
+        };
+        sources = new Object;
+        //TODO - refactor processSourceRow to use generic row or similar?
+        parseEntity(result, '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);          
     }
-    
+
     function parseCompanyGroups(result, callback) {
         company_groups = new Object;
         parseEntity(result, '6. Companies and Groups', 3, 0, company_groups, processCompanyRow, "CompanyGroup", 7, CompanyGroup, "company_group_name", makeNewCompanyGroup, callback);
@@ -738,7 +741,21 @@ function parseData(sheets, report, finalcallback) {
                             //console.log("Returned\n: " + model)
                             projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
                             projects[row[rowIndex]] = model;
-                            return wcallback(null, model); //Continue to site stuff
+                            //Not needed in newest model, keeping commented out for now in case needed elsewhere
+                            //Country.update(
+                            //    {_id: countries[row[5]]._id},
+                            //    {$addToSet: //Only create new fact if wasn't here before
+                            //        {projects: {project: model._id, source: sources[row[0]]._id}}
+                            //    },
+                            //    {},
+                            //    function (err, cmodel) {
+                            //        if (err) {
+                            //            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                            //            return wcallback(`Failed: ${projectsReport.report}`);
+                            //        }
+                                    return wcallback(null, model); //Continue to site stuff
+                            //    }
+                            //);
                         }
                     );
             }
@@ -1092,6 +1109,9 @@ function parseData(sheets, report, finalcallback) {
                 processCandCRowCompanies.bind(null, row),
                 processCandCRowContracts.bind(null, row),
                 processCandCRowConcessions.bind(null, row)
+                //TODO: once all 3 are created, interlinking: all in one function, one process per row: concession+company, contract+company, contract+concession
+                //AND This needs to include entering multiple companies into concession_operated_by and concsseion_company_share
+                //AND Include a TODO to change it for 0.6 as it is a bit more explicit there
                 ],
                 function (err, resultsarray) {
                     for (var r=0; r<resultsarray.length; r++) {
@@ -1283,7 +1303,7 @@ function parseData(sheets, report, finalcallback) {
     }
     
     function parseReserves(result, callback) {
-        result += "Reserves IGNORED\n";
+        result.add("Reserves IGNORED\n");
         callback(null, result);
     }
 }
