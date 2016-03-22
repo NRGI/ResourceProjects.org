@@ -82,7 +82,8 @@ function createDefaultProduction() {
                 production_level: 'project',
                 production_price_unit: 'USD',
                 project: '56a930f41b5482a31231ef42',
-                concession: '56a2b8236e585b7316655794'
+                concession: '56a2b8236e585b7316655794',
+                country: '56a7e6c02302369318e16bb8'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c986',
@@ -95,7 +96,8 @@ function createDefaultProduction() {
                 production_level: 'project',
                 production_price_unit: 'USD',
                 project: '56a930f41b5482a31231ef42',
-                concession: '56a2b8236e585b7316655794'
+                concession: '56a2b8236e585b7316655794',
+                country: '56a7e6c02302369318e16bb8'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c987',
@@ -107,7 +109,8 @@ function createDefaultProduction() {
                 production_price: 154,
                 production_level: 'project',
                 production_price_unit: 'USD',
-                project: '56a930f41b5482a31231ef42'
+                project: '56a930f41b5482a31231ef42',
+                country: '56a7e6c02302369318e16bb8'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c988',
@@ -118,7 +121,8 @@ function createDefaultProduction() {
                 production_commodity: '56a13e9942c8bef50ec2e9e8',
                 production_price: 154,
                 production_level: 'project',
-                production_price_unit: 'USD'
+                production_price_unit: 'USD',
+                country: '56a7e6c02302369318e16bb8'
             });
             Production.create({
                 _id: '56be54f9d7bff9921c93c989',

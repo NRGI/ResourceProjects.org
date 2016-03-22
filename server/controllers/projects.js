@@ -177,12 +177,14 @@ exports.getProjectByID = function(req, res) {
                                 break;
                             case 'commodity':
                                 if(link.commodity) {
-                                    if (!project.commodities.hasOwnProperty(link.commodity_code)) {
-                                        project.commodities.push({
-                                            _id: link.commodity._id,
-                                            commodity_name: link.commodity.commodity_name,
-                                            commodity_id: link.commodity.commodity_id
-                                        });
+                                    if (project.commodities!=undefined) {
+                                        if (!project.commodities.hasOwnProperty(link.commodity_code)) {
+                                            project.commodities.push({
+                                                _id: link.commodity._id,
+                                                commodity_name: link.commodity.commodity_name,
+                                                commodity_id: link.commodity.commodity_id
+                                            });
+                                        }
                                     }
                                 }
                                 break;
@@ -234,10 +236,10 @@ exports.getProjectByID = function(req, res) {
                         project.transfers.push({
                             _id: transfer._id,
                             transfer_year: transfer.transfer_year,
-                            transfer_company: {
+                            company: {
                                 company_name: transfer.company.company_name,
                                 _id: transfer.company._id},
-                            transfer_country: {
+                            country: {
                                 name: transfer.country.name,
                                 iso2: transfer.country.iso2},
                             transfer_type: transfer.transfer_type,
@@ -314,10 +316,10 @@ exports.getProjectByID = function(req, res) {
                                 project.transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
-                                    transfer_company: {
+                                    company: {
                                         company_name: transfer.company.company_name,
                                         _id: transfer.company._id},
-                                    transfer_country: {
+                                    country: {
                                         name: transfer.country.name,
                                         iso2: transfer.country.iso2},
                                     transfer_type: transfer.transfer_type,
