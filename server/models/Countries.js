@@ -303,6 +303,8 @@ function createDefaultCountries() {
             Country.create({iso2:'ZM',name:'Zambia',cctld:'.zm'});
             Country.create({iso2:'ZW',name:'Zimbabwe',cctld:'.zw',notes:'Name changed from *Southern Rhodesia* (RH)'});
             console.log('Countries created...');
+        } else {
+            console.log(String(countries.length), 'countries exist...')
         }
     });
 };

@@ -6,12 +6,13 @@
             small Company
     .row
         .col-md-12
-            leaflet(
-            center="center"
-            controls="controls"
-            markers="company.proj_coordinates"
-            tiles="tiles"
-            height='300px')
+            nrgi-leaflet(data='company.proj_coordinates')
+            //leaflet(
+            //center="center"
+            //controls="controls"
+            //markers="company.proj_coordinates"
+            //tiles="tiles"
+            //height='300px')
     .row
         .col-md-6
             .info-box
@@ -41,9 +42,11 @@
 
                         tr
                             td.detail_label.small Commodities:
-                            td.company_commoditiea
-                                text(ng-repeat="commodity in company.commodities | unique: '_id'")
-                                    nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+                            td.company_commodities
+                                //| {{company.commodities}}
+                                text(ng-repeat="commodity in company.commodities")
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
                             td.detail_label.small Open Corporates ID:
@@ -100,10 +103,13 @@
         .col-md-12
             nrgi-transfer-table(
             transfers="company.transfers"
-            project="false")
+            project="false"
+            project_link="true")
     .row
         .col-md-12
-            nrgi-production-table(production="company.production")
+            nrgi-production-table(
+            production="company.production"
+            project_link="true")
 
     .row
         .col-md-12

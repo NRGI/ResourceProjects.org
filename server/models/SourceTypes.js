@@ -47,6 +47,8 @@ function createDefaultSourceTypes() {
             SourceType.create({_id:'56e873691d1d2a3824141430',source_type_name:'Press article',source_type_id:'press',source_type_authority:'Non-authoritative source'});
             SourceType.create({_id:'56e873691d1d2a3824141432',source_type_name:'Other non-authoritative source',source_type_id:'othernonauth',source_type_authority:'Non-authoritative source'});
             console.log('Source types created...');
+        } else {
+            console.log(String(source_types.length), 'source types exist...')
         }
     });
 };

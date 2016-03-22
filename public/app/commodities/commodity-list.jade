@@ -26,7 +26,8 @@
       tbody
          tr(ng-repeat="commodity in commodities | unique: '_id'",ts-repeat)
             td.commodity_name
-               nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
+               a(href='commodity/{{commodity.commodity_id}}')
+                  span(ng-bind-html="commodity.commodity_name|sanitize")
             td.commodity_projects {{commodity.projects}}
             td.commodity_contracts {{commodity.contracts}}
             td.commodity_concessions {{commodity.concessions}}

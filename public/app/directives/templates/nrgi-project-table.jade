@@ -13,7 +13,8 @@ table.table.table-striped.projects(ts-wrapper)#project-info
         ng-repeat="project in projects | unique: '_id'"
         ts-repeat)
             td.proj_id
-                nrgi-project-routing(id='project._id' project='project.proj_id' name='project.proj_name' )
+                a(href='project/{{project.proj_id}}')
+                    span(ng-bind-html="project.proj_name|sanitize")
             td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                 a(href='country/{{country.country.iso2}}')
                     span(ng-bind-html="country.country.name|sanitize")
@@ -22,7 +23,8 @@ table.table.table-striped.projects(ts-wrapper)#project-info
                 | {{type.string | ucfirst}}
                 | {{$last ? '' : ', '}}
             td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
-                nrgi-commodity-route(id='commodity.commodity._id' commodity='commodity.commodity.commodity_id' name='commodity.commodity.commodity_name' )
+                a(href='commodity/{{commodity.commodity.commodity_id}}')
+                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                 | {{$last ? '' : ', '}}
             td.proj_status(ng-if="status==true"): text(ng-repeat="status in project.proj_status")
                 text(ng-if="$last") {{status.string | ucfirst}}

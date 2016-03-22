@@ -8,7 +8,8 @@ angular
             controller: 'nrgiTransferTableCtrl',
             scope: {
                 transfers: '=',
-                project: '='
+                project: '=',
+                project_link: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-transfer-table'
         };
