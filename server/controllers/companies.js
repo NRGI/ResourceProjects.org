@@ -775,10 +775,10 @@ exports.getCompanyByID = function(req, res) {
                                 company.transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
-                                    company: {
+                                    transfer_company: {
                                         company_name: transfer.company.company_name,
                                         _id: transfer.company._id},
-                                    country: {
+                                    transfer_country: {
                                         name: transfer.country.name,
                                         iso2: transfer.country.iso2},
                                     transfer_type: transfer.transfer_type,

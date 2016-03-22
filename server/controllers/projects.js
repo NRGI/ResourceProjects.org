@@ -17,7 +17,9 @@ exports.getProjects = function(req, res) {
     async.waterfall([
         projectCount,
         getProjectSet,
-        getProjectLinks
+        getProjectLinks,
+        getTransfersCount,
+        getSiteTransfersCount
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -58,14 +60,16 @@ exports.getProjects = function(req, res) {
         if(project_len>0) {
             projects.forEach(function (project) {
                 // Link.find({project: project._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
-                Link.find({project: project._id, entities:'company' })
+                Link.find({project: project._id,$or:[ {entities:'company'}, {entities:'site'}]  })
                     .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
+                    .populate('site')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
                         link_counter = 0;
                         project.companies = 0;
+                        project.sites = [];
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
@@ -73,18 +77,63 @@ exports.getProjects = function(req, res) {
                                 case 'company':
                                     project.companies += 1;
                                     break;
+                                case 'site':
+                                    project.sites.push({
+                                        _id: link.site._id,
+                                        field: link.site.field,
+                                        site_name: link.site.site_name
+                                    });
+                                    break;
                                 default:
                                     console.log('error');
                             }
                         });
                         if (project_counter == project_len && link_counter == link_len) {
-                            res.send({data: projects, count: project_count});
+                            callback(null, project_count, projects);
                         }
                     });
             });
         } else{
-            res.send({data: projects, count: project_count});
+            callback(null, project_count, projects);
         }
+    }
+    function getTransfersCount(project_count, projects, callback) {
+        project_len = projects.length;
+        project_counter = 0;
+        _.each(projects, function (project) {
+            ++project_counter;
+            project.transfers = 0;
+            Transfer.find({project: project._id})
+                .lean()
+                .exec(function (err, transfers) {
+                    project.transfers = transfers.length;
+                    if (project_counter === project_len) {
+                        callback(null, project_count, projects);
+                        //res.send({data: projects, count: project_count});
+                    }
+                })
+        });
+    }
+    function getSiteTransfersCount(project_count, projects, callback) {
+        project_len = projects.length;
+        project_counter = 0;
+        site_counter = 0;
+        _.each(projects, function (project) {
+            site_counter=0;
+            project.site_transfers = 0;
+            _.each(project.sites, function (site) {
+                ++project_counter;
+                Transfer.find({site: site._id})
+                    .lean()
+                    .exec(function (err, transfers) {
+                        site_counter++;
+                        project.site_transfers += 1;
+                        if (site_counter == project_counter) {
+                            res.send({data: projects, count: project_count});
+                        }
+                    })
+            });
+        })
     }
 };
 exports.getProjectByID = function(req, res) {
@@ -149,7 +198,7 @@ exports.getProjectByID = function(req, res) {
                                 project.sites.push({
                                     _id: link.site._id,
                                     field: link.site.field,
-                                    site_name: link.site.site_name,
+                                    site_name: link.site.site_name
                                 });
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
