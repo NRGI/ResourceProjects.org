@@ -54,6 +54,7 @@ siteSchema = new Schema({
     site_coordinates: [fact],
     site_commodity: [fact],
     site_operated_by: [fact],
+    site_company_share: [fact],
     site_status: [{
         source: source,
         string: {
