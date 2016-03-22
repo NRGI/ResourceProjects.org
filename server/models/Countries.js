@@ -129,7 +129,7 @@ function createDefaultCountries() {
             Country.create({iso2:'FO',name:'Faroe Islands',cctld:'.fo'});
             Country.create({iso2:'FR',name:'France',cctld:'.fr',notes:'Includes Clipperton Island'});
             Country.create({iso2:'GA',name:'Gabon',cctld:'.ga'});
-            Country.create({iso2:'GB',name:'United Kingdom of Great Britain and Northern Ireland',cctld:'".gb (.uk)"',notes:'"Code taken from *Great Britain* (from official name: *United Kingdom of Great Britain and Northern Ireland*)[17] .uk is the primary ccTLD of the United Kingdom instead of .gb (see code UK, which is exceptionally reserved)"'});
+            Country.create({_id:'31a7e6c02937581218e16dd8',iso2:'GB',name:'United Kingdom of Great Britain and Northern Ireland',cctld:'".gb (.uk)"',notes:'"Code taken from *Great Britain* (from official name: *United Kingdom of Great Britain and Northern Ireland*)[17] .uk is the primary ccTLD of the United Kingdom instead of .gb (see code UK, which is exceptionally reserved)"'});
             Country.create({iso2:'GD',name:'Grenada',cctld:'.gd'});
             Country.create({iso2:'GE',name:'Georgia',cctld:'.ge',notes:'GE previously represented Gilbert and Ellice Islands'});
             Country.create({iso2:'GF',name:'French Guiana',cctld:'.gf',notes:'Code taken from name in French: *Guyane française*'});
