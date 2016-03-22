@@ -13,8 +13,7 @@ datasetSchema = new Schema ({
     created: { type: Date, default: Date.now },
     created_by: {type: ObjectId, ref: 'User'},
     actions: [{type: ObjectId, ref: 'Action'}],
-    type: { type: String, default: 'Google Sheets'},
-    actions: [{type: ObjectId, ref: 'Action'}]
+    type: { type: String, default: 'Google Sheets'}
 });
 
 Dataset = mongoose.model('Dataset', datasetSchema);
@@ -41,6 +40,8 @@ function createDefaultDatasets() {
             }, function(err, model) {
             console.log(err);
             });
+        } else {
+            console.log(String(datasets.length), 'datasets exist...')
         }
     });
 };

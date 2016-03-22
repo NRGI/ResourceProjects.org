@@ -34,16 +34,18 @@
         tbody
             tr(ng-repeat="project in projects | unique: '_id'",ts-repeat)
                 td.proj_name
-                    nrgi-project-routing(id='project._id' project='project.proj_id' name='project.proj_name' )
+                    a(href='project/{{project.proj_id}}')
+                        span(ng-bind-html="project.proj_name|sanitize")
                 td.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                     a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.proj_type: text(ng-repeat="type in project.proj_type")
                     text(ng-if="$last") {{type.string | ucfirst}}
-                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: '_id'")
-                    nrgi-commodity-route(id='commodity._id' commodity='commodity.commodity_id' name='commodity.commodity_name' )
-                        | {{$last ? '' : ', '}}
+                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                    | {{$last ? '' : ', '}}
                 td.proj_status: text(ng-repeat="status in project.proj_status")
                     text(ng-if="$last")
                         | {{status.string | ucfirst}}

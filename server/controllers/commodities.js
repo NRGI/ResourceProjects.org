@@ -109,7 +109,7 @@ exports.getCommodityByID = function(req, res) {
 	});
 
 	function getCommodity(callback) {
-		Commodity.findOne({_id:req.params.id})
+		Commodity.findOne({commodity_id:req.params.id})
 			.populate('commodity_aliases', ' _id code reference')
 			.lean()
 			.exec(function(err, commodity) {
@@ -202,55 +202,55 @@ exports.getCommodityByID = function(req, res) {
 				}
 			});
 	}
-	function getContracts(commodity, callback) {
-		commodity.contracts = [];
-		var contract_counter = 0;
-		var contract_len = commodity.contracts_link.length;
-		if(contract_len>0) {
-			_.each(commodity.contracts_link, function (contract) {
-				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-					var body = JSON.parse(body);
-					++contract_counter;
-					commodity.contracts.push({
-						_id: contract._id,
-						contract_name: body.name,
-						contract_country: body.country,
-						contract_commodity: body.resource
-					});
-					if (contract_counter == contract_len) {
-						callback(null, commodity);
-					}
-				});
-
-			});
-		} else{
-			callback(null, commodity);
-		}
-	}
-	function getContracts(commodity, callback) {
-		commodity.contracts = [];
-		var contract_counter = 0;
-		var contract_len = commodity.contracts_link.length;
-		if(contract_len>0) {
-			_.each(commodity.contracts_link, function (contract) {
-				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-					var body = JSON.parse(body);
-					++contract_counter;
-					commodity.contracts.push({
-						_id: contract._id,
-						contract_name: body.name,
-						contract_country: body.country,
-						contract_commodity: body.resource
-					});
-					if (contract_counter == contract_len) {
-						callback(null, commodity);
-					}
-				});
-			});
-		} else{
-			callback(null, commodity);
-		}
-	}
+	//function getContracts(commodity, callback) {
+	//	commodity.contracts = [];
+	//	var contract_counter = 0;
+	//	var contract_len = commodity.contracts_link.length;
+	//	if(contract_len>0) {
+	//		_.each(commodity.contracts_link, function (contract) {
+	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+	//				var body = JSON.parse(body);
+	//				++contract_counter;
+	//				commodity.contracts.push({
+	//					_id: contract._id,
+	//					contract_name: body.name,
+	//					contract_country: body.country,
+	//					contract_commodity: body.resource
+	//				});
+	//				if (contract_counter == contract_len) {
+	//					callback(null, commodity);
+	//				}
+	//			});
+    //
+	//		});
+	//	} else{
+	//		callback(null, commodity);
+	//	}
+	//}
+	//function getContracts(commodity, callback) {
+	//	commodity.contracts = [];
+	//	var contract_counter = 0;
+	//	var contract_len = commodity.contracts_link.length;
+	//	if(contract_len>0) {
+	//		_.each(commodity.contracts_link, function (contract) {
+	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+	//				var body = JSON.parse(body);
+	//				++contract_counter;
+	//				commodity.contracts.push({
+	//					_id: contract._id,
+	//					contract_name: body.name,
+	//					contract_country: body.country,
+	//					contract_commodity: body.resource
+	//				});
+	//				if (contract_counter == contract_len) {
+	//					callback(null, commodity);
+	//				}
+	//			});
+	//		});
+	//	} else{
+	//		callback(null, commodity);
+	//	}
+	//}
 	//function getContracts(commodity, callback) {
 	//	commodity.contracts = [];
 	//	var contract_counter = 0;
@@ -313,7 +313,7 @@ exports.getCommodityByID = function(req, res) {
 						_id: contract._id,
 						contract_name: body.name,
 						contract_country: body.country,
-						contract_commodity: body.resource
+						contract_commodity: [{_id:commodity._id,commodity_id:commodity.commodity_id,commodity_name:commodity.commodity_name}]
 					});
 					if (contract_counter == contract_len) {
 						callback(null, commodity);
@@ -325,31 +325,31 @@ exports.getCommodityByID = function(req, res) {
 			callback(null, commodity);
 		}
 	}
-	function getContracts(commodity, callback) {
-		commodity.contracts = [];
-		var contract_counter = 0;
-		var contract_len = commodity.contracts_link.length;
-		if(contract_len>0) {
-			_.each(commodity.contracts_link, function (contract) {
-				request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-					var body = JSON.parse(body);
-					++contract_counter;
-					commodity.contracts.push({
-						_id: contract._id,
-						contract_name: body.name,
-						contract_country: body.country,
-						contract_commodity: body.resource
-					});
-					if (contract_counter == contract_len) {
-						callback(null, commodity);
-					}
-				});
-
-			});
-		} else{
-			callback(null, commodity);
-		}
-	}
+	//function getContracts(commodity, callback) {
+	//	commodity.contracts = [];
+	//	var contract_counter = 0;
+	//	var contract_len = commodity.contracts_link.length;
+	//	if(contract_len>0) {
+	//		_.each(commodity.contracts_link, function (contract) {
+	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+	//				var body = JSON.parse(body);
+	//				++contract_counter;
+	//				commodity.contracts.push({
+	//					_id: contract._id,
+	//					contract_name: body.name,
+	//					contract_country: body.country,
+	//					contract_commodity: body.resource
+	//				});
+	//				if (contract_counter == contract_len) {
+	//					callback(null, commodity);
+	//				}
+	//			});
+    //
+	//		});
+	//	} else{
+	//		callback(null, commodity);
+	//	}
+	//}
 	function getProjectLocation(commodity,callback) {
 		var project_counter = 0;
 		commodity.location = [];
@@ -361,7 +361,10 @@ exports.getCommodityByID = function(req, res) {
 					commodity.location.push({
 						'lat': loc.loc[0],
 						'lng': loc.loc[1],
-						'message': project.proj_name
+						'message': project.proj_name,
+						'timestamp': loc.timestamp,
+						'type': 'project',
+						'id': project.proj_id
 					});
 				if (project_counter == project_len) {
 						callback(null, commodity);

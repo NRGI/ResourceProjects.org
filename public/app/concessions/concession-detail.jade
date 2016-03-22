@@ -6,12 +6,7 @@
             small Concession
     .row
         .col-md-12
-            leaflet(
-            center="center"
-            controls="controls"
-            markers="concession.proj_coordinates"
-            tiles="tiles"
-            height='300px')
+            nrgi-leaflet(data='concession.proj_coordinates')
     .row
         .col-md-6
             .info-box

@@ -2,6 +2,7 @@ var CompanyGroup 		= require('mongoose').model('CompanyGroup'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Project 	    = require('mongoose').model('Project'),
+    Commodity 	    = require('mongoose').model('Commodity'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -127,6 +128,7 @@ exports.getCompanyGroupByID = function(req, res) {
         getProjectCompany,
         getTransfers,
         getContracts,
+        getCommodity,
         getProjectLocation
     ], function (err, result) {
         if (err) {
@@ -254,32 +256,32 @@ exports.getCompanyGroupByID = function(req, res) {
             callback(null, companyGroup);
         }
     }
-    function getTransfers(companyGroup, callback) {
-        companyGroup.transfers = [];
-        company_counter = 0;
-        company_len = companyGroup.companies.length;
-        var transfer_counter = 0;var transfer_len;
-        if(company_len>0) {
-            companyGroup.companies.forEach(function (company) {
-                ++company_counter;
-                Transfer.find({transfer_company: company._id})
-                    .populate('transfer_country')
-                    .populate('transfer_company', '_id company_name')
-                    .exec(function (err, transfers) {
-                        transfer_len = transfers.length;
-                        _.each(transfers, function (transfer) {
-                            ++transfer_counter;
-                            companyGroup.transfers.push(transfer);
-                            if (company_counter == company_len && transfer_len==transfer_counter) {
-                                callback(null, companyGroup);
-                            }
-                        });
-                    });
-            });
-        } else{
-            callback(null, companyGroup);
-        }
-    }
+    //function getTransfers(companyGroup, callback) {
+    //    companyGroup.transfers = [];
+    //    company_counter = 0;
+    //    company_len = companyGroup.companies.length;
+    //    var transfer_counter = 0;var transfer_len;
+    //    if(company_len>0) {
+    //        companyGroup.companies.forEach(function (company) {
+    //            ++company_counter;
+    //            Transfer.find({transfer_company: company._id})
+    //                .populate('transfer_country')
+    //                .populate('transfer_company', '_id company_name')
+    //                .exec(function (err, transfers) {
+    //                    transfer_len = transfers.length;
+    //                    _.each(transfers, function (transfer) {
+    //                        ++transfer_counter;
+    //                        companyGroup.transfers.push(transfer);
+    //                        if (company_counter == company_len && transfer_len==transfer_counter) {
+    //                            callback(null, companyGroup);
+    //                        }
+    //                    });
+    //                });
+    //        });
+    //    } else{
+    //        callback(null, companyGroup);
+    //    }
+    //}
     function getContracts(companyGroup, callback) {
         companyGroup.contracts = [];
         var contract_counter = 0;
@@ -301,6 +303,38 @@ exports.getCompanyGroupByID = function(req, res) {
                 });
 
             });
+        } else{
+            callback(null, companyGroup);
+        }
+    }
+    function getCommodity(companyGroup, callback) {
+        var contract_len = companyGroup.contracts.length;
+        var contract_counter = 0;
+        if(contract_len>0) {
+            companyGroup.contracts.forEach(function (contract) {
+                contract.commodity=[];
+                var commodity_len = contract.contract_commodity.length;
+                if(commodity_len>0) {
+                    contract.contract_commodity.forEach(function (commodity_name) {
+                        if (commodity_name != undefined) {
+                            Commodity.find({commodity_name: commodity_name})
+                                .exec(function (err, commodity) {
+                                    ++contract_counter;
+                                    commodity.map(function (name) {
+                                        return contract.commodity.push({
+                                            commodity_name: commodity_name,
+                                            _id: name._id,
+                                            commodity_id: name.commodity_id
+                                        });
+                                    });
+                                    if (contract_counter == contract_len) {
+                                        callback(null, companyGroup);
+                                    }
+                                });
+                        }
+                    })
+                }
+            })
         } else{
             callback(null, companyGroup);
         }
@@ -342,7 +376,10 @@ exports.getCompanyGroupByID = function(req, res) {
                     companyGroup.location.push({
                         'lat': loc.loc[0],
                         'lng': loc.loc[1],
-                        'message': project.proj_name
+                        'message': project.proj_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'project',
+                        'id': project.proj_id
                         //'message': "<a href =\'/project/" + project.proj_id + "\'>" + project.proj_name + "</a><br>" + project.proj_name
                     });
                     if (project_counter == project_len) {

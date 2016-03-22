@@ -40,7 +40,7 @@ exports.getProjects = function(req, res) {
             .skip(skip)
             .limit(limit)
             .populate('proj_country.country', '_id iso2 name')
-            //.populate('proj_aliases', ' _id alias')
+            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id')
             .lean()
             .exec(function(err, projects) {
                 if(projects.length>0) {
@@ -56,34 +56,23 @@ exports.getProjects = function(req, res) {
         project_len = projects.length;
         project_counter = 0;
         if(project_len>0) {
-            projects.forEach(function (c) {
-                Link.find({project: c._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
+            projects.forEach(function (project) {
+                // Link.find({project: project._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
+                Link.find({project: project._id, entities:'company' })
                     .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
                         link_counter = 0;
-                        c.proj_commodity = [];
-                        c.companies = 0;
+                        project.companies = 0;
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
                             switch (entity) {
-                                case 'commodity':
-                                    if(link.commodity) {
-                                        c.proj_commodity.push({
-                                            _id: link.commodity._id,
-                                            commodity_name: link.commodity.commodity_name,
-                                            commodity_id: link.commodity.commodity_id
-                                        });
-                                    }
-                                    break;
-                                //
                                 case 'company':
-                                    c.companies += 1;
+                                    project.companies += 1;
                                     break;
-                                //
                                 default:
                                     console.log('error');
                             }
@@ -99,22 +88,25 @@ exports.getProjects = function(req, res) {
     }
 };
 exports.getProjectByID = function(req, res) {
-    var link_counter, link_len,project_counter, project_len;
+    var site_len, site_counter, link_counter, link_len, project_counter, project_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
 
     async.waterfall([
         getProject,
         getProjectLinks,
-        getSiteLinks,
+        getTransfers,
+        getProduction,
+        getSiteTransfers,
+        getSiteProduction,
         getProjectCoordinate,
         getCompanyGroup
     ], function (err, result) {
         if (err) {
-            console.log(err);
+            // console.log(err);
             res.send(err);
         }
     });
 	function getProject(callback) {
-        Project.findOne({_id:req.params.id})
+        Project.findOne({proj_id:req.params.id})
             .populate('proj_country.country')
             .populate('proj_aliases', '_id alias')
             .populate('proj_commodity.commodity')
@@ -129,22 +121,18 @@ exports.getProjectByID = function(req, res) {
     }
     function getProjectLinks(project, callback) {
         project.companies = [];
-        project.commodities = [];
-        project.transfers = [];
         project.projects = [];
-        project.production = [];
         project.concessions = [];
         project.contracts = [];
         project.sites = [];
         project.site_coordinates = {sites: [], fields: []};
         project.sources = {};
         Link.find({project: project._id})
-            .populate('commodity')
             .populate('company')
             .populate('contract')
             .populate('concession')
             .populate('site')
-            .deepPopulate('company_group transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
+            .deepPopulate('company_group source.source_type_id')
             .exec(function(err, links) {
                 if(links.length>0) {
                     link_len = links.length;
@@ -215,36 +203,6 @@ exports.getProjectByID = function(req, res) {
                             case 'contract':
                                 project.contracts.push(link.contract);
                                 break;
-                            case 'transfer':
-                                project.transfers.push({
-                                    _id: link.transfer._id,
-                                    transfer_year: link.transfer.transfer_year,
-                                    transfer_company: {
-                                        company_name: link.transfer.transfer_company.company_name,
-                                        _id:link.transfer.transfer_company._id},
-                                    transfer_country: {
-                                        name: link.transfer.transfer_country.name,
-                                        iso2: link.transfer.transfer_country.iso2},
-                                    transfer_type: link.transfer.transfer_type,
-                                    transfer_unit: link.transfer.transfer_unit,
-                                    transfer_value: link.transfer.transfer_value,
-                                    transfer_level: link.transfer.transfer_level,
-                                    transfer_audit_type: link.transfer.transfer_audit_type});
-                                break;
-                            case 'production':
-                                project.production.push({
-                                    _id: link.production._id,
-                                    production_year: link.production.production_year,
-                                    production_volume: link.production.production_volume,
-                                    production_unit: link.production.production_unit,
-                                    production_commodity: {
-                                        _id: link.production.production_commodity._id,
-                                        commodity_name: link.production.production_commodity.commodity_name,
-                                        commodity_id: link.production.production_commodity.commodity_id},
-                                    production_price: link.production.production_price,
-                                    production_price_unit: link.production.production_price_unit,
-                                    production_level: link.production.production_level});
-                                break;
                             default:
                                 console.log('switch (entity) error');
                         }
@@ -257,63 +215,175 @@ exports.getProjectByID = function(req, res) {
                 }
             });
     }
-    function getSiteLinks(project, callback) {
+    function getTransfers(project, callback) {
+        project.transfers = [];
+        Transfer.find({project: project._id})
+            .populate('company country')
+            .deepPopulate('source.source_type_id')
+            .lean()
+            .exec(function(err, transfers) {
+                transfers_counter = 0;
+                transfers_len = transfers.length;
+                if (transfers_len>0) {
+                    transfers.forEach(function (transfer) {
+                        if (!project.sources[transfer.source._id]) {
+                            //TODO clean up returned data if performance lags
+                            project.sources[transfer.source._id] = transfer.source;
+                        }
+                        ++transfers_counter;
+                        project.transfers.push({
+                            _id: transfer._id,
+                            transfer_year: transfer.transfer_year,
+                            transfer_company: {
+                                company_name: transfer.company.company_name,
+                                _id: transfer.company._id},
+                            transfer_country: {
+                                name: transfer.country.name,
+                                iso2: transfer.country.iso2},
+                            transfer_type: transfer.transfer_type,
+                            transfer_unit: transfer.transfer_unit,
+                            transfer_value: transfer.transfer_value,
+                            transfer_level: transfer.transfer_level,
+                            transfer_audit_type: transfer.transfer_audit_type
+                        });
+                        if (transfers_counter===transfers_len) {
+                            callback(null, project);
+                        }
+                    });
+                } else {
+                    callback(null, project);
+                }
+            });
+    }
+    function getProduction(project, callback) {
+        project.production = [];
+        Production.find({project: project._id})
+            .populate('production_commodity')
+            .deepPopulate('source.source_type_id')
+            .lean()
+            .exec(function(err, production) {
+                production_counter = 0;
+                production_len = production.length;
+                if (production_len>0) {
+                    production.forEach(function (prod) {
+                        if (!project.sources[prod.source._id]) {
+                            //TODO clean up returned data if performance lags
+                            project.sources[prod.source._id] = prod.source;
+                        }
+                        ++production_counter;
+                        project.production.push({
+                            _id: prod._id,
+                            production_year: prod.production_year,
+                            production_volume: prod.production_volume,
+                            production_unit: prod.production_unit,
+                            production_commodity: {
+                                _id: prod.production_commodity._id,
+                                commodity_name: prod.production_commodity.commodity_name,
+                                commodity_id: prod.production_commodity.commodity_id},
+                            production_price: prod.production_price,
+                            production_price_unit: prod.production_price_unit,
+                            production_level: prod.production_level});
+                        if (production_counter===production_len) {
+                            callback(null, project);
+                        }
+                    });
+                } else {
+                    callback(null, project);
+                }
+            });
+    }
+    function getSiteTransfers(project, callback) {
         site_len = project.sites.length;
         site_counter = 0;
         if(site_len>0) {
             project.sites.forEach(function (site) {
-                Link.find({site: site._id, $or:[ {entities:'transfer'}, {entities:'production'} ] })
-                    .deepPopulate('transfer.transfer_company transfer.transfer_country production.production_commodity source.source_type_id')
-                    .exec(function (err, links) {
+                Transfer.find({site:site._id})
+                    .populate('company country')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function(err, transfers) {
                         ++site_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        links.forEach(function (link) {
-                            if (!project.sources[link.source._id]) {
-                                //TODO clean up returned data if performance lags
-                                project.sources[link.source._id] = link.source;
+                        transfers_counter = 0;
+                        transfers_len = transfers.length;
+                        if (transfers_len>0) {
+                            transfers.forEach(function (transfer) {
+                                if (!project.sources[transfer.source._id]) {
+                                    //TODO clean up returned data if performance lags
+                                    project.sources[transfer.source._id] = transfer.source;
+                                }
+                                ++transfers_counter;
+                                project.transfers.push({
+                                    _id: transfer._id,
+                                    transfer_year: transfer.transfer_year,
+                                    transfer_company: {
+                                        company_name: transfer.company.company_name,
+                                        _id: transfer.company._id},
+                                    transfer_country: {
+                                        name: transfer.country.name,
+                                        iso2: transfer.country.iso2},
+                                    transfer_type: transfer.transfer_type,
+                                    transfer_unit: transfer.transfer_unit,
+                                    transfer_value: transfer.transfer_value,
+                                    transfer_level: transfer.transfer_level,
+                                    transfer_audit_type: transfer.transfer_audit_type
+                                });
+                                if (site_counter===site_len && transfers_counter===transfers_len) {
+                                    callback(null, project);
+                                }
+                            });
+                        } else {
+                            if (site_counter===site_len && transfers_counter===transfers_len) {
+                                callback(null, project);
                             }
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'site')[0];
-                            switch (entity) {
-                                case 'transfer':
-                                    project.transfers.push({
-                                        _id: link.transfer._id,
-                                        transfer_year: link.transfer.transfer_year,
-                                        transfer_company: {
-                                            company_name: link.transfer.transfer_company.company_name,
-                                            _id:link.transfer.transfer_company._id},
-                                        transfer_country: {
-                                            name: link.transfer.transfer_country.name,
-                                            iso2: link.transfer.transfer_country.iso2},
-                                        transfer_type: link.transfer.transfer_type,
-                                        transfer_unit: link.transfer.transfer_unit,
-                                        transfer_value: link.transfer.transfer_value,
-                                        transfer_level: link.transfer.transfer_level,
-                                        transfer_audit_type: link.transfer.transfer_audit_type});
-                                    break;
-                                case 'production':
-                                    project.production.push({
-                                        _id: link.production._id,
-                                        production_year: link.production.production_year,
-                                        production_volume: link.production.production_volume,
-                                        production_unit: link.production.production_unit,
-                                        production_commodity: {
-                                            _id: link.production.production_commodity._id,
-                                            commodity_name: link.production.production_commodity.commodity_name,
-                                            commodity_id: link.production.production_commodity.commodity_id},
-                                        production_price: link.production.production_price,
-                                        production_price_unit: link.production.production_price_unit,
-                                        production_level: link.production.production_level});
-                                    break;
-                                default:
-                                    console.log(entity, 'link skipped...');
-                            }
-                        });
-                        if (site_counter == site_len && link_counter == link_len) {
-                            callback(null, project);
                         }
                     });
+
+            });
+        } else {
+            callback(null, project);
+        }
+    }
+    function getSiteProduction(project, callback) {
+        site_len = project.sites.length;
+        site_counter = 0;
+        if(site_len>0) {
+            project.sites.forEach(function (site) {
+                Production.find({site:site._id})
+                    .populate('production_commodity')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function(err, production) {
+                        ++site_counter;
+                        production_counter = 0;
+                        production_len = production.length;
+                        if (production_len>0) {
+                            production.forEach(function (prod) {
+                                if (!project.sources[prod.source._id]) {
+                                    //TODO clean up returned data if performance lags
+                                    project.sources[prod.source._id] = prod.source;
+                                }
+                                ++production_counter;
+                                project.production.push({
+                                    _id: prod._id,
+                                    production_year: prod.production_year,
+                                    production_volume: prod.production_volume,
+                                    production_unit: prod.production_unit,
+                                    production_commodity: {
+                                        _id: prod.production_commodity._id,
+                                        commodity_name: prod.production_commodity.commodity_name,
+                                        commodity_id: prod.production_commodity.commodity_id},
+                                    production_price: prod.production_price,
+                                    production_price_unit: prod.production_price_unit,
+                                    production_level: prod.production_level});
+                                if (site_counter===site_len && production_counter===production_len) {
+                                    callback(null, project);
+                                }
+                            });
+                        } else {
+                            if (site_counter===site_len && production_counter===production_len) {
+                                callback(null, project);
+                            }
+                        }
+                    });
+
             });
         } else {
             callback(null, project);
@@ -353,14 +423,15 @@ exports.getProjectByID = function(req, res) {
         }
     }
     function getCompanyGroup(project, callback) {
-        project_len = project.companies.length;
-        project_counter = 0;
-        if (project_len > 0) {
+        companies_len = project.companies.length;
+        companies_counter = 0;
+        if (companies_len > 0) {
             project.companies.forEach(function (company) {
                 Link.find({company: company._id, entities: 'company_group'})
                     .populate('company_group', '_id company_group_name')
+                    .deepPopulate('source.source_type_id')
                     .exec(function (err, links) {
-                        ++project_counter;
+                        ++companies_counter;
                         link_len = links.length;
                         link_counter = 0;
                         company.company_groups = [];
@@ -384,12 +455,11 @@ exports.getProjectByID = function(req, res) {
                                     default:
                                         console.log('link doesn\'t specify a company_group but rather a ${entity}');
                                 }
-                                if (project_counter == project_len && link_counter == link_len) {
+                                if (companies_counter == companies_len && link_counter == link_len) {
                                     res.send(project);
                                 }
                             });
-                        }
-                        else if (project_counter == project_len) {
+                        } else if (companies_counter == companies_len) {
                             res.send(project);
                         }
                     });
@@ -421,9 +491,12 @@ exports.getProjectsMap = function(req, res) {
                         ++project_counter;
                         project.proj_coordinates.forEach(function (loc) {
                             data.push({
-                                'lat':loc.loc[0],
-                                'lng':loc.loc[1],
-                                'message':project.proj_name
+                                'lat': loc.loc[0],
+                                'lng': loc.loc[1],
+                                'message': project.proj_name,
+                                'timestamp': loc.timestamp,
+                                'type': 'project',
+                                'id': project.proj_id
                             })
                         })
                     });
