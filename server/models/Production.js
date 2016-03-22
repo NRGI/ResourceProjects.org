@@ -62,7 +62,6 @@ productionSchema = new Schema ({
     project: project,
     site: site,
     concession: concession
-
 });
 
 productionSchema.plugin(mongooseHistory, hst_options);

@@ -67,7 +67,6 @@ transferSchema = new Schema ({
     project: project,
     site: site,
     concession: concession
-
 });
 
 transferSchema.plugin(mongooseHistory, hst_options);
