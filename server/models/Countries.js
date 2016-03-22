@@ -16,9 +16,7 @@ countrySchema = new Schema({
     name: String,
     country_aliases: [{
         type: ObjectId,
-        ref: 'Alias'}],
-    projects:[fact],
-    country_commodity: [fact]
+        ref: 'Alias'}]
 });
 
 //countrySchema.plugin(mongooseHistory, options);
