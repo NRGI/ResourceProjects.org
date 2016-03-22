@@ -347,9 +347,9 @@ exports.getCompanyGroupByID = function(req, res) {
         if(company_len>0) {
             companyGroup.companies.forEach(function (company) {
                 ++company_counter;
-                Transfer.find({transfer_company: company._id})
-                    .populate('transfer_country')
-                    .populate('transfer_company', '_id company_name')
+                Transfer.find({company: company._id})
+                    .populate('country')
+                    .populate('company', '_id company_name')
                     .exec(function (err, transfers) {
                         transfer_len = transfers.length;
                         _.each(transfers, function (transfer) {

@@ -24,6 +24,17 @@ angular
                     position: 'topleft'
                 }
             }
+            //,
+            //paths: {
+            //    polygon: {
+            //        type: "polygon",
+            //        latlngs: [ {lat: 40.4,lng: -3.6833333}, {lat: 51.5,lng: -0.116667},{lat: 38.7166667,lng: -9.1333333},
+            //            {lat: 48.866667,lng: 2.333333}],
+            //        fillColor: 'red',
+            //        weight: 1,
+            //        color: 'red'
+            //    }
+            //}
         });
         setTimeout( function(){
             if ($scope.data.length > 0)
