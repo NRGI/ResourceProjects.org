@@ -37,7 +37,7 @@ var transferSchema, Transfer,
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country, site, field or project.'
     },
     transfer_accounting_basis_enu      = {
-        values: 'cash accrual'.split(' '),
+        values: 'cash accrual unknown'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select cash or accrual.'
     };
 
