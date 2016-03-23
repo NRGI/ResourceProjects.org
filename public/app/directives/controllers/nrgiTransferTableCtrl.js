@@ -3,14 +3,13 @@
 angular
     .module('app')
     .controller('nrgiTransferTableCtrl', function ($scope) {
-        console.log($scope)
         setTimeout(function(){
             $scope.csv_transfers =[]; var header_transfer=[]; var fields=[];
             var headers = [
                 {name:'Year',status:true,field:'transfer_year'},
                 {name:'Project',status:$scope.project,field:'company'},
                 {name:'Paid by',status:!$scope.project,field:'company'},
-                {name:'Paid to',status:true,field:'transfer_country'},
+                {name:'Paid to',status:true,field:'country'},
                 {name:'Payment Type',status:true,field:'transfer_type'},
                 {name:'Currency',status:true,field:'transfer_unit'},
                 {name:'Value ',status:true,field:'transfer_value'},

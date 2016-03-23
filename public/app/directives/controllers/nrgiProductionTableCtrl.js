@@ -2,7 +2,7 @@
 angular.module('app').controller('nrgiProductionTableCtrl', function ($scope) {
     setTimeout(function(){
         $scope.csv_production =[];
-        $scope.getHeaderProduction = function () {return ['Year', 'Volume', 'Unit', 'Commodity', 'Price', 'Price unit']};
+        $scope.getHeaderProduction = function () {return ['Year', 'Volume', 'Unit', 'Commodity', 'Price', 'Price unit', 'Level']};
 
         angular.forEach($scope.production, function(p) {
             $scope.csv_production.push({
@@ -11,7 +11,8 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope) {
                 'unit': p.production_unit,
                 'commodity': p.production_commodity.commodity_name,
                 'price': p.production_price,
-                'price_unit': p.production_price_unit
+                'price_unit': p.production_price_unit,
+                'level': p.production_level
             });
 
         })
