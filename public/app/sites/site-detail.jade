@@ -1,0 +1,128 @@
+.container
+    .page-header
+        h1
+            span(ng-bind-html="site.site_name|sanitize")
+            =' '
+            small(ng-if='site.field') Field
+            small(ng-if='!site.field') Site
+    .row
+        .col-md-12
+            nrgi-leaflet(data='site.coordinates' site='true')
+    .row
+        .col-md-6
+            .info-box
+                h2(ng-if='site.field') Field Info
+                h2(ng-if='!site.field') Site Info
+                table#site-info
+                    tbody
+                        tr
+                            td.detail_label.small ID:
+                            td.site_id {{site._id}}
+                        tr
+                            td.detail_label.small Project(s) name:
+                            td.site_site: text(ng-repeat="project in site.projects | unique: '_id'")
+                                a(href='project/{{project.proj_id}}')
+                                    | {{project.proj_name}}
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Country:
+                            td.site_country: text(ng-repeat="country in site.site_country | unique: 'iso2'")
+                                a(href='country/{{country.country.iso2}}')
+                                    span(ng-bind-html="country.country.name|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Aliases:
+                            td.site_aliases: span(ng-repeat="alias in site.site_aliases | unique: 'alias'")
+                                span {{alias.alias}}
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodity Type(s):
+                            td.site_type
+                                span(ng-repeat='type in site.site_type')
+                                    span {{type.string | ucfirst}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodities:
+                            td.site_commodities
+                                text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
+                                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Status:
+                            td.site_status: text(
+                            ng-repeat="status in site.site_status"
+                            ng-if="site.site_status.length > 0")
+                                text(ng-if="$last")
+                                    | {{status.string | ucfirst}}
+                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        tr
+                            td.detail_label.small Contracts:
+                            td.site_contracts: span(ng-repeat='contract in site.contracts')
+                                a(href='contract/{{contract.contract_id}}')
+                                    span(ng-bind-html="contract.contract_id|sanitize")
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Concessions:
+                            td.site_concessions: text(
+                            ng-repeat="concession in site.concessions | unique: '_id'")
+                                a(href='concession/{{concession._id}}')
+                                    span(ng-bind-html="concession.concession_name|sanitize")
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Address:
+                            td.site_address: text(
+                            ng-repeat='address in site.site_address')
+                                span(ng-bind-html="address.string|sanitize")
+                                | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small(colspan='2')
+                                p Location(s):
+                                table.table.table-striped.locations(ts-wrapper)
+                                    tbody
+                                        tr
+                                            th.tablesort-sortable-th(ts-criteria='name') Name
+                                            th.tablesort-sortable-th(ts-criteria='lat') Lat
+                                            th.tablesort-sortable-th(ts-criteria='lng') Lng
+                                            th.tablesort-sortable-th(ts-criteria='lng') Type
+                                            th.location-th
+                                        tr(ng-repeat='location in site.coordinates',ts-repeat)
+                                            td.location_name
+                                                text {{location.message}}
+                                            td.location_lat
+                                                span(ng-if='location.lat') {{location.lat}}
+                                            td.location_lng
+                                                span(ng-if='location.lng') {{location.lng}}
+                                            td.location_type
+                                                span(ng-if='location.type') {{location.type}}
+                                            td.location_timestamp
+                                                span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
+        .col-md-6
+            .info-box
+                h2
+                    | &nbsp;
+                table#site-description
+                    tbody
+                        tr
+                            td.project-label.our-id Desctiption:
+                            td.project-description
+                                span(ng-bind-html="site.description|sanitize")
+            nrgi-company-table(
+            companies="site.companies"
+            stake="true"
+            group="true")
+    .row
+        .col-md-12
+            nrgi-production-table(
+            production="site.production"
+            projectlink="true")
+    .row
+        .col-md-12
+            nrgi-transfer-table(
+            transfers="site.transfers"
+            site="false"
+            projectlink="true")
+
+    .row
+        .col-md-12
+            nrgi-sources-table(sources="site.sources")

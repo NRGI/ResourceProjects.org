@@ -252,6 +252,33 @@ angular.module('app')
                 resolve: routeRoleChecks.supervisor
             })
 
+            .when('/sites', {
+                templateUrl: '/partials/sites/site-list',
+                controller: 'nrgiSiteListCtrl'
+            })
+            .when('/site/:id', {
+                templateUrl: '/partials/sites/site-detail',
+                controller: 'nrgiSiteDetailCtrl'
+            })
+            .when('/sites/map', {
+                templateUrl: '/partials/sites/mapSiteAndProject',
+                controller: 'nrgiMapSiteCtrl'
+            })
+            //.when('/admin/site-admin', {
+            //    templateUrl: '/partials/admin/sites/site-admin',
+            //    controller: 'nrgiSiteAdminCtrl',
+            //    resolve: routeRoleChecks.supervisor
+            //})
+            //.when('/admin/create-site', {
+            //    templateUrl: '/partials/admin/sites/create-site',
+            //    controller: 'nrgiSiteAdminCreateCtrl',
+            //    resolve: routeRoleChecks.supervisor
+            //})
+            //.when('/admin/site-admin/:id', {
+            //    templateUrl: '/partials/admin/sites/site-admin-update',
+            //    controller: 'nrgiSiteAdminUpdateCtrl',
+            //    resolve: routeRoleChecks.supervisor
+            //})
             .when('/glossary', {
                 templateUrl: '/partials/common/glossary'
             })

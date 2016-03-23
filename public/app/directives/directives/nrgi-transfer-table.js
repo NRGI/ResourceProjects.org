@@ -9,7 +9,7 @@ angular
             scope: {
                 transfers: '=',
                 project: '=',
-                project_link: '='
+                projectlink: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-transfer-table'
         };
