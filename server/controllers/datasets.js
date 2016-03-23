@@ -45,10 +45,10 @@ exports.getDatasets = function(req, res) {
                     async.each(datasets, function (dataset, ecallback) {
                         var action_ids = [];
                         var action_id;
-                        for (action_id of dataset.actions) {
-                          action_ids.push(action_id);
-                        }
-                        Duplicate.find(
+                        //for (action_id of dataset.actions) {
+                        //  action_ids.push(action_id);
+                        //}
+                      Duplicate.find(
                             { created_from: { $in: action_ids } },
                             function (err, duplicates) {
                                 if (duplicates.length > 0) {
