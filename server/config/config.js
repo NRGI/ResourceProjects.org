@@ -7,6 +7,7 @@ module.exports 	= {
         db: 'mongodb://localhost/rp_local',
         rootPath: rootPath,
         port: process.env.PORT || 30030
+    },
     staging : {
         baseUrl: 'http://dev.resourceprojects.org',
         //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
