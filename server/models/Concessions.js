@@ -26,6 +26,10 @@ var sourceSchema, concessionSchema, Concession,
     status_enu  = {
         values: 'exploration development production on_hold inactive unknown'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
+    },
+    type_enu  = {
+        values: 'mining oil'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select mining or oil.'
     };
 
 concessionSchema = new Schema ({
@@ -50,6 +54,14 @@ concessionSchema = new Schema ({
             default: Date.now()}}],
     concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
     concession_commodity: [fact],
+    concession_commodity_type: [{
+        source: source,
+        string: {
+            type: String,
+            enum: type_enu},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     concession_polygon: [fact],
 
     //External Links
