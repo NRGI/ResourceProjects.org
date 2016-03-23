@@ -3,9 +3,9 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='transfer_year|parseInt') Year
-            th.tablesort-sortable-th(ng-if="project==true" ts-criteria='transfer_project.project_name') Project
-            th.tablesort-sortable-th(ts-criteria='transfer_company.company_name') Paid by
-            th.tablesort-sortable-th(ng-if="project!=true" ts-criteria='transfer_country.name') Paid to
+            th.tablesort-sortable-th(ng-if="project==true" ts-criteria='project.project_name') Project
+            th.tablesort-sortable-th(ts-criteria='company.company_name') Paid by
+            th.tablesort-sortable-th(ng-if="project!=true" ts-criteria='country.name') Paid to
             th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
             th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
             th.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value
@@ -17,14 +17,14 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
         ng-repeat="transfer in transfers | unique: '_id'"
         ts-repeat)
             td.transfer_year {{transfer.transfer_year}}
-            td.transfer_company(ng-if="project==true"): a(href="project/{{transfer.transfer_project._id}}")
-                span(ng-bind-html="transfer.transfer_project.proj_name|sanitize")
-            td.transfer_company: a(href="company/{{transfer.transfer_company._id}}")
-                span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
+            td.transfer_company(ng-if="project==true"): a(href="project/{{transfer.project._id}}")
+                span(ng-bind-html="transfer.project.proj_name|sanitize")
+            td.transfer_company: a(href="company/{{transfer.company._id}}")
+                span(ng-bind-html="transfer.company.company_name|sanitize")
             //td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.transfer_company._id}}")
             //    span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
-            td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.transfer_country.iso2}}")
-                span(ng-bind-html="transfer.transfer_country.name|sanitize")
+            td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.country.iso2}}")
+                span(ng-bind-html="transfer.country.name|sanitize")
             td.transfer_type {{transfer.transfer_type}}
             td.transfer_unit {{transfer.transfer_unit}}
             td.transfer_value {{transfer.transfer_value}}

@@ -12,8 +12,7 @@ var Country 		= require('mongoose').model('Country'),
     request         = require('request');
 
 exports.getCountries = function(req, res) {
-    var country_len,country_counter,
-        limit = Number(req.params.limit),
+    var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
     async.waterfall([
@@ -54,20 +53,36 @@ exports.getCountries = function(req, res) {
                 }
             });
     }
+	var countries_len,countries_counter=0,models_len,models_counter=0,counter=0;
+	var models =[];
+	models = [
+		{name:'Project',field:'proj_country.country',arr:'projects'},
+		{name:'Site',field:'site_country.country',arr:'sites'},
+		{name:'Concession',field:'concession_country.country',arr:'concessions'},
+		{name:'Transfer',field:'country',arr:'transfers'},
+		{name:'Production',field:'country',arr:'productions'}
+	];
     function getCountryProjectCount(country_count, countries, callback) {
-        country_len = countries.length;
-        country_counter = 0;
-        countries.forEach(function (c) {
-            Project.find({'proj_country.country': c._id}).count().exec(function(err, project_count) {
-                ++country_counter;
-                c.projects = project_count;
-                if(country_counter == country_len) {
-                    res.send({data:countries, count:country_count});
-                }
-            });
+		countries_len = countries.length;
+		models_len = models.length;
+		_.each(countries, function(country) {
+			models_counter=0;
+			_.each(models, function(model) {
+				countries_counter++;
+				var name = require('mongoose').model(model.name);
+				var $field = model.field;
+				counter=0;
+				name.find().where($field, country._id).exec(function (err, responce) {
+					models_counter++;
+					country[model.arr] = responce.length;
+					if (models_counter == countries_counter) {
+						res.send({data:countries, count:country_count});
+					}
+				});
+			});
+		})
+	}
 
-        });
-    }
 };
 exports.getCountryByID = function(req, res) {
 	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;

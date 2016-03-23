@@ -57,6 +57,7 @@ projectSchema = new Schema({
     proj_address: [fact],
     proj_coordinates: [fact],
     proj_operated_by: [fact],
+    proj_company_share: [fact],
     proj_status: [{
         source: source,
         string: {

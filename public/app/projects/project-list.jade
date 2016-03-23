@@ -30,7 +30,9 @@
                 th.tablesort-sortable-th(ts-criteria='proj_type[proj_type.length - 1].string') Commodity Type
                 th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length-1].commodity_name') Commodity
                 th.tablesort-sortable-th(ts-criteria='proj_status[proj_status.length-1].string') Status
-                th.tablesort-sortable-th(ts-criteria="companies|parseInt")  No.Companies
+                th.tablesort-sortable-th(ts-criteria="companies|parseInt")  No. Companies
+                th.tablesort-sortable-th(ts-criteria="transfers|parseInt")  No. Payments
+                th.tablesort-sortable-th(ts-criteria="site_transfers|parseInt")  No. Associated Payments
         tbody
             tr(ng-repeat="project in projects | unique: '_id'",ts-repeat)
                 td.proj_name
@@ -51,6 +53,8 @@
                         | {{status.string | ucfirst}}
                         text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.proj_companies {{project.companies}}
+                td.proj_companies {{project.transfers}}
+                td.proj_companies {{project.site_transfers}}
 
 
     nrgi-list-nav(

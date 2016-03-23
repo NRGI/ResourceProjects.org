@@ -262,12 +262,12 @@ exports.getCompanyByID = function(req, res) {
                                 company.transfers.push({
                                     _id: link.transfer._id,
                                     transfer_year: link.transfer.transfer_year,
-                                    transfer_company: {
+                                    company: {
                                         company_name: link.transfer.company.company_name,
                                         _id:link.transfer.company._id},
-                                    transfer_country: {
-                                        name: link.transfer.transfer_country.name,
-                                        iso2: link.transfer.transfer_country.iso2},
+                                    country: {
+                                        name: link.transfer.country.name,
+                                        iso2: link.transfer.country.iso2},
                                     transfer_type: link.transfer.transfer_type,
                                     transfer_unit: link.transfer.transfer_unit,
                                     transfer_value: link.transfer.transfer_value,
@@ -480,10 +480,10 @@ exports.getCompanyByID = function(req, res) {
                         company.transfers.push({
                             _id: transfer._id,
                             transfer_year: transfer.transfer_year,
-                            transfer_company: {
+                            company: {
                                 company_name: transfer.company.company_name,
                                 _id: transfer.company._id},
-                            transfer_country: {
+                            country: {
                                 name: transfer.country.name,
                                 iso2: transfer.country.iso2},
                             transfer_type: transfer.transfer_type,
@@ -560,10 +560,10 @@ exports.getCompanyByID = function(req, res) {
                                 company.transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
-                                    transfer_company: {
+                                    company: {
                                         company_name: transfer.company.company_name,
                                         _id: transfer.company._id},
-                                    transfer_country: {
+                                    country: {
                                         name: transfer.country.name,
                                         iso2: transfer.country.iso2},
                                     transfer_type: transfer.transfer_type,
@@ -668,10 +668,10 @@ exports.getCompanyByID = function(req, res) {
                                 company.transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
-                                    transfer_company: {
+                                    company: {
                                         company_name: transfer.company.company_name,
                                         _id: transfer.company._id},
-                                    transfer_country: {
+                                    country: {
                                         name: transfer.country.name,
                                         iso2: transfer.country.iso2},
                                     transfer_type: transfer.transfer_type,
