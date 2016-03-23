@@ -22,9 +22,9 @@
                 tr(ng-repeat="dataset in datasets | filter:search_text | orderBy:sort_order")
                     td
                         text {{dataset.name}}
-                    td(style={"width": "30%", "word-wrap": "break-word"})
+                    td(style={"width": "25%", "word-wrap": "break-word"})
                         a(href="{{dataset.source_url}}").wrap-content {{dataset.source_url}}
-                    td
+                    td(style={"width": "30%"})
                         p(ng-repeat="action in dataset.actions")
                             text {{action.name}} &nbsp;
                             a(ng-if="action.status == 'Success'" class=["label", "label-success"] data-toggle="tooltip" title="{{action.details.substr(0, 100) + '\n(Click to read full report)'}}" href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}" target="_new") Success

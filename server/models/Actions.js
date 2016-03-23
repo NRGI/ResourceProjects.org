@@ -22,6 +22,7 @@ actionSchema = new Schema({
 Action = mongoose.model('Action', actionSchema);
 
 function createDefaultActions() {
+    Action.update({status: 'Started'}, {status: 'Failed'}, function(err){console.log(err);}); //Mark any unfinished as failed
     Action.find({}).exec(function(err, actions) {
         if(actions.length === 0) {
             console.log('Creating dummy action for CS API Import');

@@ -30,6 +30,90 @@ function createDefaultDatasets() {
                 actions: []
             });
             Dataset.create({
+                name: "Google Sheet: Kosmos 2014 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1PqOOcgbshEVo54oMJenW8HBWekAAOlnm2XKW7NE4MQA/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Ghana Mining Resource Projects 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1SM6TEDpVIAMOSN_b2zF8LnoPezOveihOM3zqC9FLZNU/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Mali 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1bdDzInl_sn6TIbAuSF49b3flzbdJHvuSOdskmByaInE/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Norway Tullow 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1VAIeZus4yscc5J2hSS1OBbD_9TCvu7YukAExupFwZp4/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Tullow 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1FFFmO6y62NCM8eJKGs_QWnEImwzU0RJ26EYwRh8qCpk/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Norwegian Companies 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1KDhQpIXLcy4uI8FJ17W9r7NPQIiQBdzjSzSCX7K9L7w/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: PH-EITI 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1S3aECv4WlUG1d0rIGVY7GJOdVNwWwPHR6z-r3J5Xnz0/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: EITI 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1_A02orMgpdlhdj5FheurrnY4ieO0HdTQNJ33pBjuYpY/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Mexico 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1bONyv_X918RZMDLmJ2kdDxHYy5IuImvI3c0CMkYSKEg/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: World Bank - Africa Map Mines locations 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/16EP82rUWlA3lc9j6rTINjbayOPP18IDtn6BKI8E3TM4/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Peru 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1gl3syhKsI-pR_lx3KykuKOLnHrp7ir2fRxjaPTO3DgM/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Statoil 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/17FDwVbDCReeWxufE2Gab1yw1PqJpQIt6pASM92d7sl4/pub?output=csv',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
                 _id: '56737e170e8cc07115211ee4',
                 name: "Companies House API",
                 type: "Placeholder for CRON Job",
