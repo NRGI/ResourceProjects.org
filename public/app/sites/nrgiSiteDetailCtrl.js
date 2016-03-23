@@ -12,8 +12,3 @@ angular.module('app')
             $scope.site = success;
         });
     });
-
-
-
-
-
