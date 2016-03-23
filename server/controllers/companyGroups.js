@@ -60,14 +60,14 @@ exports.getCompanyGroups = function(req, res) {
                     link_len = links.length;
                     link_counter = 0;
                     c.company_count = 0;
-                    c.companies = [];
+                    c.companies = {};
                     links.forEach(function(link) {
                         ++link_counter;
 
                         var entity = _.without(link.entities, 'company_group')[0];
                         switch (entity) {
                             case 'company':
-                                c.companies.push(link.company);
+                                c.companies={company: link.company._id};
                                 c.company_count += 1;
                                 break;
                             //
@@ -90,21 +90,24 @@ exports.getCompanyGroups = function(req, res) {
         companyGroup_counter = 0;
         if(companyGroup_len>0) {
             async.forEach(companyGroups, function (group) {
-                companies_counter = 0;
                 group.project_count = 0;
-                async.forEachOfSeries(group.companies, function (c) {
-                    ++companyGroup_counter;
-                    Link.find({company: c._id,$or:[ {entities:'project'}] })
+                if(Object.keys(group.companies).length != 0) {
+                    Link.find({entities: 'project',$or: [group.companies]})
                         .count()
-                        .exec(function(err, proj_count) {
-                            ++companies_counter;
+                        .exec(function (err, proj_count) {
+                            ++companyGroup_counter;
                             group.project_count = proj_count;
-                            if (companyGroup_counter == companies_counter) {
-                                res.send({data:companyGroups, count:companyGroup_count});
+                            if (companyGroup_counter == companyGroup_len) {
+                                res.send({data: companyGroups, count: companyGroup_count});
                             }
                         });
+                }else{
+                    ++companyGroup_counter;
+                }
+                if(Object.keys(group.companies).length == 0 && companyGroup_counter == companyGroup_len) {
+                    res.send({data: companyGroups, count: companyGroup_count});
+                }
                 });
-            });
         } else {
             res.send({data:companyGroups, count:companyGroup_count});
         }
