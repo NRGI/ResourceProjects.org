@@ -1,4 +1,4 @@
-var Project 		= require('mongoose').model('Project'),
+var Site 		    = require('mongoose').model('Site'),
     Country 		= require('mongoose').model('Country'),
     Source	 		= require('mongoose').model('Source'),
     Link 	        = require('mongoose').model('Link'),
@@ -9,144 +9,142 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request'),
     encrypt 		= require('../utilities/encryption');
 
-exports.getProjects = function(req, res) {
-    var project_len, link_len, project_counter, link_counter,
+exports.getSites = function(req, res) {
+    var site_len, link_len, site_counter, link_counter,
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
     async.waterfall([
-        projectCount,
-        getProjectSet,
-        getProjectLinks,
+        siteCount,
+        getSiteSet,
+        getSiteLinks,
         getTransfersCount,
-        getSiteTransfersCount
+        getProductionsCount
     ], function (err, result) {
         if (err) {
             res.send(err);
         }
     });
-    function projectCount(callback) {
-        Project.find({}).count().exec(function(err, project_count) {
-            if(project_count) {
-                callback(null, project_count);
+    function siteCount(callback) {
+        Site.find({}).count().exec(function(err, site_count) {
+            if(site_count) {
+                callback(null, site_count);
             } else {
                 callback(err);
             }
         });
     }
-    function getProjectSet(project_count, callback) {
-        Project.find(req.query)
-            .sort({
-                proj_name: 'asc'
-            })
+    function getSiteSet(site_count, callback) {
+        Site.find(req.query)
+            //.sort({
+            //    proj_name: 'asc'
+            //})
             .skip(skip)
             .limit(limit)
-            .populate('proj_country.country', '_id iso2 name')
-            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id')
+            .populate('site_country.country', '_id iso2 name')
+            .populate('site_commodity.commodity', ' _id commodity_name commodity_id')
             .lean()
-            .exec(function(err, projects) {
-                if(projects.length>0) {
+            .exec(function(err, sites) {
+                if(sites.length>0) {
                     //TODO clean up returned data if we see performance lags
-                    callback(null, project_count, projects);
+                    callback(null, site_count, sites);
                 } else {
                     //callback(err);
-                    res.send({data: projects, count: project_count});
+                    res.send({data: sites, count: site_count});
                 }
             });
     }
-    function getProjectLinks(project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0) {
-            projects.forEach(function (project) {
-                // Link.find({project: project._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
-                Link.find({project: project._id,$or:[ {entities:'company'}, {entities:'site'}]  })
+    function getSiteLinks(site_count, sites, callback) {
+        site_len = sites.length;
+        site_counter = 0;
+        if(site_len>0) {
+            sites.forEach(function (site) {
+                // Link.find({site: site._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
+                Link.find({site: site._id,$or:[ {entities:'company'},{entities:'project'},{entities:'concession'}]  })
                     .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
-                    .populate('site')
+                    //.populate('site')
                     .exec(function (err, links) {
-                        ++project_counter;
+                        ++site_counter;
                         link_len = links.length;
                         link_counter = 0;
-                        project.companies = 0;
-                        project.sites = [];
+                        site.companies = 0;
+                        site.projects = 0;
+                        site.concessions = 0;
+                        //site.sites = [];
                         links.forEach(function (link) {
                             ++link_counter;
-                            var entity = _.without(link.entities, 'project')[0];
+                            var entity = _.without(link.entities, 'site')[0];
                             switch (entity) {
                                 case 'company':
-                                    project.companies += 1;
+                                    site.companies += 1;
                                     break;
-                                case 'site':
-                                    project.sites.push({
-                                        _id: link.site._id,
-                                        field: link.site.field,
-                                        site_name: link.site.site_name
-                                    });
+                                case 'project':
+                                    site.projects += 1;
+                                    break;
+                                case 'concession':
+                                    site.concessions += 1;
                                     break;
                                 default:
                                     console.log('error');
                             }
                         });
-                        if (project_counter == project_len && link_counter == link_len) {
-                            callback(null, project_count, projects);
+                        if (site_counter == site_len && link_counter == link_len) {
+                            callback(null, site_count, sites);
                         }
                     });
             });
         } else{
-            callback(null, project_count, projects);
+            callback(null, site_count, sites);
         }
     }
-    function getTransfersCount(project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
-        _.each(projects, function (project) {
-            ++project_counter;
-            project.transfers = 0;
-            Transfer.find({project: project._id})
+    function getTransfersCount(site_count, sites, callback) {
+        site_len = sites.length;
+        site_counter = 0;
+        _.each(sites, function (site) {
+
+            site.transfers = 0;
+            Transfer.find({site: site._id})
                 .lean()
                 .exec(function (err, transfers) {
-                    project.transfers = transfers.length;
-                    if (project_counter === project_len) {
-                        callback(null, project_count, projects);
-                        //res.send({data: projects, count: project_count});
+                    ++site_counter;
+                    site.transfers = transfers.length;
+                    if (site_counter === site_len) {
+                        callback(null, site_count, sites);
                     }
                 })
         });
     }
-    function getSiteTransfersCount(project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
+    function getProductionsCount(site_count, sites, callback) {
+        site_len = sites.length;
         site_counter = 0;
-        _.each(projects, function (project) {
-            site_counter=0;
-            project.site_transfers = 0;
-            _.each(project.sites, function (site) {
-                ++project_counter;
-                Transfer.find({site: site._id})
-                    .lean()
-                    .exec(function (err, transfers) {
-                        site_counter++;
-                        project.site_transfers += 1;
-                        if (site_counter == project_counter) {
-                            res.send({data: projects, count: project_count});
-                        }
-                    })
-            });
-        })
+        _.each(sites, function (site) {
+
+            site.productions = 0;
+            Production.find({site: site._id})
+                .lean()
+                .exec(function (err, productions) {
+                    ++site_counter;
+                    site.productions = productions.length;
+                    if (site_counter === site_len) {
+                        res.send({data: sites, count: site_count});
+                    }
+                })
+        });
+
     }
 };
-exports.getProjectByID = function(req, res) {
-    var site_len, site_counter, link_counter, link_len, project_counter, project_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
+exports.getSiteByID = function(req, res) {
+    var site_len, site_counter, link_counter, link_len, site_counter, site_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
 
     async.waterfall([
-        getProject,
-        getProjectLinks,
+        getSite,
+        getSiteLinks,
         getTransfers,
         getProduction,
-        getSiteTransfers,
-        getSiteProduction,
-        getProjectCoordinate,
+        getProjectTransfers,
+        getProjectProduction,
+        getSiteCoordinate,
         getCompanyGroup
     ], function (err, result) {
         if (err) {
@@ -154,33 +152,31 @@ exports.getProjectByID = function(req, res) {
             res.send(err);
         }
     });
-	function getProject(callback) {
-        Project.findOne({proj_id:req.params.id})
-            .populate('proj_country.country')
-            .populate('proj_aliases', '_id alias')
-            .populate('proj_commodity.commodity')
+	function getSite(callback) {
+        Site.findOne({_id:req.params.id})
+            .populate('site_country.country', '_id iso2 name')
+            .populate('site_commodity.commodity', ' _id commodity_name commodity_id')
+            .populate('site_aliases', '_id alias')
             .lean()
-            .exec(function(err, project) {
-                if(project) {
-                    callback(null, project);
+            .exec(function(err, site) {
+                if(site) {
+                    callback(null, site);
                 } else {
                     callback(err);
                 }
             });
     }
-    function getProjectLinks(project, callback) {
-        project.companies = [];
-        project.projects = [];
-        project.concessions = [];
-        project.contracts = [];
-        project.sites = [];
-        project.site_coordinates = {sites: [], fields: []};
-        project.sources = {};
-        Link.find({project: project._id})
+    function getSiteLinks(site, callback) {
+        site.companies = [];
+        site.concessions = [];
+        site.contracts = [];
+        site.projects = [];
+        site.sources = {};
+        Link.find({site: site._id})
             .populate('company')
             .populate('contract')
             .populate('concession')
-            .populate('site')
+            .populate('project')
             .deepPopulate('company_group source.source_type_id')
             .exec(function(err, links) {
                 if(links.length>0) {
@@ -188,47 +184,24 @@ exports.getProjectByID = function(req, res) {
                     link_counter = 0;
                     links.forEach(function (link) {
                         ++link_counter;
-                        var entity = _.without(link.entities, 'project')[0];
-                        if (!project.sources[link.source._id]) {
+                        var entity = _.without(link.entities, 'site')[0];
+                        if (!site.sources[link.source._id]) {
                             //TODO clean up returned data if performance lags
-                            project.sources[link.source._id] = link.source;
+                            site.sources[link.source._id] = link.source;
                         }
                         switch (entity) {
-                            case 'site':
-                                project.sites.push({
-                                    _id: link.site._id,
-                                    field: link.site.field,
-                                    site_name: link.site.site_name
+                            case 'project':
+                                site.projects.push({
+                                    _id: link.project._id,
+                                   proj_name: link.project.proj_name,
+                                   proj_id: link.project.proj_id
                                 });
-                                if (link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        project.site_coordinates.fields.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
-                                    });
-                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        project.site_coordinates.sites.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
-                                    });
-                                }
                                 break;
                             case 'commodity':
                                 if(link.commodity) {
-                                    if (project.commodities!=undefined) {
-                                        if (!project.commodities.hasOwnProperty(link.commodity_code)) {
-                                            project.commodities.push({
+                                    if (site.commodities!=undefined) {
+                                        if (!site.commodities.hasOwnProperty(link.commodity_code)) {
+                                            site.commodities.push({
                                                 _id: link.commodity._id,
                                                 commodity_name: link.commodity.commodity_name,
                                                 commodity_id: link.commodity.commodity_id
@@ -238,37 +211,37 @@ exports.getProjectByID = function(req, res) {
                                 }
                                 break;
                             case 'company':
-                                if (!project.companies.hasOwnProperty(link.company._id)) {
-                                    project.companies.push({
+                                if (!site.companies.hasOwnProperty(link.company._id)) {
+                                    site.companies.push({
                                         _id: link.company._id,
                                         company_name: link.company.company_name
                                     });
                                 }
                                 break;
                             case 'concession':
-                                project.concessions.push({
+                                site.concessions.push({
                                     _id: link.concession._id,
                                     concession_name: link.concession.concession_name
                                 });
                                 break;
                             case 'contract':
-                                project.contracts.push(link.contract);
+                                site.contracts.push(link.contract);
                                 break;
                             default:
                                 console.log('switch (entity) error');
                         }
                         if(link_counter == link_len) {
-                            callback(null, project);
+                            callback(null, site);
                         }
                     });
                 }else {
-                    callback(null, project);
+                    callback(null, site);
                 }
             });
     }
-    function getTransfers(project, callback) {
-        project.transfers = [];
-        Transfer.find({project: project._id})
+    function getTransfers(site, callback) {
+        site.transfers = [];
+        Transfer.find({site: site._id})
             .populate('company country')
             .deepPopulate('source.source_type_id')
             .lean()
@@ -277,12 +250,12 @@ exports.getProjectByID = function(req, res) {
                 transfers_len = transfers.length;
                 if (transfers_len>0) {
                     transfers.forEach(function (transfer) {
-                        if (!project.sources[transfer.source._id]) {
+                        if (!site.sources[transfer.source._id]) {
                             //TODO clean up returned data if performance lags
-                            project.sources[transfer.source._id] = transfer.source;
+                            site.sources[transfer.source._id] = transfer.source;
                         }
                         ++transfers_counter;
-                        project.transfers.push({
+                        site.transfers.push({
                             _id: transfer._id,
                             transfer_year: transfer.transfer_year,
                             company: {
@@ -296,20 +269,20 @@ exports.getProjectByID = function(req, res) {
                             transfer_value: transfer.transfer_value,
                             transfer_level: transfer.transfer_level,
                             transfer_audit_type: transfer.transfer_audit_type,
-                            proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
+                            proj_site:{name:site.site_name,_id:site._id,type:'site'}
                         });
                         if (transfers_counter===transfers_len) {
-                            callback(null, project);
+                            callback(null, site);
                         }
                     });
                 } else {
-                    callback(null, project);
+                    callback(null, site);
                 }
             });
     }
-    function getProduction(project, callback) {
-        project.production = [];
-        Production.find({project: project._id})
+    function getProduction(site, callback) {
+        site.production = [];
+        Production.find({site: site._id})
             .populate('production_commodity')
             .deepPopulate('source.source_type_id')
             .lean()
@@ -318,12 +291,12 @@ exports.getProjectByID = function(req, res) {
                 production_len = production.length;
                 if (production_len>0) {
                     production.forEach(function (prod) {
-                        if (!project.sources[prod.source._id]) {
+                        if (!site.sources[prod.source._id]) {
                             //TODO clean up returned data if performance lags
-                            project.sources[prod.source._id] = prod.source;
+                            site.sources[prod.source._id] = prod.source;
                         }
                         ++production_counter;
-                        project.production.push({
+                        site.production.push({
                             _id: prod._id,
                             production_year: prod.production_year,
                             production_volume: prod.production_volume,
@@ -335,23 +308,23 @@ exports.getProjectByID = function(req, res) {
                             production_price: prod.production_price,
                             production_price_unit: prod.production_price_unit,
                             production_level: prod.production_level,
-                            proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
+                            proj_site:{name:site.site_name,_id:site._id,type:'site'}
                         });
                         if (production_counter===production_len) {
-                            callback(null, project);
+                            callback(null, site);
                         }
                     });
                 } else {
-                    callback(null, project);
+                    callback(null, site);
                 }
             });
     }
-    function getSiteTransfers(project, callback) {
-        site_len = project.sites.length;
+    function getProjectTransfers(site, callback) {
+        site_len = site.projects.length;
         site_counter = 0;
         if(site_len>0) {
-            project.sites.forEach(function (site) {
-                Transfer.find({site:site._id})
+            site.projects.forEach(function (project) {
+                Transfer.find({project:project._id})
                     .populate('company country')
                     .deepPopulate('source.source_type_id')
                     .exec(function(err, transfers) {
@@ -360,12 +333,12 @@ exports.getProjectByID = function(req, res) {
                         transfers_len = transfers.length;
                         if (transfers_len>0) {
                             transfers.forEach(function (transfer) {
-                                if (!project.sources[transfer.source._id]) {
+                                if (!site.sources[transfer.source._id]) {
                                     //TODO clean up returned data if performance lags
-                                    project.sources[transfer.source._id] = transfer.source;
+                                    site.sources[transfer.source._id] = transfer.source;
                                 }
                                 ++transfers_counter;
-                                project.transfers.push({
+                                site.transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
                                     company: {
@@ -379,30 +352,30 @@ exports.getProjectByID = function(req, res) {
                                     transfer_value: transfer.transfer_value,
                                     transfer_level: transfer.transfer_level,
                                     transfer_audit_type: transfer.transfer_audit_type,
-                                    proj_site:{name:site.site_name,_id:site._id,type:'site'}
+                                    proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
                                 });
                                 if (site_counter===site_len && transfers_counter===transfers_len) {
-                                    callback(null, project);
+                                    callback(null, site);
                                 }
                             });
                         } else {
                             if (site_counter===site_len && transfers_counter===transfers_len) {
-                                callback(null, project);
+                                callback(null, site);
                             }
                         }
                     });
 
             });
         } else {
-            callback(null, project);
+            callback(null, site);
         }
     }
-    function getSiteProduction(project, callback) {
-        site_len = project.sites.length;
+    function getProjectProduction(site, callback) {
+        site_len = site.projects.length;
         site_counter = 0;
         if(site_len>0) {
-            project.sites.forEach(function (site) {
-                Production.find({site:site._id})
+            site.projects.forEach(function (project) {
+                Production.find({project:project._id})
                     .populate('production_commodity')
                     .deepPopulate('source.source_type_id')
                     .exec(function(err, production) {
@@ -411,12 +384,12 @@ exports.getProjectByID = function(req, res) {
                         production_len = production.length;
                         if (production_len>0) {
                             production.forEach(function (prod) {
-                                if (!project.sources[prod.source._id]) {
+                                if (!site.sources[prod.source._id]) {
                                     //TODO clean up returned data if performance lags
-                                    project.sources[prod.source._id] = prod.source;
+                                    site.sources[prod.source._id] = prod.source;
                                 }
                                 ++production_counter;
-                                project.production.push({
+                                site.production.push({
                                     _id: prod._id,
                                     production_year: prod.production_year,
                                     production_volume: prod.production_volume,
@@ -428,62 +401,51 @@ exports.getProjectByID = function(req, res) {
                                     production_price: prod.production_price,
                                     production_price_unit: prod.production_price_unit,
                                     production_level: prod.production_level,
-                                    proj_site:{name:site.site_name,_id:site._id,type:'site'}
+                                    proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
                                 });
                                 if (site_counter===site_len && production_counter===production_len) {
-                                    callback(null, project);
+                                    callback(null, site);
                                 }
                             });
                         } else {
                             if (site_counter===site_len && production_counter===production_len) {
-                                callback(null, project);
+                                callback(null, site);
                             }
                         }
                     });
 
             });
         } else {
-            callback(null, project);
+            callback(null, site);
         }
     }
-    function getProjectCoordinate(project, callback) {
-        project.coordinates = [];
-        if (project.site_coordinates.sites.length>0) {
-            project.site_coordinates.sites.forEach(function (site_loc) {
-                project.coordinates.push(site_loc);
-            })
-        }
-        if (project.site_coordinates.fields.length>0) {
-            project.site_coordinates.fields.forEach(function (field_loc) {
-                project.coordinates.push(field_loc);
-            })
-        }
-        project_counter = 0;
-        project_len = project.proj_coordinates.length;
-        if(project_len>0) {
-            project.proj_coordinates.forEach(function (loc) {
-                ++project_counter;
-                project.coordinates.push({
+    function getSiteCoordinate(site, callback) {
+        site.coordinates = [];
+        site_counter = 0;
+        site_len = site.site_coordinates.length;
+        if(site_len>0) {
+            site.site_coordinates.forEach(function (loc) {
+                ++site_counter;
+                site.coordinates.push({
                     'lat': loc.loc[0],
                     'lng': loc.loc[1],
-                    'message': project.proj_name,
+                    'message': site.site_name,
                     'timestamp': loc.timestamp,
-                    'type': 'project',
-                    'id': project.proj_id
+                    'id': site._id
                 });
-                if (project_counter == project_len) {
-                    callback(null, project);
+                if (site_counter == site_len) {
+                    callback(null, site);
                 }
             });
         } else {
-            callback(null, project);
+            callback(null, site);
         }
     }
-    function getCompanyGroup(project, callback) {
-        companies_len = project.companies.length;
+    function getCompanyGroup(site, callback) {
+        companies_len = site.companies.length;
         companies_counter = 0;
         if (companies_len > 0) {
-            project.companies.forEach(function (company) {
+            site.companies.forEach(function (company) {
                 Link.find({company: company._id, entities: 'company_group'})
                     .populate('company_group', '_id company_group_name')
                     .deepPopulate('source.source_type_id')
@@ -494,9 +456,9 @@ exports.getProjectByID = function(req, res) {
                         company.company_groups = [];
                         if (link_len > 0) {
                             links.forEach(function (link) {
-                                if (!project.sources[link.source._id]) {
+                                if (!site.sources[link.source._id]) {
                                     //TODO clean up returned data if performance lags
-                                    project.sources[link.source._id] = link.source;
+                                    site.sources[link.source._id] = link.source;
                                 }
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'company')[0];
@@ -513,51 +475,51 @@ exports.getProjectByID = function(req, res) {
                                         console.log('link doesn\'t specify a company_group but rather a ${entity}');
                                 }
                                 if (companies_counter == companies_len && link_counter == link_len) {
-                                    res.send(project);
+                                    res.send(site);
                                 }
                             });
                         } else if (companies_counter == companies_len) {
-                            res.send(project);
+                            res.send(site);
                         }
                     });
             });
         } else {
-            res.send(project);
+            res.send(site);
         }
     }
 };
-exports.getProjectsMap = function(req, res) {
-    var project_len, project_counter;
+exports.getSitesMap = function(req, res) {
+    var site_len, site_counter;
     async.waterfall([
-        getProject
+        getSite
     ], function (err, result) {
         if (err) {
             res.send(err);
         }
     });
 
-    function getProject(callback) {
-        Project.find(req.query)
+    function getSite(callback) {
+        Site.find(req.query)
             .lean()
-            .exec(function(err, projects) {
-                project_len = projects.length;
-                project_counter = 0;
+            .exec(function(err, sites) {
+                site_len = sites.length;
+                site_counter = 0;
                 var data = [];
-                if(projects) {
-                    projects.forEach(function (project) {
-                        ++project_counter;
-                        project.proj_coordinates.forEach(function (loc) {
+                if(sites) {
+                    sites.forEach(function (site) {
+                        ++site_counter;
+                        site.site_coordinates.forEach(function (loc) {
                             data.push({
                                 'lat': loc.loc[0],
                                 'lng': loc.loc[1],
-                                'message': project.proj_name,
+                                'message': site.site_name,
                                 'timestamp': loc.timestamp,
-                                'type': 'project',
-                                'id': project.proj_id
+                                'type': site.site_type,
+                                'id': site._id
                             })
                         })
                     });
-                    if(project_counter == project_len) {
+                    if(site_counter == site_len) {
                         res.send({data:data});}
                 } else {
                     callback(err);
@@ -565,9 +527,9 @@ exports.getProjectsMap = function(req, res) {
             });
     }
 };
-exports.createProject = function(req, res, next) {
-	var projectData = req.body;
-	Project.create(projectData, function(err, project) {
+exports.createSite = function(req, res, next) {
+	var siteData = req.body;
+	Site.create(siteData, function(err, site) {
 		if(err){
 			err = new Error('Error');
 			res.status(400);
@@ -577,26 +539,26 @@ exports.createProject = function(req, res, next) {
 		}
 	});
 };
-exports.updateProject = function(req, res) {
-	var projectUpdates = req.body;
-	Project.findOne({_id:req.body._id}).exec(function(err, project) {
+exports.updateSite = function(req, res) {
+	var siteUpdates = req.body;
+	Site.findOne({_id:req.body._id}).exec(function(err, site) {
 		if(err) {
 			err = new Error('Error');
 			res.status(400);
 			return res.send({ reason: err.toString() });
 		}
-		project.proj_name= projectUpdates.proj_name;
-		//project.proj_aliases= projectUpdates.proj_aliases;
-		//project.proj_established_source= projectUpdates.proj_established_source;
-		//project.proj_country= projectUpdates.proj_country;
-		//project.proj_type= projectUpdates.proj_type;
-		////project.proj_commodity= projectUpdates.proj_commodity;
-		//project.proj_site_name= projectUpdates.proj_site_name;
-		//project.proj_address= projectUpdates.proj_address;
-		//project.proj_coordinates= projectUpdates.proj_coordinates;
-		//project.proj_status= projectUpdates.proj_status;
-		//project.description= projectUpdates.description;
-		project.save(function(err) {
+		site.proj_name= siteUpdates.proj_name;
+		//site.proj_aliases= siteUpdates.proj_aliases;
+		//site.proj_established_source= siteUpdates.proj_established_source;
+		//site.proj_country= siteUpdates.proj_country;
+		//site.proj_type= siteUpdates.proj_type;
+		////site.proj_commodity= siteUpdates.proj_commodity;
+		//site.proj_site_name= siteUpdates.proj_site_name;
+		//site.proj_address= siteUpdates.proj_address;
+		//site.proj_coordinates= siteUpdates.proj_coordinates;
+		//site.proj_status= siteUpdates.proj_status;
+		//site.description= siteUpdates.description;
+		site.save(function(err) {
 			if(err) {
 				err = new Error('Error');
 				return res.send({reason: err.toString()});
@@ -606,8 +568,8 @@ exports.updateProject = function(req, res) {
 		})
 	});
 };
-exports.deleteProject = function(req, res) {
-    Project.remove({_id: req.params.id}, function(err) {
+exports.deleteSite = function(req, res) {
+    Site.remove({_id: req.params.id}, function(err) {
         if(!err) {
             res.send();
         }else{

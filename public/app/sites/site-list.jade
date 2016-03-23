@@ -1,0 +1,78 @@
+.container
+    .page-header
+        .row
+            .col-md-4
+                h1 Sites
+                small
+            .col-md-5
+            .col-md-3
+                .btn-group(role='group', aria-label='...')
+                    button.btn.btn-default.pull-right(type='button')
+                        a(href='/sites/map') Map View
+
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
+
+    table#sites.table.table-striped(ts-wrapper)
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='site_name') Name
+                th.tablesort-sortable-th(ts-criteria='type') Type
+                th.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(ts-criteria='site_type[site_type.length - 1].string') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='site_commodity[site_commodity.length-1].commodity_name') Commodity
+                th.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
+                th.tablesort-sortable-th(ts-criteria="companies|parseInt")  No. Companies
+                th.tablesort-sortable-th(ts-criteria="projects|parseInt")  No. Projects
+                th.tablesort-sortable-th(ts-criteria="concessions|parseInt")  No. Concessions
+                th.tablesort-sortable-th(ts-criteria="transfers|parseInt")  No. Payments
+                th.tablesort-sortable-th(ts-criteria="productions|parseInt")  No. Productions
+        tbody
+            tr(ng-repeat="site in sites | unique: '_id'",ts-repeat)
+                td.site_name
+                    a(href='site/{{site._id}}')
+                        span(ng-bind-html="site.site_name|sanitize")
+                td.site_type
+                    span(ng-if='site.field',ng-init="site.type='fied'") Field
+                    span(ng-if='!site.field',ng-init="site.type='site'") Site
+                td.site_country: text(ng-repeat="country in site.site_country | unique: 'country._id'")
+                    a(href='/country/{{country.country.iso2}}')
+                        span(ng-bind-html="country.country.name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.site_type: text(ng-repeat="type in site.site_type")
+                    text(ng-if="$last") {{type.string | ucfirst}}
+                td.site_commodity: text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
+                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.site_status: text(ng-repeat="status in site.site_status")
+                    text(ng-if="$last")
+                        | {{status.string | ucfirst}}
+                        text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                td.site_companies {{site.companies}}
+                td.site_projects {{site.projects}}
+                td.site_concessions {{site.concessions}}
+                td.site_companies {{site.transfers}}
+                td.site_companies {{site.productions}}
+
+
+    nrgi-list-nav(
+    page="page"
+    type="record_type"
+    show="show_count"
+    count="count"
+    limit="limit"
+    last="last"
+    next="next"
+    prev="prev"
+    first="first"
+    select="select")
