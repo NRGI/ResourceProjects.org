@@ -377,10 +377,10 @@ exports.getCountryByID = function(req, res) {
 	}
 	function getTransfers(country, callback) {
 		country.transfers = [];
-		Transfer.find({transfer_country: country._id})
-			.populate('transfer_country')
-			.populate('transfer_company', '_id company_name')
-			.populate('transfer_project', '_id proj_name')
+		Transfer.find({country: country._id})
+			.populate('country')
+			.populate('company', '_id company_name')
+			.populate('project', '_id proj_name')
 			.exec(function(err, transfers) {
 				if(transfers) {
 					_.each(transfers, function (transfer) {

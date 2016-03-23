@@ -11,7 +11,7 @@ var transferSchema, Transfer,
     ObjectId        = Schema.Types.ObjectId,
 //    mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Source'},
-    company         = {type: ObjectId, ref: 'Company'},
+    company         = {type: ObjectId, ref: 'Company', default: null}, //null default makes controller life much easier as company is not always present
     country         = {type: ObjectId, ref: 'Country'},
     project         = {type: ObjectId, ref: 'Project'},
     site            = {type: ObjectId, ref: 'Site'},

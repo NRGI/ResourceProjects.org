@@ -263,8 +263,8 @@ exports.getCompanyByID = function(req, res) {
                                     _id: link.transfer._id,
                                     transfer_year: link.transfer.transfer_year,
                                     transfer_company: {
-                                        company_name: link.transfer.transfer_company.company_name,
-                                        _id:link.transfer.transfer_company._id},
+                                        company_name: link.transfer.company.company_name,
+                                        _id:link.transfer.company._id},
                                     transfer_country: {
                                         name: link.transfer.transfer_country.name,
                                         iso2: link.transfer.transfer_country.iso2},
