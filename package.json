@@ -28,6 +28,7 @@
     "express": "^4.10.2",
     "express-session": "^1.9.1",
     "jade": "^1.7.0",
+    "just.randomstring": "^0.1.1",
     "moment": "^2.12.0",
     "mongoose": "^4.0.0",
     "mongoose-deep-populate": "^2.0.3",

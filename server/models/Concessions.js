@@ -41,7 +41,7 @@ concessionSchema = new Schema ({
     concession_established_source: source,
     description: htmlSettings,
     concession_country: [fact],
-    concessiom_operated_by: [fact],
+    concession_operated_by: [fact],
     concession_company_share: [fact],
     concession_status: [{
         source: source,
@@ -89,6 +89,9 @@ function createDefaultConcessions() {
                 concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
                 concession_commodity: [{source: '56747e060e8cc07115200ee5', commodity: '56a13e9942c8bef50ec2e9eb'}, {source: '56747e060e8cc07115200ee5', commodity: '56a13e9942c8bef50ec2e9e8'}],
+                // concession_commodity_type: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
+                // concession_company_share: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
+                // concession_operated_by: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 // concession_polygon: [{
                 //     polygon: {
                 //         type: 'Polygon',
