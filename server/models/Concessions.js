@@ -38,6 +38,7 @@ concessionSchema = new Schema ({
     description: htmlSettings,
     concession_country: [fact],
     concessiom_operated_by: [fact],
+    concession_company_share: [fact],
     concession_status: [{
         source: source,
         string: {
