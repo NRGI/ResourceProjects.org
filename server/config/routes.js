@@ -166,6 +166,24 @@ module.exports	= function(app) {
 	app.get('/api/sites/:limit/:skip', sites.getSites);
 	app.get('/api/sites/:id', sites.getSiteByID);
 	app.get('/api/sites/', sites.getSitesMap);
+
+	//DATASETS - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Create a dataset
+	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createAction);
+
 	// POST
 	app.post('/api/sites',  sites.createSite);
 	// PUT
