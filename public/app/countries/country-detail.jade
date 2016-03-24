@@ -12,41 +12,41 @@
         table#country-info
             tbody
                 tr
-                    td.detail_label.small Commodity Type(s):
-                        td.country_type: text(
-                        ng-repeat="type in country.country_type"
-                        ng-if="country.country_type.length > 0")
-                            text(ng-if="$last")
-                                | {{type.string | ucfirst}}
-                                text.small  (true at {{type.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                tr
                     td.detail_label.small Commodities:
-                        td.country_commodities
-                            text(ng-repeat="commodity in country.country_commodity | unique: 'commodity._id'")
-                                a(href='commodity/{{commodity.commodity.commodity_id}}')
-                                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                                | {{$last ? '' : ', '}}
+                    td.country_commodities
+                        text(ng-repeat="commodity in country.country_commodity | unique: 'commodity._id'")
+                            a(href='commodity/{{commodity.commodity.commodity_id}}')
+                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                            | {{$last ? '' : ', '}}
     .row
         .col-md-6
             nrgi-project-table(
             projects="country.projects"
             country="false"
-            type="false"
+            type="true"
             companies="true"
             commodity="true"
             status="true")
         .col-md-6
-            nrgi-company-table(
-            companies="country.companies"
-            group="true")
+            nrgi-site-table(
+            sites="country.sites"
+            country="true"
+            type="true"
+            commodity="true"
+            status="true")
+
     .row
-        .col-md-6
+        .col-md-4
             nrgi-contract-table(
             contracts="country.contracts"
             companies="true"
             commodity="true"
             country="false")
-        .col-md-6
+        .col-md-4
+            nrgi-company-table(
+            companies="country.companies"
+            group="true")
+        .col-md-4
             nrgi-concession-table(
             concessions="country.concessions"
             country="false"
@@ -54,7 +54,12 @@
             status="true"
             projects="true")
     .row
-        nrgi-transfer-table(transfers="country.transfers" project="true")
+        .col-md-12
+            nrgi-production-table(
+            production="country.production"
+            projectlink="true")
+    .row
+        nrgi-transfer-table(transfers="country.transfers" project="true" projectlink="true")
     .row
         .col-md-12
             nrgi-sources-table(sources="country.sources")

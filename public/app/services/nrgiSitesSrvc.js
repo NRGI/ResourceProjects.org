@@ -2,7 +2,7 @@
 
 angular.module('app')
     .factory('nrgiSitesSrvc', function($resource) {
-        var SiteResource = $resource('/api/sites/:limit/:skip/:_id', {_id: "@id", limit: "@limit", skip: "@skip"}, {
+        var SiteResource = $resource('/api/sites/:limit/:skip/:map/:field/:_id', {_id: "@id", limit: "@limit", skip: "@skip", field: "@field",map: "@map"}, {
             query:  {method:'GET', isArray: false},
             update: {method: 'PUT', isArray: false}
         });

@@ -12,6 +12,7 @@ var Site 		    = require('mongoose').model('Site'),
 exports.getSites = function(req, res) {
     var site_len, link_len, site_counter, link_counter,
         limit = Number(req.params.limit),
+        field = req.params.field,
         skip = Number(req.params.skip);
 
     async.waterfall([
@@ -26,7 +27,7 @@ exports.getSites = function(req, res) {
         }
     });
     function siteCount(callback) {
-        Site.find({}).count().exec(function(err, site_count) {
+        Site.find({field:field}).count().exec(function(err, site_count) {
             if(site_count) {
                 callback(null, site_count);
             } else {
@@ -35,7 +36,8 @@ exports.getSites = function(req, res) {
         });
     }
     function getSiteSet(site_count, callback) {
-        Site.find(req.query)
+        console.log(req.query)
+        Site.find({field:field})
             //.sort({
             //    proj_name: 'asc'
             //})
@@ -243,7 +245,7 @@ exports.getSiteByID = function(req, res) {
         site.transfers = [];
         Transfer.find({site: site._id})
             .populate('company country')
-            .deepPopulate('source.source_type_id')
+            .deepPopulate('source.source_type_id source.create_author')
             .lean()
             .exec(function(err, transfers) {
                 transfers_counter = 0;
@@ -489,7 +491,9 @@ exports.getSiteByID = function(req, res) {
     }
 };
 exports.getSitesMap = function(req, res) {
+    console.log(req.params.field);
     var site_len, site_counter;
+    var field = req.params.field;
     async.waterfall([
         getSite
     ], function (err, result) {
@@ -499,7 +503,7 @@ exports.getSitesMap = function(req, res) {
     });
 
     function getSite(callback) {
-        Site.find(req.query)
+        Site.find({field:field})
             .lean()
             .exec(function(err, sites) {
                 site_len = sites.length;

@@ -14,7 +14,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='proj_site.name') Projects and Sites
     tbody
         tr(
-        ng-repeat="transfer in transfers | unique: '_id'"
+        ng-repeat="transfer in transfer"
         ts-repeat)
             td.transfer_year {{transfer.transfer_year}}
             td.transfer_company(ng-if="project==true"): a(href="project/{{transfer.project._id}}")

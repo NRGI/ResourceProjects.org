@@ -43,6 +43,7 @@ exports.getProjects = function(req, res) {
             .limit(limit)
             .populate('proj_country.country', '_id iso2 name')
             .populate('proj_commodity.commodity', ' _id commodity_name commodity_id')
+            .populate('proj_established_source')
             .lean()
             .exec(function(err, projects) {
                 if(projects.length>0) {
@@ -59,11 +60,12 @@ exports.getProjects = function(req, res) {
         project_counter = 0;
         if(project_len>0) {
             projects.forEach(function (project) {
+                project.source_type = {};
                 // Link.find({project: project._id, $or:[ {entities:'commodity'}, {entities:'company'} ] })
                 Link.find({project: project._id,$or:[ {entities:'company'}, {entities:'site'}]  })
                     .populate('commodity', '_id commodity_name commodity_id')
                     .populate('company')
-                    .populate('site')
+                    .deepPopulate('source.source_type_id')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
@@ -73,6 +75,10 @@ exports.getProjects = function(req, res) {
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
+                            if (link.source.source_type_id._id.toString()===project.proj_established_source.source_type_id.toString()) {
+                                //TODO clean up returned data if performance lags
+                                project.source_type = link.source.source_type_id;
+                            }
                             switch (entity) {
                                 case 'company':
                                     project.companies += 1;
