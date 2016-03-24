@@ -33,6 +33,7 @@
                         th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='site_count | parseInt') Sites
                         th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='field_count | parseInt') Fields
                         th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='transfer_count | parseInt') Payments
+
                 tbody
                     tr(ng-repeat="company in companies | unique: '_id'",ts-repeat)
                         td.company_name: a(href='company/{{company._id}}')
