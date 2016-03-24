@@ -79,7 +79,6 @@ function createDefaultSources() {
             Source.create({
                 _id: '56747e060e8cc07115200ee5',
                 source_name: 'source 2',
-                source_type: 'source id 2',
                 source_type_id: '56e873691d1d2a3824141428',
                 source_url: 'google.com',
                 source_archive_url: 'sheets.google.com',
