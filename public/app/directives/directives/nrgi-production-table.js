@@ -8,7 +8,7 @@ angular
             controller: 'nrgiProductionTableCtrl',
             scope: {
                 production: '=',
-                project_link: '='
+                projectlink: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-production-table'
         };

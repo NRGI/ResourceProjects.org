@@ -11,7 +11,7 @@ var transferSchema, Transfer,
     ObjectId        = Schema.Types.ObjectId,
 //    mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Source'},
-    company         = {type: ObjectId, ref: 'Company'},
+    company         = {type: ObjectId, ref: 'Company', default: null}, //null default makes controller life much easier as company is not always present
     country         = {type: ObjectId, ref: 'Country'},
     project         = {type: ObjectId, ref: 'Project'},
     site            = {type: ObjectId, ref: 'Site'},
@@ -37,7 +37,7 @@ var transferSchema, Transfer,
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country, site, field or project.'
     },
     transfer_accounting_basis_enu      = {
-        values: 'cash accrual'.split(' '),
+        values: 'cash accrual unknown'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select cash or accrual.'
     };
 
@@ -67,7 +67,6 @@ transferSchema = new Schema ({
     project: project,
     site: site,
     concession: concession
-
 });
 
 transferSchema.plugin(mongooseHistory, hst_options);

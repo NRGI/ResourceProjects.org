@@ -12,8 +12,7 @@ var Country 		= require('mongoose').model('Country'),
     request         = require('request');
 
 exports.getCountries = function(req, res) {
-    var country_len,country_counter,
-        limit = Number(req.params.limit),
+    var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
     async.waterfall([
@@ -54,20 +53,36 @@ exports.getCountries = function(req, res) {
                 }
             });
     }
+	var countries_len,countries_counter=0,models_len,models_counter=0,counter=0;
+	var models =[];
+	models = [
+		{name:'Project',field:'proj_country.country',arr:'projects'},
+		{name:'Site',field:'site_country.country',arr:'sites'},
+		{name:'Concession',field:'concession_country.country',arr:'concessions'},
+		{name:'Transfer',field:'country',arr:'transfers'},
+		{name:'Production',field:'country',arr:'productions'}
+	];
     function getCountryProjectCount(country_count, countries, callback) {
-        country_len = countries.length;
-        country_counter = 0;
-        countries.forEach(function (c) {
-            Project.find({'proj_country.country': c._id}).count().exec(function(err, project_count) {
-                ++country_counter;
-                c.projects = project_count;
-                if(country_counter == country_len) {
-                    res.send({data:countries, count:country_count});
-                }
-            });
+		countries_len = countries.length;
+		models_len = models.length;
+		_.each(countries, function(country) {
+			models_counter=0;
+			_.each(models, function(model) {
+				countries_counter++;
+				var name = require('mongoose').model(model.name);
+				var $field = model.field;
+				counter=0;
+				name.find().where($field, country._id).exec(function (err, responce) {
+					models_counter++;
+					country[model.arr] = responce.length;
+					if (models_counter == countries_counter) {
+						res.send({data:countries, count:country_count});
+					}
+				});
+			});
+		})
+	}
 
-        });
-    }
 };
 exports.getCountryByID = function(req, res) {
 	var concession_len, concession_counter, link_counter, link_len, company_counter, company_len, project_counter, project_len;
@@ -296,43 +311,39 @@ exports.getCountryByID = function(req, res) {
 		}
 	}
 	function getProjectLinks(country, callback) {
-		project_counter = 0;
-		link_counter = 0;
-		project_len = country.projects.length;
-		if(project_len>0) {
-			_.each(country.projects, function (project) {
-				++project_counter;
-				project.companies = 0;
-				Link.find({project: project._id})
-					.populate('company_group','_id company_group_name')
-					.deepPopulate('source.source_type_id')
-					.exec(function (err, links) {
-						link_len = links.length;
-						link_counter = 0;
-						links.forEach(function (link) {
-							++link_counter;
-							var entity = _.without(link.entities, 'project')[0];
-							if(link.source!=undefined) {
-								if (!country.sources[link.source._id]) {
-									country.sources[link.source._id] = link.source;
-								}
-							}
-							switch (entity) {
-								case 'company':
-									project.companies += 1;
-									break;
-								default:
-									console.log(entity, 'link skipped...');
-							}
-						});
-						if (link_counter == link_len && project_counter==project_len) {
-							callback(null, country);
-						}
-					});
-			})
-		} else {
-			callback(null, country);
-		}
+        project_len = country.projects.length;
+        if (project_len > 0) {
+            async.each(country.projects, function (project, ecallback) {
+                project.companies = 0;
+                Link.find({project: project._id})
+                    .populate('company_group','_id company_group_name')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function (err, links) {
+                        links.forEach(function (link) {
+                            var entity = _.without(link.entities, 'project')[0];
+                            if(link.source!=undefined) {
+                                if (!country.sources[link.source._id]) {
+                                    country.sources[link.source._id] = link.source;
+                                }
+                            }
+                            switch (entity) {
+                                case 'company':
+                                    project.companies += 1;
+                                    break;
+                                default:
+                                    console.log(entity, 'link skipped...');
+                            }
+                        });
+                        ecallback(null);
+                    });
+            },
+            function (err) {
+                callback(null, country);
+            });
+        }
+        else {
+            callback(null, country);
+        }
 	}
 	function getConcessionLinks(country, callback) {
 		link_counter = 0;
@@ -377,10 +388,10 @@ exports.getCountryByID = function(req, res) {
 	}
 	function getTransfers(country, callback) {
 		country.transfers = [];
-		Transfer.find({transfer_country: country._id})
-			.populate('transfer_country')
-			.populate('transfer_company', '_id company_name')
-			.populate('transfer_project', '_id proj_name')
+		Transfer.find({country: country._id})
+			.populate('country')
+			.populate('company', '_id company_name')
+			.populate('project', '_id proj_name')
 			.exec(function(err, transfers) {
 				if(transfers) {
 					_.each(transfers, function (transfer) {

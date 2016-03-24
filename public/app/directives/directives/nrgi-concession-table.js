@@ -9,6 +9,7 @@ angular
             scope: {
                 concessions: '=',
                 commodity:'=',
+                country:'=',
                 type:'=',
                 status:'=',
                 projects:'='

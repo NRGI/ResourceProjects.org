@@ -60,27 +60,26 @@ exports.getCompanyGroups = function(req, res) {
                     link_len = links.length;
                     link_counter = 0;
                     c.company_count = 0;
-                    c.companies = [];
+                    c.companies = {};
                     links.forEach(function(link) {
                         ++link_counter;
 
                         var entity = _.without(link.entities, 'company_group')[0];
                         switch (entity) {
                             case 'company':
-                                c.companies.push(link.company);
+                                c.companies={company: link.company._id};
                                 c.company_count += 1;
                                 break;
                             //
-                            case 'project':
-                                c.project_count += 1;
-                                break;
+                            //case 'project':
+                            //    c.project_count += 1;
+                            //    break;
                             //
                             default:
                                 console.log(entity, 'link skipped...');
                         }
                     });
                     if(companyGroup_counter == companyGroup_len && link_counter == link_len) {
-                        // res.send({data:companyGroup, count:companyGroup_count});
                         callback(null, companyGroup_count, companyGroups);
                     }
                 });
@@ -91,29 +90,24 @@ exports.getCompanyGroups = function(req, res) {
         companyGroup_counter = 0;
         if(companyGroup_len>0) {
             async.forEach(companyGroups, function (group) {
-                ++companyGroup_counter;
-                companies_len = group.companies.length;
-                companies_counter = 0;
-                company_query = [];
                 group.project_count = 0;
-                if (companies_len>0) {
-                    async.forEachOfSeries(group.companies, function (c) {
-                        ++companies_counter;
-                        company_query.push({company: c._id});
-                    });
-                    Link.find({$or: company_query, entities:'project'}).count()
-                        .exec(function(err, proj_count) {
+                if(Object.keys(group.companies).length != 0) {
+                    Link.find({entities: 'project',$or: [group.companies]})
+                        .count()
+                        .exec(function (err, proj_count) {
+                            ++companyGroup_counter;
                             group.project_count = proj_count;
+                            if (companyGroup_counter == companyGroup_len) {
+                                res.send({data: companyGroups, count: companyGroup_count});
+                            }
                         });
-                    if (companyGroup_counter == companyGroup_len && companies_counter == companies_len) {
-                        res.send({data:companyGroups, count:companyGroup_count});
-                    }
-                } else {
-                    if (companyGroup_counter == companyGroup_len && companies_counter == companies_len) {
-                        res.send({data:companyGroups, count:companyGroup_count});
-                    }
+                }else{
+                    ++companyGroup_counter;
                 }
-            });
+                if(Object.keys(group.companies).length == 0 && companyGroup_counter == companyGroup_len) {
+                    res.send({data: companyGroups, count: companyGroup_count});
+                }
+                });
         } else {
             res.send({data:companyGroups, count:companyGroup_count});
         }
@@ -347,9 +341,9 @@ exports.getCompanyGroupByID = function(req, res) {
         if(company_len>0) {
             companyGroup.companies.forEach(function (company) {
                 ++company_counter;
-                Transfer.find({transfer_company: company._id})
-                    .populate('transfer_country')
-                    .populate('transfer_company', '_id company_name')
+                Transfer.find({company: company._id})
+                    .populate('country')
+                    .populate('company', '_id company_name')
                     .exec(function (err, transfers) {
                         transfer_len = transfers.length;
                         _.each(transfers, function (transfer) {

@@ -26,6 +26,10 @@ var sourceSchema, concessionSchema, Concession,
     status_enu  = {
         values: 'exploration development production on_hold inactive unknown'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select company, concession, contract, country, project, or company group.'
+    },
+    type_enu  = {
+        values: 'mining oil'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select mining or oil.'
     };
 
 concessionSchema = new Schema ({
@@ -37,7 +41,8 @@ concessionSchema = new Schema ({
     concession_established_source: source,
     description: htmlSettings,
     concession_country: [fact],
-    concessiom_operated_by: [fact],
+    concession_operated_by: [fact],
+    concession_company_share: [fact],
     concession_status: [{
         source: source,
         string: {
@@ -49,6 +54,14 @@ concessionSchema = new Schema ({
             default: Date.now()}}],
     concession_type: [fact], //geographic type i.e. onshore, off shore, etc.
     concession_commodity: [fact],
+    concession_commodity_type: [{
+        source: source,
+        string: {
+            type: String,
+            enum: type_enu},
+        timestamp: {
+            type: Date,
+            default: Date.now()}}],
     concession_polygon: [fact],
 
     //External Links
@@ -76,6 +89,9 @@ function createDefaultConcessions() {
                 concession_status: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 concession_type: [{source: '56747e060e8cc07115200ee6', string: 'offshore'}],
                 concession_commodity: [{source: '56747e060e8cc07115200ee5', commodity: '56a13e9942c8bef50ec2e9eb'}, {source: '56747e060e8cc07115200ee5', commodity: '56a13e9942c8bef50ec2e9e8'}],
+                // concession_commodity_type: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
+                // concession_company_share: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
+                // concession_operated_by: [{source: '56747e060e8cc07115200ee6', string: 'exploration'}],
                 // concession_polygon: [{
                 //     polygon: {
                 //         type: 'Polygon',

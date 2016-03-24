@@ -10,7 +10,8 @@ var auth 			= require('./auth'),
 	contracts 		= require('../controllers/contracts'),
 	companyGroups 	= require('../controllers/companyGroups'),
 	countries 		= require('../controllers/countries'),
-	sources 		= require('../controllers/sources');
+	sources 		= require('../controllers/sources'),
+	sites 			= require('../controllers/sites');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -107,55 +108,6 @@ module.exports	= function(app) {
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
 
-	//USERS CRUD - TODO: protect with admin
-	app.get('/api/datasets', datasets.getDatasets);
-	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
-	app.get('/api/datasets/:id', datasets.getDatasetByID);
-	
-	//Create a dataset
-	app.post('/api/datasets', datasets.createDataset);
-	//Start an ETL step
-	app.post('/api/datasets/:id/actions', datasets.createAction);
-	//TODO consider implementing a get?
-
-	// POST
-	app.post('/api/sources',  sources.createSource);
-	// PUT
-	app.put('/api/sources',  sources.updateSource);
-	// DELETE
-	app.delete('/api/sources/:id', sources.deleteSource);
-
-	//DATASETS - TODO: protect with admin
-
-	//USERS CRUD - TODO: protect with admin
-	app.get('/api/datasets', datasets.getDatasets);
-	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
-	app.get('/api/datasets/:id', datasets.getDatasetByID);
-
-	//Create a dataset
-	app.post('/api/datasets', datasets.createDataset);
-	//Start an ETL step
-	app.post('/api/datasets/:id/actions', datasets.createAction);
-	//TODO consider implementing a get?
-
-	// POST
-	app.post('/api/sources',  sources.createSource);
-	// PUT
-	app.put('/api/sources',  sources.updateSource);
-	// DELETE
-	app.delete('/api/sources/:id', sources.deleteSource);
-
-	//DATASETS - TODO: protect with admin
-	app.get('/api/datasets', datasets.getDatasets);
-	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
-	app.get('/api/datasets/:id', datasets.getDatasetByID);
-
-	//Create a dataset
-	app.post('/api/datasets', datasets.createDataset);
-	//Start an ETL step
-	app.post('/api/datasets/:id/actions', datasets.createAction);
-	//TODO consider implementing a get?
-
 	// POST
 	app.post('/api/sources',  sources.createSource);
 	// PUT
@@ -175,6 +127,41 @@ module.exports	= function(app) {
 		    res.render('actionreport', {report: req.report});
 	});
 
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
 	//Create a dataset
 	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Start an ETL step
@@ -186,14 +173,37 @@ module.exports	= function(app) {
 	app.put('/api/sources',  sources.updateSource);
 	// DELETE
 	app.delete('/api/sources/:id', sources.deleteSource);
-	
 
-	/////////////////////////////////////////////
-	///// COMPANIES HOUSE DUMMY DATASETS ////////
-	/////////////////////////////////////////////	
-	
-	app.get('/api/testdata', datasets.getTestdata);
-	
+	/////////////////////////
+	///// SITES CRUD ////////
+	/////////////////////////
+	app.get('/api/sites/:limit/:skip', sites.getSites);
+	app.get('/api/sites/:id', sites.getSiteByID);
+	app.get('/api/sites/', sites.getSitesMap);
+
+	//DATASETS - TODO: protect with admin
+	app.get('/api/datasets', datasets.getDatasets);
+	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
+	app.get('/api/datasets/:id', datasets.getDatasetByID);
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Create a dataset
+	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
+	//Start an ETL step
+	app.post('/api/datasets/:id/actions', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createAction);
+
+	// POST
+	app.post('/api/sites',  sites.createSite);
+	// PUT
+	app.put('/api/sites',  sites.updateSite);
+	// DELETE
+	app.delete('/api/sites/:id', sites.deleteSite);
 
 	/////////////////////////
 	///// USERS CRUD ////////

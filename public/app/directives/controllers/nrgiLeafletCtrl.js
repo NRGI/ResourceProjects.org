@@ -24,6 +24,17 @@ angular
                     position: 'topleft'
                 }
             }
+            //,
+            //paths: {
+            //    polygon: {
+            //        type: "polygon",
+            //        latlngs: [ {lat: 40.4,lng: -3.6833333}, {lat: 51.5,lng: -0.116667},{lat: 38.7166667,lng: -9.1333333},
+            //            {lat: 48.866667,lng: 2.333333}],
+            //        fillColor: 'red',
+            //        weight: 1,
+            //        color: 'red'
+            //    }
+            //}
         });
         setTimeout( function(){
             if ($scope.data.length > 0)
@@ -31,8 +42,10 @@ angular
             var counter =0;
             angular.forEach($scope.data,function(data){
                 counter++;
-                if($scope.project==true){
+                if($scope.project==true&&data.type=='project'){
                     $scope.location.push({lat: data.lat, lng: data.lng,message: data.message});
+                }else if($scope.project==true && data.type!='project'){
+                    $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message});
                 }else {
                     if (data.type == 'project') {
                         $scope.location.push({
@@ -41,7 +54,11 @@ angular
                             message: "<a href='project/" + data.id + "'>" + data.message + "</a></br>" + data.message
                         });
                     } else {
-                        $scope.location.push({lat: data.lat, lng: data.lng, message: data.message});
+                        $scope.location.push({
+                            lat: data.lat,
+                            lng: data.lng,
+                            message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                        });
                     }
                 }
                 if (len == counter && $scope.map !=true) {

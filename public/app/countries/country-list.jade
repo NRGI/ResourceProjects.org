@@ -20,10 +20,18 @@
             tr
                 th(ts-criteria='name') Country
                 th(ts-criteria='projects|parseInt') No. Projects
+                th(ts-criteria='sites|parseInt') No. Sites
+                th(ts-criteria='concessions|parseInt') No. Concessions
+                th(ts-criteria='transfers|parseInt') No. Payments
+                th(ts-criteria='productions|parseInt') No. Productions
         tbody
             tr(ng-repeat="country in countries | unique: 'iso2'" ts-repeat)
                 td.country_name: a(href='country/{{ country.iso2 }}') {{country.name | isoCountry}}
                 td.country_projects {{country.projects}}
+                td.country_sites {{country.sites}}
+                td.country_concessions {{country.concessions}}
+                td.country_transfers {{country.transfers}}
+                td.country_productions {{country.productions}}
 
     nrgi-list-nav(
     page="page"
