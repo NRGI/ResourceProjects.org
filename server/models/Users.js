@@ -1,3 +1,6 @@
+////////////////
+//USER SCHEMA///
+////////////////
 'use strict ';
 var userSchema, User,
     mongoose 	= require('mongoose'),
@@ -44,8 +47,8 @@ userSchema.methods = {
 User = mongoose.model('User', userSchema);
 
 function createDefaultUsers() {
-    User.find({}).exec(function(err, users) {
-        if(users.length === 0) {
+    User.find({}).count().exec(function(err, user_count) {
+        if(user_count === 0) {
             var salt, hash;
             salt = encrypt.createSalt();
             hash = encrypt.hashPwd(salt, 'jcust');
@@ -96,9 +99,11 @@ function createDefaultUsers() {
                 role: 'admin',
                 created_by: '569976c21dad48f614cc8125'});
 
-            console.log('Users created...');
+            User.find({}).count().exec(function(err, user_count) {
+                console.log(String(user_count), 'users created...')
+            });
         } else {
-            console.log(String(users.length), 'users exist...')
+            console.log(String(user_count), 'users exist...')
         }
     })
 };

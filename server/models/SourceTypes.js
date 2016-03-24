@@ -35,8 +35,8 @@ sourceTypeSchema = new Schema({
 SourceType = mongoose.model('SourceType', sourceTypeSchema);
 
 function createDefaultSourceTypes() {
-    SourceType.find({}).exec(function(err, source_types) {
-        if(source_types.length === 0) {
+    SourceType.find({}).count().exec(function(err, source_type_count) {
+        if(source_type_count === 0) {
             SourceType.create({_id:'56e873691d1d2a3824141427',source_type_name:'Voluntary payment disclosure',source_type_id:'vpd',source_type_authority:'disclosure',source_type_examples:'Voluntary company disclosure - (eg. http://www.kosmosenergy.com/responsibility/transparency.php)',source_type_url_type:'Direct link to data in HTML report'});
             SourceType.create({_id:'56e873691d1d2a3824141429',source_type_name:'Generic Mandatory payment disclosure',source_type_id:'mpd',source_type_authority:'disclosure',source_type_examples:'Mandatory company disclosure (eg. http://www.detnor.no/wp-content/uploads/2015/03/DETNOR-Annual-Report-2014.pdf?d5b1f2 )',source_type_url_type:'Direct link to data in PDF report'});
             SourceType.create({_id:'56e8736944442a3824141429',source_type_name:'UK Mandatory payment disclosure',source_type_id:'ukdis',source_type_authority:'disclosure',source_type_examples:'Mandatory company disclosure (eg. http://www.detnor.no/wp-content/uploads/2015/03/DETNOR-Annual-Report-2014.pdf?d5b1f2 )',source_type_url_type:'Direct link to data in PDF report'});
@@ -53,9 +53,11 @@ function createDefaultSourceTypes() {
             SourceType.create({_id:'56e873691d1d2a3824141430',source_type_name:'Press article',source_type_id:'press',source_type_authority:'non-authoritative'});
             SourceType.create({_id:'56e873691d1d2a3824141432',source_type_name:'Other non-authoritative source',source_type_id:'othernonauth',source_type_authority:'non-authoritative'});
             SourceType.create({_id:'56e873691d15555824141432',source_type_name:'Other disclosure source',source_type_id:'otherdis',source_type_authority:'disclosure'});
-            console.log('Source types created...');
+            SourceType.find({}).count().exec(function(err, source_type_count) {
+                console.log(String(source_type_count), 'source types created...')
+            });
         } else {
-            console.log(String(source_types.length), 'source types exist...')
+            console.log(String(source_type_count), 'source types exist...')
         }
     });
 };

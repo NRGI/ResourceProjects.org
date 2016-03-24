@@ -9,7 +9,6 @@ var linkSchema, Link,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     ObjectId        = Schema.Types.ObjectId,
-    //MixedSchema     = Schema.Types.Mixed,
     entity_enu      = {
         values: 'commodity company company_group concession contract project production site transfer'.split(' '),
         //values: ' project '.split(' '),
@@ -31,11 +30,6 @@ linkSchema = new Schema({
         type: String,
         required:'{PATH} is required!',
         enum: entity_enu}]
-    ////company group specific
-    //company_group_start_date: Date,
-    //company_group_end_date: Date,
-    ////licensee specific
-    //ownership_stake: Number
 
 });
 
@@ -46,8 +40,8 @@ linkSchema.plugin(deepPopulate);
 Link = mongoose.model('Link', linkSchema);
 
 function createDefaultLinks() {
-    Link.find({}).exec(function(err, links) {
-        if(links.length === 0) {
+    Link.find({}).count().exec(function(err, link_count) {
+        if(link_count === 0) {
             //group-company
             Link.create({company_group:'56a14d8ee47b92f110ce9a57',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','company_group']});
             Link.create({company_group:'56a14d8ee47b92f110ce9a58',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','company_group']});
@@ -90,11 +84,19 @@ function createDefaultLinks() {
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //
-            console.log('Links created...');
+            Link.find({}).count().exec(function(err, link_count) {
+                console.log(String(link_count), 'links created...')
+            });
         } else {
-            console.log(String(links.length), 'links exist...')
+            console.log(String(link_count), 'links exist...')
         }
     });
 };
+function getInitLinkCount() {
+    Link.find({}).count().exec(function(err, link_count) {
+        console.log(String(link_count), 'links exist...')
+    });
+};
 
+exports.getInitLinkCount = getInitLinkCount;
 exports.createDefaultLinks = createDefaultLinks;

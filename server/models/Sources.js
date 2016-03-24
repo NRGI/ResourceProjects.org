@@ -64,8 +64,8 @@ sourceSchema.plugin(mongooseHistory, hst_options);
 Source = mongoose.model('Source', sourceSchema);
 
 function createDefaultSources() {
-    Source.find({}).exec(function(err, sources) {
-        if(sources.length === 0) {
+    Source.find({}).count().exec(function(err, source_count) {
+        if(source_count === 0) {
             Source.create({
                 _id: '56747e060e8cc07115200ee4',
                 source_name: 'source 1',
@@ -104,11 +104,19 @@ function createDefaultSources() {
                 source_archive_url: 'sheets.google.com',
                 source_notes: 'notes notes notes notes notes notes notes notes notes notes notes notes notes notes'
             });
-            console.log('Sources created...');
+            Source.find({}).count().exec(function(err, source_count) {
+                console.log(String(source_count), 'sources created...')
+            });
         } else {
-            console.log(String(sources.length), 'sources exist...')
+            console.log(String(source_count), 'sources exist...')
         }
     });
 };
+function getInitSourceCount() {
+    Source.find({}).count().exec(function(err, source_count) {
+        console.log(String(source_count), 'sources exist...')
+    });
+};
 
+exports.getInitSourceCount = getInitSourceCount;
 exports.createDefaultSources = createDefaultSources;

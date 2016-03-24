@@ -1,6 +1,6 @@
-////////////////////
-///COMPANY GROUPS///
-////////////////////
+///////////////////////////
+///COMPANY GROUPS SCHEMA///
+///////////////////////////
 'use strict';
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
@@ -29,13 +29,7 @@ companyGroupSchema = new Schema({
         type: ObjectId,
         ref: 'Sources'},
     description: htmlSettings,
-    open_corporates_group_ID: String,
-    //companies: [{
-    //    type: ObjectId,
-    //    ref: 'Companies'}],
-    //projects: [{
-    //    type: ObjectId,
-    //    ref: 'Projects'}]
+    open_corporates_group_ID: String
 });
 
 //pull from open corporates
@@ -48,9 +42,8 @@ companyGroupSchema = new Schema({
 CompanyGroup = mongoose.model('CompanyGroup', companyGroupSchema);
 
 function createDefaultCompanyGroups() {
-    CompanyGroup.find({}).exec(function(err, company_groups) {
-        if(company_groups.length === 0) {
-            //console.log('***No conmpay groups')
+    CompanyGroup.find({}).count().exec(function(err, company_groups_count) {
+        if(company_groups_count === 0) {
             CompanyGroup.create({
                 _id: '56a14d8ee47b92f110ce9a57',
                 company_group_name: 'Shell',
@@ -74,11 +67,19 @@ function createDefaultCompanyGroups() {
                 description: "<p>yes</p><p>no</p>",
                 open_corporates_group_id: 'junkid'
             });
-            console.log('Company Groups created...');
+            CompanyGroup.find({}).count().exec(function(err, company_groups_count) {
+                console.log(String(company_groups_count), 'company groups created...')
+            });
         } else {
-            console.log(String(company_groups.length), 'company groups exist...')
+            console.log(String(company_groups_count), 'company groups exist...')
         }
     });
 };
+function getInitCompanyGroupsCount() {
+    CompanyGroup.find({}).count().exec(function(err, company_groups_count) {
+        console.log(String(company_groups_count), 'company groups exist...')
+    });
+};
 
+exports.getInitCompanyGroupsCount = getInitCompanyGroupsCount;
 exports.createDefaultCompanyGroups = createDefaultCompanyGroups;

@@ -4,7 +4,7 @@
 'use strict';
 var mongoose = require('mongoose');
 
-var factSchema, Fact,
+var factSchema,
     Schema      = mongoose.Schema,
     mixedSchema = Schema.Types.Mixed,
     ObjectId    = Schema.Types.ObjectId,

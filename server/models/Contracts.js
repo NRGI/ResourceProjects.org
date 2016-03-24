@@ -5,11 +5,9 @@
 'use strict';
 var mongoose = require('mongoose');
 
-var sourceSchema, contractSchema, Contract,
+var contractSchema, Contract,
     Schema   = mongoose.Schema,
-    fact            = require("./Facts"),
-    ObjectId = Schema.Types.ObjectId,
-    source   = {type: ObjectId, ref: 'Sources'};
+    ObjectId = Schema.Types.ObjectId;
 
 
 contractSchema = new Schema ({
@@ -21,8 +19,8 @@ contractSchema = new Schema ({
 Contract = mongoose.model('Contract', contractSchema);
 
 function createDefaultContracts() {
-    Contract.find({}).exec(function(err, contracts) {
-        if(contracts.length === 0) {
+    Contract.find({}).count().exec(function(err, contract_count) {
+        if(contract_count === 0) {
             Contract.create({
                 _id: '56a2eb4345d114c30439ec20',
                contract_id: 'ocds-591adf-YE2702919895RC',
@@ -35,11 +33,19 @@ function createDefaultContracts() {
                 _id: '56a2eb4345d114c30439ec21',
                 contract_id: 'ocds-591adf-PH0149652678RC'
             });
-            console.log('Contracts created...');
+            Contract.find({}).count().exec(function(err, contract_count) {
+                console.log(String(contract_count), 'contracts created...')
+            });
         } else {
-            console.log(String(contracts.length), 'contracts exist...')
+            console.log(String(contract_count), 'contracts exist...')
         }
     });
 };
+function getInitContractCount() {
+    Contract.find({}).count().exec(function(err, contract_count) {
+        console.log(String(contract_count), 'contracts exist...')
+    });
+};
 
+exports.getInitContractCount = getInitContractCount;
 exports.createDefaultContracts = createDefaultContracts;

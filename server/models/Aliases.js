@@ -26,13 +26,11 @@ aliasSchema = new Schema({
         ref: 'Sources'}
 });
 
-//aliasSchema.plugin(mongooseHistory, hst_options);
-
 Alias = mongoose.model('Alias', aliasSchema);
 
 function createDefaultAliases() {
-    Alias.find({}).exec(function(err, aliases) {
-        if(aliases.length === 0) {
+    Alias.find({}).count().exec(function(err, alias_count) {
+        if(alias_count === 0) {
             //commodity aliases
             Alias.create({_id: '56a6ac8f6c1ac5811ae27988', code: 'alu', reference:'wb', model: 'commodity'});
             Alias.create({_id: '56a6ac8f6c1ac5811ae27989', code: 'alum', reference:'imf', model: 'commodity'});
@@ -70,11 +68,19 @@ function createDefaultAliases() {
             Alias.create({_id:'56a939e64ddd4cfc1354d64b', alias: 'site 1111', language:'en', model: 'sites', source:'56747e060e8cc07115200ee4'});
             Alias.create({_id:'56a939e64ddffffc1354d64b', alias: 'field 1111', language:'en', model: 'sites', source:'56747e060e8cc07115200ee4'});
 
-            console.log('Aliases created...')
+            Alias.find({}).count().exec(function(err, alias_count) {
+                console.log(String(alias_count), 'aliases created...')
+            });
         } else {
-            console.log(String(aliases.length), 'aliases exist...')
+            console.log(String(alias_count), 'aliases exist...')
         }
     });
 };
+function getInitAliasCount() {
+    Alias.find({}).count().exec(function(err, alias_count) {
+        console.log(String(alias_count), 'aliases exist...')
+    });
+};
 
+exports.getInitAliasCount = getInitAliasCount;
 exports.createDefaultAliases = createDefaultAliases;

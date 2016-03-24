@@ -5,7 +5,7 @@
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
-var aliasSchema, companySchema, Company,
+var companySchema, Company,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     ObjectId        = Schema.Types.ObjectId,
@@ -38,63 +38,14 @@ companySchema = new Schema({
 
     //External mapping
     open_corporates_id: String,
-    companies_house_id: String,
-
-    ////Links
-    //sources: [source],
-    //commodities: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //company_group: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //concessions: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //contracts: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}],
-    //projects: [{
-    //    type: ObjectId,
-    //    ref: 'Link'}]
+    companies_house_id: String
 });
-//TranModel
-//    .find({ quantityout: 1 },
-//    { _id: 0} )
-//    .sort({ tag: 1 })
-//    .select( 'tag' )
-//    .exec(function(err, docs){
-//        docs = docs.map(function(doc) { return doc.tag; });
-//        if(err){
-//            res.json(err)
-//        } else {
-//            res.json(docs)
-//        }
-//    })
 
-////pull from open corporates
+//pull from open corporates
 //companySchema.methods = {
-//    openCorporatesPull: function() {
-//
-//    }
-//    reconcileDisplay: function() {
-//
-//    }
-//};
-
-
-//var deepPopOpts = {
-//    populate: {
-//        'comments.user': {
-//            select: 'name',
-//            options: {
-//                limit: 5
-//            }
-//        },
-//        'approved.user': {
-//            select: 'name'
-//        }
-//    }
+////    openCorporatesPull: function() {
+////
+////    }
 //};
 
 companySchema.plugin(mongooseHistory, hst_options);
@@ -102,8 +53,8 @@ companySchema.plugin(deepPopulate);
 Company = mongoose.model('Company', companySchema);
 
 function createDefaultCompanies() {
-    Company.find({}).exec(function(err, companies) {
-        if(companies.length === 0) {
+    Company.find({}).count().exec(function(err, company_count) {
+        if(company_count === 0) {
             Company.create({
                 _id: '56a13a758f224f670e6a376e',
                 company_name: 'company 1 a',
@@ -155,11 +106,19 @@ function createDefaultCompanies() {
                 open_corporates_id: 'gb/06774082',
                 companies_house_id: '03323845'
             });
-            console.log('Companies created...');
+            Company.find({}).count().exec(function(err, company_count) {
+                console.log(String(company_count), 'companies created...')
+            });
         } else {
-            console.log(String(companies.length), 'companies exist...')
+            console.log(String(company_count), 'companies exist...')
         }
     });
 };
+function getInitCompanyCount() {
+    Company.find({}).count().exec(function(err, company_count) {
+        console.log(String(company_count), 'companies exist...')
+    });
+};
 
+exports.getInitCompanyCount = getInitCompanyCount;
 exports.createDefaultCompanies = createDefaultCompanies;

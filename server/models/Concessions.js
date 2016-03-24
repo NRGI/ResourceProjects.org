@@ -5,7 +5,7 @@
 var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
-var sourceSchema, concessionSchema, Concession,
+var concessionSchema, Concession,
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
@@ -77,8 +77,8 @@ concessionSchema.plugin(mongooseHistory, hst_options);
 Concession = mongoose.model('Concession', concessionSchema);
 
 function createDefaultConcessions() {
-    Concession.find({}).exec(function(err, concessions) {
-        if(concessions.length === 0) {
+    Concession.find({}).count().exec(function(err, concession_count) {
+        if(concession_count === 0) {
             Concession.create({
                 _id: '56a2b8236e585b7316655794',
                 concession_name: 'Block A',
@@ -130,11 +130,19 @@ function createDefaultConcessions() {
                 oo_url_wiki: 'http://repository.openoil.net/wiki/Brazil',
                 oo_source_date: new Date()
             });
-            console.log('Concessions created...');
+            Concession.find({}).count().exec(function(err, concession_count) {
+                console.log(String(concession_count), 'concessions created...')
+            });
         } else {
-            console.log(String(concessions.length), 'concessions exist...')
+            console.log(String(concession_count), 'concessions exist...')
         }
     });
 };
+function getInitConcessionCount() {
+    Concession.find({}).count().exec(function(err, concession_count) {
+        console.log(String(concession_count), 'concessions exist...')
+    });
+};
 
+exports.getInitConcessionCount = getInitConcessionCount;
 exports.createDefaultConcessions = createDefaultConcessions;

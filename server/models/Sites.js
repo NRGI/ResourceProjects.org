@@ -75,8 +75,8 @@ siteSchema.plugin(searchPlugin,{
 Site = mongoose.model('Site', siteSchema);
 
 function createDefaultSites() {
-    Site.find({}).exec(function(err, sites) {
-        if(sites.length === 0) {
+    Site.find({}).count().exec(function(err, site_count) {
+        if(site_count === 0) {
            Site.create({
                _id: '56eb117c0007bf5b2a3e4b71',
                site_name: 'Test site 1',
@@ -104,11 +104,19 @@ function createDefaultSites() {
                 site_status: [{source: '56747e060e8cc07115200ee6', string: 'development'}],
                 description: '<p>yes</p><p>no</p>'
             });
-           console.log('Sites created...');
+            Site.find({}).count().exec(function(err, site_count) {
+                console.log(String(site_count), 'sites created...')
+            });
         } else {
-            console.log(String(sites.length), 'sites exist...')
+            console.log(String(site_count), 'sites exist...')
         }
     });
 };
+function getInitSiteCount() {
+    Site.find({}).count().exec(function(err, site_count) {
+        console.log(String(site_count), 'sites exist...')
+    });
+};
 
+exports.getInitSiteCount = getInitSiteCount;
 exports.createDefaultSites = createDefaultSites;

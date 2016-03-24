@@ -2,6 +2,7 @@
 var mongoose 		    = require('mongoose'),
     assert              = require('assert'),
     fs                  = require('fs'),
+    // async               = require('async'),
     linkModel           = require('../models/Links'),
     aliasModel          = require('../models/Aliases'),
     commodityModel      = require('../models/Commodities'),
@@ -53,26 +54,63 @@ module.exports 	= function(config, user, pass, env) {
         console.log('========================\n\n');
     });
 
-    userModel.createDefaultUsers();
-    sourceModel.createDefaultSources();
-    companyModel.createDefaultCompanies();
-    commodityModel.createDefaultCommodities();
-    companyGroupModel.createDefaultCompanyGroups();
-    concessionModel.createDefaultConcessions();
-    contractModel.createDefaultContracts();
-    projectModel.createDefaultProjects();
-    linkModel.createDefaultLinks();
-    aliasModel.createDefaultAliases();
-    countryModel.createDefaultCountries();
-    transferModel.createDefaultTransfers();
-    productionModel.createDefaultProduction();
-    sourceTypeModel.createDefaultSourceTypes();
-    siteModel.createDefaultSites();
-    //contributorModel.createDefaultContributors();
+    // if (env === 'local') {
+    //     actionModel.createDefaultActions();
+    //     aliasModel.createDefaultAliases();
+    //     commodityModel.createDefaultCommodities();
+    //     companyModel.createDefaultCompanies();
+    //     companyGroupModel.createDefaultCompanyGroups();
+    //     concessionModel.createDefaultConcessions();
+    //     contractModel.createDefaultContracts();
+    //     // contributorModel.createDefaultContributors();
+    //     countryModel.createDefaultCountries();
+    //     datasetModel.createDefaultDatasets();
+    //     duplicateModel.createDefaultDuplicates();
+    //     linkModel.createDefaultLinks();
+    //     productionModel.createDefaultProduction();
+    //     projectModel.createDefaultProjects();
+    //     siteModel.createDefaultSites();
+    //     sourceModel.createDefaultSources();
+    //     sourceTypeModel.createDefaultSourceTypes();
+    //     transferModel.createDefaultTransfers();
+    //     userModel.createDefaultUsers();
+    //
+    // } else {
+    //     actionModel.createDefaultActions();
+    //     aliasModel.getInitAliasCount();
+    //     commodityModel.createDefaultCommodities();
+    //     companyModel.getInitCompanyCount();
+    //     companyGroupModel.getInitCompanyGroupsCount();
+    //     concessionModel.getInitConcessionCount();
+    //     contractModel.getInitContractCount();
+    //     countryModel.createDefaultCountries();
+    //     datasetModel.createDefaultDatasets();
+    //     duplicateModel.getInitDuplicateCount();
+    //     linkModel.getInitLinkCount();
+    //     productionModel.getInitProductionCount();
+    //     projectModel.getInitProjectCount();
+    //     siteModel.getInitSiteCount();
+    //     sourceModel.getInitSourceCount();
+    //     sourceTypeModel.createDefaultSourceTypes();
+    //     transferModel.getInitTransferCount();
+    //     userModel.createDefaultUsers();
+    // }
     actionModel.createDefaultActions();
+    aliasModel.getInitAliasCount();
+    commodityModel.createDefaultCommodities();
+    companyModel.getInitCompanyCount();
+    companyGroupModel.getInitCompanyGroupsCount();
+    concessionModel.getInitConcessionCount();
+    contractModel.getInitContractCount();
+    countryModel.createDefaultCountries();
     datasetModel.createDefaultDatasets();
-    duplicateModel.createDefaultDuplicates();
-
-
-
+    duplicateModel.getInitDuplicateCount();
+    linkModel.getInitLinkCount();
+    productionModel.getInitProductionCount();
+    projectModel.getInitProjectCount();
+    siteModel.getInitSiteCount();
+    sourceModel.getInitSourceCount();
+    sourceTypeModel.createDefaultSourceTypes();
+    transferModel.getInitTransferCount();
+    userModel.createDefaultUsers();
 };

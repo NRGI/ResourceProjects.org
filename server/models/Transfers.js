@@ -7,25 +7,13 @@ require('mongoose-html-2').loadType(mongoose);
 var transferSchema, Transfer,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
-    fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
-//    mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Source'},
     company         = {type: ObjectId, ref: 'Company', default: null}, //null default makes controller life much easier as company is not always present
     country         = {type: ObjectId, ref: 'Country'},
     project         = {type: ObjectId, ref: 'Project'},
     site            = {type: ObjectId, ref: 'Site'},
     concession      = {type: ObjectId, ref: 'Concession'},
-    //HTML            = mongoose.Types.Html,
-    //htmlSettings    = {
-    //    type: HTML,
-    //    setting: {
-    //        allowedTags: ['p', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'del'],
-    //        allowedAttributes: {
-    //            'a': ['href']
-    //        }
-    //    }
-    //},
     mongooseHistory = require('mongoose-history'),
     hst_options         = {customCollectionName: 'transfer_hst'},
     transfer_audit_type_enu      = {
@@ -74,8 +62,8 @@ transferSchema.plugin(deepPopulate);
 Transfer = mongoose.model('Transfer', transferSchema);
 
 function createDefaultTransfers() {
-    Transfer.find({}).exec(function (err, transfers) {
-        if (transfers.length === 0) {
+    Transfer.find({}).count().exec(function (err, transfer_count) {
+        if (transfer_count === 0) {
             Transfer.create({
                 _id: '56be54f9d7bff9dd1c93c985',
                 transfer_type: 'Total',
@@ -84,11 +72,6 @@ function createDefaultTransfers() {
                 transfer_year: 2009,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
@@ -104,17 +87,11 @@ function createDefaultTransfers() {
                 transfer_year: 2012,
                 transfer_unit: 'USD',
                 transfer_value: 4102721984,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8',
                 project: '56a930f41b5482a31231ef42'
-                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c988',
@@ -124,11 +101,6 @@ function createDefaultTransfers() {
                 transfer_year: 2012,
                 transfer_unit: 'USD',
                 transfer_value: 4102721984,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
@@ -144,17 +116,11 @@ function createDefaultTransfers() {
                 transfer_year: 2010,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8',
                 project: '56a930f41b5482a31231ef42'
-                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c987',
@@ -164,16 +130,10 @@ function createDefaultTransfers() {
                 transfer_year: 2011,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8'
-                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bff9921c93c989',
@@ -183,16 +143,10 @@ function createDefaultTransfers() {
                 transfer_year: 2015,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'project',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8'
-                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9d7bfflll1c93c985',
@@ -202,17 +156,11 @@ function createDefaultTransfers() {
                 transfer_year: 2009,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'site',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8',
                 site: '56eb117c0007bf5b2a3e4b71'
-                // concession: '56a2b8236e585b7316655794',
             });
             Transfer.create({
                 _id: '56be54f9dffff9dd1c93c985',
@@ -222,23 +170,25 @@ function createDefaultTransfers() {
                 transfer_year: 2009,
                 transfer_unit: 'USD',
                 transfer_value: 1394922844,
-                //transfer_note: '',
-                //transfer_note: '',
-                //tranfer_gov_entity: '',
-                //tranfer_gov_entity_id: '',
-                //transfer_line_item: '',
                 transfer_level: 'field',
                 transfer_accounting_basis: 'cash',
                 company: '56a13a758f224f670e6a376e',
                 country: '56a7e6c02302369318e16bb8',
                 site: '56eb117c0007bf5b2a3e4b76'
-                // concession: '56a2b8236e585b7316655794',
             });
-            console.log('Transfers created...');
+            Transfer.find({}).count().exec(function(err, transfer_count) {
+                console.log(String(transfer_count), 'transfer figures created...')
+            });
         } else {
-            console.log(String(transfers.length), 'transfer figures exist...')
+            console.log(String(transfer_count), 'transfer figures exist...')
         }
     });
 }
+function getInitTransferCount() {
+    Transfer.find({}).count().exec(function(err, transfer_count) {
+        console.log(String(transfer_count), 'transfer figures exist...')
+    });
+};
 
+exports.getInitTransferCount = getInitTransferCount;
 exports.createDefaultTransfers = createDefaultTransfers;
