@@ -177,9 +177,9 @@ module.exports	= function(app) {
 	/////////////////////////
 	///// SITES CRUD ////////
 	/////////////////////////
-	app.get('/api/sites/:limit/:skip', sites.getSites);
+	app.get('/api/sites/:limit/:skip/:field', sites.getSites);
 	app.get('/api/sites/:id', sites.getSiteByID);
-	app.get('/api/sites/', sites.getSitesMap);
+	app.get('/api/sites/map/:field', sites.getSitesMap);
 
 	//DATASETS - TODO: protect with admin
 	app.get('/api/datasets', datasets.getDatasets);

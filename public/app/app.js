@@ -264,6 +264,18 @@ angular.module('app')
                 templateUrl: '/partials/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
+            .when('/fields', {
+                templateUrl: '/partials/sites/site-list',
+                controller: 'nrgiSiteListCtrl'
+            })
+            .when('/field/:id', {
+                templateUrl: '/partials/sites/site-detail',
+                controller: 'nrgiSiteDetailCtrl'
+            })
+            .when('/fields/map', {
+                templateUrl: '/partials/sites/mapSiteAndProject',
+                controller: 'nrgiMapSiteCtrl'
+            })
             //.when('/admin/site-admin', {
             //    templateUrl: '/partials/admin/sites/site-admin',
             //    controller: 'nrgiSiteAdminCtrl',

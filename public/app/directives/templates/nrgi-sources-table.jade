@@ -6,9 +6,11 @@ table.table.table-striped.projects(ts-wrapper)#project-sources
         tr
             th Name
             th Type
+            th Authority
     tbody
         tr(ng-repeat="(key, value) in sources")
             td.source_id: a(href='source/{{key}}')
                 span(ng-bind-html="value.source_name|sanitize")
             td.source_type: a(href='source_type/{{value.source_type_id._id}}')
                 span(ng-bind-html="value.source_type_id.source_type_name|sanitize")
+            td.source_authority {{value.create_author[0].first_name}} {{value.create_author[0].last_name}}

@@ -21,6 +21,8 @@
          tr
             th.tablesort-sortable-th(ts-criteria='commodity_name') Name
             th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+            th.tablesort-sortable-th(ts-criteria='fields|parseInt') No. Fields
+            th.tablesort-sortable-th(ts-criteria='sites|parseInt') No. Sites
             th.tablesort-sortable-th(ts-criteria='contracts|parseInt') No. Contracts
             th.tablesort-sortable-th(ts-criteria='concessions|parseInt') No. Concessions
       tbody
@@ -29,6 +31,8 @@
                a(href='commodity/{{commodity.commodity_id}}')
                   span(ng-bind-html="commodity.commodity_name|sanitize")
             td.commodity_projects {{commodity.projects}}
+            td.commodity_projects {{commodity.fields}}
+            td.commodity_projects {{commodity.sites}}
             td.commodity_contracts {{commodity.contracts}}
             td.commodity_concessions {{commodity.concessions}}
 

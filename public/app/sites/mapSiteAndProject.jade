@@ -2,14 +2,14 @@
   .page-header
       .row
         .col-md-4
-            h1 Site Map
+            h1 {{header}} Map
         .col-md-5
         .col-md-3
           .btn-group(role='group', aria-label='...')
               button.btn.btn-default.pull-right(type='button')
-                  a(href='/sites') List View
+                  a(href='/{{record_type}}') List View
 
   .row
      .col-md-12
        #map
-         nrgi-leaflet#projectMap(data='siteMarkers' map='true')
+         nrgi-leaflet#projectMap(data='siteMarkers' site='field' map='true')

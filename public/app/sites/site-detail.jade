@@ -98,7 +98,7 @@
                                             td.location_timestamp
                                                 span(ng-if='location.lat') True at: {{location.timestamp|date:'yyyy-MM-dd'}}
         .col-md-6
-            .info-box
+            .info-box(ng-if='site.description')
                 h2
                     | &nbsp;
                 table#site-description

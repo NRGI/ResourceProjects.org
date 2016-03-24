@@ -8,7 +8,8 @@ angular
             scope: {
                 data: '=',
                 project:'=',
-                map:'='
+                map:'=',
+                site:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-leaflet'
         };

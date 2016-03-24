@@ -11,7 +11,7 @@ var projectSchema, Project,
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
         type: HTML,

@@ -42,10 +42,24 @@ angular
             var counter =0;
             angular.forEach($scope.data,function(data){
                 counter++;
-                if($scope.project==true&&data.type=='project'){
+                if($scope.project==true && data.type=='project'){
                     $scope.location.push({lat: data.lat, lng: data.lng,message: data.message});
-                }else if($scope.project==true && data.type!='project'){
+                }else if(data.type=='site'){
                     $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message});
+                }else if(data.type=='field'){
+                    $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message});
+                }else if($scope.map ==true && $scope.site==false){
+                    $scope.location.push({
+                        lat: data.lat,
+                        lng: data.lng,
+                        message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                    });
+                }else if($scope.map ==true && $scope.site==true){
+                    $scope.location.push({
+                        lat: data.lat,
+                        lng: data.lng,
+                        message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                    });
                 }else {
                     if (data.type == 'project') {
                         $scope.location.push({
@@ -61,6 +75,7 @@ angular
                         });
                     }
                 }
+
                 if (len == counter && $scope.map !=true) {
                     $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
                 }
