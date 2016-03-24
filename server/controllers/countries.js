@@ -465,6 +465,7 @@ exports.getCountryByID = function(req, res) {
         if(company_len>0) {
             _.each(country.companies_incorporated,function (company) {
                 Link.find({company: company._id, entities: 'company_group'})
+
                     .populate('company_group','_id company_group_name')
                     .deepPopulate('source.source_type_id')
                     .exec(function (err, links) {
@@ -792,6 +793,7 @@ exports.getCountryByID = function(req, res) {
             res.send(country);
         }
     }
+
 };
 
 exports.createCountry = function(req, res, next) {
