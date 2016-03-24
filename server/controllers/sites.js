@@ -408,7 +408,6 @@ exports.getSiteByID = function(req, res) {
                 {site:{$in: site.transfers_query}}]})
             .populate('company country project site')
             .deepPopulate('source.source_type_id')
-            // .lean()
             .exec(function(err, transfers) {
                 transfers_counter = 0;
                 transfers_len = transfers.length;
@@ -796,6 +795,7 @@ exports.getSiteByID = function(req, res) {
 };
 
 exports.getSitesMap = function(req, res) {
+    console.log(req.params.field);
     var site_len, site_counter;
     var field = req.params.field;
     async.waterfall([

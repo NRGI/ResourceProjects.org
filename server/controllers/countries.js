@@ -13,18 +13,6 @@ var Country 		= require('mongoose').model('Country'),
     _               = require("underscore"),
     request         = require('request');
 
-// Transfer.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {company:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-// Production.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-
 exports.getCountries = function(req, res) {
     var countries_len, countries_counter, final_country_set,
         limit = Number(req.params.limit),
@@ -477,6 +465,7 @@ exports.getCountryByID = function(req, res) {
         if(company_len>0) {
             _.each(country.companies_incorporated,function (company) {
                 Link.find({company: company._id, entities: 'company_group'})
+
                     .populate('company_group','_id company_group_name')
                     .deepPopulate('source.source_type_id')
                     .exec(function (err, links) {
@@ -804,6 +793,7 @@ exports.getCountryByID = function(req, res) {
             res.send(country);
         }
     }
+
 };
 
 exports.createCountry = function(req, res, next) {
