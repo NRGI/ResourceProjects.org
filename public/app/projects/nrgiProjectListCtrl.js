@@ -20,6 +20,7 @@ angular.module('app')
                 $scope.projects=success.data;
                 $scope.show_count = success.data.length+$scope.page;
                 $scope.record_type = 'projects';
+                console.log(success.data);
             });
         };
 
