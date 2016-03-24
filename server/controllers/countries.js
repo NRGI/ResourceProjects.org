@@ -311,43 +311,39 @@ exports.getCountryByID = function(req, res) {
 		}
 	}
 	function getProjectLinks(country, callback) {
-		project_counter = 0;
-		link_counter = 0;
-		project_len = country.projects.length;
-		if(project_len>0) {
-			_.each(country.projects, function (project) {
-				++project_counter;
-				project.companies = 0;
-				Link.find({project: project._id})
-					.populate('company_group','_id company_group_name')
-					.deepPopulate('source.source_type_id')
-					.exec(function (err, links) {
-						link_len = links.length;
-						link_counter = 0;
-						links.forEach(function (link) {
-							++link_counter;
-							var entity = _.without(link.entities, 'project')[0];
-							if(link.source!=undefined) {
-								if (!country.sources[link.source._id]) {
-									country.sources[link.source._id] = link.source;
-								}
-							}
-							switch (entity) {
-								case 'company':
-									project.companies += 1;
-									break;
-								default:
-									console.log(entity, 'link skipped...');
-							}
-						});
-						if (link_counter == link_len && project_counter==project_len) {
-							callback(null, country);
-						}
-					});
-			})
-		} else {
-			callback(null, country);
-		}
+        project_len = country.projects.length;
+        if (project_len > 0) {
+            async.each(country.projects, function (project, ecallback) {
+                project.companies = 0;
+                Link.find({project: project._id})
+                    .populate('company_group','_id company_group_name')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function (err, links) {
+                        links.forEach(function (link) {
+                            var entity = _.without(link.entities, 'project')[0];
+                            if(link.source!=undefined) {
+                                if (!country.sources[link.source._id]) {
+                                    country.sources[link.source._id] = link.source;
+                                }
+                            }
+                            switch (entity) {
+                                case 'company':
+                                    project.companies += 1;
+                                    break;
+                                default:
+                                    console.log(entity, 'link skipped...');
+                            }
+                        });
+                        ecallback(null);
+                    });
+            },
+            function (err) {
+                callback(null, country);
+            });
+        }
+        else {
+            callback(null, country);
+        }
 	}
 	function getConcessionLinks(country, callback) {
 		link_counter = 0;
