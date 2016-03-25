@@ -542,6 +542,13 @@ exports.getConcessionByID = function(req, res) {
                                 concession.sources[transfer.source._id] = transfer.source;
                             }
                         }
+                        if(transfer.source!=undefined) {
+                            if (!concession.sources[transfer.source._id]) {
+                                //TODO clean up returned data if performance lags
+                                concession.sources[transfer.source._id] = transfer.source;
+                            }
+                        }
+
                         ++transfers_counter;
                         concession.transfers.push({
                             _id: transfer._id,
