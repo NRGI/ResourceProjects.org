@@ -220,6 +220,7 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
+
     function getConcessionLinks(concession, callback) {
         concession.companies = [];
         concession.projects = [];
@@ -542,7 +543,6 @@ exports.getConcessionByID = function(req, res) {
                                 concession.sources[transfer.source._id] = transfer.source;
                             }
                         }
-
                         ++transfers_counter;
                         concession.transfers.push({
                             _id: transfer._id,
