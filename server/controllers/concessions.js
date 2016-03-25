@@ -133,36 +133,36 @@ exports.getConcessions = function(req, res) {
                             if (concession_counter == concession_len && link_counter == link_len) {
                                 callback(null, concession_count, concessions);
                             }
-<<<<<<< 08f7f24303a4d45507c21cee9c0a9c3bf4bc5853
+// <<<<<<< 08f7f24303a4d45507c21cee9c0a9c3bf4bc5853
                         } else {
                             if (concession_counter == concession_len && link_counter == link_len) {
                                 callback(null, concession_count, concessions);
-=======
-                            switch (entity) {
-                                case 'company':
-                                    concession.company_count += 1;
-                                    break;
-                                case 'contract':
-                                    concession.contract_count += 1;
-                                    break;
-                                case 'project':
-                                    concession.projects.push(link.project._id);
-                                    concession.project_count += 1;
-                                    break;
-                                case 'site':
-                                    if (concession.site!=undefined) {
-                                        if (concession.site.field) {
-                                            concession.sites.push(link.site._id);
-                                            concession.site_count += 1;
-                                        } else if (!concession.site.field) {
-                                            concession.fields.push(link.site._id);
-                                            concession.field_count += 1;
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    console.log(entity, 'skipped...');
->>>>>>> SAVEPOINT
+// =======
+//                             switch (entity) {
+//                                 case 'company':
+//                                     concession.company_count += 1;
+//                                     break;
+//                                 case 'contract':
+//                                     concession.contract_count += 1;
+//                                     break;
+//                                 case 'project':
+//                                     concession.projects.push(link.project._id);
+//                                     concession.project_count += 1;
+//                                     break;
+//                                 case 'site':
+//                                     if (concession.site!=undefined) {
+//                                         if (concession.site.field) {
+//                                             concession.sites.push(link.site._id);
+//                                             concession.site_count += 1;
+//                                         } else if (!concession.site.field) {
+//                                             concession.fields.push(link.site._id);
+//                                             concession.field_count += 1;
+//                                         }
+//                                     }
+//                                     break;
+//                                 default:
+//                                     console.log(entity, 'skipped...');
+// >>>>>>> SAVEPOINT
                             }
                         }
 
@@ -729,10 +729,6 @@ exports.getConcessionByID = function(req, res) {
         }
     }
     function getProjectCoordinate(concession,callback) {
-<<<<<<< 08f7f24303a4d45507c21cee9c0a9c3bf4bc5853
-        proj_counter = 0;
-        proj_len = concession.projects.length;
-=======
         var project_counter = 0;
         concession.polygon=[];
         if (concession.concession_polygon.length>0) {
@@ -750,7 +746,6 @@ exports.getConcessionByID = function(req, res) {
                 }
             })
         }
->>>>>>> SAVEPOINT
         concession.proj_coordinates = [];
         if (concession.site_coordinates.sites.length>0) {
             concession.site_coordinates.sites.forEach(function (site_loc) {
