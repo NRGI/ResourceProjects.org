@@ -23,6 +23,8 @@
                 th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Commodity Type
                 th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
                 th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+                th.tablesort-sortable-th(ts-criteria='sites|parseInt') No. Sites
+                th.tablesort-sortable-th(ts-criteria='fields|parseInt') No. Fields
         tbody
             tr(ng-repeat="contract in contracts | unique: '_id'",ts-repeat)
                 td.contract_id: a(href='contract/{{ contract.contract_id }}')
@@ -37,6 +39,8 @@
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.contract_projects: span {{contract.projects}}
+                td.contract_projects: span {{contract.sites}}
+                td.contract_projects: span {{contract.fields}}
 
     nrgi-list-nav(
     page="page"

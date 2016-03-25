@@ -19,6 +19,10 @@
                     td.commodity_name
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                 tr
+                    td.detail_label.small Commodity type:
+                    td.commodity_type
+                        span(ng-bind-html="commodity.commodity_type|sanitize")
+                tr
                     td.detail_label.small Aliases:
                     td.commodity_aliases
                         span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
@@ -27,7 +31,7 @@
                             span(ng-if="!$last") ,
                             =" "
     .row
-        .col-md-3
+        .col-md-6
             nrgi-project-table(
             projects="commodity.projects"
             country="true"
@@ -35,27 +39,40 @@
             companies="true"
             commodity="false"
             status="true")
-        .col-md-3
+        .col-md-6
+            nrgi-site-table(
+            sites="commodity.sites"
+            country="true"
+            commoditytype="false"
+            company="true"
+            type="true"
+            commodity="false"
+            status="true")
+    .row
+        .col-md-6
             nrgi-contract-table(
             contracts="commodity.contracts"
-            companies="false"
+            companies="true"
             commodity="false"
             country="true")
-        .col-md-3
+        .col-md-6
             nrgi-concession-table(
             concessions="commodity.concessions"
             country="true"
             type="false"
             commodity="false"
-            status="false"
-            projects="false")
-        .col-md-3
+            status="true"
+            projects="true")
+    .row
+        .col-md-12
             nrgi-company-table(
             companies="commodity.companies"
             stake="false"
-            group="true")
-        .col-md-3
-
+            group="true"
+            project="true"
+            site="true"
+            contract="true"
+            concession="true")
     .row
         .col-md-12
             nrgi-sources-table(sources="commodity.sources")

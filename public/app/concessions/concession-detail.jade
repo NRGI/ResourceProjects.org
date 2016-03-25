@@ -5,8 +5,8 @@
             =' '
             small Concession
     .row
-        .col-md-12
-            nrgi-leaflet(data='concession.proj_coordinates')
+        .col-md-12(ng-if='concession.proj_coordinates.length>0')
+            nrgi-leaflet(data='concession.proj_coordinates' polygon='concession.polygon')
     .row
         .col-md-6
             .info-box
@@ -22,13 +22,13 @@
                                 a(href='')
                                     | {{concession.oo_concession_id}}
                                 | &nbsp; (TODO work figure out OO link pattern)
-                        tr
+                        tr(ng-if="concession.concession_aliases.length>0")
                             td.detail_label.small Aliases:
                             td.concession_aliases
                                 span(ng-repeat="alias in concession.concession_aliases | unique: 'alias'")
                                     span {{alias.alias}}
                                     | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="concession.concession_country.length>0")
                             td.detail_label.small Country:
                             td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
                                 a(href='country/{{country.country.iso2}}')
@@ -36,7 +36,7 @@
                                 | {{$last ? '' : ', '}}
                             //td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
                             //    a(href='country/{{country.country._id}}')
-                        tr
+                        tr(ng-if="concession.concession_status.length>0")
                             td.detail_label.small Status:
                             td.concession_status: text(
                             ng-repeat="status in concession.concession_status"
@@ -44,16 +44,20 @@
                                 text(ng-if="$last")
                                     | {{status.string | ucfirst}}
                                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                        tr
+                        tr(ng-if="concession.concession_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.concession_commodities
                                 text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
                                     a(href='commodity/{{commodity.commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
-                            //td.company_open_corporates_id
-                            //    a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
-                        tr
+                        tr(ng-if="concession.concession_type.length>0")
+                            td.detail_label.small Geographic Type:
+                            td.concession_type
+                                text(ng-repeat="type in concession.concession_type")
+                                    | {{type.string | ucfirst}}
+                                    | {{$last ? '' : ', '}}
+                        tr(ng-if="concession.contracts.length>0")
                             td.detail_label.small Contract:
                             td.concession_conracts
                                 text(ng-repeat="contract in concession.contracts | unique: '_id'")
@@ -63,7 +67,7 @@
                                         | {{$last ? '' : ', '}}
 
         .col-md-6
-            .info-box
+            .info-box(ng-if="concession.description.length>0")
                 h2
                     | &nbsp;
                 table#concession-description
@@ -81,7 +85,8 @@
         .col-md-4
             nrgi-site-table(
             sites="concession.sites"
-            status="true")
+            status="true"
+            commodity="true")
         .col-md-4
             nrgi-company-table(
             companies="concession.companies"

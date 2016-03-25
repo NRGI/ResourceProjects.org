@@ -105,12 +105,14 @@ exports.getConcessions = function(req, res) {
                                     concession.project_count += 1;
                                     break;
                                 case 'site':
-                                    if (concession.site.field) {
-                                        concession.sites.push(link.site._id);
-                                        concession.site_count += 1;
-                                    } else if (!concession.site.field) {
-                                        concession.fields.push(link.site._id);
-                                        concession.field_count += 1;
+                                    if (concession.site!=undefined) {
+                                        if (concession.site.field) {
+                                            concession.sites.push(link.site._id);
+                                            concession.site_count += 1;
+                                        } else if (!concession.site.field) {
+                                            concession.fields.push(link.site._id);
+                                            concession.field_count += 1;
+                                        }
                                     }
                                     break;
                                 default:
@@ -729,6 +731,22 @@ exports.getConcessionByID = function(req, res) {
     }
     function getProjectCoordinate(concession,callback) {
         var project_counter = 0;
+        concession.polygon=[];
+        if (concession.concession_polygon.length>0) {
+            var len=concession.concession_polygon.length;
+            var counter=0;
+            var coordinate=[];
+            concession.concession_polygon.forEach(function (con_loc) {
+                ++counter;
+                coordinate.push({
+                        'lat': con_loc.loc[0],
+                        'lng': con_loc.loc[1]
+                });
+                if(len==counter){
+                    concession.polygon.push({coordinate:coordinate});
+                }
+            })
+        }
         concession.proj_coordinates = [];
         if (concession.site_coordinates.sites.length>0) {
             concession.site_coordinates.sites.forEach(function (site_loc) {

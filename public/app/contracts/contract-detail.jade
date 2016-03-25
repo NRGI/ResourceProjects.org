@@ -6,7 +6,7 @@
             small Contract
     .row
         .col-md-6
-            nrgi-leaflet(data='contract.location')
+            nrgi-leaflet(data='contract.location' polygon='contract.polygon')
 
         .col-md-6
             .info-box
@@ -29,12 +29,11 @@
                                 a(href='concession/{{concession._id}}')
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}
-    .row.top-padding-med
-        .col-md-12
-            nrgi-company-table(
-            companies="contract.companies"
-            stake='true'
-            group='true')
+                nrgi-company-table(
+                companies="contract.companies"
+                stake='false'
+                group='true')
+
     .row.top-padding-med
         .col-md-6
             nrgi-project-table(

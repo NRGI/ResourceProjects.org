@@ -11,7 +11,9 @@ angular
                 commodity: '=',
                 status: '=',
                 country: '=',
-                type: '='
+                type: '=',
+                commoditytype: '=',
+                company: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-site-table'
         };
