@@ -121,6 +121,7 @@ exports.getConcessions = function(req, res) {
                                             concession.transfers_query.push(link.site._id);
                                         }
                                         if (link.site.field) {
+
                                             concession.site_count += 1;
                                         } else if (!link.site.field) {
                                             concession.field_count += 1;
