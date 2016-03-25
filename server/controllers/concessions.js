@@ -110,15 +110,15 @@ exports.getConcessions = function(req, res) {
                                         if (link.site.site_commodity.length>0) {
                                             if (_.where(concession.concession_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
                                                 concession.concession_commodity.push({
-                                                    _id: _.last(link.site.site_commodity)._id,
-                                                    commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
-                                                    commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
-                                                    commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
+                                                    _id: _.last(link.project.proj_commodity).commodity._id,
+                                                    commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
+                                                    commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
+                                                    commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
                                                 });
                                             }
                                         }
-                                        if (!_.contains(concession.transfers_query, link.site._id)) {
-                                            concession.transfers_query.push(link.site._id);
+                                        if (!_.contains(concession.transfers_query, link.project)) {
+                                            concession.transfers_query.push(link.project);
                                         }
                                         if (link.site.field) {
 
@@ -220,7 +220,6 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
-
     function getConcessionLinks(concession, callback) {
         concession.companies = [];
         concession.projects = [];
