@@ -9,7 +9,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
             th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
             th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
-            //th.col-md-1.tablesort-sortable-th(ng-if="projectlink==true", ts-criteria='proj_site.name') Projects and Sites
+            th.col-md-1.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
     tbody
         tr(
         ng-repeat="prod in production"
@@ -27,8 +27,10 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
                 text(ng-if="prod.production_price") {{prod.production_price_unit}}
                 em(ng-if="!prod.production_price") ..
             td.col-md-1.text-center.production_level {{prod.production_level}}
-            //td.project(ng-if="projectlink==true"): a(href="{{prod.proj_site.type}}/{{prod.proj_site._id}}")
-            //    span(ng-bind-html="prod.proj_site.name|sanitize")
+            td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in prod.production_links | unique: '_id'")
+                a(href="{{link.type}}/{{link.route}}")
+                    span(ng-bind-html="link.name|sanitize")
+                | {{$last ? '' : ', '}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span

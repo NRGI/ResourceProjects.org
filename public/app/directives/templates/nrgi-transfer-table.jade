@@ -11,7 +11,7 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             th.col-med-1.text-center.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value
             th.col-med-1.tablesort-sortable-th(ts-criteria='transfer_level') Level
             th.col-med-1.tablesort-sortable-th(ts-criteria='transfer_audit_type') Payment or receipt?
-            //th.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='proj_site.name') Projects and Sites
+            th.col-med-1.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='transfer_links.name') Projects and Sites
     tbody
         tr(
         ng-repeat="transfer in transfers"
@@ -30,8 +30,10 @@ table.table.table-striped.projects(ts-wrapper)#transfer-info
             td.col-med-1.text-right.transfer_value {{transfer.transfer_value | number}}
             td.col-med-1.transfer_level {{transfer.transfer_level}}
             td.col-med-1.transfer_audit_type {{transfer.transfer_audit_type | addSpaces}}
-            //td.project(ng-if="projectlink===true"): a(href="{{transfer.proj_site.type}}/{{transfer.proj_site._id}}")
-            //    span(ng-bind-html="transfer.proj_site.name|sanitize")
+            td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in transfer.transfer_links | unique: '_id'")
+                a(href="{{link.type}}/{{link.route}}")
+                    span(ng-bind-html="link.name|sanitize")
+                | {{$last ? '' : ', '}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
     span

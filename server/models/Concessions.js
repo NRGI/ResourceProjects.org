@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
 var concessionSchema, Concession,
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
@@ -61,7 +62,7 @@ concessionSchema = new Schema ({
 });
 
 concessionSchema.plugin(mongooseHistory, hst_options);
-
+concessionSchema.plugin(deepPopulate);
 Concession = mongoose.model('Concession', concessionSchema);
 
 function createDefaultConcessions() {

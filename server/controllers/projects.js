@@ -345,9 +345,6 @@ exports.getProjectByID = function(req, res) {
                         project.transfers.push({
                             _id: transfer._id,
                             transfer_year: transfer.transfer_year,
-                            company: {
-                                company_name: transfer.company.company_name,
-                                _id: transfer.company._id},
                             country: {
                                 name: transfer.country.name,
                                 iso2: transfer.country.iso2},
@@ -358,6 +355,9 @@ exports.getProjectByID = function(req, res) {
                             transfer_audit_type: transfer.transfer_audit_type
                             // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
                         });
+                        if (transfer.company!==null) {
+                            _.last(project.transfers).company = {_id: transfer.company._id, company_name: transfer.company.company_name};
+                        }
                         if (transfers_counter===transfers_len) {
                             callback(null, project);
                         }
