@@ -7,6 +7,17 @@ var CompanyGroup 		= require('mongoose').model('CompanyGroup'),
     _               = require("underscore"),
     request         = require('request');
 //.populate('comments.author', 'firstName lastName role')
+// Transfer.find({$or: [
+//     {project:{$in: project.transfers_query}},
+//     {site:{$in: project.transfers_query}},
+//     {company:{$in: project.transfers_query}},
+//     {country:{$in: project.transfers_query}},
+//     {concession:{$in: project.transfers_query}}]})
+// Production.find({$or: [
+//     {project:{$in: project.transfers_query}},
+//     {site:{$in: project.transfers_query}},
+//     {country:{$in: project.transfers_query}},
+//     {concession:{$in: project.transfers_query}}]})
 exports.getCompanyGroups = function(req, res) {
     var companyGroup_len, link_len, companyGroup_counter, link_counter,
         limit = Number(req.params.limit),
@@ -51,30 +62,25 @@ exports.getCompanyGroups = function(req, res) {
     function getCompanyGroupLinks(companyGroup_count, companyGroups, callback) {
         companyGroup_len = companyGroups.length;
         companyGroup_counter = 0;
-        companyGroups.forEach(function (c) {
-            Link.find({company_group: c._id, $or:[ {entities:'company'}, {entities:'project'} ] })
+        companyGroups.forEach(function (group) {
+            Link.find({company_group: group._id})
                 .populate('company')
                 .populate('project')
                 .exec(function(err, links) {
                     ++companyGroup_counter;
                     link_len = links.length;
                     link_counter = 0;
-                    c.company_count = 0;
-                    c.companies = {};
+                    group.company_count = 0;
+                    group.companies = {};
                     links.forEach(function(link) {
                         ++link_counter;
 
                         var entity = _.without(link.entities, 'company_group')[0];
                         switch (entity) {
                             case 'company':
-                                c.companies={company: link.company._id};
-                                c.company_count += 1;
+                                group.companies={company: link.company._id};
+                                group.company_count += 1;
                                 break;
-                            //
-                            //case 'project':
-                            //    c.project_count += 1;
-                            //    break;
-                            //
                             default:
                                 console.log(entity, 'link skipped...');
                         }
@@ -90,12 +96,12 @@ exports.getCompanyGroups = function(req, res) {
         companyGroup_counter = 0;
         if(companyGroup_len>0) {
             async.forEach(companyGroups, function (group) {
-                group.project_count = 0;
                 if(Object.keys(group.companies).length != 0) {
                     Link.find({entities: 'project',$or: [group.companies]})
                         .count()
                         .exec(function (err, proj_count) {
                             ++companyGroup_counter;
+                            group.project_count = 0;
                             group.project_count = proj_count;
                             if (companyGroup_counter == companyGroup_len) {
                                 res.send({data: companyGroups, count: companyGroup_count});
@@ -113,6 +119,7 @@ exports.getCompanyGroups = function(req, res) {
         }
     }
 };
+
 exports.getCompanyGroupByID = function(req, res) {
     var link_counter, link_len, company_counter, company_len;
 
@@ -386,6 +393,7 @@ exports.getCompanyGroupByID = function(req, res) {
         }
     }
 };
+
 exports.createCompanyGroup = function(req, res, next) {
     var companyGroupData = req.body;
     CompanyGroup.create(companyGroupData, function(err, companyGroup) {
@@ -398,6 +406,7 @@ exports.createCompanyGroup = function(req, res, next) {
         }
     });
 };
+
 exports.updateCompanyGroup = function(req, res) {
     var companyGroupUpdates = req.body;
     CompanyGroup.findOne({_id:req.body._id}).exec(function(err, companyGroup) {
@@ -421,6 +430,7 @@ exports.updateCompanyGroup = function(req, res) {
         })
     });
 };
+
 exports.deleteCompanyGroup = function(req, res) {
     CompanyGroup.remove({_id: req.params.id}, function(err) {
         if(!err) {
