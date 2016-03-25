@@ -335,6 +335,7 @@ exports.getCompanyByID = function(req, res) {
                                             commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
                                         });
                                     }
+
                                 }
                                 break;
                             case 'contract':
