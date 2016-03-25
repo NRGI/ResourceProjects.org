@@ -23,7 +23,7 @@
                         th.col-md-1.tablesort-sortable-th(ts-criteria='concession_country[concession_country.length-1].country.name') Country
                         th.col-md-1.tablesort-sortable-th(ts-criteria='concession_type[concession_type.length-1].string') Commodity Type
                         th.col-md-1.tablesort-sortable-th(ts-criteria='concession_commodity[concession_commodity.length-1].commodity.commodity_name') Commodity
-                        th.col-md-1.tablesort-sortable-th(ts-criteria='concession_status[concession_status.length-1].string') Status
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='concession_status[concession_status.length-1].string') Status
                         th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='project_count | parseInt') Projects
                         th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='site_count | parseInt') Sites
                         th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='field_count | parseInt') Fields
@@ -37,16 +37,20 @@
                             a(ng-if="$first" href='/country/{{country.country.iso2}}')
                                 span(ng-bind-html="country.country.name|sanitize")
                             //| {{$last ? '' : ', '}}
-                        td.col-md-1.concession_type: text(ng-repeat="type in concession.concession_type")
-                            text(ng-if="$last") {{type.string | ucfirst}}
+                        td.col-md-1.concession_commodity_type
+                            text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_type'")
+                                | {{commodity.commodity_type | ucfirst | addSpaces}}
+                                | {{$last ? '' : ', '}}
                         td.col-md-1.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
-                            a(href='/commodity/{{commodity.commodity.commodity_id}}')
-                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                            a(href='/commodity/{{commodity.commodity_id}}')
+                                span(ng-bind-html="commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td.col-md-1.concession_status: text(ng-repeat="status in concession.concession_status")
-                            text(ng-if="$last")
-                                | {{status.string | ucfirst}}
-                                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        td.col-md-1.text-center.concession_status
+                            em(ng-if="concession.concession_status.length<1") ..
+                            text(ng-if="concession.concession_status.length>0" ng-repeat="status in concession.concession_status")
+                                text(ng-if="$last")
+                                    | {{status.string | ucfirst}}
+                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                         td.col-md-1.text-center.concession_projects {{concession.project_count}}
                         td.col-md-1.text-center.concession_sites {{concession.site_count}}
                         td.col-md-1.text-center.concession_fields {{concession.field_count}}

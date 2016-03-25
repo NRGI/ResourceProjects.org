@@ -45,7 +45,7 @@ exports.getConcessions = function(req, res) {
             .skip(skip)
             .limit(limit)
             .populate('concession_country.country', '_id iso2 name')
-            .populate('concession_commodity.commodity', ' _id commodity_name commodity_id')
+            .populate('concession_commodity.commodity', ' _id commodity_name commodity_type commodity_id')
             .populate('concession_established_source')
             .lean()
             .exec(function(err, concessions) {
@@ -62,11 +62,13 @@ exports.getConcessions = function(req, res) {
         concession_counter = 0;
         if(concession_len>0) {
             concessions.forEach(function (concession) {
+                concession.transfers_query = [concession._id];
                 concession.source_type = {p: false, c: false};
                 Link.find({concession: concession._id})
-                    .populate('commodity', '_id commodity_name commodity_id')
+                    .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company')
-                    .deepPopulate('source.source_type_id')
+                    .populate('site')
+                    .deepPopulate('source.source_type_id site.site_commodity.commodity project.proj_commodity.commodity')
                     .exec(function (err, links) {
                         ++concession_counter;
                         link_len = links.length;
@@ -76,11 +78,6 @@ exports.getConcessions = function(req, res) {
                         concession.site_count = 0;
                         concession.field_count  = 0;
                         concession.contract_count = 0;
-                        // concession.transfers = 0;
-                        // concession.production = 0;
-                        concession.sites = [];
-                        concession.fields = [];
-                        concession.projects = [];
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'concession')[0];
@@ -101,15 +98,38 @@ exports.getConcessions = function(req, res) {
                                     concession.contract_count += 1;
                                     break;
                                 case 'project':
-                                    concession.projects.push(link.project._id);
+                                    if (link.project.proj_commodity.length>0) {
+                                        if (_.where(concession.concession_commodity, {_id:_.last(link.project.proj_commodity)._id}).length<1) {
+                                            concession.concession_commodity.push({
+                                                _id: _.last(link.project.proj_commodity).commodity._id,
+                                                commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
+                                                commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
+                                                commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
+                                            });
+                                        }
+                                    }
+                                    if (!_.contains(concession.transfers_query, link.project)) {
+                                        concession.transfers_query.push(link.project);
+                                    }
                                     concession.project_count += 1;
                                     break;
                                 case 'site':
-                                    if (concession.site.field) {
-                                        concession.sites.push(link.site._id);
+                                    if (link.site.site_commodity.length>0) {
+                                        if (_.where(concession.concession_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                            concession.concession_commodity.push({
+                                                _id: _.last(link.site.site_commodity)._id,
+                                                commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
+                                                commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
+                                                commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
+                                            });
+                                        }
+                                    }
+                                    if (!_.contains(concession.transfers_query, link.site._id)) {
+                                        concession.transfers_query.push(link.site._id);
+                                    }
+                                    if (link.site.field) {
                                         concession.site_count += 1;
-                                    } else if (!concession.site.field) {
-                                        concession.fields.push(link.site._id);
+                                    } else if (!link.site.field) {
                                         concession.field_count += 1;
                                     }
                                     break;
@@ -129,9 +149,11 @@ exports.getConcessions = function(req, res) {
     function getTransfersCount(concession_count, concessions, callback) {
         concession_len = concessions.length;
         concession_counter = 0;
-
         _.each(concessions, function(concession) {
-            Transfer.find({concession: concession._id})
+            Transfer.find({$or: [
+                {project:{$in: concession.transfers_query}},
+                {site:{$in: concession.transfers_query}},
+                {concession:{$in: concession.transfers_query}}]})
                 .count()
                 .exec(function (err, transfer_count) {
                     ++concession_counter;
@@ -146,9 +168,11 @@ exports.getConcessions = function(req, res) {
     function getProductionCount(concession_count, concessions, callback) {
         concession_len = concessions.length;
         concession_counter = 0;
-
         _.each(concessions, function(concession) {
-            Production.find({concession: concession._id})
+            Production.find({$or: [
+                {project:{$in: concession.transfers_query}},
+                {site:{$in: concession.transfers_query}},
+                {concession:{$in: concession.transfers_query}}]})
                 .count()
                 .exec(function (err, production_count) {
                     ++concession_counter;
@@ -307,6 +331,18 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
+    // Transfer.find({$or: [
+    //     {project:{$in: project.transfers_query}},
+    //     {site:{$in: project.transfers_query}},
+    //     {company:{$in: project.transfers_query}},
+    //     {country:{$in: project.transfers_query}},
+    //     {concession:{$in: project.transfers_query}}]})
+    // Production.find({$or: [
+    //     {project:{$in: project.transfers_query}},
+    //     {site:{$in: project.transfers_query}},
+    //     {country:{$in: project.transfers_query}},
+    //     {concession:{$in: project.transfers_query}}]})
+
     // function getProjectLinks(project, callback) {
     //     project.companies = [];
     //     project.projects = [];

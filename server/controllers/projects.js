@@ -20,8 +20,7 @@ exports.getProjects = function(req, res) {
         getProjectSet,
         getProjectLinks,
         getTransfersCount,
-        getProductionCount,
-        // getSiteTransfersCount
+        getProductionCount
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -44,7 +43,7 @@ exports.getProjects = function(req, res) {
             .skip(skip)
             .limit(limit)
             .populate('proj_country.country', '_id iso2 name')
-            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id')
+            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id commodity_type')
             .populate('proj_established_source')
             .lean()
             .exec(function(err, projects) {
@@ -61,19 +60,22 @@ exports.getProjects = function(req, res) {
         project_counter = 0;
         if(project_len>0) {
             projects.forEach(function (project) {
+                project.transfers_query = [project._id];
                 project.source_type = {p: false, c: false};
                 Link.find({project: project._id})
-                    .populate('commodity', '_id commodity_name commodity_id')
+                    // .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company')
-                    .deepPopulate('source.source_type_id')
+                    .populate('site')
+                    .deepPopulate('source.source_type_id site.site_commodity.commodity concession.concession_commodity.commodity')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
                         link_counter = 0;
-                        project.companies = 0;
-                        project.contracts = 0;
-                        project.sites = [];
-                        project.concessions = [];
+                        project.company_count = 0;
+                        project.contract_count = 0;
+                        project.site_count = 0;
+                        project.field_count = 0;
+                        project.concession_count = 0;
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
@@ -88,16 +90,43 @@ exports.getProjects = function(req, res) {
                             }
                             switch (entity) {
                                 case 'company':
-                                    project.companies += 1;
+                                    project.company_count += 1;
                                     break;
                                 case 'contract':
-                                    project.contracts += 1;
+                                    project.contract_count += 1;
                                     break;
                                 case 'site':
-                                    project.sites.push(link.site._id);
+                                    if (link.site.site_commodity.length>0) {
+                                        if (_.where(project.proj_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                            project.proj_commodity.push({
+                                                _id: _.last(link.site.site_commodity)._id,
+                                                commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
+                                                commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
+                                                commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
+                                            });
+                                        }
+                                    }
+                                    if (!_.contains(project.transfers_query, link.site)) {
+                                        project.transfers_query.push(link.site);
+                                    }
+                                    if (link.site.field) {
+                                        project.site_count += 1;
+                                    } else if (!link.site.field) {
+                                        project.field_count += 1;
+                                    }
                                     break;
                                 case 'concession':
-                                    project.concessions.push(link.concession._id);
+                                    if (link.concession.concession_commodity.length>0) {
+                                        if (_.where(project.proj_commodity, {_id:_.last(link.concession.concession_commodity)._id}).length<1) {
+                                            project.proj_commodity.push({
+                                                _id: _.last(link.site.site_commodity)._id,
+                                                commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
+                                                commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
+                                                commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
+                                            });
+                                        }
+                                    }
+                                    project.concession_count += 1;
                                     break;
                                 default:
                                     console.log(entity, 'skipped...');
@@ -117,11 +146,13 @@ exports.getProjects = function(req, res) {
         project_counter = 0;
 
         _.each(projects, function(project) {
-            Transfer.find({project: project._id})
+            Transfer.find({$or: [
+                    {project:{$in: project.transfers_query}},
+                    {site:{$in: project.transfers_query}}]})
                 .count()
                 .exec(function (err, transfer_count) {
                     ++project_counter;
-                    project.transfers = transfer_count;
+                    project.transfer_count = transfer_count;
                     if (project_counter === project_len) {
                         callback(null, project_count, projects);
                     }
@@ -134,11 +165,13 @@ exports.getProjects = function(req, res) {
         project_counter = 0;
 
         _.each(projects, function(project) {
-            Production.find({project: project._id})
+            Production.find({$or: [
+                    {project:{$in: project.transfers_query}},
+                    {site:{$in: project.transfers_query}}]})
                 .count()
                 .exec(function (err, production_count) {
                     ++project_counter;
-                    project.production = production_count;
+                    project.production_count = production_count;
                     if (project_counter === project_len) {
                         // callback(null, project_count, projects);
                         res.send({data: projects, count: project_count});
@@ -147,27 +180,6 @@ exports.getProjects = function(req, res) {
 
         });
     }
-    // function getSiteTransfersCount(project_count, projects, callback) {
-    //     project_len = projects.length;
-    //     project_counter = 0;
-    //     site_counter = 0;
-    //     _.each(projects, function (project) {
-    //         site_counter=0;
-    //         project.site_transfers = 0;
-    //         _.each(project.sites, function (site) {
-    //             ++project_counter;
-    //             Transfer.find({site: site._id})
-    //                 .lean()
-    //                 .exec(function (err, transfers) {
-    //                     site_counter++;
-    //                     project.site_transfers += 1;
-    //                     if (site_counter == project_counter) {
-    //                         res.send({data: projects, count: project_count});
-    //                     }
-    //                 })
-    //         });
-    //     })
-    // }
 };
 
 exports.getProjectByID = function(req, res) {
@@ -316,10 +328,7 @@ exports.getProjectByID = function(req, res) {
         project.transfers = [];
         Transfer.find({$or: [
             {project:{$in: project.transfers_query}},
-            {site:{$in: project.transfers_query}},
-            {company:{$in: project.transfers_query}},
-            {country:{$in: project.transfers_query}},
-            {concession:{$in: project.transfers_query}}]})
+            {site:{$in: project.transfers_query}}]})
             .populate('company country')
             .deepPopulate('source.source_type_id')
             // .lean()
@@ -362,9 +371,7 @@ exports.getProjectByID = function(req, res) {
         project.production = [];
         Production.find({$or: [
                 {project:{$in: project.transfers_query}},
-                {site:{$in: project.transfers_query}},
-                {country:{$in: project.transfers_query}},
-                {concession:{$in: project.transfers_query}}]})
+                {site:{$in: project.transfers_query}}]})
             .populate('production_commodity')
             .deepPopulate('source.source_type_id')
             // .lean()
