@@ -12,9 +12,17 @@ block main-content
                 .nav-collapse
                     ul.nav.list-inline.left-padding-lg
                         li
-                            a(href='/projects') Projects
-                        li
-                            a(href='/projects') Payments
+                            a.dropdown-toggle(data-toggle="dropdown") Projects
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/projects') Projects
+                                //li
+                                //    a(href='/sites') Sites
+                                //li
+                                //    a(href='/fields') Fields
+                        //li
+                        //    a(href='/projects') Payments
                         li
                             a.dropdown-toggle(data-toggle="dropdown") Other Data
                                 b.caret
@@ -26,13 +34,10 @@ block main-content
                                 li
                                     a(href='/contracts') Contracts
                                 li
-                                    a(href='/countries') Countries
-                                li
-                                    a(href='/commodities') Commodities
-                                li
-                                    a(href='/sites') Sites
-                                li
-                                    a(href='/fields') Fields
+                                //    a(href='/countries') Countries
+                                //li
+                                //    a(href='/commodities') Commodities
+
                         li
                             a.dropdown-toggle(data-toggle="dropdown") About
                                 b.caret
@@ -49,20 +54,20 @@ block main-content
                             ul.dropdown-menu
                                 li
                                     a(href='/admin/etl/datasets') Manage Data Imports
-                                li
-                                    a(href='/admin/create-source') Create Source
-                                li
-                                    a(href='/admin/create-project') Create Project
-                                li
-                                    a(href='/admin/create-country') Create Country
-                                li
-                                    a(href='/admin/create-concession') Create Concession
-                                li
-                                    a(href='/admin/create-commodity') Create Commodity
-                                li
-                                    a(href='/admin/create-company') Create Company
-                                li
-                                    a(href='/admin/create-group') Create Group
+                                //li
+                                //    a(href='/admin/create-source') Create Source
+                                //li
+                                //    a(href='/admin/create-project') Create Project
+                                //li
+                                //    a(href='/admin/create-country') Create Country
+                                //li
+                                //    a(href='/admin/create-concession') Create Concession
+                                //li
+                                //    a(href='/admin/create-commodity') Create Commodity
+                                //li
+                                //    a(href='/admin/create-company') Create Company
+                                //li
+                                //    a(href='/admin/create-group') Create Group
 
                     form.navbar-search.pull-right(action='')
                         input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')

@@ -6,9 +6,7 @@ var Project 		= require('mongoose').model('Project'),
     Production 	    = require('mongoose').model('Production'),
     async           = require('async'),
     _               = require("underscore"),
-    request         = require('request'),
-    ObjectId        = require('mongoose').Schema.Types.ObjectId,
-    encrypt 		= require('../utilities/encryption');
+    request         = require('request');
 
 exports.getProjects = function(req, res) {
     var project_len, link_len, project_counter, link_counter,

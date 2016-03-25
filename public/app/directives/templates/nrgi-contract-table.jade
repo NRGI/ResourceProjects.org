@@ -12,7 +12,8 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
         tr(
         ng-repeat="contract in contracts | unique: '_id'"
         ts-repeat)
-            td.contract_name(ng-if="companies!=true") {{contract.contract_name}}
+            td.contract_name(ng-if="companies!=true")
+                a(href='/contract/{{contract._id}}') {{contract.contract_name}}
             td.contract_rc_id(ng-if="companies==true")
                 a(href='/contract/{{contract._id}}') {{contract._id}}
             td.contract_country(ng-if="country==true")
@@ -27,7 +28,7 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
                         span(ng-bind="contract.contract_commodity.toString()")
 
             td.contract_rc_id(ng-if="companies!=true")
-                a(href='/contract/{{contract._id}}') {{contract._id}}
+                a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract._id}}') {{contract._id}}
             td.contract_companies(ng-if="companies==true") {{contract.companies}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')
