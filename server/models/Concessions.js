@@ -10,7 +10,7 @@ var concessionSchema, Concession,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
     mixedSchema     = Schema.Types.Mixed,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
         type: HTML,

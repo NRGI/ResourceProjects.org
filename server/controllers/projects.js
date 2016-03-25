@@ -71,6 +71,7 @@ exports.getProjects = function(req, res) {
                         link_len = links.length;
                         link_counter = 0;
                         project.companies = 0;
+                        project.contracts = 0;
                         project.sites = [];
                         project.concessions = [];
                         links.forEach(function (link) {
@@ -89,12 +90,10 @@ exports.getProjects = function(req, res) {
                                 case 'company':
                                     project.companies += 1;
                                     break;
+                                case 'contract':
+                                    project.contracts += 1;
+                                    break;
                                 case 'site':
-                                    // project.sites.push({
-                                    //     _id: link.site._id,
-                                    //     field: link.site.field,
-                                    //     site_name: link.site.site_name
-                                    // });
                                     project.sites.push(link.site._id);
                                     break;
                                 case 'concession':
@@ -111,7 +110,6 @@ exports.getProjects = function(req, res) {
             });
         } else{
             callback(null, project_count, projects);
-            // res.send({data: projects, count: project_count});
         }
     }
     function getTransfersCount(project_count, projects, callback) {
