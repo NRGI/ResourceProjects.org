@@ -421,7 +421,7 @@ exports.getProjectByID = function(req, res) {
         project_counter = 0;
         project_len = project.proj_coordinates.length;
         if(project_len>0) {
-            project.forEach(function (loc) {
+            project.proj_coordinates.forEach(function (loc) {
                 ++project_counter;
                 project.coordinates.push({
                     'lat': loc.loc[0],

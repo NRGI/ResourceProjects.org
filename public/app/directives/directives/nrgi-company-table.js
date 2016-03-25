@@ -9,7 +9,11 @@ angular
             scope: {
                 companies: '=',
                 group: '=',
-                stake: '='
+                stake: '=',
+                project:'=',
+                site:'=',
+                contract:'=',
+                concession:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-company-table'
         };

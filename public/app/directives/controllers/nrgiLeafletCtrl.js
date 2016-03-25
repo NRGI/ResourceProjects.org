@@ -23,18 +23,15 @@ angular
                 fullscreen: {
                     position: 'topleft'
                 }
+            }, paths: {
+                polygon: {
+                    type: "polygon",
+                    latlngs:[],
+                    fillColor: 'red',
+                    weight: 2,
+                    color: 'red'
+                }
             }
-            //,
-            //paths: {
-            //    polygon: {
-            //        type: "polygon",
-            //        latlngs: [ {lat: 40.4,lng: -3.6833333}, {lat: 51.5,lng: -0.116667},{lat: 38.7166667,lng: -9.1333333},
-            //            {lat: 48.866667,lng: 2.333333}],
-            //        fillColor: 'red',
-            //        weight: 1,
-            //        color: 'red'
-            //    }
-            //}
         });
         setTimeout( function(){
             if ($scope.data.length > 0)
@@ -77,9 +74,19 @@ angular
                 }
 
                 if (len == counter && $scope.map !=true) {
-                    $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
+                    $scope.center = {lat: data.lat, lng: data.lng, zoom: 6};
                 }
             });
+            if($scope.polygon.length>1){
+                angular.forEach($scope.polygon,function(polygon,i){
+                    $scope.paths.polygon.latlngs[i] = polygon.coordinate;
+                });
+                $scope.paths.polygon.type="multiPolygon";
+            }
+            if($scope.polygon.length==1){
+                $scope.paths.polygon.type="polygon";
+                $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
+            }
             $scope.$apply();
         },1000)
     });

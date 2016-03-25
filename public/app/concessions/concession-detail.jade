@@ -4,9 +4,9 @@
             span(ng-bind-html="concession.concession_name|sanitize")
             =' '
             small Concession
-    .row(ng-if="concession.proj_coordinates.length>0")
-        .col-md-12
-            nrgi-leaflet(data='concession.proj_coordinates')
+    .row
+        .col-md-12(ng-if='concession.proj_coordinates.length>0')
+            nrgi-leaflet(data='concession.proj_coordinates' polygon='concession.polygon')
     .row
         .col-md-6
             .info-box
@@ -28,7 +28,7 @@
                                 span(ng-repeat="alias in concession.concession_aliases | unique: 'alias'")
                                     span {{alias.alias}}
                                     | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="concession.concession_country.length>0")
                             td.detail_label.small Country:
                             //TODO figure out why full array isnt populating
                             td.concession_country

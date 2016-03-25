@@ -86,12 +86,11 @@
                                 | {{$last ? '' : ', '}}
                         tr(ng-if="project.concessions.length>0")
                             td.detail_label.small Concessions:
-                            td.project_concessions: text(
-                            ng-repeat="concession in project.concessions | unique: '_id'")
+                            td.project_concessions: text(ng-repeat="concession in project.concessions | unique: '_id'")
                                 a(href='concession/{{concession._id}}')
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}
-
+                        tr(ng-if="project.proj_address.length>0")
                             td.detail_label.small Address:
                             td.project_address: text(
                             ng-repeat='address in project.proj_address')

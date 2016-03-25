@@ -9,7 +9,8 @@ angular
                 data: '=',
                 project:'=',
                 map:'=',
-                site:'='
+                site:'=',
+                polygon:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-leaflet'
         };
