@@ -111,10 +111,10 @@ var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
     newRow[7] = parseGsDate(newRow[7]);
     newRow[8] = parseGsDate(newRow[8]);
 
-    if (!sourceTypes[newRow[2]]) {
-        console.log("SERIOUS ERROR: Missing source type in the DB");
-        return false;
-    }
+   if (!sourceTypes[newRow[2]]) {
+       console.log("SERIOUS ERROR: Missing source type in the DB");
+       return false;
+   }
 
     var source = {
         source_name: newRow[0],
@@ -409,8 +409,8 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
         ]},
         function(err, doc) {
             var testAndCreateLink = function(skipTest, link, company_id) {
-                link.company = company_id;
                 var createLink = function() {
+                    link.company = company_id;
                     link.entities = ['company', 'company_group'];
                     Link.create(link, function(err, nlmodel) {
                         if (err) {
@@ -488,24 +488,24 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
 
 function parseData(sheets, report, finalcallback) {
     async.waterfall([
-            parseSourceTypes.bind(null, report),
-            parseSources,
-            parseCountries,
-            parseCommodities,
-            parseCompanyGroups,
-            parseCompanies,
-            parseProjects,
-            parseConcessionsAndContracts,
-            parseProduction,
-            parseTransfers,
-            parseReserves
-            //links throughout!//
-        ], function (err, report) {
-            if (err) {
-                console.log("PARSE: Got an error\n");
-                return finalcallback("Failed", report.text);
-            }
-            finalcallback("Success", report.text);
+        parseSourceTypes.bind(null, report),
+        parseSources,
+        parseCountries,
+        parseCommodities,
+        parseCompanyGroups,
+        parseCompanies,
+        parseProjects,
+        parseConcessionsAndContracts,
+        parseProduction,
+        parseTransfers,
+        parseReserves
+        //links throughout!//
+    ], function (err, report) {
+        if (err) {
+            console.log("PARSE: Got an error\n");
+            return finalcallback("Failed", report.text);
+        }
+        finalcallback("Success", report.text);
         }
     );
 
@@ -528,7 +528,7 @@ function parseData(sheets, report, finalcallback) {
         SourceType.find({}, function (err, stresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
-                callback(err, streport);
+                callback(err);
             }
             else {
                 result.add(`Found ${stresult.length} source types\n`);
@@ -548,7 +548,7 @@ function parseData(sheets, report, finalcallback) {
         Country.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
-                callback(err, creport);
+                callback(err);
             }
             else {
                 result.add(`Found ${cresult.length} countries\n`);
@@ -568,7 +568,7 @@ function parseData(sheets, report, finalcallback) {
         Commodity.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
-                callback(err, creport);
+                callback(err);
             }
             else {
                 result.add(`Found ${cresult.length} commodities\n`);
@@ -620,8 +620,8 @@ function parseData(sheets, report, finalcallback) {
                                 newSource,
                                 function(err, model) {
                                     if (err) {
-                                        sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                        return callback(`Failed: ${sourcesReport.report}`);
+                                            sourcesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                            return callback(`Failed: ${sourcesReport.report}`);
                                     }
                                     sources[row[0].toLowerCase()] = model;
                                     return callback(null);
@@ -684,7 +684,6 @@ function parseData(sheets, report, finalcallback) {
             );
         };
         sources = new Object;
-        //TODO - refactor processSourceRow to use generic row or similar?
         parseEntity(result, '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);
     }
 
@@ -698,7 +697,6 @@ function parseData(sheets, report, finalcallback) {
         parseEntity(result, '6. Companies and Groups', 3, 0, companies, processCompanyRow, "Company", 3, Company, "company_name", makeNewCompany, callback);
     }
 
-    //TODO: make more generic, entity names etc.
     function createSiteProjectLink (siteId, projectId, sourceId, report, lcallback) {
         Link.create({project: projectId, site: siteId, source: sourceId, entities: ['project', 'site']},
             function (err, nlmodel) {
@@ -722,69 +720,69 @@ function parseData(sheets, report, finalcallback) {
             }
 
             function updateOrCreateProject(projDoc, wcallback) {
-                var doc_id = null;
+                    var doc_id = null;
 
-                if (!projDoc) {
-                    projDoc = makeNewProject(row);
-                }
-                else {
-                    doc_id = projDoc._id;
-                    projDoc = projDoc.toObject();
-                    delete projDoc._id; //Don't send id back in to Mongo
-                    delete projDoc.__v; //https://github.com/Automattic/mongoose/issues/1933
-                }
-
-                final_doc = updateProjectFacts(projDoc, row, projectsReport);
-
-                if (!final_doc) {
-                    projectsReport.add(`Invalid data in row: ${row}. Aborting.\n`);
-                    return wcallback(`Failed: ${projectsReport.report}`);
-                }
-
-                //console.log("Sent:\n" + util.inspect(final_doc));
-
-                if (!doc_id) doc_id = new ObjectId;
-                Project.findByIdAndUpdate(
-                    doc_id,
-                    final_doc,
-                    {setDefaultsOnInsert: true, upsert: true, new: true},
-                    function(err, model) {
-                        if (err) {
-                            //console.log(err);
-                            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                            return wcallback(`Failed: ${projectsReport.report}`);
-                        }
-                        //console.log("Returned\n: " + model)
-                        //Take first country that occurs - TODO, correct if/when projects go back to having single countries
-                        /*console.log(util.inspect(model));
-                         console.log((model.proj_id));
-                         console.log(row[5]);*/
-                        if (!model.proj_id && (row[5] != "")) { //Because of convention it can happen that projects at first don't have a country entered. In the worst case they get no ID.
-                            model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()  },
-                                function(err, model) {
-                                    console.log(err);
-                                }
-                            );
-                        }
-                        projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`);
-                        projects[row[rowIndex].toLowerCase()] = model;
-                        //Not needed in newest model, keeping commented out for now in case needed elsewhere
-                        //Country.update(
-                        //    {_id: countries[row[5]]._id},
-                        //    {$addToSet: //Only create new fact if wasn't here before
-                        //        {projects: {project: model._id, source: sources[row[0]]._id}}
-                        //    },
-                        //    {},
-                        //    function (err, cmodel) {
-                        //        if (err) {
-                        //            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                        //            return wcallback(`Failed: ${projectsReport.report}`);
-                        //        }
-                        return wcallback(null, model); //Continue to site stuff
-                        //    }
-                        //);
+                    if (!projDoc) {
+                        projDoc = makeNewProject(row);
                     }
-                );
+                    else {
+                        doc_id = projDoc._id;
+                        projDoc = projDoc.toObject();
+                        delete projDoc._id; //Don't send id back in to Mongo
+                        delete projDoc.__v; //or __v: https://github.com/Automattic/mongoose/issues/1933
+                    }
+
+                    final_doc = updateProjectFacts(projDoc, row, projectsReport);
+
+                    if (!final_doc) {
+                        projectsReport.add(`Invalid data in row: ${row}. Aborting.\n`);
+                        return wcallback(`Failed: ${projectsReport.report}`);
+                    }
+
+                    //console.log("Sent:\n" + util.inspect(final_doc));
+
+                    if (!doc_id) doc_id = new ObjectId;
+                    Project.findByIdAndUpdate(
+                        doc_id,
+                        final_doc,
+                        {setDefaultsOnInsert: true, upsert: true, new: true},
+                        function(err, model) {
+                            if (err) {
+                                //console.log(err);
+                                projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                return wcallback(`Failed: ${projectsReport.report}`);
+                            }
+                            //console.log("Returned\n: " + model)
+                            //Take first country that occurs - TODO, correct if/when projects go back to having single countries
+                            /*console.log(util.inspect(model));
+                            console.log((model.proj_id));
+                            console.log(row[5]);*/
+                            if (!model.proj_id && (row[5] != "")) { //Because of convention it can happen that projects at first don't have a country entered. In the worst case they get no ID.
+                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()  },
+                                             function(err, model) {
+                                             console.log(err);
+                                             }
+                                             );
+                            }
+                            projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`);
+                            projects[row[rowIndex].toLowerCase()] = model;
+                            //Not needed in newest model, keeping commented out for now in case needed elsewhere
+                            //Country.update(
+                            //    {_id: countries[row[5]]._id},
+                            //    {$addToSet: //Only create new fact if wasn't here before
+                            //        {projects: {project: model._id, source: sources[row[0]]._id}}
+                            //    },
+                            //    {},
+                            //    function (err, cmodel) {
+                            //        if (err) {
+                            //            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                            //            return wcallback(`Failed: ${projectsReport.report}`);
+                            //        }
+                                    return wcallback(null, model); //Continue to site stuff
+                            //    }
+                            //);
+                        }
+                    );
             }
 
             function createSiteAndLink(projDoc, wcallback) {
@@ -802,7 +800,7 @@ function parseData(sheets, report, finalcallback) {
                             else if (sitemodel) {
                                 //Site already exists - check for link, could be missing if site is from another project
                                 var found = false;
-                                Link.find({project: projDoc._id, site: sitemodel._id},
+                                Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},
                                     function (err, sitelinkmodel) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
@@ -859,7 +857,7 @@ function parseData(sheets, report, finalcallback) {
                         projects[row[rowIndex].toLowerCase()] = doc; //Basis data is always the same, OK if this gets called multiple times
                         async.waterfall( //Waterfall because we want to be able to cope with a result or error being returned
                             [updateOrCreateProject.bind(null, doc),
-                                createSiteAndLink], //Gets proj. id passed as result
+                             createSiteAndLink], //Gets proj. id passed as result
                             function (err, result) {
                                 if (err) {
                                     return callback(`Failed: ${projectsReport.report}`);
@@ -875,7 +873,7 @@ function parseData(sheets, report, finalcallback) {
                         projectsReport.add(`Project ${row[rowIndex]} not found, creating.\n`);
                         async.waterfall( //Waterfall because we want to be able to cope with a result or error being returned
                             [updateOrCreateProject.bind(null, null), //Proj = null = create it please
-                                createSiteAndLink], //Gets proj. id passed as result
+                             createSiteAndLink], //Gets proj. id passed as result
                             function (err, result) {
                                 if (err) {
                                     return callback(`Failed: ${projectsReport.report}`);
@@ -906,7 +904,8 @@ function parseData(sheets, report, finalcallback) {
                 Link.findOne(
                     {
                         company: companies[row[2].toLowerCase()]._id,
-                        project: projects[row[1].toLowerCase()]._id
+                        project: projects[row[1].toLowerCase()]._id,
+                        source: sources[row[0].toLowerCase()]._id
                     },
                     function(err, doc) {
                         if (err) {
@@ -963,65 +962,66 @@ function parseData(sheets, report, finalcallback) {
                                 [
                                     function (linkcallback) { //Contract <-> Project Link
                                         Link.findOne(
+                                        {
+                                            contract: doc._id,
+                                            project: projects[row[1].toLowerCase()]._id,
+                                            source: sources[row[0].toLowerCase()]._id
+                                        },
+                                        function(err, ldoc) {
+                                            if (err) return linkcallback(err);
+                                            else if (ldoc) {
+                                                contReport += (`Contract ${row[7]} is already linked with project ${row[1]}, not adding\n`);
+                                                return linkcallback(null);
+                                            }
+                                            else {
+                                                var newContractLink = {
+                                                    contract: doc._id,
+                                                    project: projects[row[1].toLowerCase()]._id,
+                                                    source: sources[row[0].toLowerCase()]._id,
+                                                    entities:['contract','project']
+                                                };
+                                                Link.create(
+                                                    newContractLink,
+                                                    function(err, model) {
+                                                        if (err) return linkcallback(err);
+                                                        contReport += (`Linked contract ${row[7]} with project ${row[1]} in the DB.\n`);
+                                                        return linkcallback(null);
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    },
+                                    function (linkcallback) { //Contract <-> Company Link
+                                        if (row[2] != "") {
+                                            Link.findOne(
                                             {
                                                 contract: doc._id,
-                                                project: projects[row[1].toLowerCase()]._id
+                                                company: companies[row[2].toLowerCase()]._id,
+                                                source: sources[row[0].toLowerCase()]._id
                                             },
                                             function(err, ldoc) {
                                                 if (err) return linkcallback(err);
                                                 else if (ldoc) {
-                                                    contReport += (`Contract ${row[7]} is already linked with project ${row[1]}, not adding\n`);
+                                                    contReport += (`Contract ${row[7]} is already linked with company ${row[2]}, not adding\n`);
                                                     return linkcallback(null);
                                                 }
                                                 else {
-                                                    var newContractLink = {
+                                                    var newContCompLink = {
                                                         contract: doc._id,
-                                                        project: projects[row[1].toLowerCase()]._id,
+                                                        company: companies[row[2].toLowerCase()]._id,
                                                         source: sources[row[0].toLowerCase()]._id,
-                                                        entities:['contract','project']
+                                                        entities:['contract','company']
                                                     };
                                                     Link.create(
-                                                        newContractLink,
+                                                        newContCompLink,
                                                         function(err, model) {
                                                             if (err) return linkcallback(err);
-                                                            contReport += (`Linked contract ${row[7]} with project ${row[1]} in the DB.\n`);
+                                                            contReport += (`Linked contract ${row[7]} with company ${row[2]} in the DB.\n`);
                                                             return linkcallback(null);
                                                         }
                                                     );
                                                 }
                                             });
-                                    },
-                                    function (linkcallback) { //Contract <-> Company Link
-                                        if (row[2] != "") {
-                                            Link.findOne(
-                                                {
-                                                    contract: doc._id,
-                                                    company: companies[row[2].toLowerCase()]._id
-                                                    //TODO: possibly include source, here and in a million other places
-                                                },
-                                                function(err, ldoc) {
-                                                    if (err) return linkcallback(err);
-                                                    else if (ldoc) {
-                                                        contReport += (`Contract ${row[7]} is already linked with company ${row[2]}, not adding\n`);
-                                                        return linkcallback(null);
-                                                    }
-                                                    else {
-                                                        var newContCompLink = {
-                                                            contract: doc._id,
-                                                            company: companies[row[2].toLowerCase()]._id,
-                                                            source: sources[row[0].toLowerCase()]._id,
-                                                            entities:['contract','company']
-                                                        };
-                                                        Link.create(
-                                                            newContCompLink,
-                                                            function(err, model) {
-                                                                if (err) return linkcallback(err);
-                                                                contReport += (`Linked contract ${row[7]} with company ${row[2]} in the DB.\n`);
-                                                                return linkcallback(null);
-                                                            }
-                                                        );
-                                                    }
-                                                });
                                         }
                                         else return linkcallback(null);
                                     }
@@ -1104,7 +1104,7 @@ function parseData(sheets, report, finalcallback) {
                     {$or: [
                         {concession_name: row[8]},
                         {"concession_aliases.alias": row[8]} //TODO, alias population
-                    ]
+                        ]
                     },
                     function(err, doc) {
                         if (err) {
@@ -1131,7 +1131,7 @@ function parseData(sheets, report, finalcallback) {
                                         Concession.update(
                                             {_id: doc._id},
                                             {$addToSet: //Only create new fact if wasn't here before
-                                            newConcession,
+                                                newConcession,
                                             },
                                             {},
                                             function (err, cmodel) {
@@ -1142,97 +1142,100 @@ function parseData(sheets, report, finalcallback) {
                                     },
                                     function (linkcallback) { //Concession <-> Project Link
                                         Link.findOne(
+                                        {
+                                            concession: doc._id,
+                                            project: projects[row[1].toLowerCase()]._id,
+                                            source: sources[row[0].toLowerCase()]._id
+                                        },
+                                        function(err, ldoc) {
+                                            if (err) return linkcallback(err);
+                                            else if (ldoc) {
+                                                concReport += (`Concession ${row[8]} is already linked with project ${row[1]}, not adding\n`);
+                                                return linkcallback(null);
+                                            }
+                                            else {
+                                                var newConcessionLink = {
+                                                    concession: doc._id,
+                                                    project: projects[row[1].toLowerCase()]._id,
+                                                    source: sources[row[0].toLowerCase()]._id,
+                                                    entities:['concession','project']
+                                                };
+                                                Link.create(
+                                                    newConcessionLink,
+                                                    function(err, model) {
+                                                        if (err) return linkcallback(err);
+                                                        concReport += (`Linked concession ${row[8]} with project ${row[1]} in the DB.\n`);
+                                                        return linkcallback(null);
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    },
+                                    function (linkcallback) { //Concession <-> Company Link
+                                        if (row[2] != "") {
+                                            Link.findOne(
                                             {
                                                 concession: doc._id,
-                                                project: projects[row[1].toLowerCase()]._id
+                                                company: companies[row[2].toLowerCase()]._id,
+                                                source: sources[row[0].toLowerCase()]._id
                                             },
                                             function(err, ldoc) {
                                                 if (err) return linkcallback(err);
                                                 else if (ldoc) {
-                                                    concReport += (`Concession ${row[8]} is already linked with project ${row[1]}, not adding\n`);
+                                                    concReport += (`Concession ${row[8]} is already linked with company ${row[2]}, not adding\n`);
                                                     return linkcallback(null);
                                                 }
                                                 else {
-                                                    var newConcessionLink = {
+                                                    var newConcessionCompLink = {
                                                         concession: doc._id,
-                                                        project: projects[row[1].toLowerCase()]._id,
+                                                        company: companies[row[2].toLowerCase()]._id,
                                                         source: sources[row[0].toLowerCase()]._id,
-                                                        entities:['concession','project']
+                                                        entities:['concession','company']
                                                     };
                                                     Link.create(
-                                                        newConcessionLink,
+                                                        newConcessionCompLink,
                                                         function(err, model) {
                                                             if (err) return linkcallback(err);
-                                                            concReport += (`Linked concession ${row[8]} with project ${row[1]} in the DB.\n`);
+                                                            concReport += (`Linked concession ${row[8]} with company ${row[2]} in the DB.\n`);
                                                             return linkcallback(null);
                                                         }
                                                     );
                                                 }
                                             });
-                                    },
-                                    function (linkcallback) { //Concession <-> Company Link
-                                        if (row[2] != "") {
-                                            Link.findOne(
-                                                {
-                                                    concession: doc._id,
-                                                    company: companies[row[2].toLowerCase()]._id
-                                                },
-                                                function(err, ldoc) {
-                                                    if (err) return linkcallback(err);
-                                                    else if (ldoc) {
-                                                        concReport += (`Concession ${row[8]} is already linked with company ${row[2]}, not adding\n`);
-                                                        return linkcallback(null);
-                                                    }
-                                                    else {
-                                                        var newConcessionCompLink = {
-                                                            concession: doc._id,
-                                                            company: companies[row[2].toLowerCase()]._id,
-                                                            source: sources[row[0].toLowerCase()]._id,
-                                                            entities:['concession','company']
-                                                        };
-                                                        Link.create(
-                                                            newConcessionCompLink,
-                                                            function(err, model) {
-                                                                if (err) return linkcallback(err);
-                                                                concReport += (`Linked concession ${row[8]} with company ${row[2]} in the DB.\n`);
-                                                                return linkcallback(null);
-                                                            }
-                                                        );
-                                                    }
-                                                });
                                         }
                                         else return linkcallback(null);
                                     },
                                     function (linkcallback) { //Concession <-> Contract Link
                                         if (row[7] != "") {
                                             Link.findOne(
-                                                {
-                                                    concession: doc._id,
-                                                    contract: contracts[row[7]]._id
-                                                },
-                                                function(err, ldoc) {
-                                                    if (err) return linkcallback(err);
-                                                    else if (ldoc) {
-                                                        concReport += (`Concession ${row[8]} is already linked with contract ${row[7]}, not adding\n`);
-                                                        return linkcallback(null);
-                                                    }
-                                                    else {
-                                                        var newConcessionContLink = {
-                                                            concession: doc._id,
-                                                            contract: contracts[row[7]]._id,
-                                                            source: sources[row[0].toLowerCase()]._id,
-                                                            entities:['concession','contract']
-                                                        };
-                                                        Link.create(
-                                                            newConcessionContLink,
-                                                            function(err, model) {
-                                                                if (err) return linkcallback(err);
-                                                                concReport += (`Linked concession ${row[8]} with contract ${row[7]} in the DB.\n`);
-                                                                return linkcallback(null);
-                                                            }
-                                                        );
-                                                    }
-                                                });
+                                            {
+                                                concession: doc._id,
+                                                contract: contracts[row[7]]._id,
+                                                source: sources[row[0].toLowerCase()]._id
+                                            },
+                                            function(err, ldoc) {
+                                                if (err) return linkcallback(err);
+                                                else if (ldoc) {
+                                                    concReport += (`Concession ${row[8]} is already linked with contract ${row[7]}, not adding\n`);
+                                                    return linkcallback(null);
+                                                }
+                                                else {
+                                                    var newConcessionContLink = {
+                                                        concession: doc._id,
+                                                        contract: contracts[row[7]]._id,
+                                                        source: sources[row[0].toLowerCase()]._id,
+                                                        entities:['concession','contract']
+                                                    };
+                                                    Link.create(
+                                                        newConcessionContLink,
+                                                        function(err, model) {
+                                                            if (err) return linkcallback(err);
+                                                            concReport += (`Linked concession ${row[8]} with contract ${row[7]} in the DB.\n`);
+                                                            return linkcallback(null);
+                                                        }
+                                                    );
+                                                }
+                                            });
                                         }
                                         else return linkcallback(null);
                                     }
@@ -1357,9 +1360,9 @@ function parseData(sheets, report, finalcallback) {
                 return callback(`Failed: ${candcReport.report}`);
             }
             async.waterfall([
-                    processCandCRowCompanies.bind(null, row), //First do companies, then with contracts we can link contracts+companies
-                    processCandCRowContracts,
-                    processCandCRowConcessions                //Second do contracts, then with concessions we can link comp+conc and contr+conc
+                processCandCRowCompanies.bind(null, row), //First do companies, then with contracts we can link contracts+companies
+                processCandCRowContracts,
+                processCandCRowConcessions                //Second do contracts, then with concessions we can link comp+conc and contr+conc
                 ],
                 function (err, result) {
                     if (err) {
@@ -1391,10 +1394,10 @@ function parseData(sheets, report, finalcallback) {
             //TODO extend for sites later
             //TODO extend for concessions later if this makes it into template
             var query = {
-                production_commodity: commodities[row[8]]._id,
-                production_year: parseInt(row[5]),
-                country: countries[row[2]]._id
-            };
+                    production_commodity: commodities[row[8]]._id,
+                    production_year: parseInt(row[5]),
+                    country: countries[row[2]]._id
+                };
             if (row[3] != "") {
                 query.project = projects[row[3].toLowerCase()]._id;
             }
