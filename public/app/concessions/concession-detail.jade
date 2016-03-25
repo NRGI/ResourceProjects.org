@@ -4,7 +4,7 @@
             span(ng-bind-html="concession.concession_name|sanitize")
             =' '
             small Concession
-    .row(ng-if="company.proj_coordinates.length>0")
+    .row(ng-if='concession.proj_coordinates.length>0')
         .col-md-12
             nrgi-leaflet(data='concession.proj_coordinates' polygon='concession.polygon')
     .row
@@ -55,6 +55,15 @@
                                 span(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
+<<<<<<< 3192ddd7025a973ad23303fd61614aa1e9f8c44d
+=======
+                                    | {{$last ? '' : ', '}}
+                        tr(ng-if="concession.concession_type.length>0")
+                            td.detail_label.small Geographic Type:
+                            td.concession_type
+                                text(ng-repeat="type in concession.concession_type")
+                                    | {{type.string | ucfirst}}
+>>>>>>> concession detail controller done except for deep links and company stake
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="concession.contracts.length>0")
                             td.detail_label.small Contract:
