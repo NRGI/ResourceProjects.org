@@ -219,7 +219,6 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
-
     function getConcessionLinks(concession, callback) {
         concession.companies = [];
         concession.projects = [];
