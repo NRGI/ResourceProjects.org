@@ -4,7 +4,7 @@ var Dataset 		= require('mongoose').model('Dataset'),
     async           = require('async'),
     _               = require("underscore"),
     googlesheets    = require('../dataprocessing/googlesheets.js');
-	companieshouse  = require('../dataprocessing/companieshouse.js');
+	// companieshouse  = require('../dataprocessing/companieshouse.js');
 
 exports.getDatasets = function(req, res) {
     var dataset_len, limit = null, skip = 0;
@@ -153,19 +153,19 @@ exports.createAction = function(req, res, next) {
 		                        res.status(200);
 		                        res.send();
 		                        console.log("Triggered, res sent\n");
-		                        companieshouse.importData(function(status, report) {
-						console.log("process finished");
-		                            console.log("Status: " + status + "\n");
-		                            console.log("Report: " + report + "\n");
-		                            Action.findByIdAndUpdate(
-				                    amodel._id,
-				                    {finished: Date.now(), status: status, details: report},
-				                    {safe: true, upsert: false},
-				                    function(err, amodel) {
-							if (err) console.log("Failed to update an action: " + err);
-				                    }
-		                            );
-		                        });
+		                        // companieshouse.importData(function(status, report) {
+						// console.log("process finished");
+		                 //            console.log("Status: " + status + "\n");
+		                 //            console.log("Report: " + report + "\n");
+		                 //            Action.findByIdAndUpdate(
+				         //            amodel._id,
+				         //            {finished: Date.now(), status: status, details: report},
+				         //            {safe: true, upsert: false},
+				         //            function(err, amodel) {
+						// 	if (err) console.log("Failed to update an action: " + err);
+				         //            }
+		                 //            );
+		                 //        });
 	                        }
 	                    }
                     }
