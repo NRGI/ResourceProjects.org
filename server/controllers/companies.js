@@ -312,15 +312,6 @@ exports.getCompanyByID = function(req, res) {
                                         concession_status: link.concession.concession_status
                                     });
                                 }
-                                link.concession.concession_commodity.forEach(function(commodity) {
-                                    if (!company.commodities.hasOwnProperty(commodity.commodity.commodity_id)) {
-                                        company.commodities[commodity.commodity.commodity_id] = {
-                                            _id: commodity.commodity._id,
-                                            commodity_name: commodity.commodity.commodity_name,
-                                            commodity_id: commodity.commodity.commodity_id
-                                        };
-                                    }
-                                });
                                 if (link.concession.concession_commodity.length>0) {
                                     if (_.where(company.company_commodity, {_id: _.last(link.concession.concession_commodity).commodity._id}).length<1) {
                                         company.company_commodity.push({

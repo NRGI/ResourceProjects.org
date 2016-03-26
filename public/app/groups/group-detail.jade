@@ -12,43 +12,49 @@
             .info-box
                 h2 Company Group Info
                 table#group-info
-                   tbody
-                      tr
-                         td.detail_label.small ID:
-                         td.group_id {{group._id}}
-                      tr
-                         td.detail_label.small Aliases:
-                         td.company_group_aliases
-                            span(ng-repeat="alias in group.company_group_aliases | unique: 'alias'")
-                               span {{alias.alias}}
-                               | {{$last ? '' : ', '}}
-                      tr
-                         td.detail_label.small Commodities:
-                         td.commodities
-                            text(ng-repeat="commodity in group.commodities | unique: '_id'")
-                                a(href='commodity/{{commodity.commodity_id}}')
-                                    span(ng-bind-html="commodity.commodity_name|sanitize")
-                                | {{$last ? '' : ', '}}
-                      tr
-                         td.detail_label.small Open Corporate ID:
-                         td.open_corporates_group_id {{group.open_corporates_group_id}}
-                      tr
-                         td.detail_label.small Companies:
-                         td.companies
-                            text(ng-repeat="company in group.companies | unique: '_id'")
-                               a(href='company/{{company._id}}')
-                                  span(ng-bind-html="company.company_name | sanitize")
-                               | {{$last ? '' : ', '}}
+                    tbody
+                        tr
+                            td.detail_label.small ID:
+                            td.group_id {{group._id}}
+                        tr(ng-if="group.company_group_aliases.length>0")
+                            td.detail_label.small Aliases:
+                            td.company_group_aliases
+                                span(ng-repeat="alias in group.company_group_aliases | unique: 'alias'")
+                                    span {{alias.alias}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodity type(s):
+                            td.commodity_type
+                                text(ng-repeat="commodity in group.commodities | unique: 'commodity_type'")
+                                    | {{commodity.commodity_type | ucfirst | addSpaces}}
+                                    | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodities:
+                            td.commodities
+                                text(ng-repeat="commodity in group.commodities | unique: '_id'")
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr(ng-if="group.open_corporates_group_id")
+                            td.detail_label.small Open Corporate ID:
+                            td.open_corporates_group_id {{group.open_corporates_group_id}}
+                        tr
+                            td.detail_label.small Companies:
+                            td.companies
+                                text(ng-repeat="company in group.companies | unique: '_id'")
+                                    a(href='company/{{company._id}}')
+                                        span(ng-bind-html="company.company_name | sanitize")
+                                    | {{$last ? '' : ', '}}
         .col-md-6
-            .info-box
+            .info-box(ng-if="group.description")
                 h2
-                   | &nbsp;
+                    | &nbsp;
                 table#group-description
-                   tbody
-                      tr
-                         td.project-label.small Desctiption:
-                         td.description
-                            span(ng-bind-html="group.description|sanitize")
+                    tbody
+                        tr
+                            td.project-label.small Desctiption:
+                            td.description
+                                span(ng-bind-html="group.description|sanitize")
     .row
         .col-md-6
             nrgi-project-table(
@@ -59,10 +65,12 @@
             commodity="false")
 
         .col-md-6
-            nrgi-company-table(
-            companies="group.companies"
-            stake="false"
-            group="false")
+            nrgi-site-table(
+            sites="company.sites"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true")
 
     .row
         .col-md-6
@@ -81,9 +89,17 @@
             status="false"
             projects="false")
 
-    nrgi-transfer-table(
-    transfers="group.transfers"
-    project="false")
+    .row
+        .col-md-12
+            nrgi-transfer-table(
+            transfers="group.transfers"
+            project="false"
+            projectlink="true")
+    .row
+        .col-md-12
+            nrgi-production-table(
+            production="group.production"
+            projectlink="true")
     .row
         .col-md-12
             nrgi-sources-table(sources="group.sources")
