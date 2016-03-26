@@ -7,18 +7,7 @@ var CompanyGroup 		= require('mongoose').model('CompanyGroup'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
-//.populate('comments.author', 'firstName lastName role')
-// Transfer.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {company:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-// Production.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
+
 exports.getCompanyGroups = function(req, res) {
     var companyGroup_len, link_len, companyGroup_counter, link_counter,
         limit = Number(req.params.limit),

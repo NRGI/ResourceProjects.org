@@ -4,8 +4,8 @@
             span(ng-bind-html="concession.concession_name|sanitize")
             =' '
             small Concession
-    .row
-        .col-md-12(ng-if='concession.proj_coordinates.length>0')
+    .row(ng-if="company.proj_coordinates.length>0")
+        .col-md-12
             nrgi-leaflet(data='concession.proj_coordinates' polygon='concession.polygon')
     .row
         .col-md-6
