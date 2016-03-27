@@ -368,7 +368,7 @@ exports.getCompanyGroupByID = function(req, res) {
                 {site:{$in: companyGroup.transfers_query}},
                 {company:{$in: companyGroup.transfers_query}},
                 {concession:{$in: companyGroup.transfers_query}}]})
-            .populate('concession country project site')
+            .populate('concession country company project site')
             .deepPopulate('source.source_type_id')
             .lean()
             .exec(function(err, transfers) {

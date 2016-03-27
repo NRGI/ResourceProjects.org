@@ -24,14 +24,16 @@ exports.getSites = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else {
+            res.send(result);
         }
     });
     function siteCount(callback) {
-        Site.find({}).count().exec(function(err, site_count) {
+        Site.find({field:field}).count().exec(function(err, site_count) {
             if(site_count) {
                 callback(null, site_count);
             } else {
-                callback(err);
+                callback(null, 0);
             }
         });
     }
@@ -50,7 +52,7 @@ exports.getSites = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, site_count, sites);
                 } else {
-                    callback(err);
+                    callback(null, [], sites);
                 }
             });
     }
@@ -189,7 +191,8 @@ exports.getSites = function(req, res) {
                     site.production_count = production_count;
                     if (site_counter === site_len) {
                         // callback(null, site_count, sites);
-                        res.send({data: sites, count: site_count});
+                        // res.send({data: sites, count: site_count});
+                        callback(null, {data: sites, count: site_count});
                     }
                 });
 
@@ -206,10 +209,13 @@ exports.getSiteByID = function(req, res) {
         getTransfers,
         getProduction,
         getSiteCoordinate,
+        getProjectCoordinate,
         getCompanyGroup
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else {
+            res.send(result)
         }
     });
 	function getSite(callback) {
@@ -234,11 +240,11 @@ exports.getSiteByID = function(req, res) {
         site.sites = [];
         site.transfers_query = [site._id];
         site.source_type = {p: false, c: false};
-        site.site_coordinates = {sites: [], fields: []};
+        site.site_coords = {sites: [], fields: []};
         site.sources = {};
         Link.find({site: site._id})
-            .populate('company contract concession site project')
-            .deepPopulate('company_group source.source_type_id')
+            .populate('company contract concession site project company_group')
+            .deepPopulate('project.proj_country.country project.proj_commodity.commodity site.site_commodity.commodity site.site_country.country concession.concession_country.country concession.concession_commodity.commodity source.source_type_id')
             .exec(function(err, links) {
                 if(links.length>0) {
                     link_len = links.length;
@@ -261,6 +267,7 @@ exports.getSiteByID = function(req, res) {
                         }
                         switch (entity) {
                             case 'project':
+                                console.log(link.project.proj_commodity);
                                 site.transfers_query.push(link.project._id);
                                 site.projects.push({
                                     _id: link.project._id,
@@ -290,9 +297,9 @@ exports.getSiteByID = function(req, res) {
                                     field: link.site.field,
                                     site_name: link.site.site_name
                                 });
-                                if (link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        site.site_coordinates.fields.push({
+                                if (link.site.field && link.site.site_coords.length>0) {
+                                    link.site.site_coords.forEach(function (loc) {
+                                        site.site_coords.fields.push({
                                             'lat': loc.loc[0],
                                             'lng': loc.loc[1],
                                             'message': link.site.site_name,
@@ -301,9 +308,9 @@ exports.getSiteByID = function(req, res) {
                                             'id': link.site._id
                                         });
                                     });
-                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        site.site_coordinates.sites.push({
+                                } else if (!link.site.field && link.site.site_coords.length>0) {
+                                    link.site.site_coords.forEach(function (loc) {
+                                        site.site_coords.sites.push({
                                             'lat': loc.loc[0],
                                             'lng': loc.loc[1],
                                             'message': link.site.site_name,
@@ -493,24 +500,52 @@ exports.getSiteByID = function(req, res) {
     }
     function getSiteCoordinate(site, callback) {
         site.coordinates = [];
-        site_counter = 0;
-        site_len = site.site_coordinates.length;
-        if(site_len>0) {
+        if (site.site_coords.sites.length>0) {
+            site.site_coords.sites.forEach(function (site_loc) {
+                site.coordinates.push(site_loc);
+            })
+        }
+        if (site.site_coords.fields.length>0) {
+            site.site_coords.fields.forEach(function (field_loc) {
+                site.coordinates.push(field_loc);
+            })
+        }
+        if (site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
-                ++site_counter;
                 site.coordinates.push({
                     'lat': loc.loc[0],
                     'lng': loc.loc[1],
                     'message': site.site_name,
                     'timestamp': loc.timestamp,
+                    'type': 'site',
                     'id': site._id
                 });
-                if (site_counter == site_len) {
-                    callback(null, site);
+            });
+        }
+        res.send(site);
+    }
+    function getProjectCoordinate(site, callback) {
+        var proj_counter = 0;
+        var proj_len = site.projects.length;
+        if(proj_len>0) {
+            site.projects.forEach(function (project) {
+                ++proj_counter;
+                project.proj_coordinates.forEach(function (loc) {
+                    site.proj_coordinates.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': project.proj_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'project',
+                        'id': project.proj_id
+                    });
+                });
+                if (proj_counter == proj_len) {
+                    res.send(site);
                 }
             });
         } else {
-            callback(null, site);
+            res.send(site);
         }
     }
     function getCompanyGroup(site, callback) {
@@ -547,16 +582,16 @@ exports.getSiteByID = function(req, res) {
                                         console.log('link doesn\'t specify a company_group but rather a ${entity}');
                                 }
                                 if (companies_counter == companies_len && link_counter == link_len) {
-                                    res.send(site);
+                                    callback(null, site);
                                 }
                             });
                         } else if (companies_counter == companies_len) {
-                            res.send(site);
+                            callback(null, site);
                         }
                     });
             });
         } else {
-            res.send(site);
+            callback(null, site);
         }
     }
 };

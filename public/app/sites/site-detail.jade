@@ -5,7 +5,7 @@
             =' '
             small(ng-if='site.field') Field
             small(ng-if='!site.field') Site
-    .row
+    .row(ng-if="site.coordinates.length>0")
         .col-md-12
             nrgi-leaflet(data='site.coordinates' site='true')
     .row
@@ -24,58 +24,71 @@
                                 a(href='project/{{project.proj_id}}')
                                     | {{project.proj_name}}
                                 | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="site.site_country")
                             td.detail_label.small Country:
                             td.site_country: text(ng-repeat="country in site.site_country | unique: 'iso2'")
                                 a(href='country/{{country.country.iso2}}')
                                     span(ng-bind-html="country.country.name|sanitize")
                                     | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="site.site_aliases.length>0")
                             td.detail_label.small Aliases:
                             td.site_aliases: span(ng-repeat="alias in site.site_aliases | unique: 'alias'")
                                 span {{alias.alias}}
                                 | {{$last ? '' : ', '}}
-                        tr
-                            td.detail_label.small Commodity Type(s):
+                        tr(ng-if="site.site_commodity.length>0")
+                            td.detail_label.small Commodity Type:
                             td.site_type
-                                span(ng-repeat='type in site.site_type')
-                                    span {{type.string | ucfirst}}
+                                text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
+                                    | {{commodity.commodity_type | ucfirst | addSpaces}}
                                     | {{$last ? '' : ', '}}
-                        tr
+                                //span(ng-repeat='type in project.proj_type')
+                                //    span {{type.string | ucfirst}}
+                                //    | {{$last ? '' : ', '}}
+                        tr(ng-if="site.site_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.site_commodities
                                 text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
-                                    a(href='commodity/{{commodity.commodity.commodity_id}}')
-                                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
-                        tr
+                        //tr(ng-if="site.site_commodity.length>0")
+                        //    td.detail_label.small Commodity Type(s):
+                        //    td.site_type
+                        //        span(ng-repeat='type in site.site_type')
+                        //            span {{type.string | ucfirst}}
+                        //            | {{$last ? '' : ', '}}
+                        //tr(ng-if="site.site_commodity.length>0")
+                        //    td.detail_label.small Commodities:
+                        //    td.site_commodities
+                        //        span(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
+                        //            a(href='commodity/{{commodity.commodity.commodity_id}}')
+                        //                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                        //            | {{$last ? '' : ', '}}
+                        tr(ng-if="site.site_status.length>0")
                             td.detail_label.small Status:
-                            td.site_status: text(
-                            ng-repeat="status in site.site_status"
-                            ng-if="site.site_status.length > 0")
-                                text(ng-if="$last")
+                            td.site_status: span(ng-repeat="status in site.site_status")
+                                span(ng-if="$last")
                                     | {{status.string | ucfirst}}
-                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                        tr
+                                    span.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        tr(ng-if="site.contracts.length>0")
                             td.detail_label.small Contracts:
                             td.site_contracts: span(ng-repeat='contract in site.contracts')
                                 a(href='contract/{{contract.contract_id}}')
                                     span(ng-bind-html="contract.contract_id|sanitize")
                                 | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="site.concessions.length>0")
                             td.detail_label.small Concessions:
-                            td.site_concessions: text(
-                            ng-repeat="concession in site.concessions | unique: '_id'")
+                            td.site_concessions: span(ng-repeat="concession in site.concessions | unique: '_id'")
                                 a(href='concession/{{concession._id}}')
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="site.site_address.length>0")
                             td.detail_label.small Address:
-                            td.site_address: text(
+                            td.site_address: span(
                             ng-repeat='address in site.site_address')
                                 span(ng-bind-html="address.string|sanitize")
                                 | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="site.coordinates.length>0")
                             td.detail_label.small(colspan='2')
                                 p Location(s):
                                 table.table.table-striped.locations(ts-wrapper)
@@ -88,7 +101,7 @@
                                             th.location-th
                                         tr(ng-repeat='location in site.coordinates',ts-repeat)
                                             td.location_name
-                                                text {{location.message}}
+                                                | {{location.message}}
                                             td.location_lat
                                                 span(ng-if='location.lat') {{location.lat}}
                                             td.location_lng
