@@ -702,15 +702,10 @@ exports.getConcessionByID = function(req, res) {
         }
     }
     function getProjectCoordinate(concession,callback) {
-<<<<<<< fcd4dcd5d99b736858f4b08a0348e3328c5a908c
-=======
-<<<<<<< 08f7f24303a4d45507c21cee9c0a9c3bf4bc5853
         proj_counter = 0;
         proj_len = concession.projects.length;
-=======
->>>>>>> SAVEPOINT
-        var project_counter = 0;
         concession.polygon=[];
+        concession.proj_coordinates = [];
         if (concession.concession_polygon.length>0) {
             var len=concession.concession_polygon.length;
             var counter=0;
@@ -726,11 +721,6 @@ exports.getConcessionByID = function(req, res) {
                 }
             })
         }
-<<<<<<< fcd4dcd5d99b736858f4b08a0348e3328c5a908c
-=======
->>>>>>> SAVEPOINT
->>>>>>> SAVEPOINT
-        concession.proj_coordinates = [];
         if (concession.site_coordinates.sites.length>0) {
             concession.site_coordinates.sites.forEach(function (site_loc) {
                 concession.proj_coordinates.push(site_loc);
