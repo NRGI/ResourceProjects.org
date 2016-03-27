@@ -220,10 +220,7 @@ exports.getProjectByID = function(req, res) {
         project.site_coordinates = {sites: [], fields: []};
         project.sources = {};
         Link.find({project: project._id})
-            .populate('company')
-            .populate('contract')
-            .populate('concession')
-            .populate('site')
+            .populate('company contract concession site project')
             .deepPopulate('company_group source.source_type_id')
             .exec(function(err, links) {
                 if(links.length>0) {
@@ -324,8 +321,8 @@ exports.getProjectByID = function(req, res) {
     function getTransfers(project, callback) {
         project.transfers = [];
         Transfer.find({$or: [
-            {project:{$in: project.transfers_query}},
-            {site:{$in: project.transfers_query}}]})
+                {project:{$in: project.transfers_query}},
+                {site:{$in: project.transfers_query}}]})
             .populate('company country')
             .deepPopulate('source.source_type_id')
             // .lean()
