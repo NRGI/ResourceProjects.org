@@ -63,7 +63,6 @@ exports.getProjects = function(req, res) {
                 Link.find({project: project._id})
                     // .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company')
-                    .populate('site')
                     .deepPopulate('source.source_type_id site.site_commodity.commodity concession.concession_commodity.commodity')
                     .exec(function (err, links) {
                         ++project_counter;

@@ -31,7 +31,9 @@ var siteSchema, Site,
 
 siteSchema = new Schema({
     site_name: String,
-    field: Boolean,
+    field: {
+        type: Boolean,
+        default: false},
     site_aliases: [{
         type: ObjectId,
         ref: 'Alias'}],

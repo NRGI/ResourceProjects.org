@@ -13,14 +13,14 @@ angular.module('app')
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
-        if($location.path()=='/sites'){
+        if ($location.path()=='/sites') {
             $scope.field =false;
             $scope.record_type = 'sites';
-            $scope.rout = 'site';
+            $scope.route = 'site';
             $scope.header = 'Sites';
-        } else{
+        } else if ($location.path()=='/fields') {
             $scope.field =true;
-            $scope.rout = 'field';
+            $scope.route = 'field';
             $scope.record_type = 'fields';
             $scope.header = 'Fields';
         }

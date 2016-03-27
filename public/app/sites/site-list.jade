@@ -25,44 +25,44 @@
     table#sites.table.table-striped(ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='site_name') Name
-                th.tablesort-sortable-th(ts-criteria='type') Type
-                th.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
-                th.tablesort-sortable-th(ts-criteria='site_type[site_type.length - 1].string') Commodity Type
-                th.tablesort-sortable-th(ts-criteria='site_commodity[site_commodity.length-1].commodity_name') Commodity
-                th.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
-                th.tablesort-sortable-th(ts-criteria="companies|parseInt")  No. Companies
-                th.tablesort-sortable-th(ts-criteria="projects|parseInt")  No. Projects
-                th.tablesort-sortable-th(ts-criteria="concessions|parseInt")  No. Concessions
-                th.tablesort-sortable-th(ts-criteria="transfers|parseInt")  No. Payments
-                th.tablesort-sortable-th(ng-if='!field',ts-criteria="productions|parseInt")  No. Productions
+                th.col-md-1.tablesort-sortable-th(ts-criteria='site_name') Name
+                th.col-md-1.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.col-md-1.tablesort-sortable-th(ts-criteria='site_type[site_type.length - 1].string') Commodity Type
+                th.col-md-1.tablesort-sortable-th(ts-criteria='site_commodity[site_commodity.length-1].commodity_name') Commodity
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="companies|parseInt")  Companies
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="projects|parseInt")  Projects
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="concessions|parseInt")  Concessions
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="transfers|parseInt")  Payments
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="productions|parseInt")  Production
         tbody
             tr(ng-repeat="site in sites | unique: '_id'",ts-repeat)
                 td.site_name
-                    a(href='{{rout}}/{{site._id}}')
+                    a(href='{{route}}/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")
-                td.site_type
-                    span(ng-if='site.field',ng-init="site.type='fied'") Field
-                    span(ng-if='!site.field',ng-init="site.type='site'") Site
                 td.site_country: text(ng-repeat="country in site.site_country | unique: 'country._id'")
                     a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.site_type: text(ng-repeat="type in site.site_type")
-                    text(ng-if="$last") {{type.string | ucfirst}}
+                td.site_commodity_type
+                    text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
+                        | {{commodity.commodity_type | ucfirst | addSpaces}}
+                        | {{$last ? '' : ', '}}
                 td.site_commodity: text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
-                    a(href='commodity/{{commodity.commodity.commodity_id}}')
-                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                    a(href='commodity/{{commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.site_status: text(ng-repeat="status in site.site_status")
-                    text(ng-if="$last")
-                        | {{status.string | ucfirst}}
-                        text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.site_companies {{site.companies}}
-                td.site_projects {{site.projects}}
-                td.site_concessions {{site.concessions}}
-                td.site_transfers {{site.transfers}}
-                td.site_productions(ng-if='!field') {{site.productions}}
+                td.text-center.site_status
+                    em(ng-if="site.site_status.length<1") ..
+                    span(ng-if="site.site_status.length>0" ng-repeat="status in site.site_status")
+                        span(ng-if="$last")
+                            | {{status.string | ucfirst}}
+                            span.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                td.text-center.site_companies {{site.company_count}}
+                td.text-center.site_projects {{site.project_count}}
+                td.text-center.site_concessions {{site.concession_count}}
+                td.text-center.site_transfers {{site.transfer_count}}
+                td.text-center.site_productions {{site.production_count}}
 
 
     nrgi-list-nav(

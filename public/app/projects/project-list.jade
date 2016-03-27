@@ -45,12 +45,10 @@
                     text.text-warning(ng-if="project.source_type.c && !project.source_type.p") Context
                     text.text-warning(ng-if="!project.source_type.c && project.source_type.p") Payment
                     text.text-success(ng-if="project.source_type.c && project.source_type.p") Verified
-                    //{{project.source_type}}
                 td.col-md-1.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                     a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")
                     | {{$last ? '' : ', '}}
-                //td {{project.proj_commodity}}
                 td.col-md-1.proj_commodity_type
                     text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_type'")
                         | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
