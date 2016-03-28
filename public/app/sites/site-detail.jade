@@ -38,7 +38,7 @@
                         tr(ng-if="site.site_commodity.length>0")
                             td.detail_label.small Commodity Type:
                             td.site_type
-                                text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
+                                text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
                                     | {{commodity.commodity_type | ucfirst | addSpaces}}
                                     | {{$last ? '' : ', '}}
                                 //span(ng-repeat='type in project.proj_type')
@@ -47,7 +47,7 @@
                         tr(ng-if="site.site_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.site_commodities
-                                text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
+                                text(ng-repeat="commodity in site.site_commodity | unique: '_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

@@ -45,7 +45,7 @@
                         span(ng-bind-html="country.country.name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.site_commodity_type
-                    text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
+                    text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
                         | {{commodity.commodity_type | ucfirst | addSpaces}}
                         | {{$last ? '' : ', '}}
                 td.site_commodity: text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")

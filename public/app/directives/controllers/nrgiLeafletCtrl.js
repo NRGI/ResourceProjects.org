@@ -74,9 +74,10 @@ angular
                 }
 
                 if (len == counter && $scope.map !=true) {
-                    $scope.center = {lat: data.lat, lng: data.lng, zoom: 6};
+                    $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
                 }
             });
+            $scope.$apply();
             if($scope.polygon.length>1){
                 angular.forEach($scope.polygon,function(polygon,i){
                     $scope.paths.polygon.latlngs[i] = polygon.coordinate;
@@ -86,7 +87,6 @@ angular
             if($scope.polygon.length==1){
                 $scope.paths.polygon.type="polygon";
                 $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
-                console.log($scope.paths);
             }
             $scope.$apply();
         },2000)

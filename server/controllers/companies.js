@@ -113,8 +113,8 @@ exports.getCompanies = function(req, res) {
                                         break;
                                     case 'site':
                                         if (link.site.site_commodity.length>0) {
-                                            if (_.where(company.concession_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
-                                                company.concession_commodity.push({
+                                            if (_.where(company.company_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                                company.company_commodity.push({
                                                     _id: _.last(link.site.site_commodity)._id,
                                                     commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
                                                     commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
@@ -189,7 +189,7 @@ exports.getCompanyByID = function(req, res) {
         //TODO get commodity data through stuff linked to concessions
         //TODO get commodity data through stuff linked to contract
         // // getLinkedProjects,
-        // // getLinkedSites,
+        // getLinkedSites,
         getTransfers,
         getProduction,
         getProjectCoordinate
@@ -241,12 +241,15 @@ exports.getCompanyByID = function(req, res) {
                         }
                         switch (entity) {
                             case 'site':
+                                console.log(link.site);
                                 company.transfers_query.push(link.site._id);
                                 company.sites.push({
                                     _id: link.site._id,
                                     field: link.site.field,
                                     site_name: link.site.site_name,
-                                    site_status: link.site.site_status
+                                    site_status: link.site.site_status,
+                                    site_country: link.site.site_country,
+                                    site_commodity:link.site.site_commodity
                                 });
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
@@ -272,9 +275,9 @@ exports.getCompanyByID = function(req, res) {
                                     });
                                 }
                                 if (link.site.site_commodity.length>0) {
-                                    if (_.where(company.concession_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
-                                        company.concession_commodity.push({
-                                            _id: _.last(link.project.site_commodity)._id,
+                                    if (_.where(company.company_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                        company.company_commodity.push({
+                                            _id: _.last(link.site.site_commodity)._id,
                                             commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
                                             commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
                                             commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
@@ -327,10 +330,10 @@ exports.getCompanyByID = function(req, res) {
                                 if (link.concession.concession_commodity.length>0) {
                                     if (_.where(company.company_commodity, {_id: _.last(link.concession.concession_commodity).commodity._id}).length<1) {
                                         company.company_commodity.push({
-                                            _id: _.last(link.project.proj_commodity).commodity._id,
-                                            commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
-                                            commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
-                                            commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
+                                            _id: _.last(link.concession.concession_commodity).commodity._id,
+                                            commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
+                                            commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
+                                            commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
                                         });
                                     }
                                 }
@@ -559,10 +562,10 @@ exports.getCompanyByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(company.transfers).transfer_links.push({
-                                _id: transfer.project._id,
-                                route: transfer.project.proj_id,
+                                _id: transfer.site._id,
+                                route: transfer.site._id,
                                 type: type,
-                                name: transfer.project.proj_name});
+                                name: transfer.site.site_name});
                         }
                         if (transfers_counter===transfers_len) {
                             callback(null, company);
@@ -624,10 +627,10 @@ exports.getCompanyByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(company.production).production_links.push({
-                                _id: prod.project._id,
-                                route: prod.project.proj_id,
+                                _id: prod.site._id,
+                                route: prod.site._id,
                                 type: type,
-                                name: prod.project.proj_name});
+                                name: prod.site.site_name});
                         }
                         if (production_counter===production_len) {
                             callback(null, company);
