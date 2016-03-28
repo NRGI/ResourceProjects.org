@@ -37,6 +37,8 @@ exports.getContracts = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else {
+            res.send(result);
         }
     });
     function contractCount(callback) {
@@ -104,9 +106,11 @@ exports.getContracts = function(req, res) {
                     if (commodity_name != undefined) {
                         Commodity.find({commodity_name: commodity_name})
                             .exec(function (err, commodity) {
+                                console.log(commodity);
                                 commodity.map(function (name) {
                                     return contract.commodity.push({
                                         commodity_name: commodity_name,
+                                        commodity_type: name.commodity_type,
                                         _id: name._id,
                                         commodity_id: name.commodity_id
                                     });
@@ -148,19 +152,20 @@ exports.getContracts = function(req, res) {
                                     }
                                     break;
                                 default:
-                                //console.log(entity, 'link skipped...');
+                                    console.log(entity, 'link skipped...');
                             } if (contract_counter == contract_len && link_counter == link_len) {
-                                res.send({data: contracts, count: contract_count});
+                                callback(null, {data: contracts, count: contract_count});
                             }
 
                         });
                     } else if (contract_counter == contract_len) {
-                        res.send({data: contracts, count: contract_count});
+                        callback(null, {data: contracts, count: contract_count});
                     }
                 });
         });
     }
 };
+
 exports.getContractByID = function(req, res) {
     var link_counter, link_len, transfers_counter, transfers_len, production_counter, production_len, site_len, site_counter, proj_len, proj_counter;
 

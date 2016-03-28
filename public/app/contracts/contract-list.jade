@@ -18,29 +18,33 @@
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
-                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
-                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Commodity Type
-                th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
-                th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
-                th.tablesort-sortable-th(ts-criteria='sites|parseInt') No. Sites
-                th.tablesort-sortable-th(ts-criteria='fields|parseInt') No. Fields
+                th.col-md-3.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
+                th.col-md-1.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
+                th.col-md-3.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Contract Type
+                th.col-md-1.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_type') Commodity Type
+                th.col-md-1.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='projects|parseInt') Projects
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='sites|parseInt') Sites
+                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='fields|parseInt') Fields
         tbody
             tr(ng-repeat="contract in contracts | unique: '_id'",ts-repeat)
                 td.contract_id: a(href='contract/{{ contract.contract_id }}')
                     span(ng-bind-html="contract.contract_id | sanitize")
-                td.contract_countries: text(ng-repeat="rc_info in contract.rc_info")
+                td.contract_countries: span(ng-repeat="rc_info in contract.rc_info")
                     a(href='country/{{ rc_info.contract_country.code }}')
                         span(ng-bind-html="rc_info.contract_country.name | sanitize")
-                td.commodity_type: text(ng-repeat="rc_info in contract.rc_info")
+                td.contract_type: span(ng-repeat="rc_info in contract.rc_info")
                     span(ng-bind="rc_info.contract_type[rc_info.contract_type.length-1].toString()")
-                td.contract_commodities: text(ng-repeat="commodity in contract.commodity")
+                td.contract_commodity_type: span(ng-repeat="commodity in contract.commodity | unique:'commodity_type'")
+                    | {{commodity.commodity_type | ucfirst | addSpaces}}
+                    | {{$last ? '' : ', '}}
+                td.contract_commodities: span(ng-repeat="commodity in contract.commodity | unique:'_id'")
                     a(href='commodity/{{commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.contract_projects: span {{contract.projects}}
-                td.contract_projects: span {{contract.sites}}
-                td.contract_projects: span {{contract.fields}}
+                td.text-center.contract_projects: span {{contract.projects}}
+                td.text-center.contract_projects: span {{contract.sites}}
+                td.text-center.contract_projects: span {{contract.fields}}
 
     nrgi-list-nav(
     page="page"

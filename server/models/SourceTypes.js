@@ -27,7 +27,7 @@ sourceTypeSchema = new Schema({
     source_type_name: String,
     source_type_id: String,
     source_type_display: {
-        type: boolean,
+        type: Boolean,
         default: false
     },
     source_type_authority: String,
