@@ -179,7 +179,7 @@ exports.getContractByID = function(req, res) {
         // getLinkedSites,
         getTransfers,
         getProduction,
-        // getProjectCoordinate
+        getProjectCoordinate
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -545,10 +545,10 @@ exports.getContractByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(contract.transfers).transfer_links.push({
-                                _id: transfer.project._id,
-                                route: transfer.project.proj_id,
+                                _id: transfer.site._id,
+                                route: transfer.site._id,
                                 type: type,
-                                name: transfer.project.proj_name});
+                                name: transfer.site.site_name});
                         }
                         if (transfers_counter===transfers_len) {
                             callback(null, contract);
@@ -610,10 +610,10 @@ exports.getContractByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(contract.production).production_links.push({
-                                _id: prod.project._id,
-                                route: prod.project.proj_id,
+                                _id: prod.site._id,
+                                route: prod.site._id,
                                 type: type,
-                                name: prod.project.proj_name});
+                                name: prod.site.site_name});
                         }
                         if (production_counter===production_len) {
                             callback(null, contract);

@@ -29,10 +29,10 @@ Commodity = mongoose.model('Commodity', commoditySchema);
 function createDefaultCommodities() {
     Commodity.find({}).count().exec(function(err, commodity_count) {
         if(commodity_count === 0) {
-            // Commodity.create({_id: '56a13e9942c8bef50ec2e9e8',commodity_name:'Antimony',commodity_type:'mining',commodity_id:'antimony',commodity_aliases: ['56a6ac8f6c1ac5811ae27988','56a6ac8f6c1ac5811ae27989','56a6ac8f6c1ac5811ae2798a']});
-            // Commodity.create({_id: '56a13e9942c8bef50ec2e9eb',commodity_name:'Ferrotitanium',commodity_type:'mining',commodity_id:'ferrotitanium',commodity_aliases: ['56a6ac8f6c1ac5811ae2798d','56a6ac8f6c1ac5811ae2798e']});
-            // Commodity.create({_id: '56a13e9942c8bef50ec2e9ee',commodity_name:'Ferrotungsten',commodity_type:'mining',commodity_id:'ferrotungsten',commodity_aliases: ['56a6ac8f6c1ac5811ae2798f','56a6ac8f6c1ac5811ae27990']});
-            // Commodity.create({_id: '56a13e9942c8bef50ec2e9f1',commodity_name:'Ferrovanadium',commodity_type:'mining',commodity_id:'ferrovanadium',commodity_aliases: ['56a6ac8f6c1ac5811ae27991', '56a6ac8f6c1ac5811ae27992']});
+            Commodity.create({_id: '56a13e9942c8bef50ec2e9e8',commodity_name:'Antimony',commodity_type:'mining',commodity_id:'antimony',commodity_aliases: ['56a6ac8f6c1ac5811ae27988','56a6ac8f6c1ac5811ae27989','56a6ac8f6c1ac5811ae2798a']});
+            Commodity.create({_id: '56a13e9942c8bef50ec2e9eb',commodity_name:'Ferrotitanium',commodity_type:'mining',commodity_id:'ferrotitanium',commodity_aliases: ['56a6ac8f6c1ac5811ae2798d','56a6ac8f6c1ac5811ae2798e']});
+            Commodity.create({_id: '56a13e9942c8bef50ec2e9ee',commodity_name:'Ferrotungsten',commodity_type:'mining',commodity_id:'ferrotungsten',commodity_aliases: ['56a6ac8f6c1ac5811ae2798f','56a6ac8f6c1ac5811ae27990']});
+            Commodity.create({_id: '56a13e9942c8bef50ec2e9f1',commodity_name:'Ferrovanadium',commodity_type:'mining',commodity_id:'ferrovanadium',commodity_aliases: ['56a6ac8f6c1ac5811ae27991', '56a6ac8f6c1ac5811ae27992']});
             Commodity.create({commodity_name:'Antimony',commodity_type:'mining',commodity_id:'antimony'});
             Commodity.create({commodity_name:'Ferrotitanium',commodity_type:'mining',commodity_id:'ferrotitanium'});
             Commodity.create({commodity_name:'Ferrotungsten',commodity_type:'mining',commodity_id:'ferrotungsten'});

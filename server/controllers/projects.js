@@ -95,11 +95,12 @@ exports.getProjects = function(req, res) {
                                 case 'site':
                                     if (link.site.site_commodity.length>0) {
                                         if (_.where(project.proj_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
-                                            project.proj_commodity.push({
+                                            project.proj_commodity.push({commodity: {
                                                 _id: _.last(link.site.site_commodity)._id,
                                                 commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
                                                 commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
                                                 commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
+                                            }
                                             });
                                         }
                                     }
@@ -115,12 +116,14 @@ exports.getProjects = function(req, res) {
                                 case 'concession':
                                     if (link.concession.concession_commodity.length>0) {
                                         if (_.where(project.proj_commodity, {_id:_.last(link.concession.concession_commodity)._id}).length<1) {
-                                            project.proj_commodity.push({
-                                                _id: _.last(link.site.site_commodity)._id,
-                                                commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
-                                                commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
-                                                commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
-                                            });
+                                            if(link.site!=undefined) {
+                                                project.proj_commodity.push({
+                                                    _id: _.last(link.site.site_commodity)._id,
+                                                    commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
+                                                    commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
+                                                    commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
+                                                });
+                                            }
                                         }
                                     }
                                     project.concession_count += 1;
