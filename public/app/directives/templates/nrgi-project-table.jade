@@ -19,8 +19,11 @@ table.table.table-striped.projects(ts-wrapper)#project-info
                 a(href='country/{{country.country.iso2}}')
                     span(ng-bind-html="country.country.name|sanitize")
                 | {{$last ? '' : ', '}}
-            td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
-                | {{type.string | ucfirst}}
+            //td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
+            //    | {{type.string | ucfirst}}
+            //    | {{$last ? '' : ', '}}
+            td.proj_commodity_type(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_type'")
+                | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
                 | {{$last ? '' : ', '}}
             td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
                 a(href='commodity/{{commodity.commodity.commodity_id}}')

@@ -16,14 +16,19 @@
                         tr
                             td.detail_label.small Resource Contracts ID:
                             td.contract_id {{contract.contract_id}}
-                        tr
+                        tr(ng-if="contract.rc_info.contract_country")
+                            td.detail_label.small Country:
+                            td.contract_country
+                                a(href='country/{{contract.rc_info.contract_country.code}}')
+                                    span(ng-bind-html="contract.rc_info.contract_country.name|sanitize")
+                        tr(ng-if="contract.commodity.length>0")
                             td.detail_label.small Commodities:
                             td.commodities
                                 text(ng-repeat="commodity in contract.commodity | unique: '_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="contract.concessions.length>0")
                             td.detail_label.small Concessions:
                             td.concessions: text(ng-repeat="concession in contract.concessions | unique: '_id'")
                                 a(href='concession/{{concession._id}}')
@@ -54,12 +59,12 @@
         .col-md-12
             nrgi-production-table(
             production="contract.production"
-            project_link="true")
+            projectlink="true")
     .row.top-padding-med
         .col-md-12
             nrgi-transfer-table(
             transfers="contract.transfers"
-            project_link="true")
+            projectlink="true")
 
     .row.top-padding-med
         .col-md-12
