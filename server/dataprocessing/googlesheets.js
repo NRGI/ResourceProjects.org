@@ -94,10 +94,11 @@ exports.processData = function(link, callback) {
 }
 
 function parseGsDate(input) {
-    /* In general format should appear as DD/MM/YYYY or empty but sometimes GS has it as a date internally */
+    /* In general format should appear as YYYY or DD/MM/YYYY or empty but sometimes GS has it as a date internally */
     var result;
     if (!input || input == "") return null;
-    else result = moment(input, "DD/MM/YYYY").format();
+    else if (input.length == 4) result = moment(input + ' +0000', "YYYY Z").format();
+    else result = moment(input + ' +0000', "DD/MM/YYYY Z").format();
     //Hope for the best
     if (result == "Invalid date") return input;
     else return result;
