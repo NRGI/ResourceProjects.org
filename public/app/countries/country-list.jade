@@ -3,46 +3,45 @@
         h1 Countries
             small
 
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    //nrgi-list-nav(
+    //page="page"
+    //type="record_type"
+    //show="show_count"
+    //count="count"
+    //limit="limit"
+    //last="last"
+    //next="next"
+    //prev="prev"
+    //first="first"
+    //select="select")
 
     table.table.table-striped(about='http://resourceprojects.org/country' ts-wrapper)
         thead
             tr
-                th(ts-criteria='name') Country
-                th(ts-criteria='projects|parseInt') No. Projects
-                th(ts-criteria='sites|parseInt') No. Sites
-                th(ts-criteria='fields|parseInt') No. Fields
-                th(ts-criteria='concessions|parseInt') No. Concessions
-                th(ts-criteria='transfers|parseInt') No. Payments
-                th(ts-criteria='productions|parseInt') No. Productions
+                th.col-md-2(ts-criteria='name') Country
+                th.text-center.col-md-2(ts-criteria='project_count|parseInt') Projects
+                th.text-center.col-md-2(ts-criteria='site_count|parseInt') Sites
+                th.text-center.col-md-2(ts-criteria='field_count|parseInt') Fields
+                th.text-center.col-md-2(ts-criteria='concession_count|parseInt') Concessions
+                th.text-center.col-md-2(ts-criteria='transfer_count|parseInt') Payments
         tbody
             tr(ng-repeat="country in countries | unique: 'iso2'" ts-repeat)
                 td.country_name: a(href='country/{{ country.iso2 }}') {{country.name | isoCountry}}
-                td.country_projects {{country.projects}}
-                td.country_sites {{country.sites}}
-                td.country_fields {{country.fields}}
-                td.country_concessions {{country.concessions}}
-                td.country_transfers {{country.transfers}}
-                td.country_productions {{country.productions}}
+                td.text-center.country_projects {{country.project_count}}
+                td.text-center.country_sites {{country.site_count}}
+                td.text-center.country_fields {{country.field_count}}
+                td.text-center.country_concessions {{country.concession_count}}
+                td.text-center.country_transfers {{country.transfer_count}}
+                td.text-center.country_productions {{country.production_count}}
 
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    //nrgi-list-nav(
+    //page="page"
+    //type="record_type"
+    //show="show_count"
+    //count="count"
+    //limit="limit"
+    //last="last"
+    //next="next"
+    //prev="prev"
+    //first="first"
+    //select="select")

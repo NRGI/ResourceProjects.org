@@ -9,7 +9,7 @@ angular.module('app')
         $sce,
         nrgiCountriesSrvc
     ) {
-        $scope.limit = 50;
+        $scope.limit = 300;
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
