@@ -3,7 +3,8 @@
         .row
             .col-md-4
                 h1 Projects
-                small
+                    = ' '
+                    small(ng-if="count") {{count}}
             .col-md-5
             .col-md-3
                 .btn-group(role='group', aria-label='...')
