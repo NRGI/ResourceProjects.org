@@ -34,7 +34,7 @@ factSchema = new Schema({
     loc: {
         type: [Number],  // [<longitude>, <latitude>]
         index: '2d'      // create the geospatial index
-    }
+    },
     // polygon: {
     //    type: {
     //        type: String,

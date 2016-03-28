@@ -86,7 +86,8 @@ angular
             if($scope.polygon.length==1){
                 $scope.paths.polygon.type="polygon";
                 $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
+                console.log($scope.paths);
             }
             $scope.$apply();
-        },1000)
+        },2000)
     });
