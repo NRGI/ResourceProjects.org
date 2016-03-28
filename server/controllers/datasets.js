@@ -39,7 +39,7 @@ exports.getDatasets = function(req, res) {
             .skip(skip)
             .limit(limit)
             .populate('created_by')
-            .populate('actions')
+            .populate('actions', '-details')
             .lean()
             .exec(function(err, datasets) {
                 if(datasets) {
