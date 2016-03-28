@@ -7,18 +7,6 @@ var Company 		= require('mongoose').model('Company'),
     _               = require("underscore"),
     request         = require('request');
 
-// Transfer.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {company:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-// Production.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-
 exports.getCompanies = function(req, res) {
     var company_len, link_len, company_counter, link_counter,
         limit = Number(req.params.limit),
@@ -241,7 +229,6 @@ exports.getCompanyByID = function(req, res) {
                         }
                         switch (entity) {
                             case 'site':
-                                console.log(link.site);
                                 company.transfers_query.push(link.site._id);
                                 company.sites.push({
                                     _id: link.site._id,

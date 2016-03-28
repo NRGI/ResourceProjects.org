@@ -13,7 +13,9 @@ angular
                 project:'=',
                 site:'=',
                 contract:'=',
-                concession:'='
+                concession:'=',
+                incorporated: '=',
+                operation: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-company-table'
         };

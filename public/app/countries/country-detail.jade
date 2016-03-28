@@ -4,21 +4,29 @@
             span(ng-bind-html="country.name|sanitize")
             =' '
             small Country
-    .row
+    .row(ng-if="country.proj_coordinates.length>0")
         .col-md-12
-            nrgi-leaflet(data='country.location')
-    .info-box
-        h2 Country Info
-        table#country-info
-            tbody
-                tr
-                    td.detail_label.small Commodities:
-                    td.country_commodities
-                        text(ng-repeat="commodity in country.country_commodity | unique: 'commodity._id'")
-                            a(href='commodity/{{commodity.commodity.commodity_id}}')
-                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                            | {{$last ? '' : ', '}}
+            nrgi-leaflet(data='country.proj_coordinates')
     .row
+        .col-md-6
+            .info-box
+                h2 Country Info
+                table#country-info
+                    tbody
+                        //tr
+                        //    td.detail_label.small Commodity type(s):
+                        //    td.country_commodity_types
+                        //        span(ng-repeat="commodity in country.commodities | unique: 'commodity_type'")
+                        //            | {{commodity.commodity_type | ucfirst | addSpaces}}
+                        //            | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodities:
+                            td.country_commodities
+                                span(ng-repeat="commodity in country.commodities | unique: '_id'")
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
+    .row.top-padding-lg
         .col-md-6
             nrgi-project-table(
             projects="country.projects"
@@ -30,24 +38,32 @@
         .col-md-6
             nrgi-site-table(
             sites="country.sites"
-            country="true"
+            country="false"
             commoditytype="true"
             type="false"
             commodity="true"
             companies="false"
             status="true")
+    .row.top-padding-lg
+        .col-md-6
+            nrgi-company-table(
+            companies="country.companies"
+            group="true"
+            operation="true")
+        .col-md-6
+            nrgi-company-table(
+            companies="country.companies_incorporated"
+            group="true"
+            incorporated="true")
     .row
-        .col-md-4
+        .col-md-6
             nrgi-contract-table(
             contracts="country.contracts"
             companies="true"
             commodity="true"
             country="false")
-        .col-md-4
-            nrgi-company-table(
-            companies="country.companies"
-            group="true")
-        .col-md-4
+
+        .col-md-6
             nrgi-concession-table(
             concessions="country.concessions"
             country="false"
@@ -64,7 +80,3 @@
     .row
         .col-md-12
             nrgi-sources-table(sources="country.sources")
-    //.advanced-links
-    //    .container
-    //        h3
-    //            a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources

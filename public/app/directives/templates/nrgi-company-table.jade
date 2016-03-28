@@ -1,4 +1,6 @@
 h2 Companies
+    span(ng-if="incorporated==true")  Incorporated
+    span(ng-if="operation==true")  Operating In
 table.table.table-striped.companies(ts-wrapper)#company-info
     thead
         tr

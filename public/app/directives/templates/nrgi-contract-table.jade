@@ -7,7 +7,7 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
             th.tablesort-sortable-th(ng-if="country==true" ts-criteria='contract_country.code') Country
             th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='contract_commodity.toString()') Commodity
             th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='_id') RC-ID
-            th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') No. Companies
+            th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') Companies
     tbody
         tr(
         ng-repeat="contract in contracts | unique: '_id'"

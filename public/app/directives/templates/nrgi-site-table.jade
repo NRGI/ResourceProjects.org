@@ -1,45 +1,47 @@
 h2 Sites and Fields
-table.table.table-striped.sites(ts-wrapper)#site-info
-    thead
-        tr
-            th.tablesort-sortable-th(ts-criteria='site_name') Name
-            th.tablesort-sortable-th(ng-if="type==true" ts-criteria='site_type[site_type.length - 1].string') Type
-            th.tablesort-sortable-th(ng-if="country==true" ts-criteria='site_country[site_country.length - 1].country.name') Country
-            th.tablesort-sortable-th(ng-if="commoditytype==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_type') Commodity Type
-            th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_name') Commodity
-            th.tablesort-sortable-th(ng-if="status==true" ts-criteria='site_status[site_status.length - 1].string') Status
-            th.tablesort-sortable-th(ng-if="company==true" ts-criteria='site_status[site_status.length - 1].string') Companies
+div.header-fixed
+    table.table.table-striped.sites(ts-wrapper)#site-info
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='site_name') Name
+                th.tablesort-sortable-th(ng-if="type==true" ts-criteria='site_type[site_type.length - 1].string') Type
+                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(ng-if="commoditytype==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_type') Commodity Type
+                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_name') Commodity
+                th.tablesort-sortable-th(ng-if="status==true" ts-criteria='site_status[site_status.length - 1].string') Status
+                th.tablesort-sortable-th(ng-if="company==true" ts-criteria='site_status[site_status.length - 1].string') Companies
 
-    tbody
-        tr(
-        ng-repeat="site in sites"
-        ts-repeat)
-            td.site_id
-                a(ng-if="site.field",href='field/{{site._id}}')
-                    span(ng-bind-html="site.site_name|sanitize")
-                a(ng-if="!site.field",href='site/{{site._id}}')
-                    span(ng-bind-html="site.site_name|sanitize")
-            td.site_country(ng-if="type==true"): text(ng-repeat="type in site.site_type")
-                | {{type.string | ucfirst}}
-                | {{$last ? '' : ', '}}
-            td.site_country(ng-if="country==true"): text(ng-repeat="country in site.site_country | unique: 'country._id'")
-                a(href='country/{{country.country.iso2}}')
-                    span(ng-bind-html="country.country.name|sanitize")
-                | {{$last ? '' : ', '}}
-            td.site_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
-                | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
-                | {{$last ? '' : ', '}}
-            td.site_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
-                a(href='commodity/{{commodity.commodity.commodity_id}}')
-                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                | {{$last ? '' : ', '}}
-            td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
-                text(ng-if="$last") {{status.string | ucfirst}}
-                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-            td.site_status(ng-if="company==true") {{site.companies}}
-.download
-    span.glyphicon.glyphicon-download(aria-hidden='true')
-    span
-        |  Download:
-        =' '
-        a(href="" ng-csv="csv_site" csv-header="getHeaderSites()" filename="sites.csv") Site and Fields CSV
+        tbody
+            tr(
+            ng-repeat="site in sites"
+            ts-repeat)
+                td.site_id
+                    a(ng-if="site.field",href='field/{{site._id}}')
+                        span(ng-bind-html="site.site_name|sanitize")
+                    a(ng-if="!site.field",href='site/{{site._id}}')
+                        span(ng-bind-html="site.site_name|sanitize")
+                td.site_country(ng-if="type==true"): text(ng-repeat="type in site.site_type")
+                    | {{type.string | ucfirst}}
+                    | {{$last ? '' : ', '}}
+                td.site_country(ng-if="country==true"): text(ng-repeat="country in site.site_country | unique: 'country._id'")
+                    a(href='country/{{country.country.iso2}}')
+                        span(ng-bind-html="country.country.name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.site_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
+                    | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
+                    | {{$last ? '' : ', '}}
+                td.site_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
+                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
+                    text(ng-if="$last") {{status.string | ucfirst}}
+                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                td.site_status(ng-if="company==true") {{site.companies}}
+div.top-padding-lg
+    .download
+        span.glyphicon.glyphicon-download(aria-hidden='true')
+        span
+            |  Download:
+            =' '
+            a(href="" ng-csv="csv_site" csv-header="getHeaderSites()" filename="sites.csv") Site and Fields CSV
