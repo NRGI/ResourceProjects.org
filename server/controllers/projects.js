@@ -191,8 +191,9 @@ exports.getProjectByID = function(req, res) {
         getCompanyGroup
     ], function (err, result) {
         if (err) {
-            // console.log(err);
             res.send(err);
+        } else {
+            res.send(result);
         }
     });
 	function getProject(callback) {
@@ -469,16 +470,16 @@ exports.getProjectByID = function(req, res) {
                                         console.log('link doesn\'t specify a company_group but rather a ${entity}');
                                 }
                                 if (companies_counter == companies_len && link_counter == link_len) {
-                                    res.send(project);
+                                    callback(null, project);;
                                 }
                             });
                         } else if (companies_counter == companies_len) {
-                            res.send(project);
+                            callback(null, project);
                         }
                     });
             });
         } else {
-            res.send(project);
+            callback(null, project);
         }
     }
 };
