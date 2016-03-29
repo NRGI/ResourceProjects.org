@@ -1,0 +1,16 @@
+doctype
+html
+   head
+      title Resource Projects
+      link(rel="stylesheet", href="/css/landing_page.css")
+      link(rel="stylesheet", href="/vendor/toastr/toastr.css")
+      link(rel="stylesheet", href="/vendor/ngDialog/css/ngDialog.min.css")
+      link(rel="stylesheet", href="/vendor/bootstrap/dist/css/bootstrap.min.css")
+      link(rel="stylesheet", href="/vendor/angular-tablesort/tablesort.css")
+      link(rel="stylesheet", href="/vendor/leaflet/dist/leaflet.css")
+      link(href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css",rel="stylesheet")
+   base(href="/")
+   body(ng-app="app")
+      include currentUser
+      block main-content
+      include scripts
