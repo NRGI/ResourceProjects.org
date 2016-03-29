@@ -173,6 +173,12 @@ module.exports	= function(app) {
 	app.put('/api/sources',  sources.updateSource);
 	// DELETE
 	app.delete('/api/sources/:id', sources.deleteSource);
+	
+	/////////////////////////////////////////////
+	///// COMPANIES HOUSE DUMMY DATASETS ////////
+	/////////////////////////////////////////////	
+	
+	app.get('/api/testdata', datasets.getTestdata);	
 
 	/////////////////////////
 	///// SITES CRUD ////////
