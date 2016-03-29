@@ -1,6 +1,6 @@
 h2 Projects
 div.header-fixed
-    table.table.table-striped.projects(ts-wrapper)#project-info
+    table.table.table-striped.projects(ts-wrapper ng-class="projects.length >= 8 ? 'header-fixed' : ''")#project-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='proj_name') Name
