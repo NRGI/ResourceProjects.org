@@ -1,0 +1,88 @@
+extend ../includes/layout_landing_page
+block main-content
+    .navbar
+        .navbar-inner
+            .container
+                a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+                    span.icon-bar
+                    span.icon-bar
+                    span.icon-bar
+                .brand
+                    h1.res RESOURCE
+                    h1.proj PROJECTS
+                        =' '
+                        small.alpha Alpha
+                .nav-collapse
+                    ul.nav.list-inline.left-padding-lg
+                        li
+                            a.dropdown-toggle(data-toggle="dropdown") Projects
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/projects') Projects
+                                li
+                                    a(href='/sites') Sites
+                                li
+                                    a(href='/fields') Fields
+                        li
+                            a.dropdown-toggle(data-toggle="dropdown") Other Data
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/concessions') Concessions
+                                li
+                                    a(href='/companies') Companies
+                                li
+                                    a(href='/groups') Companies Groups
+                                li
+                                    a(href='/contracts') Contracts
+                        li
+                            a.dropdown-toggle(data-toggle="dropdown") About
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/about') About
+                                li
+                                    a(href='/sources') Sources
+                                li
+                                    a(href='/glossary') Glossary
+                        li
+                            a.dropdown-toggle(data-toggle="dropdown") Admin
+                                b.caret
+                            ul.dropdown-menu
+                                li
+                                    a(href='/admin/etl/datasets') Manage Data Imports
+                        form.navbar-search.pull-left(action='')
+                            input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
+    section
+        .container
+            .row
+                .col-lg-7
+                    h1.header An open-source repository of data on oil, gas and mining projects across the world.
+                    p.
+                        Across the world, governments and companies are involved in natural resource projects, generating billions of dollars. The Natural Resource Governance Institute (NRGI) works to help
+                        people to realize the benefits of the endowments of oil, gas and minerals in their countries. Continued effort in making the sector more transparent led to an increasing amount of
+                        information becoming available, but this information is currently underutilized partly due to difficulties and costs in accessing it.
+                    p.
+                        ResourceProjects.org is an open-source repository of data on oil, gas and mining projects across the world. It provides a platform to collect and search extractive project information
+                        using linked open data. It aims to harvest data on the location, status, associated contracts, companies, licenses from a variety of government and industry sources, as well as project-
+                        by-project payments to governments based on recent mandatory disclosure legislations in the EU, US and Canada. The platform will make it easier for journalists, CSOs, researchers
+                        and government officials to search, access and download relevant data originating from these various sources.
+                    p.
+                        ResourceProjects.org is a prototype under developement. Current data on the site is illustrative only, and no warranty of its accuracy or completeness is provided. ResourceProjects.org
+                        is licensed under CC-BY-SA.
+                .col-lg-5.video_player
+                    video(poster='../assets/map.jpg' width='100%' controls='controls')
+    footer
+        .container
+            .strapline
+                .col-md-12
+                    p.
+                        This site is a prototype, based on under-contributed data. No warranty of the accuracy or completeness of data is provided, and users should always check against original sources before making decisions based upon the data presented here.
+                    p.
+                        Unless otherwise stated, all data on the the site is available as open data under Creative Commons License CC-BY-SA.
+                    p Errors and omissions can be reported to:
+                        a(href='mailto:apedersen@resourcegovernance.org') apedersen@resourcegovernance.org
+                    .text-center
+                        .brand(href='/')
+                            img(src='../assets/logo.jpg'  alt='Natural Resource Governance Institute Logo')

@@ -253,6 +253,11 @@ module.exports	= function(app) {
 	app.all('/api/*', function(req, res) {
 		res.sendStatus(404);
 	});
+	//app.get('*', function(req, res) {
+	//	res.render('landing_page', {
+	//		bootstrappedUser: req.user
+	//	});
+	//});
 	app.get('*', function(req, res) {
 		res.render('index', {
 			bootstrappedUser: req.user

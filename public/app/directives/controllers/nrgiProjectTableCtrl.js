@@ -24,10 +24,13 @@ angular
                     if(field=='proj_commodity'){
                         if(p[field].length>0) {
                             str = '';
-                            angular.forEach(p[field], function (commodity, i) {
+                            var commodities = _.uniq(p.proj_commodity, function (a) {
+                                return a.commodity._id;
+                            });
+                            angular.forEach(commodities, function (commodity, i) {
                                 var commodity_name = commodity.commodity.commodity_name.toString();
                                 commodity_name = commodity_name.charAt(0).toUpperCase()+commodity_name.substr(1);
-                                if (i != p[field].length - 1) {
+                                if (i != commodities.length - 1) {
                                     str = str + commodity_name + com;
                                 } else {
                                     str = str + commodity_name;
@@ -75,12 +78,15 @@ angular
                         }
                     }
                     if(field=='proj_type'){
-                        if(p[field].length>0) {
+                        if(p.proj_commodity.length>0) {
                             str = '';
-                            angular.forEach(p[field], function (type, i) {
-                                var type_name = type.string.toString();
+                            var proj_commodity = _.uniq(p.proj_commodity, function (a) {
+                                return a.commodity.commodity_type;
+                            });
+                            angular.forEach(proj_commodity, function (type, i) {
+                                var type_name = type.commodity.commodity_type.toString();
                                 type_name = type_name.charAt(0).toUpperCase()+type_name.substr(1);
-                                if (i != p[field].length - 1) {
+                                if (i != proj_commodity.length - 1) {
                                     str = str + type_name + com;
                                 } else {
                                     str = str + type_name;
