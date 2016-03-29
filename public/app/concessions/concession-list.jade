@@ -37,7 +37,7 @@
                         td.col-md-1.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country._id'")
                             a(ng-if="$first" href='/country/{{country.country.iso2}}')
                                 span(ng-bind-html="country.country.name|sanitize")
-                            //| {{$last ? '' : ', '}}
+                            | {{$last ? '' : ', '}}
                         td.col-md-1.concession_commodity_type
                             text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_type'")
                                 | {{commodity.commodity_type | ucfirst | addSpaces}}
