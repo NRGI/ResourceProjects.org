@@ -1,6 +1,6 @@
 h2 Sites and Fields
 div.header-fixed
-    table.table.table-striped.sites(ts-wrapper)#site-info
+    table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='site_name') Name

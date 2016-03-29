@@ -1,5 +1,5 @@
 h2 Contracts
-table.table.table-striped.projects(ts-wrapper)#contract-info
+table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
     thead
         tr
             th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='contract_name') Name

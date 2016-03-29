@@ -1,5 +1,5 @@
 h2 Concessions
-table.table.table-striped.concessions(ts-wrapper)#concessions-info
+table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='concession_name') Name
