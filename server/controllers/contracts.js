@@ -11,18 +11,7 @@ var Contract 		= require('mongoose').model('Contract'),
     async           = require('async'),
     _               = require('underscore'),
     request         = require('request');
-//.populate('comments.author', 'firstName lastName role')
-// Transfer.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {company:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-// Production.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
+
 exports.getContracts = function(req, res) {
     var contract_len, link_len, contract_counter, link_counter,
         limit = Number(req.params.limit),
