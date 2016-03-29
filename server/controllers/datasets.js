@@ -136,7 +136,7 @@ exports.createAction = function(req, res, next) {
                             googlesheets.processData(dmodel.source_url, function(status, report) {
                                 console.log("process finished");
                                 console.log("Status: " + status + "\n");
-                                console.log("Report: " + report + "\n");
+                                //console.log("Report: " + report + "\n");
                                 Action.findByIdAndUpdate(
                                     amodel._id,
                                     {finished: Date.now(), status: status, details: report},
@@ -258,8 +258,8 @@ exports.getTestdata = function(req, res, next) {
 		        notes       : "",
 		        paymentType : "transfer",
 		        amount      : "8,000,000",
-		        projectName : "testproject",		// check if transfer already exists. Source "mandatory...disclosure" must be added to new transfer
-		        projectCode : "tp",
+		        projectName : "secret",		// check if transfer already exists. Source "mandatory...disclosure" must be added to new transfer
+		        projectCode : "abc",
 		        unitVolume  : {
 		            valuationMethod  : "estimated",
 		            volume           : "200",
@@ -312,8 +312,8 @@ exports.getTestdata = function(req, res, next) {
 			        notes       : "",
 			        paymentType : "Transfer",
 			        amount      : "2,000,000",
-			        projectName : "otherproject",
-			        projectCode : "op",
+			        projectName : "newproject",
+			        projectCode : "cde",
 			        unitVolume  : {
 			            valuationMethod  : "estimated",
 			            volume           : "2345",
