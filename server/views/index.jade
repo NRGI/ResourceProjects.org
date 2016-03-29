@@ -8,25 +8,27 @@ block main-content
                     span.icon-bar
                     span.icon-bar
                 a.brand(href='/')
-                    img(src='../assets/print-logo.jpg' width='185' height='65' alt='Natural Resource Governance Institute Logo')
-                .nav-collapse
+                    img(src='../assets/rp-logo-2.png' width='185' alt='Natural Resource Governance Institute Logo')
+                .nav-collapse.margin-left-lg
                     ul.nav.list-inline.left-padding-lg
                         li
-                            a.dropdown-toggle(data-toggle="dropdown") Projects
-                                b.caret
-                            ul.dropdown-menu
-                                li
-                                    a(href='/projects') Projects
-                                li
-                                    a(href='/sites') Sites
-                                li
-                                    a(href='/fields') Fields
+                            a(href='/projects') Projects
+                        //li
+                        //    a.dropdown-toggle(data-toggle="dropdown") Projects
+                        //        b.caret
+                        //    ul.dropdown-menu
+                        //        li
+                        //            a(href='/projects') Projects
                         //li
                         //    a(href='/projects') Payments
                         li
                             a.dropdown-toggle(data-toggle="dropdown") Other Data
                                 b.caret
                             ul.dropdown-menu
+                                li
+                                    a(href='/sites') Sites
+                                li
+                                    a(href='/fields') Fields
                                 li
                                     a(href='/concessions') Concessions
                                 li
@@ -80,52 +82,28 @@ block main-content
             .strapline
                 p.
                     The Natural Resource Governance Institute promotes the effective, transparent and accountable management of oil, gas and mineral resources for the public good.
-                .row
-                    .col-md-6
+                .row.top-padding-med
+                    .col-md-8
                         h4.block-title ResourceProjects.org
                         p.
-                            This site is a prototype, based on under-contributed data. No warranty of the accuracy or completeness of data is provided, and users should always check against original sources before making decisions based upon the data presented here.
-                        p.
-                            Unless otherwise stated, all data on the the site is available as open data under Creative Commons License CC-BY-SA.
+                            This site is a prototype, site links and contents are subject to change. No warranty of the accuracy or completeness of data is provided, and users should always check against original sources before making decisions based upon the data presented here.
+                        p
+                            | Unless otherwise stated, all data on the the site is available as open data under
+                            a(href="http://creativecommons.org/licenses/by-sa/4.0/")  Creative Commons License CC-BY-SA
+                            | .
                         p Errors and omissions can be reported to:
-                            a(href='mailto:apedersen@resourcegovernance.org') apedersen@resourcegovernance.org
+                            a(href='mailto:dmihalyi@resourcegovernance.org')  dmihalyi@resourcegovernance.org
+                    .col-md-1
                     .col-md-3
-                        h4.block-title Technical Details
-                        ul.list-unstyled
-                            li
-                                a(href='/contribute') Contribution Template
-                            //TODO add link to docs on git pages
-                            li
-                                a(href='/model') Data Model
-                            //li
-                            //    a(href='/classes') Classes
-                            //li
-                            //    a(href='/namedGraphs') Named Graphs
-                            //li
-                            //    a(href='/sparql') SPARQL
-                        //h4.block-title Admin
-                        //ul.list-unstyled
-                        //    li
-                        //        a(href='/admin/etl/datasets') Manage Data Imports
-                        //    li
-                        //        a(href='/admin/create-source') Create Source
-                        //    li
-                        //        a(href='/admin/create-project') Create Project
-                        //    li
-                        //        a(href='/admin/create-country') Create Country
-                        //    li
-                        //        a(href='/admin/create-concession') Create Concession
-                        //    li
-                        //        a(href='/admin/create-commodity') Create Commodity
-                        //    li
-                        //        a(href='/admin/create-company') Create Company
-                        //    li
-                        //        a(href='/admin/create-group') Create Group
-                    .col-lg-3
-                        h4.block-title Links
-                        ul.list-unstyled
-                            li
-                                a(href='http://www.resourcegovernance.org/') Natural Resource Governance Institute (Main Website)
-                        ul.list-unstyled
-                            li
-                                a(href='http://www.resourcecontracts.org/') ResourceContracts.org
+                        .row.top-padding-med
+                            a.brand(href='http://resourcegovernance.org')
+                                img(src='../assets/nrgi-logo.png' width='185' alt='Natural Resource Governance Institute Logo')
+                        //.row
+                        //    a.navbar-brand(href="http://resourcecontracts.org")
+                        //        | Resource
+                        //        span.beta Beta
+                        //        span Contracts
+                        //    //a(href='http://www.resourcecontracts.org/') ResourceContracts.org
+                .row.top-padding-med.bottom-padding-lg
+                    .text-center
+                        p &copy; 2016 Natural Resource Governance Institute
