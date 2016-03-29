@@ -28,13 +28,16 @@
                                     | {{$last ? '' : ', '}}
     .row.top-padding-lg
         .col-md-6
-            nrgi-project-table(
-            projects="country.projects"
-            country="false"
-            type="true"
-            companies="true"
-            commodity="true"
-            status="true")
+            a(data-toggle="collapse" data-target="#projects")
+                h2 Projects
+            #projects.panel-collapse.collapse
+                nrgi-project-table(
+                projects="country.projects"
+                country="false"
+                type="true"
+                companies="true"
+                commodity="true"
+                status="true")
         .col-md-6
             nrgi-site-table(
             sites="country.sites"

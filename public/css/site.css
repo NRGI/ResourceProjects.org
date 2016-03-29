@@ -401,3 +401,19 @@ li .glyphicon[disabled] {
 #projectMap>.angular-leaflet-map {
   height: 540px !important;
 }
+.header-fixed {
+  height: 300px !important;
+  margin-bottom: 90px !important;
+}
+.header-fixed>tbody {
+  width: 100% !important;
+  position: absolute !important;
+  max-height: 300px !important;
+  overflow-y: scroll !important;
+}
+.header-fixed>tbody>tr:not(.showIfLast),
+.header-fixed>thead>tr {
+  width: 100% !important;
+  display: inline-table;
+  table-layout: fixed !important;
+}
