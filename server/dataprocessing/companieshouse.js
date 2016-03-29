@@ -166,7 +166,7 @@ function loadChReport(chData, year, report, loadcallback) {
 
 		Company.findOne(
 			{$or: [
-				{companies_house_id: chData.ReportDetails.companyNumber},// TODO: is it enough when one of these two are found?                    
+				{companies_house_id: chData.ReportDetails.companyNumber},// TODO: is it enough when one of these two are found?
 				{company_name: chData.ReportDetails.companyName}				// erst nach ID suchen, wenn ID nicht gefunden wird, dann nach Name suchen. Dann deduplication flag
 			]},
 			function(err, doc) {
