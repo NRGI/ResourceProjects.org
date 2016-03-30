@@ -170,7 +170,7 @@ var makeNewCompany = function(newRow) {
     };
 
     if (newRow[5] != "") {
-        company.open_corporates_id = newRow[5]; //Note currently URL in spreadsheet
+        company.open_corporates_id = newRow[5].split('/').pop(); //URL in 0.5. May change to ID in 0.6.
     }
     if (newRow[2] != "") {
         //TODO: This is not very helpful for the end user
