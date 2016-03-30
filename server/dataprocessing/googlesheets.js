@@ -208,7 +208,7 @@ var makeNewProject = function(newRow) {
 var updateProjectFacts = function(doc, row, report)
 {
     var fact;
-    //Update status and commodity           
+    //Update status and commodity
     if (row[9] != "") {
         var notfound = true;
         if (doc.proj_commodity) {
@@ -875,7 +875,7 @@ function parseData(sheets, report, finalcallback) {
                     }
                     else if (doc) { //Project already exists, row might represent a new site
                         projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), not adding but updating facts and checking for new sites\n`);
-                        projects[row[rowIndex].toLowerCase()] = doc; //Basis data is always the same, OK if this gets called multiple times              
+                        projects[row[rowIndex].toLowerCase()] = doc; //Basis data is always the same, OK if this gets called multiple times
                         async.waterfall( //Waterfall because we want to be able to cope with a result or error being returned
                             [updateOrCreateProject.bind(null, doc),
                                 createSiteAndLink], //Gets proj. id passed as result
