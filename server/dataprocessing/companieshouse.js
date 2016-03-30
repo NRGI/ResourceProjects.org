@@ -43,7 +43,7 @@ exports.importData = function(action_id, finalcallback) {
 			}
 	}	 
 
-	async.forEachOf(years, function (year, key, fcallback) {
+	async.eachSeries(years, function (year, fcallback) {
 
 		console.log("year: " + year);
 		request			// for every year since 2000
@@ -87,7 +87,8 @@ exports.importData = function(action_id, finalcallback) {
 
 		});
 		
-	},
+	}
+	,
 	function (err) {
 
 		if (err) {
@@ -185,27 +186,33 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
             else {
             
             	// potential duplicates for company found								                	
-            	report.add('Found '+ searchResult.length + ' matching companies which are potential duplicates\n');
+            	report.add('Found '+ searchResult.length-1 + ' matching companies which are potential duplicates\n');
 
-            	notes = 'Found  '+ searchResult.length + ' potentially matching company names for company ' + chData.ReportDetails.companyName + ' during Companies House API import. Date: ' + Date.now() 
+            	notes = 'Found  '+ searchResult.length-1 + ' potentially matching company names for company ' + companyName + ' during Companies House API import. Date: ' + Date.now() 
             	
             	for (originalCompany of searchResult) {
             		
-            		var newDuplicate = makeNewDuplicate(originalCompany._id, company_id, action_id, "company", notes);
+            		// recently created company is not a duplicate to itself
+            		if (originalCompany.company_name != companyName) {
             		
-            		Duplicate.create(
-            				newDuplicate,
-            				function(err, dmodel) {
-								if (err) {
-									report.add('Encountered an error while creating a duplicate: ' + err + '. Aborting.\n');
-									return callback(err,report);
+	            		var newDuplicate = makeNewDuplicate(originalCompany._id, company_id, action_id, "company", notes);
+	            		
+	            		Duplicate.create(
+	            				newDuplicate,
+	            				function(err, dmodel) {
+									if (err) {
+										report.add('Encountered an error while creating a duplicate: ' + err + '. Aborting.\n');
+										return callback(err,report);
+									}
+									report.add('Created duplicate entry for company ' + companyName + ' in the DB.\n');
+									callback(null, report);
+									
 								}
-								report.add('Created duplicate entry for company ' + companyName + ' in the DB.\n');
-								callback(null, report);
-								
-							}
-            			);            										                	
+	            			);   
+            		}
             	}
+            	
+            	callback(null, report);
             }
 			
 		}
@@ -227,31 +234,25 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						return callback(null,report);
 					}
 					else {
-						//console.log("check for company " + chData.ReportDetails.companyName);
-						Company.findOne(
+						var companyquery = Company.findOne(
 								{
 									company_name: chData.ReportDetails.companyName		// TODO: also check aliases?
-								},                   
-
+								},
 								function(err, doc) {
 									if (err) {
 										report.add('Encountered an error (' + err + ') while querying the DB for companies. Aborting.\n');
 										return callback(err,report);
 									}
-									else if (doc) {		
-										
-										//console.log("found " + chData.ReportDetails.companyName);
+									else if (doc) {										
 																				
 										// company with this exact name is found. use this and create no duplicate.
 										company = doc;
 										
 										// TODO: add aliases in comment if aliases are considered
 										report.add('company ' + chData.ReportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-										return callback(null,report);
+										callback(null,report);
 									}
-									else {
-										
-										//console.log("did not find " + chData.ReportDetails.companyName);
+									else {																				
 										
 										// company with this exact name is not found in the database. get a list with all companies and handle duplicates via fuzzy search
 										// create a company first and then use it as potential duplicate if similar companies exist or otherwise, create and use it as the one and only company with this name.
@@ -453,7 +454,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	function loadTransfers(report, callback) {
 
 		// transfers from government payments
-		async.forEachOf(chData.governmentPayments, function (governmentPaymentsEntry, key, forcallback) {
+		async.eachSeries(chData.governmentPayments, function (governmentPaymentsEntry, forcallback) {
 
 			var transfer_audit_type = "company_payment";
 			var transfer_level = "country";
@@ -563,7 +564,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 		});
 
 		// transfers from project payments		
-		async.forEachOf(chData.projectPayments, function (projectPaymentEntry, key, forcallback) {
+		async.eachSeries(chData.projectPayments, function (projectPaymentEntry, forcallback) {
 
 			//If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
 			if (!projects[projectPaymentEntry.projectPayment.projectCode]) {
@@ -600,7 +601,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				return forcallback(null);
 			}
 
-			// Notice: assumption here is: transfer year = year of report date
+			// Notice: assumption is: transfer year = year of report date
 			query.transfer_year = year;
 
 			Transfer.findOne(
