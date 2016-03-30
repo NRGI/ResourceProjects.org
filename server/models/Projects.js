@@ -8,6 +8,7 @@ require('mongoose-html-2').loadType(mongoose);
 
 
 var projectSchema, Project,
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
@@ -66,6 +67,7 @@ projectSchema = new Schema({
 //};
 
 projectSchema.plugin(mongooseHistory, hst_options);
+projectSchema.plugin(deepPopulate);
 projectSchema.plugin(searchPlugin,{
     fields:['proj_name']
 });

@@ -17,8 +17,8 @@ exports.getProjects = function(req, res) {
         projectCount,
         getProjectSet,
         getProjectLinks,
-        // getTransfersCount,
-        // getProductionCount
+        getTransfersCount,
+        getProductionCount
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -44,7 +44,7 @@ exports.getProjects = function(req, res) {
             .limit(limit)
             .populate('proj_country.country', '_id iso2 name')
             .populate('proj_commodity.commodity', ' _id commodity_name commodity_id commodity_type')
-            .populate('proj_established_source')
+            .deepPopulate('proj_established_source.source_type_id')
             .lean()
             .exec(function(err, projects) {
                 if(projects.length>0) {
@@ -62,6 +62,13 @@ exports.getProjects = function(req, res) {
             projects.forEach(function (project) {
                 project.transfers_query = [project._id];
                 project.source_type = {p: false, c: false};
+                if (project.proj_established_source.source_type_id.source_type_authority === 'authoritative') {
+                    project.source_type.c = true;
+                } else if (project.proj_established_source.source_type_id.source_type_authority === 'non-authoritative') {
+                    project.source_type.c = true;
+                } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
+                    project.source_type.p = true;
+                }
                 Link.find({project: project._id})
                     // .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company')
@@ -135,15 +142,12 @@ exports.getProjects = function(req, res) {
                             }
                         });
                         if (project_counter == project_len && link_counter == link_len) {
-                            // callback(null, project_count, projects);
-
-                            callback(null, {data: projects, count: project_count});
+                            callback(null, project_count, projects);
                         }
                     });
             });
         } else{
-            // callback(null, project_count, projects);
-            callback(null, {data: projects, count: project_count});
+            callback(null, project_count, projects);
         }
     }
     function getTransfersCount(project_count, projects, callback) {

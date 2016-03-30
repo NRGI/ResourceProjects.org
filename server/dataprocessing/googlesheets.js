@@ -148,7 +148,8 @@ var makeNewCompanyGroup = function(newRow) {
     //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var companyg = {
-        company_group_name: newRow[7]
+        company_group_name: newRow[7],
+        company_group_record_established: sources[newRow[0].toLowerCase()]._id
     };
 
     if (newRow[0] != "") {
@@ -166,7 +167,8 @@ var makeNewCompany = function(newRow) {
     //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var company = {
-        company_name: newRow[3]
+        company_name: newRow[3],
+        company_established_source: sources[newRow[0].toLowerCase()]._id
     };
 
     if (newRow[5] != "") {
@@ -202,6 +204,7 @@ var makeNewCompany = function(newRow) {
 var makeNewProject = function(newRow) {
     var project = {
         proj_name: newRow[1],
+        proj_established_source: sources[newRow[0].toLowerCase()]._id
     };
     return project;
 }
