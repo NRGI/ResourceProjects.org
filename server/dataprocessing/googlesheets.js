@@ -351,12 +351,6 @@ var makeNewProduction = function(newRow) {
 }
 
 var makeNewTransfer = function(newRow, transfer_audit_type) {
-    //TODO: This is not very helpful for the end user
-    if (!countries[newRow[2]]) {
-        console.log("SERIOUS ERROR: Missing country in the DB");
-        return false;
-    }
-        
     var transfer = {
         source: sources[newRow[0].toLowerCase()]._id,
         country: countries[newRow[2]]._id,
@@ -820,6 +814,12 @@ function parseData(sheets, report, finalcallback) {
                             }
                             else if (sitemodel) {
                                 //Site already exists - check for link, could be missing if site is from another project
+                                //TODO: For now if we find location add it to the site. In future sheets all site info should be in same row somewhere
+                                var update = {};
+                                if (row[3] != "") update.site_address = {string: row[3], source: sources[row[0].toLowerCase()]._id};
+                                if (row[6] != "") update.site_coordinates = {loc: [parseFloat(row[6]), parseFloat(row[7])], source: sources[row[0].toLowerCase()]._id};
+                                sitemodel.update({$addToSet: update});
+                                //TODO: check $addToSet
                                 var found = false;
                                 Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},
                                     function (err, sitelinkmodel) {
@@ -1138,16 +1138,16 @@ function parseData(sheets, report, finalcallback) {
                                 [
                                     function (linkcallback) {
                                         //TODO to change it for 0.6 as it is a bit more explicit there
-                                        newConcession = {}; //Holder for potentially new facts; in theory don't need to check if they exist
+                                        newConcession = {}; //Holder for potentially new fact; in theory don't need to check if it exists
                                         if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
-                                            newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}
                                         }
                                         if ((row[2] != "") && (row[3] != "")) {
                                             var share = parseInt(row[3].replace("%", ""))/100.0;
-                                            newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}
                                         }
                                         if (row[10] != "") {
-                                            newConcession.concession_country = [{country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_country = {country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}
                                         }
                                         Concession.update(
                                             {_id: doc._id},
