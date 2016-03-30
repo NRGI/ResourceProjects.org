@@ -33,7 +33,7 @@ siteSchema = new Schema({
     site_name: String,
     field: {
         type: Boolean,
-        default: false},
+        default: true}, //In unclear cases -> field
     site_aliases: [{
         type: ObjectId,
         ref: 'Alias'}],

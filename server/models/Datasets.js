@@ -107,8 +107,15 @@ function createDefaultDatasets() {
                 actions: []
             });
             Dataset.create({
-                name: "Google Sheet: Statoil 0.5",
+                name: "Google Sheet: Statoil 2014 0.5",
                 source_url: 'https://docs.google.com/spreadsheets/d/17FDwVbDCReeWxufE2Gab1yw1PqJpQIt6pASM92d7sl4/pub',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Statoil 2015 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1nArJqi0RnyZ_WsKO9zxCSZGkG5ltonPVnoSvIZVWpww/pub',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []

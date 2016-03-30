@@ -104,7 +104,7 @@ function parseGsDate(input) {
 }
 
 //Data needed for inter-entity reference
-var sourceTypes, sources, countries, commodities, companies, company_groups, projects, contracts;
+var sourceTypes, sources, countries, commodities, commoditiesById, companies, company_groups, projects, contracts;
 
 //TODO: Move to new duplicates model
 var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
@@ -207,6 +207,20 @@ var makeNewProject = function(newRow) {
 
 var updateProjectFacts = function(doc, row, report)
 {
+    //TODO:
+    //-- Test addtoset operator thing and check that duplicate facts don't get added
+    //In general should be allowing duplicates unless coming from same source
+    //Then, insert this code to properly insert operated_by and company_share:
+    /*                                  if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
+                                            newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
+                                        }
+                                        if ((row[2] != "") && (row[3] != "")) {
+                                            var share = parseInt(row[3].replace("%", ""))/100.0;
+                                            newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
+                                        }
+    */
+    //Then check that no arrays of arrays etc are getting created
+
     var fact;
     //Update status and commodity           
     if (row[9] != "") {
@@ -282,15 +296,42 @@ var updateProjectFacts = function(doc, row, report)
     return doc;
 }
 
-var makeNewSite = function(newRow) {
+var makeNewSite = function(newRow, projDoc) {
     var site = {
         site_name: newRow[2],
         site_established_source: sources[newRow[0].toLowerCase()]._id,
         site_country: [{country: countries[newRow[5]]._id, source: sources[newRow[0].toLowerCase()]._id}] //TODO: How in the world can there multiple versions of country
     }
     if (newRow[3] != "") site.site_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
-    //TODO FIELD INFO     field: Boolean //
     if (newRow[6] != "") site.site_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow[9] != "") site.site_commodity = [{commodity: commodities[newRow[9]]._id, source: sources[newRow[0].toLowerCase()]._id}]; 
+    else { //Inherit
+        if (projDoc.proj_commodity) {
+            site.site_commodity = projDoc.proj_commodity;
+        }
+    }
+    
+    site.field = true; //If oil/gas or unclear/unknown
+    if (site.site_commodity[0]) {
+        if (commoditiesById[site.site_commodity[0].commodity].commodity_type == "mining") {
+            site.field = false; // "type = site"
+        }
+    }
+    
+    //TODO (future template)
+    //site_operated_by: [fact],
+    //site_company_share: [fact],
+    
+    if (newRow[10] != "") {
+        var status;
+        if (newRow[10].indexOf('/') != -1) {
+            status = newRow[10].split('/')[1]; //Workaround to cope with "construction/development"
+        }
+        else status = newRow[10];
+        status = status.toLowerCase().replace(/ /g, '_');
+        site.site_status = [{string: status, timestamp: parseGsDate(newRow[11]), source: sources[newRow[0].toLowerCase()]._id}];
+    }
+    
     return site;
 }
 
@@ -324,12 +365,6 @@ var makeNewProduction = function(newRow) {
 }
 
 var makeNewTransfer = function(newRow, transfer_audit_type) {
-    //TODO: This is not very helpful for the end user
-    if (!countries[newRow[2]]) {
-        console.log("SERIOUS ERROR: Missing country in the DB");
-        return false;
-    }
-        
     var transfer = {
         source: sources[newRow[0].toLowerCase()]._id,
         country: countries[newRow[2]]._id,
@@ -564,6 +599,7 @@ function parseData(sheets, report, finalcallback) {
         //Complete commodity list is in the DB
         result.add("Getting commodities from database...\n");
         commodities = new Object;
+        commoditiesById = new Object;
         Commodity.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -574,6 +610,7 @@ function parseData(sheets, report, finalcallback) {
                 var cmty;
                 for (cmty of cresult) {
                     commodities[cmty.commodity_name] = cmty;
+                    commoditiesById[cmty._id] = cmty;
                 }
                 callback(null, result);
             }
@@ -751,31 +788,28 @@ function parseData(sheets, report, finalcallback) {
                                 projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                                 return wcallback(`Failed: ${projectsReport.report}`);
                             }
-                            //console.log("Returned\n: " + model)
                             //Take first country that occurs - TODO, correct if/when projects go back to having single countries
-                            /*console.log(util.inspect(model));
-                            console.log((model.proj_id));
-                            console.log(row[5]);*/
-                            if (!model.proj_id && (row[5] != "")) { //Because of convention it can happen that projects at first don't have a country entered. In the worst case they get no ID.
-                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()});
+                            if (row[5] != "") {  //Projects must have countries even if sites come afterwards
+                                if (!model.proj_id) {
+                                    model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()},
+                                        function(err) {
+                                            if (err) {
+                                                    projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                                    return wcallback(`Failed: ${projectsReport.report}`);
+                                            }
+                                            projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
+                                            projects[row[rowIndex].toLowerCase()] = model;
+                                            return wcallback(null, model); //Continue to site stuff
+                                        }
+                                    );
+                                }
+                                else return wcallback(null, model); //Continue to site stuff
                             }
-                            projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
-                            projects[row[rowIndex].toLowerCase()] = model;
-                            //Not needed in newest model, keeping commented out for now in case needed elsewhere
-                            //Country.update(
-                            //    {_id: countries[row[5]]._id},
-                            //    {$addToSet: //Only create new fact if wasn't here before
-                            //        {projects: {project: model._id, source: sources[row[0]]._id}}
-                            //    },
-                            //    {},
-                            //    function (err, cmodel) {
-                            //        if (err) {
-                            //            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                            //            return wcallback(`Failed: ${projectsReport.report}`);
-                            //        }
-                                    return wcallback(null, model); //Continue to site stuff
-                            //    }
-                            //);
+                            else {
+                                projectsReport.add(`Invalid data in row - projects and sites must have a country (${row}). Aborting.\n`);
+                                return wcallback(`Failed: ${projectsReport.report}`);
+                            }
+                            
                         }
                     );
             }
@@ -794,6 +828,12 @@ function parseData(sheets, report, finalcallback) {
                             }
                             else if (sitemodel) {
                                 //Site already exists - check for link, could be missing if site is from another project
+                                //TODO: For now if we find location add it to the site. In future sheets all site info should be in same row somewhere
+                                var update = {};
+                                if (row[3] != "") update.site_address = {string: row[3], source: sources[row[0].toLowerCase()]._id};
+                                if (row[6] != "") update.site_coordinates = {loc: [parseFloat(row[6]), parseFloat(row[7])], source: sources[row[0].toLowerCase()]._id};
+                                sitemodel.update({$addToSet: update});
+                                //TODO: check $addToSet
                                 var found = false;
                                 Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},
                                     function (err, sitelinkmodel) {
@@ -813,7 +853,7 @@ function parseData(sheets, report, finalcallback) {
                             }
                             else { //Site doesn't exist - create and link
                                 Site.create(
-                                    makeNewSite(row),
+                                    makeNewSite(row, projDoc),
                                     function (err, newsitemodel) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
@@ -1112,16 +1152,16 @@ function parseData(sheets, report, finalcallback) {
                                 [
                                     function (linkcallback) {
                                         //TODO to change it for 0.6 as it is a bit more explicit there
-                                        newConcession = {}; //Holder for potentially new facts; in theory don't need to check if they exist
+                                        newConcession = {}; //Holder for potentially new fact; in theory don't need to check if it exists
                                         if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
-                                            newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}
                                         }
                                         if ((row[2] != "") && (row[3] != "")) {
                                             var share = parseInt(row[3].replace("%", ""))/100.0;
-                                            newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}
                                         }
                                         if (row[10] != "") {
-                                            newConcession.concession_country = [{country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_country = {country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}
                                         }
                                         Concession.update(
                                             {_id: doc._id},
