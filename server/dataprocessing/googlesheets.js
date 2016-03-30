@@ -1296,12 +1296,15 @@ function parseData(sheets, report, finalcallback) {
                                 concession_name: row[8],
                                 concession_established_source: sources[row[0].toLowerCase()]._id
                             };
+                            var newProjectData = {};
                             if ((row[2] != "") && (row[4] != "") && (row[4] == "TRUE")) {
                                 newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
+                                newProjectData.proj_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}];
                             }
                             if ((row[2] != "") && (row[3] != "")) {
                                 var share = parseInt(row[3].replace("%", ""))/100.0;
                                 newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
+                                newProjectData.proj_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}];
                             }
                             if (row[10] != "") {
                                 newConcession.concession_country = [{country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}]
@@ -1316,6 +1319,19 @@ function parseData(sheets, report, finalcallback) {
                                     concReport += (`Created concession ${row[8]}.\n`);
                                     async.series(
                                         [
+                                            function (linkcallback) {
+                                                Project.update(
+                                                    {_id: projects[row[1].toLowerCase()]._id},
+                                                    {$addToSet: //Only create new fact if wasn't here before
+                                                        newProjectData,
+                                                    },
+                                                    {},
+                                                    function (cperr, cpmodel) {
+                                                        if (cperr) return linkcallback(cperr);
+                                                        return linkcallback(null);
+                                                    }
+                                                );
+                                            },
                                             function (linkcallback) { // concession <-> project
                                                 var newConcessionLink = {
                                                     concession: cmodel._id,
