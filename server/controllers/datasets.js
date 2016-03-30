@@ -219,8 +219,8 @@ exports.getTestdata = function(req, res, next) {
 		   "projectTotals"           :  [{ projectTotal : {	
 		        notes       : "",
 		        amount      : "10,000,000",
-		        projectCode : "abc",
-		        projectName : "secret"			// query DB for projectCode (proj. identifier) first, then project name (might have changed). Deduplication / fuzzy check necessary
+		        projectCode : "tose",
+		        projectName : "Top Secret"			// query DB for projectCode (proj. identifier) first, then project name (might have changed). Deduplication / fuzzy check necessary
 		     }
 		   }],
 		   "governmentPaymentTotals" :  [{ PaymentTotals : {
@@ -258,8 +258,8 @@ exports.getTestdata = function(req, res, next) {
 		        notes       : "",
 		        paymentType : "transfer",
 		        amount      : "8,000,000",
-		        projectName : "secret",		// check if transfer already exists. Source "mandatory...disclosure" must be added to new transfer
-		        projectCode : "abc",
+		        projectName : "Top Secret",		// check if transfer already exists. Source "mandatory...disclosure" must be added to new transfer
+		        projectCode : "tose",
 		        unitVolume  : {
 		            valuationMethod  : "estimated",
 		            volume           : "200",
