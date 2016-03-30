@@ -295,6 +295,7 @@ exports.getCountryByID = function(req, res) {
     }
     function getSites(country, callback) {
         country.sites = [];
+        country.company_commodity = [];
         Site.find({'site_country.country': country._id})
             .populate('site_commodity.commodity')
             .exec(function (err, sites) {

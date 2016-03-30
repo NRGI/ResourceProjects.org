@@ -71,16 +71,13 @@
 
     .row
         .col-md-6
-            a(data-toggle="collapse" data-target="#projects")
-                h2 Projects
-            #projects.panel-collapse.collapse
-                nrgi-project-table(
-                projects="company.projects"
-                country="true"
-                commodity="true"
-                status="true"
-                type="true"
-                companies="false")
+            nrgi-project-table(
+            projects="company.projects"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true"
+            companies="false")
         .col-md-6
             nrgi-site-table(
             sites="company.sites"
@@ -89,7 +86,7 @@
             commodity="true"
             status="true"
             type="false")
-    .row.top-padding-med
+    .row
         .col-md-6
             nrgi-contract-table(
             contracts="company.contracts"
