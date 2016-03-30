@@ -17,11 +17,13 @@ exports.getProjects = function(req, res) {
         projectCount,
         getProjectSet,
         getProjectLinks,
-        getTransfersCount,
-        getProductionCount
+        // getTransfersCount,
+        // getProductionCount
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else {
+            res.send(result);
         }
     });
     function projectCount(callback) {
@@ -96,7 +98,7 @@ exports.getProjects = function(req, res) {
                                     if (link.site.site_commodity.length>0) {
                                         if (_.where(project.proj_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
                                             project.proj_commodity.push({commodity: {
-                                                _id: _.last(link.site.site_commodity)._id,
+                                                _id: _.last(link.site.site_commodity).commodity._id,
                                                 commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
                                                 commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
                                                 commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
@@ -118,7 +120,7 @@ exports.getProjects = function(req, res) {
                                         if (_.where(project.proj_commodity, {_id:_.last(link.concession.concession_commodity)._id}).length<1) {
                                             if(link.site!=undefined) {
                                                 project.proj_commodity.push({
-                                                    _id: _.last(link.site.site_commodity)._id,
+                                                    _id: _.last(link.site.site_commodity).commodity._id,
                                                     commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
                                                     commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
                                                     commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
@@ -133,12 +135,15 @@ exports.getProjects = function(req, res) {
                             }
                         });
                         if (project_counter == project_len && link_counter == link_len) {
-                            callback(null, project_count, projects);
+                            // callback(null, project_count, projects);
+
+                            callback(null, {data: projects, count: project_count});
                         }
                     });
             });
         } else{
-            callback(null, project_count, projects);
+            // callback(null, project_count, projects);
+            callback(null, {data: projects, count: project_count});
         }
     }
     function getTransfersCount(project_count, projects, callback) {
@@ -173,8 +178,7 @@ exports.getProjects = function(req, res) {
                     ++project_counter;
                     project.production_count = production_count;
                     if (project_counter === project_len) {
-                        // callback(null, project_count, projects);
-                        res.send({data: projects, count: project_count});
+                        callback(null, {data: projects, count: project_count});
                     }
                 });
 
