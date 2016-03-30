@@ -1,6 +1,6 @@
 .container.top-padding-med
     .well
-        legend Dataset Management
+        legend Dataset Import Management
         .pull-right
             form.form-inline
                 .form-group
@@ -46,4 +46,5 @@
                                 a.btn.center-block.btn-default(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
                             span(ng-if="!dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default.disabled() Mark as cleaned
-        a.btn.center-block.btn-default(href="/admin/etl/datasets/new") Create New Dataset
+        a.btn.block.btn-default(href="/admin/etl/datasets/new") Create New Import
+        a.btn.block.btn-default(target="_new" href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)
