@@ -72,9 +72,9 @@ exports.processData = function(link, callback) {
                                 numProcessed++;
                                 if (numProcessed == numSheets) {
                                     var reporter = {
-                                        text: report,
+                                        report: report,
                                         add: function(more) {
-                                            this.text += more;
+                                            this.report += more;
                                         }
                                     }
                                     parseData(sheets, reporter, callback);
@@ -500,10 +500,11 @@ function parseData(sheets, report, finalcallback) {
         //links throughout!//
     ], function (err, report) {
         if (err) {
+            console.log(err);
             console.log("PARSE: Got an error\n");
-            return finalcallback("Failed", report.text);
+            return finalcallback("Failed", report.report);
         }
-        finalcallback("Success", report.text);
+        finalcallback("Success", report.report);
         }
     );
 
@@ -1382,7 +1383,7 @@ function parseData(sheets, report, finalcallback) {
             //TODO?: Currently hard req. for country, commodity, if proj or company there should be valid
             if ((row[2] == "") || !countries[row[2]] || ((row[3] != "") && !projects[row[3].toLowerCase()] ) || ((row[4] != "") && !companies[row[4].toLowerCase()] ) || !sources[row[0].toLowerCase()] || (row[8] == "") || !commodities[row[8]] || (row[5] == "") ) {
                 prodReport.add(`Invalid or missing data in row: ${row}. Aborting.\n`);
-                return callback(`Failed: ${prodReport}`);
+                return callback(`Failed: ${prodReport.report}`);
             }
             //Production - match by country + project/company (if present) + year + commodity
             //TODO extend for sites later
@@ -1438,7 +1439,7 @@ function parseData(sheets, report, finalcallback) {
             //Hard req. for country at this point
             if (((row[5] != "") && !projects[row[5].toLowerCase()]) || !sources[row[0].toLowerCase()] || row[2] == "" || !countries[row[2]] ) {
                 transReport.add(`Invalid or missing data in row: ${row}. Aborting.\n`);
-                return callback(`Failed: ${transReport}`);
+                return callback(`Failed: ${transReport.report}`);
             }
             //Transfer - many possible ways to match
             //Determine if payment or receipt
@@ -1496,7 +1497,7 @@ function parseData(sheets, report, finalcallback) {
                         var newTransfer = makeNewTransfer(row, transfer_audit_type);
                         if (!newTransfer) {
                             transReport.add(`Invalid or missing data in row: ${row}. Aborting.\n`);
-                            return callback(`Failed: ${transReport}`);
+                            return callback(`Failed: ${transReport.report}`);
                         }
                         Transfer.create(
                             newTransfer,
