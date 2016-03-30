@@ -64,7 +64,7 @@ exports.importData = function(action_id, finalcallback) {
 				}
 				else {
 
-					async.forEachOf(res.body, function (chReportData, key, icallback) {
+					async.eachSeries(res.body, function (chReportData, icallback) {
 
 						loadChReport(chReportData, year, reporter, action_id, icallback);
 						
