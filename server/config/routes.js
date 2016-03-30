@@ -148,6 +148,20 @@ module.exports	= function(app) {
 		    res.render('actionreport', {report: req.report});
 	});
 
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
+	//Reporting
+	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
+		datasets.getActionReport,
+		function(req, res) {
+		    res.render('actionreport', {report: req.report});
+	});
+
 	//Create a dataset
 	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Start an ETL step
@@ -159,6 +173,12 @@ module.exports	= function(app) {
 	app.put('/api/sources',  sources.updateSource);
 	// DELETE
 	app.delete('/api/sources/:id', sources.deleteSource);
+	
+	/////////////////////////////////////////////
+	///// COMPANIES HOUSE DUMMY DATASETS ////////
+	/////////////////////////////////////////////	
+	
+	app.get('/api/testdata', datasets.getTestdata);	
 
 	/////////////////////////
 	///// SITES CRUD ////////
