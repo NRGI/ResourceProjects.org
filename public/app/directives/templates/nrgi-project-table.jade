@@ -1,5 +1,6 @@
-//h2 Projects
-div
+a(data-toggle="collapse" data-target="#projects")
+    h2 Projects
+#projects.panel-collapse.collapse
     table.table.table-striped.projects(ts-wrapper ng-class="projects.length >= 8 ? 'header-fixed' : ''")#project-info
         thead
             tr
@@ -34,7 +35,6 @@ div
                     text(ng-if="$last") {{status.string | ucfirst}}
                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.text-center(ng-if="companies==true") {{project.companies}}
-div.top-padding-lg
     .download
         span.glyphicon.glyphicon-download(aria-hidden='true')
         span

@@ -37,6 +37,8 @@ angular
             if ($scope.data.length > 0)
             var len = $scope.data.length;
             var counter =0;
+            var lat =0;
+            var lng =0;
             angular.forEach($scope.data,function(data){
                 counter++;
                 if($scope.project==true && data.type=='project'){
@@ -72,8 +74,12 @@ angular
                         });
                     }
                 }
-
-                if (len == counter && $scope.map !=true) {
+                lat = +data.lat;
+                lng = +data.lng;
+                if (len == counter && $scope.map !=true&&$scope.data.length>1) {
+                    $scope.center = {lat: lat/len , lng:lng/len, zoom:0};
+                }
+                if (len == counter && $scope.map !=true&&$scope.data.length==1) {
                     $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
                 }
             });

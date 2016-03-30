@@ -57,15 +57,12 @@
                                 span(ng-bind-html="group.description|sanitize")
     .row
         .col-md-6
-            a(data-toggle="collapse" data-target="#projects")
-                h2 Projects
-            #projects.panel-collapse.collapse
-                nrgi-project-table(
-                projects="group.projects"
-                country="true"
-                type="true"
-                companies="false"
-                commodity="false")
+            nrgi-project-table(
+            projects="group.projects"
+            country="true"
+            type="true"
+            companies="false"
+            commodity="false")
 
         .col-md-6
             nrgi-site-table(

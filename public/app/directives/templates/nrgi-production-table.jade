@@ -1,39 +1,41 @@
-h2 Production Stats
-table.table.table-striped.projects(ts-wrapper ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
-    thead
-        tr
-            th.col-md-1.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
-            th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_volume') Volume
-            th.col-md-1.tablesort-sortable-th(ts-criteria='production_unit') Unit
-            th.col-md-1.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
-            th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
-            th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
-            th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
-            th.col-md-1.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
-    tbody
-        tr(
-        ng-repeat="prod in production"
-        ts-repeat)
-            td.col-md-1.production_year {{prod.production_year}}
-            td.col-md-1.text-right.production_volume  {{prod.production_volume | number}}
-            td.col-md-1.production_unit {{prod.production_unit}}
-            td.col-md-1.production_commodity
-                a(href='commodity/{{prod.production_commodity.commodity_id}}')
-                    span(ng-bind-html="prod.production_commodity.commodity_name|sanitize")
-            td.col-md-1.text-right.production_price
-                text(ng-if="prod.production_price") {{prod.production_price}}
-                em(ng-if="!prod.production_price") ..
-            td.col-md-1.text-right.production_price_per_unit {{prod.production_price_unit}}
-                text(ng-if="prod.production_price") {{prod.production_price_unit}}
-                em(ng-if="!prod.production_price") ..
-            td.col-md-1.text-center.production_level {{prod.production_level}}
-            td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in prod.production_links | unique: '_id'")
-                a(href="{{link.type}}/{{link.route}}")
-                    span(ng-bind-html="link.name|sanitize")
-                | {{$last ? '' : ', '}}
-.download
-    span.glyphicon.glyphicon-download(aria-hidden='true')
-    span
-        |  Download:
-        =' '
-        a(href="" ng-csv="csv_production" csv-header="getHeaderProduction()" filename="productions.csv") Production Stats CSV
+a(data-toggle="collapse" data-target="#productions")
+    h2 Production Stats
+#productions.panel-collapse.collapse
+    table.table.table-striped.projects(ts-wrapper ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
+        thead
+            tr
+                th.col-md-1.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
+                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_volume') Volume
+                th.col-md-1.tablesort-sortable-th(ts-criteria='production_unit') Unit
+                th.col-md-1.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
+                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
+                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
+                th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
+                th.col-md-1.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
+        tbody
+            tr(
+            ng-repeat="prod in production"
+            ts-repeat)
+                td.col-md-1.production_year {{prod.production_year}}
+                td.col-md-1.text-right.production_volume  {{prod.production_volume | number}}
+                td.col-md-1.production_unit {{prod.production_unit}}
+                td.col-md-1.production_commodity
+                    a(href='commodity/{{prod.production_commodity.commodity_id}}')
+                        span(ng-bind-html="prod.production_commodity.commodity_name|sanitize")
+                td.col-md-1.text-right.production_price
+                    text(ng-if="prod.production_price") {{prod.production_price}}
+                    em(ng-if="!prod.production_price") ..
+                td.col-md-1.text-right.production_price_per_unit {{prod.production_price_unit}}
+                    text(ng-if="prod.production_price") {{prod.production_price_unit}}
+                    em(ng-if="!prod.production_price") ..
+                td.col-md-1.text-center.production_level {{prod.production_level}}
+                td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in prod.production_links | unique: '_id'")
+                    a(href="{{link.type}}/{{link.route}}")
+                        span(ng-bind-html="link.name|sanitize")
+                    | {{$last ? '' : ', '}}
+    .download
+        span.glyphicon.glyphicon-download(aria-hidden='true')
+        span
+            |  Download:
+            =' '
+            a(href="" ng-csv="csv_production" csv-header="getHeaderProduction()" filename="productions.csv") Production Stats CSV

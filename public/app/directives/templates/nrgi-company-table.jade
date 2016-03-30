@@ -1,33 +1,35 @@
-h2 Companies
-    span(ng-if="incorporated==true")  Incorporated
-    span(ng-if="operation==true")  Operating In
-table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
-    thead
-        tr
-            th.tablesort-sortable-th(ts-criteria='company_name') Name
-            th.tablesort-sortable-th(ng-if="group==true" ts-criteria='company_groups[company_groups.length-1].company_group_name') Group
-            //th.tablesort-sortable-th(ng-if="project==true" ts-criteria='projects') No. Projects
-            //th.tablesort-sortable-th(ng-if="site==true" ts-criteria='') No. Sites
-            //th.tablesort-sortable-th(ng-if="site==true" ts-criteria='') No. Fields
-            //th.tablesort-sortable-th(ng-if="contract==true" ts-criteria='') No. Contracts
-            //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
-            th.tablesort-sortable-th(ng-if="stake==true") Stake
-    tbody
-        tr(
-        ng-repeat="company in companies",ts-repeat)
-            td.company_name: a(href="company/{{company._id}}")
-                    span(ng-bind-html="company.company_name|sanitize")
-            td.company_groups(ng-if="group==true"): text(ng-repeat="group in company.company_groups | unique: '_id'")
-                a(href="group/{{ group._id }}")
-                    span(ng-bind-html="group.company_group_name|sanitize")
-                | {{$last ? '' : ', '}}
-            //td.company_stake(ng-if="project==true") {{company.projects}}
-            //td.company_stake(ng-if="site==true") {{company.sites}}
-            //td.company_stake(ng-if="contract==true") {{company.contracts}}
-            //td.company_stake(ng-if="concession==true") {{company.concessions}}
-            td.company_stake(ng-if="stake==true") {{company.stake}}
-.download
-    span.glyphicon.glyphicon-download(aria-hidden="true")
-    span  Download:
-        =' '
-        a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV
+a(data-toggle="collapse" ng-click='getData()' data-target="#companies")
+    h2 Companies
+        span(ng-if="incorporated==true")  Incorporated
+        span(ng-if="operation==true")  Operating In
+#companies.panel-collapse.collapse
+    table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='company_name') Name
+                th.tablesort-sortable-th(ng-if="group==true" ts-criteria='company_groups[company_groups.length-1].company_group_name') Group
+                //th.tablesort-sortable-th(ng-if="project==true" ts-criteria='projects') No. Projects
+                //th.tablesort-sortable-th(ng-if="site==true" ts-criteria='') No. Sites
+                //th.tablesort-sortable-th(ng-if="site==true" ts-criteria='') No. Fields
+                //th.tablesort-sortable-th(ng-if="contract==true" ts-criteria='') No. Contracts
+                //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
+                th.tablesort-sortable-th(ng-if="stake==true") Stake
+        tbody
+            tr(
+            ng-repeat="company in companies",ts-repeat)
+                td.company_name: a(href="company/{{company._id}}")
+                        span(ng-bind-html="company.company_name|sanitize")
+                td.company_groups(ng-if="group==true"): text(ng-repeat="group in company.company_groups | unique: '_id'")
+                    a(href="group/{{ group._id }}")
+                        span(ng-bind-html="group.company_group_name|sanitize")
+                    | {{$last ? '' : ', '}}
+                //td.company_stake(ng-if="project==true") {{company.projects}}
+                //td.company_stake(ng-if="site==true") {{company.sites}}
+                //td.company_stake(ng-if="contract==true") {{company.contracts}}
+                //td.company_stake(ng-if="concession==true") {{company.concessions}}
+                td.company_stake(ng-if="stake==true") {{company.stake}}
+    .download
+        span.glyphicon.glyphicon-download(aria-hidden="true")
+        span  Download:
+            =' '
+            a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV
