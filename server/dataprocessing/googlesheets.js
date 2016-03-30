@@ -298,7 +298,7 @@ var makeNewSite = function(newRow, projDoc) {
     }
     
     site.field = true; //If oil/gas or unclear/unknown
-    if (site.site_commodity) {
+    if (site.site_commodity[0]) {
         if (commoditiesById[site.site_commodity[0].commodity].commodity_type == "mining") {
             site.field = false; // "type = site"
         }
