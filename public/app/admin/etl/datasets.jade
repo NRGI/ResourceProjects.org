@@ -23,7 +23,7 @@
                     td
                         text {{dataset.name}}
                     td(style={"width": "25%", "word-wrap": "break-word"})
-                        a(href="{{dataset.source_url}}").wrap-content {{dataset.source_url}}
+                        a(href="{{dataset.source_url}}" target="_blank").wrap-content {{dataset.source_url}}
                     td(style={"width": "30%"})
                         p(ng-repeat="action in dataset.actions")
                             text {{action.name}} &nbsp;
