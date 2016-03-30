@@ -121,6 +121,20 @@ function createDefaultDatasets() {
                 actions: []
             });
             Dataset.create({
+                name: "Google Sheet: BHP biliton 2015 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1UpwgMY6djRS209444hEyil_UOE0NyNIA3d0a7Zi4tsc/pub',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
+                name: "Google Sheet: Jubilee links 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1SRn_oxLcpio_H_ihqSKQWuDmJS-1LWMIv1xW8py8p9A/pub',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
                 _id: '56737e170e8cc07115211ee4',
                 name: "Companies House API",
                 type: "Placeholder for CRON Job",
