@@ -163,9 +163,9 @@ module.exports	= function(app) {
 	});
 
 	//Create a dataset
-	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
+	app.post('/api/datasets', auth.requiresApiLogin, /* auth.requiresRole('admin'),*/ datasets.createDataset);
 	//Start an ETL step
-	app.post('/api/datasets/:id/actions', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createAction);
+	app.post('/api/datasets/:id/actions', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createAction);
 
 	// POST
 	app.post('/api/sources',  sources.createSource);
@@ -187,7 +187,7 @@ module.exports	= function(app) {
 	app.get('/api/sites/:id', sites.getSiteByID);
 	app.get('/api/sites/map/:field', sites.getSitesMap);
 
-	//DATASETS - TODO: protect with admin
+	//DATASETS - TODO: protect with admin?
 	app.get('/api/datasets', datasets.getDatasets);
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
 	app.get('/api/datasets/:id', datasets.getDatasetByID);
@@ -199,10 +199,10 @@ module.exports	= function(app) {
 		    res.render('actionreport', {report: req.report});
 	});
 
-	//Create a dataset
-	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
+	//Create a dataset - todo protect with admin
+	app.post('/api/datasets', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createDataset);
 	//Start an ETL step
-	app.post('/api/datasets/:id/actions', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createAction);
+	app.post('/api/datasets/:id/actions', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createAction);
 
 	// POST
 	app.post('/api/sites',  sites.createSite);
