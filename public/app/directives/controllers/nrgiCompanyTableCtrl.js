@@ -42,8 +42,5 @@ angular
                     }
                 })
             });
-        },2000);
-        $scope.getData=function(){
-            console.log('click');
-        }
+        },2000)
     });

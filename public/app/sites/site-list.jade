@@ -1,14 +1,15 @@
 .container
     .page-header
         .row
-            h1 {{header}}
-                = ' '
-                small(ng-if="count") {{count| number}} loaded
-            //.col-md-5
-            //.col-md-3
-            //    .btn-group(role='group', aria-label='...')
-            //        button.btn.btn-default.pull-right(type='button')
-            //            a(href='/{{record_type}}/map') Map View
+            .col-md-4
+                h1 {{header}}
+                    = ' '
+                    small(ng-if="count") {{count}}
+            .col-md-5
+            .col-md-3
+                .btn-group(role='group', aria-label='...')
+                    button.btn.btn-default.pull-right(type='button')
+                        a(href='/{{record_type}}/map') Map View
 
     nrgi-list-nav(
     page="page"

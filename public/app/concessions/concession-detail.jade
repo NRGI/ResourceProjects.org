@@ -89,10 +89,13 @@
                 stake='true')
     .row
         .col-md-6
-            nrgi-project-table(
-            projects="concession.projects"
-            commodity="true"
-            status="true")
+            a(data-toggle="collapse" data-target="#projects")
+                h2 Projects
+            #projects.panel-collapse.collapse
+                nrgi-project-table(
+                projects="concession.projects"
+                commodity="true"
+                status="true")
         .col-md-6
             nrgi-site-table(
             sites="concession.sites"
