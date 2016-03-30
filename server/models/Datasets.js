@@ -85,13 +85,13 @@ function createDefaultDatasets() {
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []
             });
-            Dataset.create({
-                name: "Google Sheet: Mexico 0.5",
-                source_url: 'https://docs.google.com/spreadsheets/d/1bONyv_X918RZMDLmJ2kdDxHYy5IuImvI3c0CMkYSKEg/pub',
-                created: Date.now(),
-                created_by: '56d011292cb1766d0c308ec0',
-                actions: []
-            });
+            // Dataset.create({
+            //     name: "Google Sheet: Mexico 0.5",
+            //     source_url: 'https://docs.google.com/spreadsheets/d/1bONyv_X918RZMDLmJ2kdDxHYy5IuImvI3c0CMkYSKEg/pub',
+            //     created: Date.now(),
+            //     created_by: '56d011292cb1766d0c308ec0',
+            //     actions: []
+            // });
             Dataset.create({
                 name: "Google Sheet: World Bank - Africa Map Mines locations 0.5",
                 source_url: 'https://docs.google.com/spreadsheets/d/16EP82rUWlA3lc9j6rTINjbayOPP18IDtn6BKI8E3TM4/pub',
