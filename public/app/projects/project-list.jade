@@ -42,11 +42,9 @@
                     a(href='project/{{project.proj_id}}')
                         span(ng-bind-html="project.proj_name|sanitize")
                 td.col-md-1.proj_verified
-                    | {{project.verified}}
-                    //text.text-danger(ng-if="!project.source_type.c && !project.source_type.p") None
-                    //text.text-warning(ng-if="project.source_type.c && !project.source_type.p") Context
-                    //text.text-warning(ng-if="!project.source_type.c && project.source_type.p") Payment
-                    //text.text-success(ng-if="project.source_type.c && project.source_type.p") Verified
+                    i.glyphicon.glyphicon-check.text-success(ng-if="project.verified==='verified'")
+                    i.glyphicon.glyphicon-ban-circle.text-danger(ng-if="project.verified==='none'")
+                    text(ng-class="{'text-success': project.verified==='verified', 'text-warning': project.verified==='payment' || project.verified==='context', 'text-danger': project.verified==='none'}")  {{project.verified | ucfirst}}
                 td.col-md-1.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                     a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")
