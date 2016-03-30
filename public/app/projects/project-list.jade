@@ -4,7 +4,7 @@
             .col-md-4
                 h1 Projects
                     = ' '
-                    small(ng-if="count") {{count}}
+                    small(ng-if="count") {{count | number}} loaded
             .col-md-5
             .col-md-3
                 .btn-group(role='group', aria-label='...')
@@ -68,8 +68,6 @@
                 td.col-md-1.text-center.proj_transfer_count {{project.transfer_count}}
                 td.col-md-1.text-center.proj_transfer_count {{project.production_count}}
                 //td.col-md-1.text-center.proj_associated_transfer_count {{project.site_transfers}}
-
-
     nrgi-list-nav(
     page="page"
     type="record_type"
@@ -81,3 +79,4 @@
     prev="prev"
     first="first"
     select="select")
+    //div(infinite-scroll="loadProjects()" infinite-scroll-distance="3")

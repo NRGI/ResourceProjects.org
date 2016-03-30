@@ -55,15 +55,12 @@
                                 span(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
-<<<<<<< 3192ddd7025a973ad23303fd61614aa1e9f8c44d
-=======
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="concession.concession_type.length>0")
                             td.detail_label.small Geographic Type:
                             td.concession_type
                                 text(ng-repeat="type in concession.concession_type")
                                     | {{type.string | ucfirst}}
->>>>>>> concession detail controller done except for deep links and company stake
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="concession.contracts.length>0")
                             td.detail_label.small Contract:
@@ -92,13 +89,10 @@
                 stake='true')
     .row
         .col-md-6
-            a(data-toggle="collapse" data-target="#projects")
-                h2 Projects
-            #projects.panel-collapse.collapse
-                nrgi-project-table(
-                projects="concession.projects"
-                commodity="true"
-                status="true")
+            nrgi-project-table(
+            projects="concession.projects"
+            commodity="true"
+            status="true")
         .col-md-6
             nrgi-site-table(
             sites="concession.sites"
