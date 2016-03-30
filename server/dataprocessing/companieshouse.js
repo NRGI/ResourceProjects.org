@@ -306,14 +306,62 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	function loadProjects(report, callback) {
 
 		projects = {}
+		
+		function handleProjectDuplicates(projectsList, projectName, project_id) {
+			
+            // use fuse for fuzzy search in nested search results
+			
+            var fuse = new fusejs(projectsList, { keys: ["proj_name", "proj_aliases"], tokenize: true});
+            
+            var searchResult = fuse.search(projectName);
+            
+            if (!searchResult || searchResult == []) {
+            	report.add('Found no matching projects in DB for project ' + projectName + ' and thus, no potential duplicate\n');
+            	return callback(null, report);								                
+            }
+            else {
+            
+            	// potential duplicates for project found								                	
+            	report.add('Found '+ (searchResult.length-1) + ' matching projects which are potential duplicates\n');
+
+            	notes = 'Found  '+ (searchResult.length-1) + ' potentially matching project names for project ' + projectName + ' during Companies House API import. Date: ' + Date.now() 
+            	
+            	for (originalProject of searchResult) {
+            		
+            		// recently created project is not a duplicate to itself
+            		if (originalProject.proj_name != projectName) {
+            		
+	            		var newDuplicate = makeNewDuplicate(originalProject._id, project_id, action_id, "project", notes);
+	            		
+	            		Duplicate.create(
+	            				newDuplicate,
+	            				function(err, dmodel) {
+									if (err) {
+										report.add('Encountered an error while creating a duplicate: ' + err + '. Aborting.\n');
+										return callback(err,report);
+									}
+									report.add('Created duplicate entry for project ' + projectName + ' in the DB.\n');
+									callback(null, report);
+									
+								}
+	            			);   
+            		}
+            	}
+            	
+            	callback(null, report);
+            }
+			
+		}			
 
 		function updateOrCreateProject(projDoc, projName, projId, countryCode) {
 			var doc_id = null;
+			var newProj = true;
 
 			if (!projDoc) {
 				projDoc = makeNewProject(projName, projId, countryCode);
 			}
 			else {
+				var newProj = false;
 				doc_id = projDoc._id;
 				projDoc = projDoc.toObject();
 				delete projDoc._id; //Don't send id back in to Mongo
@@ -332,6 +380,22 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						}
 						report.add('Added or updated project ' + projName + ' to the DB.\n');
 						projects[projId] = model;
+						
+						var allProjects = Project.find({}, function (err, cresult) {
+							
+				            if (err) {
+				                report.add('Got an error: ' + err + ' while finding all projects.\n');
+				                return callback(err,report);
+				            }
+				            else {
+				            	
+				            	if (newProj) {
+				            		// check for potential duplicates now
+									handleProjectDuplicates(cresult, projName, model._id);
+				            	}
+																												                								              												    									                																					                								             
+				            }
+				        });							
 
 						createLink(company._id,model._id,source._id, projName);
 
@@ -378,8 +442,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					}
 			);
 		}			
+			
 
-		async.forEachOf(chData.projectTotals, function (projectTotalEntry, key, forcallback) {
+		async.eachSeries(chData.projectTotals, function (projectTotalEntry, key, forcallback) {
 
 			//Projects - check against id and name
 			//TODO - may need some sort of sophisticated duplicate detection here
@@ -429,6 +494,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 											// TODO: if country code list is read from data, use here instead of GB
 											report.add('Project ' + projectTotalEntry.projectTotal.projectName + ' not found, creating.\n');
 											updateOrCreateProject(null,projectTotalEntry.projectTotal.projectName, projectTotalEntry.projectTotal.projectCode, "gb"); //Proj = null = create it please
+											
+																					
 										}
 									}
 							);
