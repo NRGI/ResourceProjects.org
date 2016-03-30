@@ -1147,7 +1147,7 @@ function parseData(sheets, report, finalcallback) {
                                         //TODO to change it for 0.6 as it is a bit more explicit there
                                         var newConcession = {}; //Holder for potentially new fact; in theory don't need to check if it exists
                                         var newProjectData = {}; //ditto, copy across to project (TODO: this is for the 0.5 template and may change)
-                                        if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
+                                        if ((row[2] != "") && (row[4] != "") && (row[4] == "TRUE")) {
                                             newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
                                             newProjectData.proj_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
                                         }
@@ -1296,7 +1296,7 @@ function parseData(sheets, report, finalcallback) {
                                 concession_name: row[8],
                                 concession_established_source: sources[row[0].toLowerCase()]._id
                             };
-                            if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
+                            if ((row[2] != "") && (row[4] != "") && (row[4] == "TRUE")) {
                                 newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
                             }
                             if ((row[2] != "") && (row[3] != "")) {
