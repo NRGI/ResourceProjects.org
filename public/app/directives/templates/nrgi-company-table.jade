@@ -25,7 +25,10 @@ table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fi
             //td.company_stake(ng-if="site==true") {{company.sites}}
             //td.company_stake(ng-if="contract==true") {{company.contracts}}
             //td.company_stake(ng-if="concession==true") {{company.concessions}}
-            td.company_stake(ng-if="stake==true") {{company.stake}}
+            td.company_stake(ng-if="stake==true && company.stake")
+                | {{company.stake.share*100}}%
+                em(ng-if="company.stake.timestamp"): small  (True at: {{company.stake.timestamp|date:'yyyy-MM-dd'}})
+            //td.company_operator(ng-if="stake==true && company.operator"): small operator
 .download
     span.glyphicon.glyphicon-download(aria-hidden="true")
     span  Download:
