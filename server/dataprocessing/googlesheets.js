@@ -424,7 +424,6 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                     });
                 };
                 if (!skipTest) {
-                    link.company = company_id;
                     Link.findOne(
                         link,
                         function (err, lmodel) {
@@ -528,7 +527,7 @@ function parseData(sheets, report, finalcallback) {
         SourceType.find({}, function (err, stresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
-                callback(err, streport);
+                callback(err);
             }
             else {
                 result.add(`Found ${stresult.length} source types\n`);
@@ -548,7 +547,7 @@ function parseData(sheets, report, finalcallback) {
         Country.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
-                callback(err, creport);
+                callback(err);
             }
             else {
                 result.add(`Found ${cresult.length} countries\n`);
@@ -568,7 +567,7 @@ function parseData(sheets, report, finalcallback) {
         Commodity.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
-                callback(err, creport);
+                callback(err);
             }
             else {
                 result.add(`Found ${cresult.length} commodities\n`);
@@ -684,7 +683,6 @@ function parseData(sheets, report, finalcallback) {
             );
         };
         sources = new Object;
-        //TODO - refactor processSourceRow to use generic row or similar?
         parseEntity(result, '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);          
     }
 
@@ -698,7 +696,6 @@ function parseData(sheets, report, finalcallback) {
         parseEntity(result, '6. Companies and Groups', 3, 0, companies, processCompanyRow, "Company", 3, Company, "company_name", makeNewCompany, callback);
     }
     
-    //TODO: make more generic, entity names etc.
     function createSiteProjectLink (siteId, projectId, sourceId, report, lcallback) {
         Link.create({project: projectId, site: siteId, source: sourceId, entities: ['project', 'site']},
             function (err, nlmodel) {
@@ -731,7 +728,7 @@ function parseData(sheets, report, finalcallback) {
                         doc_id = projDoc._id;
                         projDoc = projDoc.toObject();
                         delete projDoc._id; //Don't send id back in to Mongo
-                        delete projDoc.__v; //https://github.com/Automattic/mongoose/issues/1933
+                        delete projDoc.__v; //or __v: https://github.com/Automattic/mongoose/issues/1933
                     }
                     
                     final_doc = updateProjectFacts(projDoc, row, projectsReport);
@@ -802,7 +799,7 @@ function parseData(sheets, report, finalcallback) {
                             else if (sitemodel) {
                                 //Site already exists - check for link, could be missing if site is from another project
                                 var found = false;
-                                Link.find({project: projDoc._id, site: sitemodel._id},
+                                Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},
                                     function (err, sitelinkmodel) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
@@ -906,7 +903,8 @@ function parseData(sheets, report, finalcallback) {
                 Link.findOne(
                     {
                         company: companies[row[2].toLowerCase()]._id,
-                        project: projects[row[1].toLowerCase()]._id
+                        project: projects[row[1].toLowerCase()]._id,
+                        source: sources[row[0].toLowerCase()]._id
                     },
                     function(err, doc) {  
                         if (err) {
@@ -965,7 +963,8 @@ function parseData(sheets, report, finalcallback) {
                                         Link.findOne(
                                         {
                                             contract: doc._id,
-                                            project: projects[row[1].toLowerCase()]._id
+                                            project: projects[row[1].toLowerCase()]._id,
+                                            source: sources[row[0].toLowerCase()]._id
                                         },
                                         function(err, ldoc) {  
                                             if (err) return linkcallback(err);
@@ -996,8 +995,8 @@ function parseData(sheets, report, finalcallback) {
                                             Link.findOne(
                                             {
                                                 contract: doc._id,
-                                                company: companies[row[2].toLowerCase()]._id
-                                                //TODO: possibly include source, here and in a million other places
+                                                company: companies[row[2].toLowerCase()]._id,
+                                                source: sources[row[0].toLowerCase()]._id
                                             },
                                             function(err, ldoc) {  
                                                 if (err) return linkcallback(err);
@@ -1144,7 +1143,8 @@ function parseData(sheets, report, finalcallback) {
                                         Link.findOne(
                                         {
                                             concession: doc._id,
-                                            project: projects[row[1].toLowerCase()]._id
+                                            project: projects[row[1].toLowerCase()]._id,
+                                            source: sources[row[0].toLowerCase()]._id
                                         },
                                         function(err, ldoc) {  
                                             if (err) return linkcallback(err);
@@ -1175,7 +1175,8 @@ function parseData(sheets, report, finalcallback) {
                                             Link.findOne(
                                             {
                                                 concession: doc._id,
-                                                company: companies[row[2].toLowerCase()]._id
+                                                company: companies[row[2].toLowerCase()]._id,
+                                                source: sources[row[0].toLowerCase()]._id
                                             },
                                             function(err, ldoc) {  
                                                 if (err) return linkcallback(err);
@@ -1208,7 +1209,8 @@ function parseData(sheets, report, finalcallback) {
                                             Link.findOne(
                                             {
                                                 concession: doc._id,
-                                                contract: contracts[row[7]]._id
+                                                contract: contracts[row[7]]._id,
+                                                source: sources[row[0].toLowerCase()]._id
                                             },
                                             function(err, ldoc) {  
                                                 if (err) return linkcallback(err);
