@@ -38,33 +38,34 @@
                 //th.col-md-1.text-center.tablesort-sortable-th(ts-criteria="site_transfers|parseInt")  Associated Payments
         tbody
             tr(ng-repeat="project in projects | unique: '_id'",ts-repeat)
-                td.col-md-2.proj_name
+                td.proj_name
                     a(href='project/{{project.proj_id}}')
                         span(ng-bind-html="project.proj_name|sanitize")
-                td.col-md-1.proj_verified
+                td.proj_verified
                     i.glyphicon.glyphicon-check.text-success(ng-if="project.verified==='verified'")
                     i.glyphicon.glyphicon-ban-circle.text-danger(ng-if="project.verified==='none'")
                     text(ng-class="{'text-success': project.verified==='verified', 'text-warning': project.verified==='payment' || project.verified==='context', 'text-danger': project.verified==='none'}")  {{project.verified | ucfirst}}
-                td.col-md-1.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
+                td.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                     a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.col-md-1.proj_commodity_type
+                td.proj_commodity_type
                     text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_type'")
                         | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
                         | {{$last ? '' : ', '}}
-                td.col-md-1.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
                     a(href='commodity/{{commodity.commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.col-md-2.proj_status
+                td.proj_status
                     em(ng-if="project.proj_status.length<1") ..
                     text(ng-if="project.proj_status.length>0" ng-repeat="status in project.proj_status")
                         text(ng-if="$last")
                             | {{status.string | ucfirst}}
                             text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.col-md-1.text-center.proj_company_count {{project.company_count}}
-                td.col-md-1.text-center.proj_transfer_count {{project.transfer_count}}
+                td.text-center.proj_company_count {{project.company_count}}
+                td.text-center.proj_transfer_count {{project.transfer_count}}
+                td.text-center.proj_transfer_count {{project.production_count}}
                 //td.col-md-1.text-center.proj_associated_transfer_count {{project.site_transfers}}
 
 
