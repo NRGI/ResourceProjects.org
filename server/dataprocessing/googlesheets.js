@@ -283,7 +283,6 @@ var updateProjectFacts = function(doc, row, report)
 }
 
 var makeNewSite = function(newRow) {
-    console.log(newRow);
     var site = {
         site_name: newRow[2],
         site_established_source: sources[newRow[0].toLowerCase()]._id,
@@ -757,11 +756,7 @@ function parseData(sheets, report, finalcallback) {
                             console.log((model.proj_id));
                             console.log(row[5]);*/
                             if (!model.proj_id && (row[5] != "")) { //Because of convention it can happen that projects at first don't have a country entered. In the worst case they get no ID.
-                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()  },
-                                             function(err, model) {
-                                             console.log(err);
-                                             }
-                                             );
+                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()});
                             }
                             projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
                             projects[row[rowIndex].toLowerCase()] = model;
