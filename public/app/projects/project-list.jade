@@ -27,7 +27,7 @@
         thead
             tr
                 th.col-md-2.tablesort-sortable-th(ts-criteria='proj_name') Name
-                th.col-md-1.tablesort-sortable-th(ts-criteria='proj_name') Verified Project
+                th.col-md-1.tablesort-sortable-th(ts-criteria='verified') Verified Project
                 th.col-md-1.tablesort-sortable-th(ts-criteria='proj_country[proj_country.length - 1].country.name') Country
                 th.col-md-1.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_type') Type
                 th.col-md-1.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length-1].commodity.commodity_name') Commodity
@@ -42,10 +42,11 @@
                     a(href='project/{{project.proj_id}}')
                         span(ng-bind-html="project.proj_name|sanitize")
                 td.col-md-1.proj_verified
-                    text.text-danger(ng-if="!project.source_type.c && !project.source_type.p") None
-                    text.text-warning(ng-if="project.source_type.c && !project.source_type.p") Context
-                    text.text-warning(ng-if="!project.source_type.c && project.source_type.p") Payment
-                    text.text-success(ng-if="project.source_type.c && project.source_type.p") Verified
+                    | {{project.verified}}
+                    //text.text-danger(ng-if="!project.source_type.c && !project.source_type.p") None
+                    //text.text-warning(ng-if="project.source_type.c && !project.source_type.p") Context
+                    //text.text-warning(ng-if="!project.source_type.c && project.source_type.p") Payment
+                    //text.text-success(ng-if="project.source_type.c && project.source_type.p") Verified
                 td.col-md-1.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
                     a(href='/country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")

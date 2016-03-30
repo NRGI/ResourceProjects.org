@@ -18,7 +18,8 @@ exports.getProjects = function(req, res) {
         getProjectSet,
         getProjectLinks,
         getTransfersCount,
-        getProductionCount
+        getProductionCount,
+        getVerified
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -151,41 +152,130 @@ exports.getProjects = function(req, res) {
         }
     }
     function getTransfersCount(project_count, projects, callback) {
+        var transfer_counter, transfer_len;
         project_len = projects.length;
         project_counter = 0;
-
         _.each(projects, function(project) {
-            Transfer.find({$or: [
-                    {project:{$in: project.transfers_query}},
-                    {site:{$in: project.transfers_query}}]})
-                .count()
-                .exec(function (err, transfer_count) {
-                    ++project_counter;
-                    project.transfer_count = transfer_count;
-                    if (project_counter === project_len) {
-                        callback(null, project_count, projects);
-                    }
-                });
+            if (!project.source_type.p || !project.source_type.c) {
+                project.transfer_count = 0;
+                Transfer.find({$or: [
+                        {project:{$in: project.transfers_query}},
+                        {site:{$in: project.transfers_query}}]})
+                    .deepPopulate('source.source_type_id')
+                    .exec(function (err, transfers) {
+                        transfer_len = transfers.length;
+                        transfer_counter = 0;
+                        ++project_counter;
+                        if (transfer_len>0) {
+                            _.each(transfers, function (transfer) {
+                                ++transfer_counter;
+                                if (!project.source_type.p || !project.source_type.c) {
+                                    if (transfer.source.source_type_id.source_type_authority === 'authoritative') {
+                                        project.source_type.c = true;
+                                    } else if (transfer.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                        project.source_type.c = true;
+                                    } else if (transfer.source.source_type_id.source_type_authority === 'disclosure') {
+                                        project.source_type.p = true;
+                                    }
+                                }
+                                project.transfer_count += 1;
+                                if (project_counter === project_len && transfer_counter === transfer_len) {
+                                    callback(null, project_count, projects);
+                                }
+                            });
+                        } else {
+                            if (project_counter === project_len && transfer_counter === transfer_len) {
+                                callback(null, project_count, projects);
+                            }
+                        }
 
+                    });
+            } else {
+                Transfer.find({$or: [
+                        {project:{$in: project.transfers_query}},
+                        {site:{$in: project.transfers_query}}]})
+                    .count()
+                    .exec(function (err, transfer_count) {
+                        ++project_counter;
+                        project.transfer_count = transfer_count;
+                        if (project_counter === project_len) {
+                            callback(null, project_count, projects);
+                        }
+                    });
+            }
         });
     }
     function getProductionCount(project_count, projects, callback) {
+        var prod_counter, prod_len;
         project_len = projects.length;
         project_counter = 0;
-
         _.each(projects, function(project) {
-            Production.find({$or: [
-                    {project:{$in: project.transfers_query}},
-                    {site:{$in: project.transfers_query}}]})
-                .count()
-                .exec(function (err, production_count) {
-                    ++project_counter;
-                    project.production_count = production_count;
-                    if (project_counter === project_len) {
-                        callback(null, {data: projects, count: project_count});
-                    }
-                });
+            if (!project.source_type.p || !project.source_type.c) {
+                project.production_count = 0;
+                Production.find({$or: [
+                        {project:{$in: project.transfers_query}},
+                        {site:{$in: project.transfers_query}}]})
+                    .deepPopulate('source.source_type_id')
+                    .exec(function (err, production) {
+                        prod_len = production.length;
+                        prod_counter = 0;
+                        ++project_counter;
+                        if (prod_len>0) {
+                            _.each(production, function (prod) {
+                                ++prod_counter;
+                                if (!project.source_type.p || !project.source_type.c) {
+                                    if (prod.source.source_type_id.source_type_authority === 'authoritative') {
+                                        project.source_type.c = true;
+                                    } else if (prod.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                        project.source_type.c = true;
+                                    } else if (prod.source.source_type_id.source_type_authority === 'disclosure') {
+                                        project.source_type.p = true;
+                                    }
+                                }
+                                project.production_count += 1;
+                                if (project_counter === project_len && prod_counter === prod_len) {
+                                    callback(null, project_count, projects);
+                                }
+                            });
+                        } else {
+                            if (project_counter === project_len && prod_counter === prod_len) {
+                                callback(null, project_count, projects);
+                            }
+                        }
 
+                    });
+            } else {
+                Production.find({$or: [
+                        {project:{$in: project.transfers_query}},
+                        {site:{$in: project.transfers_query}}]})
+                    .count()
+                    .exec(function (err, production_count) {
+                        ++project_counter;
+                        project.production_count = production_count;
+                        if (project_counter === project_len) {
+                            callback(null, project_count, projects);
+                        }
+                    });
+            }
+        });
+    }
+    function getVerified (project_count, projects, callback) {
+        project_len = projects.length;
+        project_counter = 0;
+        _.each(projects, function(project) {
+            ++project_counter;
+            if (!project.source_type.c && !project.source_type.p) {
+                project.verified = 'none';
+            } else if (project.source_type.c && !project.source_type.p) {
+                project.verified = 'context';
+            } else if (!project.source_type.c && project.source_type.p) {
+                project.verified = 'payment';
+            } else if (project.source_type.c && project.source_type.p) {
+                project.verified = 'verified';
+            }
+            if (project_counter === project_len) {
+                callback(null, {data: projects, count: project_count});
+            }
         });
     }
 };
