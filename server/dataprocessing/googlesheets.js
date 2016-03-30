@@ -94,11 +94,10 @@ exports.processData = function(link, callback) {
 }
 
 function parseGsDate(input) {
-    /* In general format should appear as YYYY or DD/MM/YYYY or empty but sometimes GS has it as a date internally */
+    /* In general format should appear as DD/MM/YYYY or empty but sometimes GS has it as a date internally */
     var result;
     if (!input || input == "") return null;
-    else if (input.length == 4) result = moment(input + ' +0000', "YYYY Z").format();
-    else result = moment(input + ' +0000', "DD/MM/YYYY Z").format();
+    else result = moment(input, "DD/MM/YYYY").format();
     //Hope for the best
     if (result == "Invalid date") return input;
     else return result;
@@ -327,12 +326,10 @@ var makeNewProduction = function(newRow) {
         production_commodity: commodities[newRow[8]]._id,
         production_year: parseInt(newRow[5]),
         production_country: countries[newRow[2]]._id,
-        production_level: 'country',
         source: sources[newRow[0].toLowerCase()]._id
     }
     if (newRow[3] != "") {
         production.project = projects[newRow[3].toLowerCase()]._id;
-        production.production_level = 'project';
     }
     if (newRow[4] != "") {
         production.company = companies[newRow[4].toLowerCase()]._id;
