@@ -104,7 +104,7 @@ function parseGsDate(input) {
 }
 
 //Data needed for inter-entity reference
-var sourceTypes, sources, countries, commodities, companies, company_groups, projects, contracts;
+var sourceTypes, sources, countries, commodities, commoditiesById, companies, company_groups, projects, contracts;
 
 //TODO: Move to new duplicates model
 var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
@@ -282,15 +282,42 @@ var updateProjectFacts = function(doc, row, report)
     return doc;
 }
 
-var makeNewSite = function(newRow) {
+var makeNewSite = function(newRow, projDoc) {
     var site = {
         site_name: newRow[2],
         site_established_source: sources[newRow[0].toLowerCase()]._id,
         site_country: [{country: countries[newRow[5]]._id, source: sources[newRow[0].toLowerCase()]._id}] //TODO: How in the world can there multiple versions of country
     }
     if (newRow[3] != "") site.site_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
-    //TODO FIELD INFO     field: Boolean //
     if (newRow[6] != "") site.site_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow[9] != "") site.site_commodity = [{commodity: commodities[newRow[9]]._id, source: sources[newRow[0].toLowerCase()]._id}]; 
+    else { //Inherit
+        if (projDoc.proj_commodity) {
+            site.site_commodity = projDoc.proj_commodity;
+        }
+    }
+    
+    site.field = true; //If oil/gas or unclear/unknown
+    if (site.site_commodity) {
+        if (commoditiesById[site.site_commodity[0].commodity].commodity_type == "mining") {
+            site.field = false; // "type = site"
+        }
+    }
+    
+    //TODO (future template)
+    //site_operated_by: [fact],
+    //site_company_share: [fact],
+    
+    if (newRow[10] != "") {
+        var status;
+        if (newRow[10].indexOf('/') != -1) {
+            status = newRow[10].split('/')[1]; //Workaround to cope with "construction/development"
+        }
+        else status = newRow[10];
+        status = status.toLowerCase().replace(/ /g, '_');
+        site.site_status = [{string: status, timestamp: parseGsDate(newRow[11]), source: sources[newRow[0].toLowerCase()]._id}];
+    }
+    
     return site;
 }
 
@@ -564,6 +591,7 @@ function parseData(sheets, report, finalcallback) {
         //Complete commodity list is in the DB
         result.add("Getting commodities from database...\n");
         commodities = new Object;
+        commoditiesById = new Object;
         Commodity.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -574,6 +602,7 @@ function parseData(sheets, report, finalcallback) {
                 var cmty;
                 for (cmty of cresult) {
                     commodities[cmty.commodity_name] = cmty;
+                    commoditiesById[cmty._id] = cmty;
                 }
                 callback(null, result);
             }
@@ -751,31 +780,28 @@ function parseData(sheets, report, finalcallback) {
                                 projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                                 return wcallback(`Failed: ${projectsReport.report}`);
                             }
-                            //console.log("Returned\n: " + model)
                             //Take first country that occurs - TODO, correct if/when projects go back to having single countries
-                            /*console.log(util.inspect(model));
-                            console.log((model.proj_id));
-                            console.log(row[5]);*/
-                            if (!model.proj_id && (row[5] != "")) { //Because of convention it can happen that projects at first don't have a country entered. In the worst case they get no ID.
-                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()});
+                            if (row[5] != "") {  //Projects must have countries even if sites come afterwards
+                                if (!model.proj_id) {
+                                    model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()},
+                                        function(err) {
+                                            if (err) {
+                                                    projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                                    return wcallback(`Failed: ${projectsReport.report}`);
+                                            }
+                                            projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
+                                            projects[row[rowIndex].toLowerCase()] = model;
+                                            return wcallback(null, model); //Continue to site stuff
+                                        }
+                                    );
+                                }
+                                else return wcallback(null, model); //Continue to site stuff
                             }
-                            projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`); 
-                            projects[row[rowIndex].toLowerCase()] = model;
-                            //Not needed in newest model, keeping commented out for now in case needed elsewhere
-                            //Country.update(
-                            //    {_id: countries[row[5]]._id},
-                            //    {$addToSet: //Only create new fact if wasn't here before
-                            //        {projects: {project: model._id, source: sources[row[0]]._id}}
-                            //    },
-                            //    {},
-                            //    function (err, cmodel) {
-                            //        if (err) {
-                            //            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                            //            return wcallback(`Failed: ${projectsReport.report}`);
-                            //        }
-                                    return wcallback(null, model); //Continue to site stuff
-                            //    }
-                            //);
+                            else {
+                                projectsReport.add(`Invalid data in row - projects and sites must have a country (${row}). Aborting.\n`);
+                                return wcallback(`Failed: ${projectsReport.report}`);
+                            }
+                            
                         }
                     );
             }
@@ -813,7 +839,7 @@ function parseData(sheets, report, finalcallback) {
                             }
                             else { //Site doesn't exist - create and link
                                 Site.create(
-                                    makeNewSite(row),
+                                    makeNewSite(row, projDoc),
                                     function (err, newsitemodel) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);

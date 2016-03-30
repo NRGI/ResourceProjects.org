@@ -125,8 +125,7 @@ exports.createAction = function(req, res, next) {
                 req.params['id'],
                 {$push: {"actions": amodel._id}},
                 {safe: true, upsert: false, new: true},
-                function(err, dmodel) {
-                	console.log("found: " + dmodel._id);
+                function(err, dmodel) { 
                     if (!err && dmodel) {
                         if (req.body.name == "Import from Google Sheets") {
                             console.log("Starting import from " + dmodel.name);
