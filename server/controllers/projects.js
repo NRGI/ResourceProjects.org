@@ -96,7 +96,7 @@ exports.getProjects = function(req, res) {
                                     break;
                                 case 'site':
                                     if (link.site.site_commodity.length>0) {
-                                        if (_.where(project.proj_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                        if (_.where(project.proj_commodity, {_id:_.last(link.site.site_commodity).commodity._id}).length<1) {
                                             project.proj_commodity.push({commodity: {
                                                 _id: _.last(link.site.site_commodity).commodity._id,
                                                 commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
@@ -117,7 +117,7 @@ exports.getProjects = function(req, res) {
                                     break;
                                 case 'concession':
                                     if (link.concession.concession_commodity.length>0) {
-                                        if (_.where(project.proj_commodity, {_id:_.last(link.concession.concession_commodity)._id}).length<1) {
+                                        if (_.where(project.proj_commodity, {_id:_.last(link.concession.concession_commodity).commodity._id}).length<1) {
                                             if(link.site!=undefined) {
                                                 project.proj_commodity.push({
                                                     _id: _.last(link.site.site_commodity).commodity._id,
