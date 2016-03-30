@@ -45,5 +45,28 @@ angular.module('app')
                 loadProjects($scope.limit,page-$scope.limit);
             }
         }
+        // var limit = 50, currentPage = 0;
+        // $scope.record_type = 'projects';
+        // $scope.projects = [];
+        //
+        // var loadProjects = function(limit,page){
+        //     nrgiProjectsSrvc.query({skip: page, limit: limit}, function (success) {
+        //         $scope.count = success.count;
+        //         $scope.projects = success.data;
+        //         $scope.totalPages = Math.ceil(success.count / limit);
+        //         $scope.projects.forEach(function(log) {
+        //             $scope.projects.push(log);
+        //         });
+        //     });
+        // };
+        //
+        // $scope.loadProjects = function() {
+        //     if(currentPage < $scope.totalPages) {
+        //         ++currentPage;
+        //         loadProjects(limit, currentPage);
+        //
+        //     }
+        // };
+        // loadProjects(limit, currentPage);
     });
 

@@ -8,7 +8,8 @@ angular.module('app', [
     'ngRoute',
     'tableSort',
     'ngCsv',
-    'ngSanitize'
+    'ngSanitize',
+    'infinite-scroll'
 ]);
 
 angular.module('app')

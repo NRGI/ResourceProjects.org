@@ -2,7 +2,7 @@
     .page-header
         h1 Contracts
             = ' '
-            small(ng-if="count") {{count}}
+            small(ng-if="count") {{count | number}} loaded
 
     nrgi-list-nav(
     page="page"
