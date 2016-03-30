@@ -210,17 +210,6 @@ var updateProjectFacts = function(doc, row, report)
     //TODO:
     //-- Test addtoset operator thing and check that duplicate facts don't get added
     //In general should be allowing duplicates unless coming from same source
-    //Then, insert this code to properly insert operated_by and company_share:
-    /*                                  if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
-                                            newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
-                                        }
-                                        if ((row[2] != "") && (row[3] != "")) {
-                                            var share = parseInt(row[3].replace("%", ""))/100.0;
-                                            newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
-                                        }
-    */
-    //Then check that no arrays of arrays etc are getting created
-
     var fact;
     //Update status and commodity           
     if (row[9] != "") {
@@ -293,6 +282,9 @@ var updateProjectFacts = function(doc, row, report)
         }
     }
     else if (doc.proj_country) delete doc.proj_country; //Don't push
+    
+    
+    
     return doc;
 }
 
@@ -1152,16 +1144,19 @@ function parseData(sheets, report, finalcallback) {
                                 [
                                     function (linkcallback) {
                                         //TODO to change it for 0.6 as it is a bit more explicit there
-                                        newConcession = {}; //Holder for potentially new fact; in theory don't need to check if it exists
+                                        var newConcession = {}; //Holder for potentially new fact; in theory don't need to check if it exists
+                                        var newProjectData = {}; //ditto, copy across to project (TODO: this is for the 0.5 template and may change)
                                         if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
-                                            newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}
+                                            newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
+                                            newProjectData.proj_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
                                         }
                                         if ((row[2] != "") && (row[3] != "")) {
                                             var share = parseInt(row[3].replace("%", ""))/100.0;
-                                            newConcession.concession_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}
+                                            newConcession.concession_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id};
+                                            newProjectData.proj_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id};
                                         }
                                         if (row[10] != "") {
-                                            newConcession.concession_country = {country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}
+                                            newConcession.concession_country = {country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id};
                                         }
                                         Concession.update(
                                             {_id: doc._id},
@@ -1171,7 +1166,17 @@ function parseData(sheets, report, finalcallback) {
                                             {},
                                             function (err, cmodel) {
                                                 if (err) return linkcallback(err);
-                                                linkcallback(null);
+                                                Project.update(
+                                                    {_id: projects[row[1].toLowerCase()]._id},
+                                                    {$addToSet: //Only create new fact if wasn't here before
+                                                        newProjectData,
+                                                    },
+                                                    {},
+                                                    function (cperr, cpmodel) {
+                                                        if (cperr) return linkcallback(cperr);
+                                                        return linkcallback(null);
+                                                    }
+                                                );
                                             }
                                         );
                                     },
