@@ -7,73 +7,75 @@ block main-content
                     span.icon-bar
                     span.icon-bar
                     span.icon-bar
-                a.brand(href='/')
-                    img(src='../assets/rp-logo-2.png' width='185' alt='Natural Resource Governance Institute Logo')
-                .nav-collapse.margin-left-lg
-                    ul.nav.list-inline.left-padding-lg
-                        li
-                            a(href='/projects') Projects
-                        //li
-                        //    a.dropdown-toggle(data-toggle="dropdown") Projects
-                        //        b.caret
-                        //    ul.dropdown-menu
-                        //        li
-                        //            a(href='/projects') Projects
-                        //li
-                        //    a(href='/projects') Payments
-                        li
-                            a.dropdown-toggle(data-toggle="dropdown") Other Data
-                                b.caret
-                            ul.dropdown-menu
-                                li
-                                    a(href='/sites') Sites
-                                li
-                                    a(href='/fields') Fields
-                                li
-                                    a(href='/concessions') Concessions
-                                li
-                                    a(href='/companies') Companies
-                                li
-                                    a(href='/groups') Company Groups
-                                li
-                                    a(href='/contracts') Contracts
-                                li
-                                    a(href='/countries') Countries
-                                //li
-                                //    a(href='/commodities') Commodities
-                        li
-                            a.dropdown-toggle(data-toggle="dropdown") About
-                                b.caret
-                            ul.dropdown-menu
-                                li
-                                    a(href='/about') About
-                                //li
-                                //    a(href='/sources') Sources
-                                li
-                                    a(href='/glossary') Glossary
-                        li
-                            a.dropdown-toggle(data-toggle="dropdown") Admin
-                                b.caret
-                            ul.dropdown-menu
-                                li
-                                    a(href='/admin/etl/datasets') Manage Data Imports
-                                //li
-                                //    a(href='/admin/create-source') Create Source
-                                //li
-                                //    a(href='/admin/create-project') Create Project
-                                //li
-                                //    a(href='/admin/create-country') Create Country
-                                //li
-                                //    a(href='/admin/create-concession') Create Concession
-                                //li
-                                //    a(href='/admin/create-commodity') Create Commodity
-                                //li
-                                //    a(href='/admin/create-company') Create Company
-                                //li
-                                //    a(href='/admin/create-group') Create Group
+                .col-md-4
+                    a.brand(href='/')
+                        img(src='../assets/rp-logo-2.png' width='185' alt='Natural Resource Governance Institute Logo')
+                .col-md-8
+                    .nav-collapse
+                        ul.nav.list-inline.left-padding-lg
+                            li
+                                a(href='/projects') Projects
+                            //li
+                            //    a.dropdown-toggle(data-toggle="dropdown") Projects
+                            //        b.caret
+                            //    ul.dropdown-menu
+                            //        li
+                            //            a(href='/projects') Projects
+                            //li
+                            //    a(href='/projects') Payments
+                            li
+                                a.dropdown-toggle(data-toggle="dropdown") Other Data
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/sites') Sites
+                                    li
+                                        a(href='/fields') Fields
+                                    li
+                                        a(href='/concessions') Concessions
+                                    li
+                                        a(href='/companies') Companies
+                                    li
+                                        a(href='/groups') Company Groups
+                                    li
+                                        a(href='/contracts') Contracts
+                                    li
+                                        a(href='/countries') Countries
+                                    //li
+                                    //    a(href='/commodities') Commodities
+                            li
+                                a.dropdown-toggle(data-toggle="dropdown") About
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/about') About
+                                    //li
+                                    //    a(href='/sources') Sources
+                                    li
+                                        a(href='/glossary') Glossary
+                            li
+                                a.dropdown-toggle(data-toggle="dropdown") Admin
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/admin/etl/datasets') Manage Data Imports
+                                    //li
+                                    //    a(href='/admin/create-source') Create Source
+                                    //li
+                                    //    a(href='/admin/create-project') Create Project
+                                    //li
+                                    //    a(href='/admin/create-country') Create Country
+                                    //li
+                                    //    a(href='/admin/create-concession') Create Concession
+                                    //li
+                                    //    a(href='/admin/create-commodity') Create Commodity
+                                    //li
+                                    //    a(href='/admin/create-company') Create Company
+                                    //li
+                                    //    a(href='/admin/create-group') Create Group
 
-                    //form.navbar-search.pull-right(action='')
-                    //    input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
+                        //form.navbar-search.pull-right(action='')
+                        //    input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
     section.content
         div(ng-view)
     footer
