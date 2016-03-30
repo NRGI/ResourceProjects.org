@@ -1,79 +1,82 @@
 .container(ng-controller="nrgiNavBarLoginCtrl")
-	.page-header
-		h1 About
-	p Across the world, governments and companies are involved in natural resource projects, generating billions of dollars. The Natural Resource Governance Institute (NRGI) works to help people to realize the benefits of the endowments of oil, gas and minerals in their countries. Transparency is an important part of this, and new regulations are coming into force around the world to encourage greater project-level disclosure of extractives activities and revenues.
-	p ResourceProjects.org is a prototype platform to bring together data on individual extractives projects.
+    .page-header
+        h1 About
+    p ResourceProjects.org is an open-source repository of data on oil, gas and mining projects across the world. It provides a platform to collect and search extractive project information using open data. It aims to harvest data on project-by-project payments to governments based on recent mandatory disclosure legislations in the EU, US and Canada as well as EITI reports and link it to associated information about the project from a variety of sources. The platform will make it easier for journalists, CSOs, researchers and government officials to search, access and download relevant data.
 
-	h2#why-project-level-data-matters Why project level data matters:
 
-	p Projects represent the physical, tangible presence of extractive operations in a country. The project is the mine that people see out of their window, or the oil field along their coastline. It has a location, an owner, and it employs people. Each projects is tied to a contract, or license.
-	p
-		| Governments and citizens groups alike can use project data to model resource project revenues and consequently forecast budgets, such as
-		a(href='http://www.resourcegovernance.org/news/blog/forecasting-ghanas-oil-revenues-what-open-fiscal-modelling-tells-us-about-budget-year-ahea')  in Ghana
-		=' where all interested parties can see how different oil prices affect the money available for the 2015 budget. Others, such as '
-		a(href='http://www.globalwitness.org/ugandaoilcontracts/')  Global Witness
-		=' , have used this to model hypothetical oil projects, using contract information, while IMF economists routinely use (and stress '
-		a(href='http://www.imfbookstore.org/ProdDetails.asp?ID=NRRAHEA')  the importance of
-		=') project-level information for'
-		a(href='http://www.resourcegovernance.org/news/blog/modeling-masses-why-imf-should-open-fari-model-public-use')  fiscal design and technical assistance
-		|.
-	p
-		|Project information has a multitude of applications beyond fiscal modeling. It can be tied to spatial data to help better understand local impacts or environmental consequences, as highlighted by recent
-		a(href='http://www.annualreviews.org/doi/abs/10.1146/annurev-resource-100814-125106')  academic
-		a(href='http://www.theigc.org/wp-content/uploads/2014/09/Aragon-Rud-2013-Working-Paper.pdf')  papers
-		|.
-	p
-		|(
-		a(href='http://tech.transparency-initiative.org/follow-the-money-jim-cust-open-project-data-matters/') Source
-		|)
-	p
-		strong Bringing the data together:
+    h2#why-project-level-data-matters Why project level data matters
 
-	p Right now, the project information that is disclosed is often very scattered - reported in fragmentary tables in PDF reports, or mixed together with aggregate country, company and corporate group information. It is difficult to find the relationships between projects, contracts, companies and corporate groups.
-	p
-		|Through this prototype we have established
-		a(href='/model')  data model
-		=' for bringing together data on countries, companies, projects, and payments related to them. We are adding support for license, contract and concession information, building a rich'
-		a(href='https://en.wikipedia.org/wiki/Linked_data')  linked data
-		=' platform.'
-	p Data from a number of sources has been loaded into the prototype, showing how we can bring together multiple project level reports to get a more comprehensive view of the extractives industry.
-	p The platform currently provides
+    p Projects represent the physical, tangible presence of extractive operations in a country. The project is the mine that people see out of their window, or the oil field along their coastline. It has a location, an owner, and it employs people. Each projects is tied to a contract, or license.
+    p
+        | Governments and citizens groups alike can use project data to model resource project revenues and consequently forecast budgets, such as
+        a(href='http://www.resourcegovernance.org/news/blog/forecasting-ghanas-oil-revenues-what-open-fiscal-modelling-tells-us-about-budget-year-ahea')  in Ghana
+        =' where all interested parties can see how different oil prices affect the money available for the budget. Others, such as '
+        a(href='https://openoil.net/contract-modeling/')  Open Oil
+        =', '
+        a(href='http://www.globalwitness.org/ugandaoilcontracts/')  Global Witness
+        =', and '
+        a(href='http://ccsi.columbia.edu/work/projects/open-fiscal-models/')  CCSI
+        =' have modeled contracts to evaluate extractive deals, while IMF economists routinely use project-level information for fiscal design and technical assistance using their  '
+        a(href='http://www.imf.org/external/np/fad/fari/') publicly available FARI model
+        ='. Project information has a multitude of applications beyond fiscal modeling. It can be tied to spatial data to help better understand local impacts or environmental consequences, as highlighted by recent '
+        a(href='http://www.annualreviews.org/doi/abs/10.1146/annurev-resource-100814-125106') academic
+        =' '
+        a(href='http://www.theigc.org/wp-content/uploads/2014/09/Aragon-Rud-2013-Working-Paper.pdf') papers
+        |.
+    p
+        |Project information has a multitude of applications beyond fiscal modeling. It can be tied to spatial data to help better understand local impacts or environmental consequences, as highlighted by recent
+        a(href='http://www.annualreviews.org/doi/abs/10.1146/annurev-resource-100814-125106')  academic
+        a(href='http://www.theigc.org/wp-content/uploads/2014/09/Aragon-Rud-2013-Working-Paper.pdf')  papers
+        |.
 
-	ul
-		li
-			p A simple spreadsheet template for data creation, making it easy to research and transcribe project level information;
-		li
-			p Common identifiers for key entities, including projects, companies and corporate groups - supporting linkage between datasets;
-		li
-			p A browse interface onto existing project-level reports loaded to the platform;
-		li
-			p Full provenance information, allowing data-points to be traced back to their source;
+    h2#why-we-are-building-this-tool Why we are building this tool
 
-	p We will be working to add:
-	ul
-		li
-			p
-				|Linkages to relevant third-party data (including company data from
-				strong  Open Corporates,
-				=' and contracts data from '
-				strong ResourceContracts.org
-				|);
-		li
-			p Improved APIs and data export features;
-		li
-			p Easier tools for suggesting data updates and corrections;
-		li
-			p Tools for greater data quality control;
+    p Information on extractive projects are scattered across  different company and government websites, databases compiled by regulators, international organizations, industry and civil society. Some of it is in PDF,  some in spreadsheets and some is in computer queryable databases, but these are rarely linked to each other at all.
 
-	p
-		strong Get involved:
+    p This repository allows to bring these different information together in one place. Our aim is to enrich the project level payment data harvested from mandatory disclosures with additional contextual information on projects:
 
-	p You can support the development of this project by:
-	ul
-		li
-			p
-				a(href='/contribute') Contributing project-level data
-				|;
-		li
-			p Sharing your feedback;
+    ul
+        li Name and aliases of project
+        li Project type, status, commodity, location
+        li Production volumes, reserves
+        li Associated companies
+        li Associated contracts
+        li Associated concessions
+        li Associated fields and sites
+        li Detailed provenance
 
+    p We are also working on linking the data gathered to existing repositories on related entities, such as OpenCorporates for associated companies, ResourceContracts for oil and mining contracts and Open Oil`s concession map. All of the information on the platform is stored with details on what source it came from and how it was retrieved.
+
+    p By bringing this information together in a standardized and accessible format, we allowing to explore extractive projects with greater depth.
+
+
+    h2#road-map Road map
+
+    p We are working on adding the following features to the site:
+
+    ul
+        li An automated query which will import UK mandatory payment disclosures onto ResourceProjects.org as they are published throughout April and May
+        li A payment page where project level disclosure can be browsed by source
+        li Bulk download of data stored on the site
+        li An API endpoint which will allow programmable querying of the database
+        li Sort and search features to better navigate through the repository
+        li Refining how additional data can be added to the site
+        li Refinement of project verification methodology
+
+
+    h2#how-to-get-involved How to get involved?
+
+    p We are now looking for people who might be interested in getting involved in the site. We are inviting feedback and contributions to the site and its content. Further features and enhancements will be rolled out in the coming weeks and we are looking for content partners who can help contribute additional data on specific countries and projects. Further we would welcome any organisations or individuals who wish to lead on specific countries from upcoming mandatory disclosures (beyond UK and Norway).
+
+    p If you would be interested please get in touch:
+        ul
+            li
+                | Email:
+                a(href='dmihalyi@resourcegovernance.org')  David Mihalyi
+
+            li
+                | Join the
+                a(href='https://groups.google.com/forum/#!forum/resourceprojects')  google group
+            li
+                | Submit feedback on
+                a(href='https://github.com/NRGI/rp-org-frontend')  GitHub
