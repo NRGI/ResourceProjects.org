@@ -3,10 +3,13 @@
         .row
             .col-md-4
                 h1 Company Groups
-                    small
+                    = ' '
+                    small(ng-if="count") {{count}}
             .col-md-5
             .col-md-3
-                a.btn.btn-primary.btn-lg(href='/companies') View Companies
+                .btn-group(role='group', aria-label='...')
+                    button.btn.btn-default.pull-right(type='button')
+                        a(href='/companies') View Companies
 
     nrgi-list-nav(
     page="page"
@@ -24,14 +27,22 @@
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='company_group_name') Company Group
-                th.tablesort-sortable-th(ts-criteria='company_count|parseInt') No. Companies
-                th.tablesort-sortable-th(ts-criteria='project_count|parseInt') No. Projects
+                th.text-center.tablesort-sortable-th(ts-criteria='company_count|parseInt') Companies
+                th.text-center.tablesort-sortable-th(ts-criteria='project_count|parseInt') Projects
+                //th.tablesort-sortable-th(ts-criteria='sites|parseInt') No. Sites
+                //th.tablesort-sortable-th(ts-criteria='fields|parseInt') No. Fields
+                //th.tablesort-sortable-th(ts-criteria='concessions|parseInt') No. Concessions
+                //th.tablesort-sortable-th(ts-criteria='payments|parseInt') No. Payment Records
         tbody
             tr(ng-repeat="group in groups | unique: '_id'",ts-repeat)
                 td.company_group_name
                     a(href='group/{{group._id}}') {{group.company_group_name}}
-                td.company_group_companies {{group.company_count}}
-                td.company_group_projects {{group.project_count}}
+                td.text-center.company_group_companies {{group.company_count}}
+                td.text-center.company_group_projects {{group.project_count}}
+                //td.company_sites {{group.sites}}
+                //td.company_fields {{group.fields}}
+                //td.company_concessions {{group.concessions}}
+                //td.company_payments {{group.payments}}
 
     nrgi-list-nav(
     page="page"

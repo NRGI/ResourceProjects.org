@@ -6,7 +6,7 @@
             small Contract
     .row
         .col-md-6
-            nrgi-leaflet(data='contract.location')
+            nrgi-leaflet(data='contract.location' polygon='contract.polygon')
 
         .col-md-6
             .info-box
@@ -16,34 +16,41 @@
                         tr
                             td.detail_label.small Resource Contracts ID:
                             td.contract_id {{contract.contract_id}}
-                        tr
+                        tr(ng-if="contract.rc_info.contract_country")
+                            td.detail_label.small Country:
+                            td.contract_country
+                                a(href='country/{{contract.rc_info.contract_country.code}}')
+                                    span(ng-bind-html="contract.rc_info.contract_country.name|sanitize")
+                        tr(ng-if="contract.commodity.length>0")
                             td.detail_label.small Commodities:
                             td.commodities
                                 text(ng-repeat="commodity in contract.commodity | unique: '_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="contract.concessions.length>0")
                             td.detail_label.small Concessions:
                             td.concessions: text(ng-repeat="concession in contract.concessions | unique: '_id'")
                                 a(href='concession/{{concession._id}}')
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}
-    .row.top-padding-med
-        .col-md-12
-            nrgi-company-table(
-            companies="contract.companies"
-            stake='true'
-            group='true')
+                nrgi-company-table(
+                companies="contract.companies"
+                stake='false'
+                group='true')
+
     .row.top-padding-med
         .col-md-6
-            nrgi-project-table(
-            projects="contract.projects"
-            country="true"
-            commodity="true"
-            status="true"
-            type="true"
-            companies="false")
+            a(data-toggle="collapse" data-target="#projects")
+                h2 Projects
+            #projects.panel-collapse.collapse
+                nrgi-project-table(
+                projects="contract.projects"
+                country="true"
+                commodity="true"
+                status="true"
+                type="true"
+                companies="false")
         .col-md-6
             nrgi-site-table(
             sites="contract.sites"
@@ -55,12 +62,12 @@
         .col-md-12
             nrgi-production-table(
             production="contract.production"
-            project_link="true")
+            projectlink="true")
     .row.top-padding-med
         .col-md-12
             nrgi-transfer-table(
             transfers="contract.transfers"
-            project_link="true")
+            projectlink="true")
 
     .row.top-padding-med
         .col-md-12

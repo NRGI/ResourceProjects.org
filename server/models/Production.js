@@ -69,8 +69,8 @@ productionSchema.plugin(deepPopulate);
 Production = mongoose.model('Production', productionSchema);
 
 function createDefaultProduction() {
-    Production.find({}).exec(function (err, production) {
-        if (production.length === 0) {
+    Production.find({}).count().exec(function (err, production_count) {
+        if (production_count === 0) {
             Production.create({
                 _id: '56be54f9d7bff9921c93c985',
                 source: '56747e060e8cc07115200ee4',
@@ -171,11 +171,19 @@ function createDefaultProduction() {
                 production_level: 'field',
                 production_price_unit: 'USD'
             });
-            console.log('Production figures created...');
+            Production.find({}).count().exec(function(err, production_count) {
+                console.log(String(production_count), 'production figures created...')
+            });
         } else {
-            console.log(String(production.length), 'production figures exist...')
+            console.log(String(production_count), 'production figures exist...')
         }
     });
 }
+function getInitProductionCount() {
+    Production.find({}).count().exec(function(err, production_count) {
+        console.log(String(production_count), 'production figures exist...')
+    });
+};
 
+exports.getInitProductionCount = getInitProductionCount;
 exports.createDefaultProduction = createDefaultProduction;

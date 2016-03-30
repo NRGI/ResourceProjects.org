@@ -25,12 +25,17 @@ countrySchema.plugin(deepPopulate);
 Country = mongoose.model('Country', countrySchema);
 
 function createDefaultCountries() {
-    Country.find({}).exec(function(err, countries) {
-        if(countries.length === 0) {
-            Country.create({_id:'56a7e6c02302369318e16bb8',iso2:'AD',name:'Andorra',cctld:'.ad'});
-            Country.create({_id:'56a7e6c02302369318e16bb9',iso2:'AE',name:'United Arab Emirates',cctld:'.ae'});
-            Country.create({_id:'56a7e6c02302369318e16bba',iso2:'AF',name:'Afghanistan',cctld:'.af'});
-            Country.create({_id:'56a8d7d08e7079da05d6b542',iso2:'AG',name:'Antigua and Barbuda',cctld:'.ag'});
+    Country.find({}).count().exec(function(err, country_count) {
+        if(country_count === 0) {
+            // Country.create({iso2:'AD',name:'Andorra',cctld:'.ad'});
+            // Country.create({iso2:'AE',name:'United Arab Emirates',cctld:'.ae'});
+            // Country.create({iso2:'AF',name:'Afghanistan',cctld:'.af'});
+            // Country.create({iso2:'AG',name:'Antigua and Barbuda',cctld:'.ag'});
+            // Country.create({_id:'31a7e6c02937581218e16dd8',iso2:'GB',name:'United Kingdom of Great Britain and Northern Ireland',cctld:'".gb (.uk)"',notes:'"Code taken from *Great Britain* (from official name: *United Kingdom of Great Britain and Northern Ireland*)[17] .uk is the primary ccTLD of the United Kingdom instead of .gb (see code UK, which is exceptionally reserved)"'});
+            Country.create({iso2:'AD',name:'Andorra',cctld:'.ad'});
+            Country.create({iso2:'AE',name:'United Arab Emirates',cctld:'.ae'});
+            Country.create({iso2:'AF',name:'Afghanistan',cctld:'.af'});
+            Country.create({iso2:'AG',name:'Antigua and Barbuda',cctld:'.ag'});
             Country.create({iso2:'AI',name:'Anguilla',cctld:'.ai',notes:'AI previously represented French Afar and Issas'});
             Country.create({iso2:'AL',name:'Albania',cctld:'.al'});
             Country.create({iso2:'AM',name:'Armenia',cctld:'.am'});
@@ -103,7 +108,7 @@ function createDefaultCountries() {
             Country.create({iso2:'FO',name:'Faroe Islands',cctld:'.fo'});
             Country.create({iso2:'FR',name:'France',cctld:'.fr',notes:'Includes Clipperton Island'});
             Country.create({iso2:'GA',name:'Gabon',cctld:'.ga'});
-            Country.create({_id:'31a7e6c02937581218e16dd8',iso2:'GB',name:'United Kingdom of Great Britain and Northern Ireland',cctld:'".gb (.uk)"',notes:'"Code taken from *Great Britain* (from official name: *United Kingdom of Great Britain and Northern Ireland*)[17] .uk is the primary ccTLD of the United Kingdom instead of .gb (see code UK, which is exceptionally reserved)"'});
+            Country.create({iso2:'GB',name:'United Kingdom of Great Britain and Northern Ireland',cctld:'".gb (.uk)"',notes:'"Code taken from *Great Britain* (from official name: *United Kingdom of Great Britain and Northern Ireland*)[17] .uk is the primary ccTLD of the United Kingdom instead of .gb (see code UK, which is exceptionally reserved)"'});
             Country.create({iso2:'GD',name:'Grenada',cctld:'.gd'});
             Country.create({iso2:'GE',name:'Georgia',cctld:'.ge',notes:'GE previously represented Gilbert and Ellice Islands'});
             Country.create({iso2:'GF',name:'French Guiana',cctld:'.gf',notes:'Code taken from name in French: *Guyane française*'});
@@ -276,11 +281,12 @@ function createDefaultCountries() {
             Country.create({iso2:'ZA',name:'South Africa',cctld:'.za',notes:'Code taken from name in Dutch: *Zuid-Afrika*'});
             Country.create({iso2:'ZM',name:'Zambia',cctld:'.zm'});
             Country.create({iso2:'ZW',name:'Zimbabwe',cctld:'.zw',notes:'Name changed from *Southern Rhodesia* (RH)'});
-            console.log('Countries created...');
+            Country.find({}).count().exec(function(err, country_count) {
+                console.log(String(country_count), 'countries created...')
+            });
         } else {
-            console.log(String(countries.length), 'countries exist...')
+            console.log(String(country_count), 'countries exist...')
         }
     });
 };
-
 exports.createDefaultCountries = createDefaultCountries;

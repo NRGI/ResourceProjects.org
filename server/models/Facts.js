@@ -4,7 +4,7 @@
 'use strict';
 var mongoose = require('mongoose');
 
-var factSchema, Fact,
+var factSchema,
     Schema      = mongoose.Schema,
     mixedSchema = Schema.Types.Mixed,
     ObjectId    = Schema.Types.ObjectId,
@@ -34,7 +34,7 @@ factSchema = new Schema({
     loc: {
         type: [Number],  // [<longitude>, <latitude>]
         index: '2d'      // create the geospatial index
-    }
+    },
     // polygon: {
     //    type: {
     //        type: String,

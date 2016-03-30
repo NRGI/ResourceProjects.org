@@ -4,48 +4,68 @@
             span(ng-bind-html="country.name|sanitize")
             =' '
             small Country
-    .row
+    .row(ng-if="country.proj_coordinates.length>0")
         .col-md-12
-            nrgi-leaflet(data='country.location')
-    .info-box
-        h2 Country Info
-        table#country-info
-            tbody
-                tr
-                    td.detail_label.small Commodity Type(s):
-                        td.country_type: text(
-                        ng-repeat="type in country.country_type"
-                        ng-if="country.country_type.length > 0")
-                            text(ng-if="$last")
-                                | {{type.string | ucfirst}}
-                                text.small  (true at {{type.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                tr
-                    td.detail_label.small Commodities:
-                        td.country_commodities
-                            text(ng-repeat="commodity in country.country_commodity | unique: 'commodity._id'")
-                                a(href='commodity/{{commodity.commodity.commodity_id}}')
-                                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                                | {{$last ? '' : ', '}}
+            nrgi-leaflet(data='country.proj_coordinates')
     .row
         .col-md-6
-            nrgi-project-table(
-            projects="country.projects"
+            .info-box
+                h2 Country Info
+                table#country-info
+                    tbody
+                        //tr
+                        //    td.detail_label.small Commodity type(s):
+                        //    td.country_commodity_types
+                        //        span(ng-repeat="commodity in country.commodities | unique: 'commodity_type'")
+                        //            | {{commodity.commodity_type | ucfirst | addSpaces}}
+                        //            | {{$last ? '' : ', '}}
+                        tr
+                            td.detail_label.small Commodities:
+                            td.country_commodities
+                                span(ng-repeat="commodity in country.commodities | unique: '_id'")
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
+    .row.top-padding-lg
+        .col-md-6
+            a(data-toggle="collapse" data-target="#projects")
+                h2 Projects
+            #projects.panel-collapse.collapse
+                nrgi-project-table(
+                projects="country.projects"
+                country="false"
+                type="true"
+                companies="true"
+                commodity="true"
+                status="true")
+        .col-md-6
+            nrgi-site-table(
+            sites="country.sites"
             country="false"
+            commoditytype="true"
             type="false"
-            companies="true"
             commodity="true"
+            companies="false"
             status="true")
+    .row.top-padding-lg
         .col-md-6
             nrgi-company-table(
             companies="country.companies"
-            group="true")
-    .row
+            group="true"
+            operation="true")
         .col-md-6
+            nrgi-company-table(
+            companies="country.companies_incorporated"
+            group="true"
+            incorporated="true")
+    .row
+        .col-md-4
             nrgi-contract-table(
             contracts="country.contracts"
             companies="true"
             commodity="true"
             country="false")
+
         .col-md-6
             nrgi-concession-table(
             concessions="country.concessions"
@@ -54,11 +74,12 @@
             status="true"
             projects="true")
     .row
-        nrgi-transfer-table(transfers="country.transfers" project="true")
+        .col-md-12
+            nrgi-production-table(
+            production="country.production"
+            projectlink="true")
+    .row
+        nrgi-transfer-table(transfers="country.transfers" project="true" projectlink="true")
     .row
         .col-md-12
             nrgi-sources-table(sources="country.sources")
-    //.advanced-links
-    //    .container
-    //        h3
-    //            a(href='http://staging.nrgi-sandbox.net/list-sources/http/resourceprojects.org/project/MX/adar-gok3sd') Sources

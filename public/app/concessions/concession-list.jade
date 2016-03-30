@@ -1,7 +1,8 @@
 .container
     .page-header
         h1 Concessions
-            small
+            = ' '
+            small(ng-if="count") {{count}}
 
     nrgi-list-nav(
     page="page"
@@ -19,31 +20,43 @@
             table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
                 thead
                     tr
-                        th.tablesort-sortable-th(ts-criteria='concession_name') Name
-                        th.tablesort-sortable-th(ts-criteria='concession_country[concession_country.length-1].country.name') Country
-                        th.tablesort-sortable-th(ts-criteria='concession_type[concession_type.length-1].string') Commodity Type
-                        th.tablesort-sortable-th(ts-criteria='concession_commodity[concession_commodity.length-1].commodity.commodity_name') Commodity
-                        th.tablesort-sortable-th(ts-criteria='concession_status[concession_status.length-1].string') Status
-                        th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+                        th.col-md-2.tablesort-sortable-th(ts-criteria='concession_name') Name
+                        th.col-md-1.tablesort-sortable-th(ts-criteria='concession_country[concession_country.length-1].country.name') Country
+                        th.col-md-1.tablesort-sortable-th(ts-criteria='concession_type[concession_type.length-1].string') Commodity Type
+                        th.col-md-1.tablesort-sortable-th(ts-criteria='concession_commodity[concession_commodity.length-1].commodity.commodity_name') Commodity
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='concession_status[concession_status.length-1].string') Status
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='project_count | parseInt') Projects
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='site_count | parseInt') Sites
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='field_count | parseInt') Fields
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='transfer_count | parseInt') Payment records
+                        th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='production_count | parseInt') Production records
                 tbody
                     tr(ng-repeat="concession in concessions" ts-repeat)
-                        td.concession_name: a(href='/concession/{{ concession._id }}')
+                        td.col-md-2.concession_name: a(href='/concession/{{ concession._id }}')
                             span(ng-bind-html="concession.concession_name|sanitize")
-                        td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country._id'")
-                            a(href='/country/{{country.country.iso2}}')
+                        td.col-md-1.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country._id'")
+                            a(ng-if="$first" href='/country/{{country.country.iso2}}')
                                 span(ng-bind-html="country.country.name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td.concession_type: text(ng-repeat="type in concession.concession_type")
-                            text(ng-if="$last") {{type.string | ucfirst}}
-                        td.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
-                            a(href='/commodity/{{commodity.commodity.commodity_id}}')
-                                span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                        td.col-md-1.concession_commodity_type
+                            text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_type'")
+                                | {{commodity.commodity_type | ucfirst | addSpaces}}
+                                | {{$last ? '' : ', '}}
+                        td.col-md-1.concession_commodity: text(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
+                            a(href='/commodity/{{commodity.commodity_id}}')
+                                span(ng-bind-html="commodity.commodity_name|sanitize")
                             | {{$last ? '' : ', '}}
-                        td.concession_status: text(ng-repeat="status in concession.concession_status")
-                            text(ng-if="$last")
-                                | {{status.string | ucfirst}}
-                                text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                        td.concession_projects {{concession.projects}}
+                        td.col-md-1.text-center.concession_status
+                            em(ng-if="concession.concession_status.length<1") ..
+                            text(ng-if="concession.concession_status.length>0" ng-repeat="status in concession.concession_status")
+                                text(ng-if="$last")
+                                    | {{status.string | ucfirst}}
+                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        td.col-md-1.text-center.concession_projects {{concession.project_count}}
+                        td.col-md-1.text-center.concession_sites {{concession.site_count}}
+                        td.col-md-1.text-center.concession_fields {{concession.field_count}}
+                        td.col-md-1.text-center.concession_payments {{concession.transfer_count}}
+                        td.col-md-1.text-center.concession_production {{concession.production_count}}
 
     nrgi-list-nav(
     page="page"

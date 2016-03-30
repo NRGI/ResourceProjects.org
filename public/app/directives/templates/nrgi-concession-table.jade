@@ -1,5 +1,5 @@
 h2 Concessions
-table.table.table-striped.concessions(ts-wrapper)#concessions-info
+table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
     thead
         tr
             th.tablesort-sortable-th(ts-criteria='concession_name') Name
@@ -15,7 +15,7 @@ table.table.table-striped.concessions(ts-wrapper)#concessions-info
                     span(ng-bind-html="concession.concession_name|sanitize")
             td.concession_country(ng-if="country==true")
                     a(href='/country/{{concession.concession_country.iso2}}')
-                    span(ng-bind-html="concession.concession_country.name|sanitize")
+                        span(ng-bind-html="concession.concession_country.name|sanitize")
             td.concession_type(ng-if="type==true") {{concession.concession_type.string | ucfirst}}
             td.concession_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity._id'")
                 a(href='commodity/{{commodity.commodity.commodity_id}}')

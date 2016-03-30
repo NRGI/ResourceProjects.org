@@ -9,7 +9,6 @@ var linkSchema, Link,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     ObjectId        = Schema.Types.ObjectId,
-    //MixedSchema     = Schema.Types.Mixed,
     entity_enu      = {
         values: 'commodity company company_group concession contract project production site transfer'.split(' '),
         //values: ' project '.split(' '),
@@ -31,11 +30,6 @@ linkSchema = new Schema({
         type: String,
         required:'{PATH} is required!',
         enum: entity_enu}]
-    ////company group specific
-    //company_group_start_date: Date,
-    //company_group_end_date: Date,
-    ////licensee specific
-    //ownership_stake: Number
 
 });
 
@@ -46,8 +40,8 @@ linkSchema.plugin(deepPopulate);
 Link = mongoose.model('Link', linkSchema);
 
 function createDefaultLinks() {
-    Link.find({}).exec(function(err, links) {
-        if(links.length === 0) {
+    Link.find({}).count().exec(function(err, link_count) {
+        if(link_count === 0) {
             //group-company
             Link.create({company_group:'56a14d8ee47b92f110ce9a57',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','company_group']});
             Link.create({company_group:'56a14d8ee47b92f110ce9a58',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee5',entities:['company','company_group']});
@@ -80,21 +74,33 @@ function createDefaultLinks() {
             Link.create({site:'56eb117c0007bf5b2a3e4b76',company:'56a13a758f224f670e6a376e',source:'56747e060e8cc07115200ee3',entities:['site','company']});
             //concession-site
             Link.create({concession:'56a2b8236e585b7316655794',site:'56eb117c0007bf5b2a3e4b76',source:'56747e060e8cc07115200ee6',entities:['concession','site']});
-            //project-site
+            //contract-site
             Link.create({site:'56eb117c0007bf5b2a3e4b71',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','project']});
             Link.create({site:'56eb117c0007bf5b2a3e4b76',project:'56a930f41b5482a31231ef42',source:'56747e060e8cc07115200ee3',entities:['site','project']});
             Link.create({site:'56eb117c0007bf5b2a3e4b76',project:'56a930f41b5482a31231ef44',source:'56747e060e8cc07115200ee3',entities:['site','project']});
+            //project-site
+            Link.create({site:'56eb117c0007bf5b2a3e4b71',contract:'56a2eb4345d114c30439ec22',source:'56747e060e8cc07115200ee3',entities:['site','contract']});
+            Link.create({site:'56eb117c0007bf5b2a3e4b76',contract:'56a2eb4345d114c30439ec20',source:'56747e060e8cc07115200ee3',entities:['site','contract']});
+            Link.create({site:'56eb117c0007bf5b2a3e4b76',contract:'56a2eb4345d114c30439ec22',source:'56747e060e8cc07115200ee3',entities:['site','contract']});
 
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //Link.create({company_group:'',company:'',source:'',entities:['company','company_group']});
             //
-            console.log('Links created...');
+            Link.find({}).count().exec(function(err, link_count) {
+                console.log(String(link_count), 'links created...')
+            });
         } else {
-            console.log(String(links.length), 'links exist...')
+            console.log(String(link_count), 'links exist...')
         }
     });
 };
+function getInitLinkCount() {
+    Link.find({}).count().exec(function(err, link_count) {
+        console.log(String(link_count), 'links exist...')
+    });
+};
 
+exports.getInitLinkCount = getInitLinkCount;
 exports.createDefaultLinks = createDefaultLinks;

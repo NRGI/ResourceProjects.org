@@ -4,15 +4,9 @@
             span(ng-bind-html="company.company_name|sanitize")
             =' '
             small Company
-    .row
+    .row(ng-if="company.proj_coordinates.length>0")
         .col-md-12
             nrgi-leaflet(data='company.proj_coordinates')
-            //leaflet(
-            //center="center"
-            //controls="controls"
-            //markers="company.proj_coordinates"
-            //tiles="tiles"
-            //height='300px')
     .row
         .col-md-6
             .info-box
@@ -22,17 +16,17 @@
                         tr
                             td.detail_label.small ID:
                             td.company_id {{company._id}}
-                        tr
+                        tr(ng-if="company.company_website")
                             td.detail_label.small Website:
                             td.company_website
                                 a(target="_blank" href='{{company.company_website.string }}') {{company.company_website.string}}
-                        tr
+                        tr(ng-if="company.company_aliases.length>0")
                             td.detail_label.small Aliases:
                             td.company_aliases
                                 text(ng-repeat="alias in company.company_aliases | unique: 'alias'")
                                     | {{alias.alias}}
                                     | {{$last ? '' : ', '}}
-                        tr
+                        tr(ng-if="company.company_groups.length>0")
                             td.detail_label.small Part of:
                             td.company_part-of
                                 text(ng-repeat="group in company.company_groups | unique: '_id'")
@@ -40,18 +34,24 @@
                                         span(ng-bind-html="group.company_group_name|sanitize")
                                     | {{$last ? '' : ', '}}
 
-                        tr
+                        tr(ng-if="company.company_commodity.length>0")
+                            td.detail_label.small Commodity type(s):
+                            td.company_commodities
+                                span(ng-repeat="commodity in company.company_commodity | unique: 'commodity_type'")
+                                    | {{commodity.commodity_type | ucfirst | addSpaces}}
+                                    | {{$last ? '' : ', '}}
+                        tr(ng-if="company.company_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.company_commodities
-                                //| {{company.commodities}}
-                                text(ng-repeat="commodity in company.commodities")
+                                span(ng-repeat="commodity in company.company_commodity")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
                             td.detail_label.small Open Corporates ID:
                             td.company_open_corporates_id
-                                a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
+                                //a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
+                                a(target="_blank" href='{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr(ng-if='company.companies_house_id')
                             td.detail_label.small Companies House ID:
                             td.company_companies_house_id
@@ -59,7 +59,7 @@
 
 
         .col-md-6
-            .info-box
+            .info-box(ng-if="company.description")
                 h2
                     | &nbsp;
                 table#company-description
@@ -71,20 +71,24 @@
 
     .row
         .col-md-6
-            nrgi-project-table(
-            projects="company.projects"
-            country="true"
-            commodity="true"
-            status="true"
-            type="true"
-            companies="false")
+            a(data-toggle="collapse" data-target="#projects")
+                h2 Projects
+            #projects.panel-collapse.collapse
+                nrgi-project-table(
+                projects="company.projects"
+                country="true"
+                commodity="true"
+                status="true"
+                type="true"
+                companies="false")
         .col-md-6
             nrgi-site-table(
             sites="company.sites"
             country="true"
+            commoditytype="true"
             commodity="true"
             status="true"
-            type="true")
+            type="false")
     .row.top-padding-med
         .col-md-6
             nrgi-contract-table(
@@ -105,12 +109,12 @@
             nrgi-transfer-table(
             transfers="company.transfers"
             project="false"
-            project_link="true")
+            projectlink="true")
     .row
         .col-md-12
             nrgi-production-table(
             production="company.production"
-            project_link="true")
+            projectlink="true")
 
     .row
         .col-md-12

@@ -5,15 +5,27 @@ angular.module('app')
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiSitesSrvc
+        nrgiSitesSrvc,
+        $location
     ) {
+        $scope.field = false;
         $scope.limit = 50;
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
-
+        if ($location.path()=='/sites') {
+            $scope.field =false;
+            $scope.record_type = 'sites';
+            $scope.route = 'site';
+            $scope.header = 'Sites';
+        } else if ($location.path()=='/fields') {
+            $scope.field =true;
+            $scope.route = 'field';
+            $scope.record_type = 'fields';
+            $scope.header = 'Fields';
+        }
         var loadSites = function(limit,page){
-            nrgiSitesSrvc.query({skip: page, limit: limit}, function (success) {
+            nrgiSitesSrvc.query({skip: page, limit: limit,field: $scope.field}, function (success) {
                 $scope.count = success.count;
                 $scope.limit = limit;
                 $scope.page = page;

@@ -36,8 +36,8 @@ duplicateSchema.plugin(deepPopulate);
 Duplicate = mongoose.model('Duplicate', duplicateSchema);
 
 function createDefaultDuplicates() {
-    Duplicate.find({}).exec(function(err, duplicates) {
-        if(duplicates.length === 0) {
+    Duplicate.find({}).count().exec(function(err, duplicate_count) {
+        if(duplicate_count === 0) {
             Duplicate.create({
                 original:'56a13a758f224f670e6a376a',
                 duplicate:'56a13a758d224f670e6b377a',
@@ -47,11 +47,19 @@ function createDefaultDuplicates() {
             }, function(err, model) {
             console.log(err);
             });
-            console.log('Test duplicate created...');
+            Duplicate.find({}).count().exec(function(err, duplicate_count) {
+                console.log(String(duplicate_count), 'test duplicate(s) created...')
+            });
         } else {
-            console.log(String(duplicates.length), 'duplicate(s) exist...')
+            console.log(String(duplicate_count), 'duplicate(s) exist...')
         }
     });
 };
+function getInitDuplicateCount() {
+    Duplicate.find({}).count().exec(function(err, duplicate_count) {
+        console.log(String(duplicate_count), 'duplicate(s) exist...')
+    });
+};
 
+exports.getInitDuplicateCount = getInitDuplicateCount;
 exports.createDefaultDuplicates = createDefaultDuplicates;

@@ -11,7 +11,7 @@ var projectSchema, Project,
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
         type: HTML,
@@ -27,10 +27,6 @@ var projectSchema, Project,
     status_enu  = {
         values: 'exploration development production on_hold inactive unknown'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
-    },
-    type_enu  = {
-       values: 'mining oil'.split(' '),
-       message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select mining or oil.'
     };
 
 
@@ -43,17 +39,7 @@ projectSchema = new Schema({
         ref: 'Alias'}],
     proj_established_source: source,
     proj_country: [fact],
-    // proj_type: [fact],
-    proj_type: [{
-        source: source,
-        string: {
-            type: String,
-            enum: type_enu},
-        timestamp: {
-            type: Date,
-            default: Date.now()}}],
     proj_commodity: [fact],
-    // proj_site_name: [fact],
     proj_address: [fact],
     proj_coordinates: [fact],
     proj_operated_by: [fact],
@@ -86,8 +72,8 @@ projectSchema.plugin(searchPlugin,{
 Project = mongoose.model('Project', projectSchema);
 
 function createDefaultProjects() {
-    Project.find({}).exec(function(err, projects) {
-        if(projects.length === 0) {
+    Project.find({}).count().exec(function(err, project_count) {
+        if(project_count === 0) {
             Project.create({
                 _id:'56a930f41b5482a31231ef42',
                 proj_id: 'ad-jufi-yqceeo',
@@ -95,9 +81,7 @@ function createDefaultProjects() {
                 proj_aliases: ['56a939e649434cfc1354d64b','56a939e649434cfc1354d64c'],
                 proj_established_source: '56747e060e8cc07115200ee3',
                 proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
-                proj_type: [{source: '56747e060e8cc07115200ee3', string: 'mining'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
-                // proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name a'}],
                 proj_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [11.15392307, 17.50168983]}],
                 proj_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
@@ -110,9 +94,7 @@ function createDefaultProjects() {
                 proj_aliases: ['56a939e649434cfc1354d64d'],
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
-                proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
-                // proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name b'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [79.22885591,  -44.84381911]}],
                 proj_status: [{source: '56747e060e8cc07115200ee6', string: 'development'}],
                 description: '<p>yes</p><p>no</p>',
@@ -124,8 +106,6 @@ function createDefaultProjects() {
                 proj_aliases: ['56a939e649434cfc1354d64e'],
                 proj_established_source: '56747e060e8cc07115200ee5',
                 proj_country: [{source: '56747e060e8cc07115200ee5', country: '56a8d7d08e7079da05d6b542'}],
-                proj_type: [{source: '56747e060e8cc07115200ee5', string: 'mining'}],
-                // proj_site_name: [{source: '56747e060e8cc07115200ee5', string: 'site name c'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee5', loc: [25.17521251, -13.32094082]}],
                 proj_status: [{source: '56747e060e8cc07115200ee5', string: 'on_hold'}],
                 description: '<p>yes</p><p>no</p>'
@@ -136,17 +116,23 @@ function createDefaultProjects() {
                 proj_name: 'Alpamarca Rio Pallanga',
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
-                proj_type: [{source: '56747e060e8cc07115200ee6', string: 'oil'}],
-                // proj_site_name: [{source: '56747e060e8cc07115200ee6', string: 'site name d'}],
                 proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [-154.09667961, -43.52395855]}],
                 proj_status: [{source: '56747e060e8cc07115200ee6', string: 'production'}],
                 description: '<p>yes</p><p>no</p>'
             });
-            console.log('Projects created...');
+            Project.find({}).count().exec(function(err, project_count) {
+                console.log(String(project_count), 'projects created...')
+            });
         } else {
-            console.log(String(projects.length), 'projects exist...')
+            console.log(String(project_count), 'projects exist...')
         }
     });
 };
+function getInitProjectCount() {
+    Project.find({}).count().exec(function(err, project_count) {
+        console.log(String(project_count), 'projects exist...')
+    });
+};
 
+exports.getInitProjectCount = getInitProjectCount;
 exports.createDefaultProjects = createDefaultProjects;

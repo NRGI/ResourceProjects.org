@@ -19,8 +19,8 @@ datasetSchema = new Schema ({
 Dataset = mongoose.model('Dataset', datasetSchema);
 
 function createDefaultDatasets() {
-    Dataset.find({}).exec(function(err, datasets) {
-        if(datasets.length === 0) {
+    Dataset.find({}).count().exec(function(err, dataset_count) {
+        if(dataset_count === 0) {
             console.log('no datasets, creating some fake ones');
             Dataset.create({
                 name: "Google Sheet: Angola 0.5",
@@ -124,8 +124,11 @@ function createDefaultDatasets() {
             }, function(err, model) {
             console.log(err);
             });
+            Dataset.find({}).count().exec(function(err, dataset_count) {
+                console.log(String(dataset_count), 'datasets created...')
+            });
         } else {
-            console.log(String(datasets.length), 'datasets exist...')
+            console.log(String(dataset_count), 'datasets exist...')
         }
     });
 };

@@ -1,5 +1,5 @@
 h2 Contracts
-table.table.table-striped.projects(ts-wrapper)#contract-info
+table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
     thead
         tr
             th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='contract_name') Name
@@ -7,12 +7,13 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
             th.tablesort-sortable-th(ng-if="country==true" ts-criteria='contract_country.code') Country
             th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='contract_commodity.toString()') Commodity
             th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='_id') RC-ID
-            th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') No. Companies
+            th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') Companies
     tbody
         tr(
         ng-repeat="contract in contracts | unique: '_id'"
         ts-repeat)
-            td.contract_name(ng-if="companies!=true") {{contract.contract_name}}
+            td.contract_name(ng-if="companies!=true")
+                a(href='/contract/{{contract._id}}') {{contract.contract_name}}
             td.contract_rc_id(ng-if="companies==true")
                 a(href='/contract/{{contract._id}}') {{contract._id}}
             td.contract_country(ng-if="country==true")
@@ -27,7 +28,7 @@ table.table.table-striped.projects(ts-wrapper)#contract-info
                         span(ng-bind="contract.contract_commodity.toString()")
 
             td.contract_rc_id(ng-if="companies!=true")
-                a(href='/contract/{{contract._id}}') {{contract._id}}
+                a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract._id}}') {{contract._id}}
             td.contract_companies(ng-if="companies==true") {{contract.companies}}
 .download
     span.glyphicon.glyphicon-download(aria-hidden='true')

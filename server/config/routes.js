@@ -180,12 +180,18 @@ module.exports	= function(app) {
 	
 	app.get('/api/testdata', datasets.getTestdata);	
 
+	/////////////////////////////////////////////
+	///// COMPANIES HOUSE DUMMY DATASETS ////////
+	/////////////////////////////////////////////
+
+	app.get('/api/testdata', datasets.getTestdata);
+
 	/////////////////////////
 	///// SITES CRUD ////////
 	/////////////////////////
-	app.get('/api/sites/:limit/:skip', sites.getSites);
+	app.get('/api/sites/:limit/:skip/:field', sites.getSites);
 	app.get('/api/sites/:id', sites.getSiteByID);
-	app.get('/api/sites/', sites.getSitesMap);
+	app.get('/api/sites/map/:field', sites.getSitesMap);
 
 	//DATASETS - TODO: protect with admin
 	app.get('/api/datasets', datasets.getDatasets);
@@ -210,6 +216,30 @@ module.exports	= function(app) {
 	app.put('/api/sites',  sites.updateSite);
 	// DELETE
 	app.delete('/api/sites/:id', sites.deleteSite);
+
+
+	/////////////////////////////////////////////
+	///// COMPANIES HOUSE DUMMY DATASETS ////////
+	/////////////////////////////////////////////
+
+	app.get('/api/testdata', datasets.getTestdata);
+
+
+
+	/////////////////////////////////////////////
+	///// COMPANIES HOUSE DUMMY DATASETS ////////
+	/////////////////////////////////////////////
+
+	app.get('/api/testdata', datasets.getTestdata);
+
+
+
+	/////////////////////////////////////////////
+	///// COMPANIES HOUSE DUMMY DATASETS ////////
+	/////////////////////////////////////////////
+
+	app.get('/api/testdata', datasets.getTestdata);
+
 
 	/////////////////////////
 	///// USERS CRUD ////////
@@ -243,6 +273,11 @@ module.exports	= function(app) {
 	app.all('/api/*', function(req, res) {
 		res.sendStatus(404);
 	});
+	//app.get('*', function(req, res) {
+	//	res.render('landing_page', {
+	//		bootstrappedUser: req.user
+	//	});
+	//});
 	app.get('*', function(req, res) {
 		res.render('index', {
 			bootstrappedUser: req.user

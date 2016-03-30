@@ -25,7 +25,8 @@
     "iso-3166-country-codes-angular": "~1.1.1",
     "underscore": "^1.8.3",
     "angular-underscore": "^0.5.0",
-    "restangular": "^1.5.1"
+    "restangular": "^1.5.1",
+    "plotlyjs": "plotly#^1.4.1"
   },
   "moduleType": [
     "node"

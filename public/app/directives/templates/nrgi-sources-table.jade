@@ -1,14 +1,20 @@
 h2 Sources
-//.row(ng-repeat="(key, value) in sources")
-//    | {{value}}
-table.table.table-striped.projects(ts-wrapper)#project-sources
+table.table.table-striped.projects(ts-wrapper ng-class="sources.length >= 8 ? 'header-fixed' : ''")#project-sources
     thead
         tr
             th Name
             th Type
+            th Authority
     tbody
         tr(ng-repeat="(key, value) in sources")
             td.source_id: a(href='source/{{key}}')
                 span(ng-bind-html="value.source_name|sanitize")
             td.source_type: a(href='source_type/{{value.source_type_id._id}}')
                 span(ng-bind-html="value.source_type_id.source_type_name|sanitize")
+            td.source_authority {{value.source_type_id.source_type_authority}}
+.download
+    span.glyphicon.glyphicon-download(aria-hidden='true')
+    span
+        |  Download:
+        =' '
+        a(href="" ng-csv="csv_sources" csv-header="getHeaderSources()" filename="sources.csv") Sources CSV

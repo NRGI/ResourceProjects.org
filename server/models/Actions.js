@@ -23,8 +23,8 @@ Action = mongoose.model('Action', actionSchema);
 
 function createDefaultActions() {
     Action.update({status: 'Started'}, {status: 'Failed'}, function(err){console.log(err);}); //Mark any unfinished as failed
-    Action.find({}).exec(function(err, actions) {
-        if(actions.length === 0) {
+    Action.find({}).count().exec(function(err, action_count) {
+        if(action_count === 0) {
             console.log('Creating dummy action for CS API Import');
             Action.create({
                 _id: '56737e170e4ac07115211ee4',
@@ -36,8 +36,11 @@ function createDefaultActions() {
                 status: 'Success',
                 details: 'One duplicate was detected'
             });
+            Action.find({}).count().exec(function(err, action_count) {
+                console.log(String(action_count), 'actions created...')
+            });
         } else {
-            console.log(String(actions.length), 'actions exist...')
+            console.log(String(action_count), 'actions exist...')
         }
     });
 };

@@ -1,11 +1,12 @@
 var Commodity 		= require('mongoose').model('Commodity'),
 	Link 	        = require('mongoose').model('Link'),
+	Site 	        = require('mongoose').model('Site'),
 	async           = require('async'),
 	_               = require("underscore"),
 	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
 //.populate('comments.author', 'firstName lastName role')
-exports.getCommodities = function(req, res) {
+	exports.getCommodities = function(req, res) {
 	var commodity_len, link_len, commodity_counter, link_counter,
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
@@ -13,7 +14,8 @@ exports.getCommodities = function(req, res) {
 	async.waterfall([
 		commodityCount,
 		getCommoditySet,
-		getCommodityLinks
+		getCommodityLinks,
+		getSiteCount
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -82,6 +84,36 @@ exports.getCommodities = function(req, res) {
 								//console.log(entity, 'link skipped...');
 							}
 
+						});
+						if (commodity_counter == commodity_len && link_counter == link_len) {
+							callback(null, commodity_count, commodities);
+						}
+					});
+			});
+		} else{
+			callback(null, commodity_count, commodities);
+		}
+	}
+	function getSiteCount(commodity_count, commodities, callback) {
+		commodity_len = commodities.length;
+		commodity_counter = 0;
+		if(commodity_len>0) {
+			commodities.forEach(function (c) {
+				c.sites=0;
+				c.fields=0;
+				Site.find({'site_commodity.commodity': c._id})
+					.exec(function (err, sites) {
+						++commodity_counter;
+						link_len = sites.length;
+						link_counter = 0;
+						sites.forEach(function (site) {
+							console.log(site);
+							if(site.field){
+								c.fields += 1;
+							}else{
+								c.sites += 1;
+							}
+							++link_counter;
 						});
 						if (commodity_counter == commodity_len && link_counter == link_len) {
 							res.send({data: commodities, count: commodity_count});
@@ -202,104 +234,6 @@ exports.getCommodityByID = function(req, res) {
 				}
 			});
 	}
-	//function getContracts(commodity, callback) {
-	//	commodity.contracts = [];
-	//	var contract_counter = 0;
-	//	var contract_len = commodity.contracts_link.length;
-	//	if(contract_len>0) {
-	//		_.each(commodity.contracts_link, function (contract) {
-	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-	//				var body = JSON.parse(body);
-	//				++contract_counter;
-	//				commodity.contracts.push({
-	//					_id: contract._id,
-	//					contract_name: body.name,
-	//					contract_country: body.country,
-	//					contract_commodity: body.resource
-	//				});
-	//				if (contract_counter == contract_len) {
-	//					callback(null, commodity);
-	//				}
-	//			});
-    //
-	//		});
-	//	} else{
-	//		callback(null, commodity);
-	//	}
-	//}
-	//function getContracts(commodity, callback) {
-	//	commodity.contracts = [];
-	//	var contract_counter = 0;
-	//	var contract_len = commodity.contracts_link.length;
-	//	if(contract_len>0) {
-	//		_.each(commodity.contracts_link, function (contract) {
-	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-	//				var body = JSON.parse(body);
-	//				++contract_counter;
-	//				commodity.contracts.push({
-	//					_id: contract._id,
-	//					contract_name: body.name,
-	//					contract_country: body.country,
-	//					contract_commodity: body.resource
-	//				});
-	//				if (contract_counter == contract_len) {
-	//					callback(null, commodity);
-	//				}
-	//			});
-	//		});
-	//	} else{
-	//		callback(null, commodity);
-	//	}
-	//}
-	//function getContracts(commodity, callback) {
-	//	commodity.contracts = [];
-	//	var contract_counter = 0;
-	//	var contract_len = commodity.contracts_link.length;
-	//	if(contract_len>0) {
-	//		_.each(commodity.contracts_link, function (contract) {
-	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-	//				var body = JSON.parse(body);
-	//				++contract_counter;
-	//				commodity.contracts.push({
-	//					_id: contract._id,
-	//					contract_name: body.name,
-	//					contract_country: body.country,
-	//					contract_commodity: body.resource
-	//				});
-	//				if (contract_counter == contract_len) {
-	//					callback(null, commodity);
-	//				}
-	//			});
-	//		});
-	//	} else{
-	//		callback(null, commodity);
-	//	}
-	//}
-	//function getContracts(commodity, callback) {
-	//	commodity.contracts = [];
-	//	var contract_counter = 0;
-	//	var contract_len = commodity.contracts_link.length;
-	//	if(contract_len>0) {
-	//		_.each(commodity.contracts_link, function (contract) {
-	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-	//				var body = JSON.parse(body);
-	//				++contract_counter;
-	//				commodity.contracts.push({
-	//					_id: contract._id,
-	//					contract_name: body.name,
-	//					contract_country: body.country,
-	//					contract_commodity: body.resource
-	//				});
-	//				if (contract_counter == contract_len) {
-	//					callback(null, commodity);
-	//				}
-	//			});
-    //
-	//		});
-	//	} else{
-	//		callback(null, commodity);
-	//	}
-	//}
 	function getContracts(commodity, callback) {
 		commodity.contracts = [];
 		var contract_counter = 0;
@@ -325,31 +259,6 @@ exports.getCommodityByID = function(req, res) {
 			callback(null, commodity);
 		}
 	}
-	//function getContracts(commodity, callback) {
-	//	commodity.contracts = [];
-	//	var contract_counter = 0;
-	//	var contract_len = commodity.contracts_link.length;
-	//	if(contract_len>0) {
-	//		_.each(commodity.contracts_link, function (contract) {
-	//			request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-	//				var body = JSON.parse(body);
-	//				++contract_counter;
-	//				commodity.contracts.push({
-	//					_id: contract._id,
-	//					contract_name: body.name,
-	//					contract_country: body.country,
-	//					contract_commodity: body.resource
-	//				});
-	//				if (contract_counter == contract_len) {
-	//					callback(null, commodity);
-	//				}
-	//			});
-    //
-	//		});
-	//	} else{
-	//		callback(null, commodity);
-	//	}
-	//}
 	function getProjectLocation(commodity,callback) {
 		var project_counter = 0;
 		commodity.location = [];
