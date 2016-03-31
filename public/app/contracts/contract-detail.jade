@@ -39,18 +39,19 @@
                 stake='false'
                 group='true')
 
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-6
-            a(data-toggle="collapse" data-target="#projects")
-                h2 Projects
-            #projects.panel-collapse.collapse
-                nrgi-project-table(
-                projects="contract.projects"
-                country="true"
-                commodity="true"
-                status="true"
-                type="true"
-                companies="false")
+            nrgi-project-table(
+            projects="contract.projects"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true"
+            companies="false")
+            //a(data-toggle="collapse" data-target="#projects")
+            //    h2 Projects
+            //#projects.panel-collapse.collapse
+
         .col-md-6
             nrgi-site-table(
             sites="contract.sites"
@@ -58,17 +59,17 @@
             commodity="true"
             status="true"
             type="true")
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="contract.production"
             projectlink="true")
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
             transfers="contract.transfers"
             projectlink="true")
 
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-12
             nrgi-sources-table(sources="contract.sources")
