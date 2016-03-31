@@ -30,9 +30,12 @@ div
                     a(href='commodity/{{commodity.commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.proj_status(ng-if="status==true"): text(ng-repeat="status in project.proj_status")
-                    text(ng-if="$last") {{status.string | ucfirst}}
-                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                td.proj_status(ng-if="status==true")
+                    em(ng-if="project.proj_status.length<1") ..
+                    text(ng-if="project.proj_status.length>0" ng-repeat="status in project.proj_status")
+                        text(ng-if="$last")
+                            | {{status.string | ucfirst}}
+                            text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.text-center(ng-if="companies==true") {{project.companies}}
 div(ng-if="projects.length>0")
     .download

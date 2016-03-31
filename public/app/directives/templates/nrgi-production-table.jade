@@ -15,19 +15,19 @@ div
             tr(
             ng-repeat="prod in production"
             ts-repeat)
-                td.col-md-1.production_year {{prod.production_year}}
-                td.col-md-1.text-right.production_volume  {{prod.production_volume | number}}
-                td.col-md-1.production_unit {{prod.production_unit}}
-                td.col-md-1.production_commodity
+                td.production_year {{prod.production_year}}
+                td.text-right.production_volume  {{prod.production_volume | number}}
+                td.production_unit {{prod.production_unit}}
+                td.production_commodity
                     a(href='commodity/{{prod.production_commodity.commodity_id}}')
                         span(ng-bind-html="prod.production_commodity.commodity_name|sanitize")
-                td.col-md-1.text-right.production_price
+                td.text-right.production_price
                     text(ng-if="prod.production_price") {{prod.production_price}}
                     em(ng-if="!prod.production_price") ..
-                td.col-md-1.text-right.production_price_per_unit {{prod.production_price_unit}}
+                td.text-right.production_price_per_unit {{prod.production_price_unit}}
                     text(ng-if="prod.production_price") {{prod.production_price_unit}}
                     em(ng-if="!prod.production_price") ..
-                td.col-md-1.text-center.production_level {{prod.production_level}}
+                td.text-center.production_level {{prod.production_level}}
                 td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in prod.production_links | unique: '_id'")
                     a(href="{{link.type}}/{{link.route}}")
                         span(ng-bind-html="link.name|sanitize")

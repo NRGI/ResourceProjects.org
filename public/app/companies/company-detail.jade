@@ -68,19 +68,20 @@
                             td.company_description
                                 span(ng-bind-html="company.description|sanitize")
 
-    .row
-        .col-md-6
-            a(data-toggle="collapse" data-target="#projects")
-                h2 Projects
-            #projects.panel-collapse.collapse
-                nrgi-project-table(
-                projects="company.projects"
-                country="true"
-                commodity="true"
-                status="true"
-                type="true"
-                companies="false")
-        .col-md-6
+    .row.top-padding-lg
+        .col-md-12
+            nrgi-project-table(
+            projects="company.projects"
+            country="true"
+            commodity="true"
+            status="true"
+            type="true"
+            companies="false")
+            //a(data-toggle="collapse" data-target="#projects")
+            //    h2 Projects
+            //#projects.panel-collapse.collapse
+    .row.top-padding-lg
+        .col-md-12
             nrgi-site-table(
             sites="company.sites"
             country="true"
@@ -88,7 +89,7 @@
             commodity="true"
             status="true"
             type="false")
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-6
             nrgi-contract-table(
             contracts="company.contracts"
@@ -103,18 +104,17 @@
             type="true"
             status="false"
             projects="false")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
             transfers="company.transfers"
             project="false"
             projectlink="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="company.production"
             projectlink="true")
-
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-sources-table(sources="company.sources")

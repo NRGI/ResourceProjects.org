@@ -77,7 +77,7 @@
                             ng-if="project.proj_status.length > 0")
                                 text(ng-if="$last")
                                     | {{status.string | ucfirst}}
-                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                                    text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                         tr(ng-if="project.contracts.length>0")
                             td.detail_label.small Contracts:
                             td.project_contracts: span(ng-repeat='contract in project.contracts')
