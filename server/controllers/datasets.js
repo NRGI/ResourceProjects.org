@@ -135,7 +135,7 @@ exports.createAction = function(req, res, next) {
                             googlesheets.processData(dmodel.source_url, function(status, report) {
                                 console.log("process finished");
                                 console.log("Status: " + status + "\n");
-                                //console.log("Report: " + report + "\n");
+                                console.log("Report: " + report + "\n");
                                 Action.findByIdAndUpdate(
                                     amodel._id,
                                     {finished: Date.now(), status: status, details: report},
@@ -208,7 +208,7 @@ exports.getTestdata = function(req, res, next) {
 		        reportEndDate   : "2015/10/12",
 		        reportName      : "TestReport1",
 		        companyNumber   : "1",					// country: always GB. from DB: take ID for GB. If new company, add source
-		        companyName     : "Shell",
+		        companyName     : "company 2f",
 		        currency        : "Dollar",
 		        version         : 1,					// check if source for report with current version already exists
 		        referenceNumber : "123",
@@ -257,7 +257,7 @@ exports.getTestdata = function(req, res, next) {
 		        notes       : "",
 		        paymentType : "transfer",
 		        amount      : "8,000,000",
-		        projectName : "Top Secret",		// check if transfer already exists. Source "mandatory...disclosure" must be added to new transfer
+		        projectName : "Top Secret",		// check if transfer already exists. Source "UK mandatory...disclosure" must be added to new transfer
 		        projectCode : "tose",
 		        unitVolume  : {
 		            valuationMethod  : "estimated",
@@ -284,7 +284,7 @@ exports.getTestdata = function(req, res, next) {
 			   "projectTotals"           :  [{ projectTotal : {
 			        notes       : "",
 			        amount      : "4,000,000",
-			        projectCode : "cde",
+			        projectCode : "newp",
 			        projectName : "newproject"
 			     }
 			   }],
@@ -312,7 +312,7 @@ exports.getTestdata = function(req, res, next) {
 			        paymentType : "Transfer",
 			        amount      : "2,000,000",
 			        projectName : "newproject",
-			        projectCode : "cde",
+			        projectCode : "newp",
 			        unitVolume  : {
 			            valuationMethod  : "estimated",
 			            volume           : "2345",

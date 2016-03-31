@@ -103,10 +103,7 @@ exports.importData = function(action_id, finalcallback) {
 
 }
 
-
 var source, company, projects;
-var handledCompanies = [];
-
 
 function loadChReport(chData, year, report, action_id, loadcallback) {
 
@@ -127,7 +124,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 
 	function loadSource(report, callback) {
-
+		
 		var version = chData.ReportDetails.version
 		var company = chData.ReportDetails.companyName
 
@@ -175,7 +172,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			
             // use fuse for fuzzy search in nested search results
 			
-            var fuse = new fusejs(companiesList, { keys: ["company_name", "company_aliases"], tokenize: true});
+            var fuse = new fusejs(companiesList, { keys: ["company_name", "company_aliases"], tokenize: true, threshold: 0.4});
             
             var searchResult = fuse.search(companyName);
             
@@ -205,14 +202,13 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 										return callback(err,report);
 									}
 									report.add('Created duplicate entry for company ' + companyName + ' in the DB.\n');
-									callback(null, report);
+									return callback(null, report);
 									
 								}
 	            			);   
             		}
             	}
-            	
-            	callback(null, report);
+            	            
             }
 			
 		}
@@ -304,14 +300,14 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 
 	function loadProjects(report, callback) {
-
+		
 		projects = {}
 		
 		function handleProjectDuplicates(projectsList, projectName, project_id) {
 			
             // use fuse for fuzzy search in nested search results
 			
-            var fuse = new fusejs(projectsList, { keys: ["proj_name", "proj_aliases"], tokenize: true});
+            var fuse = new fusejs(projectsList, { keys: ["proj_name", "proj_aliases"], tokenize: true, threshold: 0.4 });
             
             var searchResult = fuse.search(projectName);
             
@@ -341,14 +337,13 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 										return callback(err,report);
 									}
 									report.add('Created duplicate entry for project ' + projectName + ' in the DB.\n');
-									callback(null, report);
+									return callback(null, report);
 									
 								}
 	            			);   
             		}
             	}
             	
-            	callback(null, report);
             }
 			
 		}			
@@ -361,7 +356,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				projDoc = makeNewProject(projName, projId, countryCode);
 			}
 			else {
-				var newProj = false;
+				newProj = false;
 				doc_id = projDoc._id;
 				projDoc = projDoc.toObject();
 				delete projDoc._id; //Don't send id back in to Mongo
@@ -376,8 +371,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					function(err, model) {
 						if (err) {
 							report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-							return ucallback(err);
+							return callback(err);
 						}
+																	
 						report.add('Added or updated project ' + projName + ' to the DB.\n');
 						projects[projId] = model;
 						
@@ -435,7 +431,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 											return callback(err);
 										}
 										report.add('Linked company with project in the DB.\n');
-										callback(null, report);
+										return callback(null, report);
 									}
 							);
 						}
@@ -444,11 +440,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 		}			
 			
 
-		async.eachSeries(chData.projectTotals, function (projectTotalEntry, key, forcallback) {
+		async.eachSeries(chData.projectTotals, function (projectTotalEntry, forcallback) {
 
 			//Projects - check against id and name
-			//TODO - may need some sort of sophisticated duplicate detection here
-
+			
 			// TODO: country code list for countries?
 
 			Project.findOne(
@@ -493,9 +488,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 										else {					    		   
 											// TODO: if country code list is read from data, use here instead of GB
 											report.add('Project ' + projectTotalEntry.projectTotal.projectName + ' not found, creating.\n');
-											updateOrCreateProject(null,projectTotalEntry.projectTotal.projectName, projectTotalEntry.projectTotal.projectCode, "gb"); //Proj = null = create it please
-											
-																					
+											updateOrCreateProject(null,projectTotalEntry.projectTotal.projectName, projectTotalEntry.projectTotal.projectCode, "gb"); //Proj = null = create it please																																
 										}
 									}
 							);
@@ -530,7 +523,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			var transfer_type = "Total";
 			var transfer_gov_entity = governmentPaymentsEntry.governmentPayments.government;				
 
-			// TODO: wrong result if point instead of comma for thousands-separator
+			// TODO: wrong result if point instead of comma for thousands separator
 			var transfer_value = parseFloat(governmentPaymentsEntry.governmentPayments.amount.replace(/,/g, ""));
 			var transfer_note = governmentPaymentsEntry.governmentPayments.notes;			
 			var country = governmentPaymentsEntry.governmentPayments.countryCode;			
@@ -668,8 +661,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				return forcallback(null);
 			}
 
-			// Notice: assumption is: transfer year = year of report date
-			query.transfer_year = year;
+			// TODO: transfer year = year of report date?
+			//query.transfer_year = year;
 
 			Transfer.findOne(
 					query,
