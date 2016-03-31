@@ -12,7 +12,7 @@ angular.module('app')
         nrgiProjectsSrvc.get({_id: $routeParams.id}, function (success) {
             var _ = $rootScope._;
             $scope.project = success;
-            console.log(success.proj_operated_by);
+            // console.log(success.proj_operated_by);
             _.each($scope.project.companies, function(company) {
                 company.operator = false;
                 _.each($scope.project.proj_company_share, function(company_share) {

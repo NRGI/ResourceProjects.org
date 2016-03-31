@@ -34,10 +34,10 @@ angular
                             $scope.csv_company[key].push('')
                         }
                     }
-                    if(field=='stake'){
-                        $scope.csv_company[key].push('UNFINISHED FIELD')
-                    }
-                    if(field != 'company_groups'&& field!='stake'){
+                    // if(field=='stake'){
+                    //     $scope.csv_company[key].push()
+                    // }
+                    if(field != 'company_groups'){
                         $scope.csv_company[key].push(company[field])
                     }
                 })
