@@ -1,5 +1,5 @@
 h2 Sites and Fields
-div.header-fixed
+div
     table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead
             tr
@@ -38,7 +38,7 @@ div.header-fixed
                     text(ng-if="$last") {{status.string | ucfirst}}
                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.site_status(ng-if="company==true") {{site.companies}}
-div.top-padding-lg
+div(ng-if="sites.length>0")
     .download
         span.glyphicon.glyphicon-download(aria-hidden='true')
         span

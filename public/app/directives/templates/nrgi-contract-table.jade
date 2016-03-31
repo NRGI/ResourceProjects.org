@@ -1,38 +1,40 @@
 h2 Contracts
-table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
-    thead
-        tr
-            th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='contract_name') Name
-            th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='_id') RC-ID
-            th.tablesort-sortable-th(ng-if="country==true" ts-criteria='contract_country.code') Country
-            th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='contract_commodity.toString()') Commodity
-            th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='_id') RC-ID
-            th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') Companies
-    tbody
-        tr(
-        ng-repeat="contract in contracts | unique: '_id'"
-        ts-repeat)
-            td.contract_name(ng-if="companies!=true")
-                a(href='/contract/{{contract._id}}') {{contract.contract_name}}
-            td.contract_rc_id(ng-if="companies==true")
-                a(href='/contract/{{contract._id}}') {{contract._id}}
-            td.contract_country(ng-if="country==true")
-                a(href='/country/{{contract.contract_country.code}}')
-                    span(ng-bind-html="contract.contract_country.name|sanitize")
-            td.contract_commodity_name(ng-if="commodity==true")
-                text(ng-if="contract.commodity.length>0",ng-repeat='commodity in contract.commodity')
-                    a(href='/commodity/{{commodity.commodity_id}}')
-                        span(ng-bind="commodity.commodity_name|sanitize")
-                    | {{$last ? '' : ', '}}
-                text(ng-if="!contract.commodity.length>0")
-                        span(ng-bind="contract.contract_commodity.toString()")
+div
+    table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
+        thead
+            tr
+                th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='contract_name') Name
+                th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='_id') RC-ID
+                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='contract_country.code') Country
+                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='contract_commodity.toString()') Commodity
+                th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='_id') RC-ID
+                th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') Companies
+        tbody
+            tr(
+            ng-repeat="contract in contracts | unique: '_id'"
+            ts-repeat)
+                td.contract_name(ng-if="companies!=true")
+                    a(href='/contract/{{contract._id}}') {{contract.contract_name}}
+                td.contract_rc_id(ng-if="companies==true")
+                    a(href='/contract/{{contract._id}}') {{contract._id}}
+                td.contract_country(ng-if="country==true")
+                    a(href='/country/{{contract.contract_country.code}}')
+                        span(ng-bind-html="contract.contract_country.name|sanitize")
+                td.contract_commodity_name(ng-if="commodity==true")
+                    text(ng-if="contract.commodity.length>0",ng-repeat='commodity in contract.commodity')
+                        a(href='/commodity/{{commodity.commodity_id}}')
+                            span(ng-bind="commodity.commodity_name|sanitize")
+                        | {{$last ? '' : ', '}}
+                    text(ng-if="!contract.commodity.length>0")
+                            span(ng-bind="contract.contract_commodity.toString()")
 
-            td.contract_rc_id(ng-if="companies!=true")
-                a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract._id}}') {{contract._id}}
-            td.contract_companies(ng-if="companies==true") {{contract.companies}}
-.download
-    span.glyphicon.glyphicon-download(aria-hidden='true')
-    span
-        |  Download:
-        =' '
-        a(href="" ng-csv="csv_contracts" csv-header="getHeaderContracts()" filename="contracts.csv") Contracts CSV
+                td.contract_rc_id(ng-if="companies!=true")
+                    a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract._id}}') {{contract._id}}
+                td.contract_companies(ng-if="companies==true") {{contract.companies}}
+div(ng-if="contracts.length>0")
+    .download
+        span.glyphicon.glyphicon-download(aria-hidden='true')
+        span
+            |  Download:
+            =' '
+            a(href="" ng-csv="csv_contracts" csv-header="getHeaderContracts()" filename="contracts.csv") Contracts CSV

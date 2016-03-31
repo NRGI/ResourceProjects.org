@@ -1,36 +1,38 @@
 h2 Concessions
-table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
-    thead
-        tr
-            th.tablesort-sortable-th(ts-criteria='concession_name') Name
-            th.tablesort-sortable-th(ng-if="country==true" ts-criteria='concession_country.name') Country
-            th.tablesort-sortable-th(ng-if="type==true" ts-criteria='concession_type.string') Commodity Type
-            th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='concession_commodities[concession_commodities.length-1].commodity.commodity_name') Commodity
-            th.tablesort-sortable-th(ng-if="status==true" ts-criteria='count|parseInt') Status
-            th.tablesort-sortable-th(ng-if="projects==true" ts-criteria='projects|parseInt') No. Projects
-    tbody
-        tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
-            td.concession_name
-                a(href='/concession/{{concession._id}}')
-                    span(ng-bind-html="concession.concession_name|sanitize")
-            td.concession_country(ng-if="country==true")
-                    a(href='/country/{{concession.concession_country.iso2}}')
-                        span(ng-bind-html="concession.concession_country.name|sanitize")
-            td.concession_type(ng-if="type==true") {{concession.concession_type.string | ucfirst}}
-            td.concession_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity._id'")
-                a(href='commodity/{{commodity.commodity.commodity_id}}')
-                    span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                | {{$last ? '' : ', '}}
-            td.concession_status(ng-if='status==true'): text(
-                       ng-repeat="status in concession.concession_status"
-                       ng-if="concession.concession_status.length > 0")
-                           text(ng-if="$last")
-                               | {{status.string | ucfirst}}
-                               text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-            td.concession_projects {{concession.projects}}
-.download
-    span.glyphicon.glyphicon-download(aria-hidden="true")
-    span
-        |  Download:
-        =' '
-        a(href="" ng-csv="csv_concessions" csv-header="getHeaderConcessions()" filename="companies.csv") Concessions CSV
+div
+    table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='concession_name') Name
+                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='concession_country.name') Country
+                th.tablesort-sortable-th(ng-if="type==true" ts-criteria='concession_type.string') Commodity Type
+                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='concession_commodities[concession_commodities.length-1].commodity.commodity_name') Commodity
+                th.tablesort-sortable-th(ng-if="status==true" ts-criteria='count|parseInt') Status
+                th.tablesort-sortable-th(ng-if="projects==true" ts-criteria='projects|parseInt') No. Projects
+        tbody
+            tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
+                td.concession_name
+                    a(href='/concession/{{concession._id}}')
+                        span(ng-bind-html="concession.concession_name|sanitize")
+                td.concession_country(ng-if="country==true")
+                        a(href='/country/{{concession.concession_country.iso2}}')
+                            span(ng-bind-html="concession.concession_country.name|sanitize")
+                td.concession_type(ng-if="type==true") {{concession.concession_type.string | ucfirst}}
+                td.concession_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity._id'")
+                    a(href='commodity/{{commodity.commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.concession_status(ng-if='status==true'): text(
+                           ng-repeat="status in concession.concession_status"
+                           ng-if="concession.concession_status.length > 0")
+                               text(ng-if="$last")
+                                   | {{status.string | ucfirst}}
+                                   text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                td.concession_projects {{concession.projects}}
+div(ng-if="concessions.length>0")
+    .download
+        span.glyphicon.glyphicon-download(aria-hidden="true")
+        span
+            |  Download:
+            =' '
+            a(href="" ng-csv="csv_concessions" csv-header="getHeaderConcessions()" filename="companies.csv") Concessions CSV
