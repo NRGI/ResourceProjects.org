@@ -4,7 +4,7 @@
             span(ng-bind-html="contract.rc_info.contract_name|sanitize")
             =' '
             small Contract
-    .row
+    .row(ng-if="contract.location.length>0")
         .col-md-6
             nrgi-leaflet(data='contract.location' polygon='contract.polygon')
 
