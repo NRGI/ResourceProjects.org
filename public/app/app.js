@@ -332,7 +332,17 @@ angular.module('app')
                 templateUrl: '/partials/main/main',
                 controller: 'nrgiMainCtrl'
             })
-    });
+    })
+    .run(['$rootScope', '$location', '$window', function($rootScope, $location, $window){
+        $rootScope
+            .$on('$stateChangeSuccess',
+                function(event){
+
+                    if (!$window.ga)
+                        return;
+
+                    $window.ga('send', 'pageview', { page: $location.path() });
+                });
 
 angular.module('app').run(function($rootScope, $location,$http,nrgiAuthSrvc,nrgiNotifier) {
     nrgiAuthSrvc.authenticateUser('jcust', 'admin').then(function(success) {
