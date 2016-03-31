@@ -15,7 +15,10 @@ angular.module('app', [
 angular.module('app')
     .config(function($routeProvider, $locationProvider, AnalyticsProvider) {
 
-        AnalyticsProvider.setAccount('UA-59246536-4');
+        AnalyticsProvider
+            .setAccount([{ tracker: 'UA-59246536-4', name: "resourceprojects.org" }])
+            .logAllCalls(true)
+            .startOffline(true);
         // role checks
         var routeRoleChecks = {
             supervisor: {auth: function(nrgiAuthSrvc) {
