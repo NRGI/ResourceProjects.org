@@ -20,9 +20,10 @@ fusejs = require('fuse.js'),
 randomstring = require('just.randomstring');
 
 
-//TODO: API Key
+//TODO: API Key could be set as environment variable
 //API_KEY = process.env.CHAPIKEY
 
+// define desired report years hear
 years = _.range(2000, 2016);
 
 //country code is always GB
@@ -43,10 +44,15 @@ exports.importData = function(action_id, finalcallback) {
 			}
 	}	 
 
+	// loop all years in the given range and call the Companies House Extractives API for each of these years
 	async.eachSeries(years, function (year, fcallback) {
-
+		
 		console.log("year: " + year);
-		request			// for every year since 2000
+				
+		// Call Companies House Extractives API
+		// TODO: At the moment, some fake data are used for testing purposes. This should be changed to the real API URL as sson as data are available.
+		
+		request
 		//.get('https://extractives.companieshouse.gov.uk/api/year'+year.toString()+'/json')
 		.get('http://localhost:3030/api/testdata')
 		//.auth(API_KEY, '')
@@ -60,10 +66,11 @@ exports.importData = function(action_id, finalcallback) {
 
 				if (!res.body || res.body == {}) {
 					// no data
-					return finalcallback(null, reporter.text);	// continue loop
+					return finalcallback(null, reporter.text);
 				}
 				else {
-
+					
+					// get all reports for this year and handle them one after another
 					async.eachSeries(res.body, function (chReportData, icallback) {
 
 						loadChReport(chReportData, year, reporter, action_id, icallback);
@@ -103,8 +110,13 @@ exports.importData = function(action_id, finalcallback) {
 
 }
 
+
+
+//Data needed for inter-entity reference
 var source, company, projects;
 
+
+// load report data sequentially from Extractives reports
 function loadChReport(chData, year, report, action_id, loadcallback) {
 
 	async.waterfall([
@@ -112,7 +124,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	                 loadCompany,
 	                 loadProjects,
 	                 loadTransfers,
-	                 //links throughout!//
 	                 ], function (err, report) {
 		if (err) {
 			console.log("LOAD DATA: Got an error\n");
@@ -123,6 +134,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	);
 
 
+	// checks if a source for this combination of year, report version and company already exists, creates a new one otherwise
 	function loadSource(report, callback) {
 		
 		var version = chData.ReportDetails.version
@@ -130,6 +142,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 		Source.findOne(
 				{source_url: 'https://extractives.companieshouse.gov.uk',
+					
+					// Source name identifies the new source and is used for this combination of year, report version and company
 					source_name: 'Companies House Extractives Disclosure of ' + company + ' for ' + year + ', Version ' + version},
 					null, //return everything
 					function(err, doc) {
@@ -164,7 +178,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	}
 
 
-
+	// checks if the company of this report already exists in the DB, creates a new one otherwise and then checks for potential duplicates 
 	function loadCompany(report, callback) {
 		
 	
@@ -172,6 +186,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			
             // use fuse for fuzzy search in nested search results
 			
+			// tokenize: check for single words AND the complete String
+			// threshold: desired exactness of match
             var fuse = new fusejs(companiesList, { keys: ["company_name", "company_aliases"], tokenize: true, threshold: 0.4});
             
             var searchResult = fuse.search(companyName);
@@ -190,8 +206,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
             	for (originalCompany of searchResult) {
             		
             		// recently created company is not a duplicate to itself
+            		// TODO: handle exact match if necessary
             		if (originalCompany.company_name != companyName) {
             		
+            			// create a new duplicate object
 	            		var newDuplicate = makeNewDuplicate(originalCompany._id, company_id, action_id, "company", notes);
 	            		
 	            		Duplicate.create(
@@ -269,6 +287,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 													report.add('Added company ' + chData.ReportDetails.companyName + ' to the DB.\n');
 													company = cmodel;
 													
+													// retrieve a list of all companies in the DB. it is used for checking the project names in the current report for potential duplicates / similar entries.
+													// This could potentially be optimized by fuzzy search on the DB instead.  
 													var allCompanies = Company.find({}, function (err, cresult) {
 														
 											            if (err) {
@@ -298,7 +318,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 		);
 	}
 
-
+	// checks if the project entries of this report already exist in the DB, creates new ones otherwise and then checks for potential duplicates
+	// So far, only projects from the "project totals" of each report are used
 	function loadProjects(report, callback) {
 		
 		projects = {}
@@ -325,6 +346,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
             	for (originalProject of searchResult) {
             		
             		// recently created project is not a duplicate to itself
+            		// TODO: handle exact match if necessary            		
             		if (originalProject.proj_name != projectName) {
             		
 	            		var newDuplicate = makeNewDuplicate(originalProject._id, project_id, action_id, "project", notes);
@@ -386,13 +408,14 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				            else {
 				            	
 				            	if (newProj) {
-				            		// check for potential duplicates now
+				            		// check for potentially existing project duplicates now
 									handleProjectDuplicates(cresult, projName, model._id);
 				            	}
 																												                								              												    									                																					                								             
 				            }
 				        });							
 
+						// create a new link between this project and the referring report company
 						createLink(company._id,model._id,source._id, projName);
 
 					}
@@ -510,16 +533,18 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 
 
-
+	// checks if the transfer entries of this report already exist in the DB, creates new ones otherwise.
+	// This is done separately for government payments (transfer level "country") and project payments (transfer level "project")
+	// So far, only single transfers are handled. Transfer totals are not yet calculated or validated
 	function loadTransfers(report, callback) {
 
-		// transfers from government payments
+		// Handle transfers from government payments
 		async.eachSeries(chData.governmentPayments, function (governmentPaymentsEntry, forcallback) {
 
 			var transfer_audit_type = "company_payment";
 			var transfer_level = "country";
 
-			// TODO: transfer_type?
+			// TODO: transfer_type = Total?
 			var transfer_type = "Total";
 			var transfer_gov_entity = governmentPaymentsEntry.governmentPayments.government;				
 
@@ -539,7 +564,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					country_iso2 = isocountries.alpha3ToAlpha2(country).toUpperCase();
 				}
 			}
-
 
 			var country_id = null;
 
@@ -592,6 +616,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 							return forcallback(null);
 						}
 						else {
+							
+							// create a new transfer entry in the DB if it does not exist yet
 							var newTransfer = makeNewTransfer(governmentPaymentsEntry.governmentPayments, transfer_audit_type, "country", year, country_id)
 							if (!newTransfer) {
 								report.add('Invalid or missing data for new transfer. Aborting.\n');
@@ -623,7 +649,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 		});
 
-		// transfers from project payments		
+		// Handle transfers from project payments		
 		async.eachSeries(chData.projectPayments, function (projectPaymentEntry, forcallback) {
 
 			//If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
@@ -676,6 +702,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 							return forcallback(null);
 						}
 						else {
+							// create a new transfer entry in the DB if it does not exist yet
 							var newTransfer = makeNewTransfer(projectPaymentEntry.projectPayment, transfer_audit_type, "project", year, countryGBId)
 							if (!newTransfer) {
 								report.add('Invalid or missing data for new transfer. Aborting.\n');
