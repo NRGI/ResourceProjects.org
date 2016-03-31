@@ -14,5 +14,11 @@ module.exports 	= {
         db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
+    },
+    production : {
+        baseUrl: 'http://resourceprojects.org',
+        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
+        rootPath: rootPath,
+        port: process.env.PORT || 80
     }
 };
