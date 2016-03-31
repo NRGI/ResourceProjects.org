@@ -586,43 +586,146 @@ exports.getProjectByID = function(req, res) {
 };
 
 exports.getProjectsMap = function(req, res) {
-    var project_len, project_counter;
+    var project_len, project_counter, coord_counter, coord_len;
     async.waterfall([
-        getProject
+        projectCount,
+        getProjectSet,
+        getProjectLinks,
+        getProjectCoordinate
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else {
+            res.send(result)
         }
     });
 
-    function getProject(callback) {
-        Project.find(req.query)
+    function projectCount(callback) {
+        Project.find({}).count().exec(function(err, project_count) {
+            if(project_count) {
+                callback(null, project_count);
+            } else {
+                callback(null, 0);
+            }
+        });
+    }
+    function getProjectSet(project_count, callback) {
+        Project.find({})
             .lean()
             .exec(function(err, projects) {
-                project_len = projects.length;
-                project_counter = 0;
-                var data = [];
-                if(projects) {
-                    projects.forEach(function (project) {
-                        ++project_counter;
-                        project.proj_coordinates.forEach(function (loc) {
-                            data.push({
-                                'lat': loc.loc[0],
-                                'lng': loc.loc[1],
-                                'message': project.proj_name,
-                                'timestamp': loc.timestamp,
-                                'type': 'project',
-                                'id': project.proj_id
-                            })
-                        })
-                    });
-                    if(project_counter == project_len) {
-                        res.send({data:data});}
+                if(projects.length>0) {
+                    //TODO clean up returned data if we see performance lags
+                    callback(null, project_count, projects);
                 } else {
-                    callback(err);
+                    callback(null, project_count, []);
                 }
             });
     }
+    function getProjectLinks(project_count, projects, callback) {
+        project_len = projects.length;
+        project_counter = 0;
+        if(project_len>0) {
+            projects.forEach(function (project) {
+                project.coordinates = [];
+                project.site_coordinates = {sites: [], fields: []};
+                project.transfers_query = [project._id];
+                Link.find({project: project._id, entities: 'site'})
+                    .populate('site')
+                    .exec(function (err, links) {
+                        ++project_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        links.forEach(function (link) {
+                            ++link_counter;
+                            var entity = _.without(link.entities, 'project')[0];
+                            switch (entity) {
+                                case 'site':
+                                    if (!_.contains(project.transfers_query, link.site)) {
+                                        project.transfers_query.push(link.site);
+                                    }
+                                    if (link.site.field && link.site.site_coordinates.length>0) {
+                                        link.site.site_coordinates.forEach(function (loc) {
+                                            project.site_coordinates.fields.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        });
+                                    } else if (!link.site.field && link.site.site_coordinates.length>0) {
+                                        link.site.site_coordinates.forEach(function (loc) {
+                                            project.site_coordinates.sites.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'site',
+                                                'id': link.site._id
+                                            });
+                                        });
+                                    }
+                                    break;
+                                default:
+                                    console.log(entity, 'skipped...');
+                            }
+                        });
+                        if (project_counter == project_len && link_counter == link_len) {
+                            callback(null, project_count, projects);
+                        }
+                    });
+            });
+        } else{
+            callback(null, project_count, projects);
+        }
+    }
+    function getProjectCoordinate(project_count, projects, callback) {
+        project_counter = 0;
+        project_len = projects.length;
+        if (project_len>0) {
+            _.each(projects, function(project) {
+                ++project_counter;
+                coord_counter = 0;
+                coord_len = project.proj_coordinates.length;
+                if (project.site_coordinates.sites.length>0) {
+                    project.site_coordinates.sites.forEach(function (site_loc) {
+                        project.coordinates.push(site_loc);
+                    })
+                }
+                if (project.site_coordinates.fields.length>0) {
+                    project.site_coordinates.fields.forEach(function (field_loc) {
+                        project.coordinates.push(field_loc);
+                    })
+                }
+                if(coord_len>0) {
+                    _.each(project.proj_coordinates, function (loc) {
+                        ++project_counter;
+                        project.coordinates.push({
+                            'lat': loc.loc[0],
+                            'lng': loc.loc[1],
+                            'message': project.proj_name,
+                            'timestamp': loc.timestamp,
+                            'type': 'project',
+                            'id': project.proj_id
+                        });
+                        if (coord_counter == coord_len && project_counter == project_len) {
+                            callback(null, {count: project_count, data: projects});
+                        }
+                    });
+
+                } else {
+                    if (coord_counter == coord_len && project_counter == project_len) {
+                        callback(null, {count: project_count, data: projects});
+                    }
+                }
+
+            });
+        } else {
+            callback(null, {count: project_count, data: projects});
+        }
+    }
+
 };
 
 exports.createProject = function(req, res, next) {

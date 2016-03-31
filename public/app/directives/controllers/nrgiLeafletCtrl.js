@@ -6,6 +6,8 @@ angular
         $scope.center = [];
         $scope.location = [];
         $rootScope.projects=[];
+        if ($scope.map ==true)
+            $scope.data_loading = true;
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
@@ -34,9 +36,12 @@ angular
             }
         });
         setTimeout( function(){
+
             if ($scope.data.length > 0)
-            var len = $scope.data.length;
+                var len = $scope.data.length;
             var counter =0;
+            var lat =0;
+            var lng =0;
             angular.forEach($scope.data,function(data){
                 counter++;
                 if($scope.project==true && data.type=='project'){
@@ -45,18 +50,22 @@ angular
                     $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message});
                 }else if(data.type=='field'){
                     $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message});
-                }else if($scope.map ==true && $scope.site==false){
-                    $scope.location.push({
-                        lat: data.lat,
-                        lng: data.lng,
-                        message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
-                    });
-                }else if($scope.map ==true && $scope.site==true){
-                    $scope.location.push({
-                        lat: data.lat,
-                        lng: data.lng,
-                        message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message
-                    });
+                }else if($scope.map ==true){
+                    if (data.coordinates.length>0) {
+                        $scope.location.push(data.coordinates[0]);
+                    }
+                // }else if($scope.map ==true && $scope.site==false){
+                //     $scope.location.push({
+                //         lat: data.lat,
+                //         lng: data.lng,
+                //         message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                //     });
+                // }else if($scope.map ==true && $scope.site==true){
+                //     $scope.location.push({
+                //         lat: data.lat,
+                //         lng: data.lng,
+                //         message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                //     });
                 }else {
                     if (data.type == 'project') {
                         $scope.location.push({
@@ -72,8 +81,17 @@ angular
                         });
                     }
                 }
+                lat = +data.lat;
+                lng = +data.lng;
+                if (len == counter && $scope.map==true) {
+                    $scope.data_loading = false;
+                    $scope.center = {lat: 0,lng: 0,zoom:2};
+                }
+                if (len == counter && $scope.map !=true&&$scope.data.length>1) {
 
-                if (len == counter && $scope.map !=true) {
+                    $scope.center = {lat: lat/len , lng:lng/len, zoom:0};
+                }
+                if (len == counter && $scope.map !=true&&$scope.data.length==1) {
                     $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
                 }
             });
@@ -89,5 +107,5 @@ angular
                 $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
             }
             $scope.$apply();
-        },2000)
+        },10000)
     });

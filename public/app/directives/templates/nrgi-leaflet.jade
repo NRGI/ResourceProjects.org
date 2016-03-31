@@ -1,7 +1,13 @@
+.row(ng-if="data_loading")
+    h2.text-center Data Loading
+    div.spinner
+        div.double-bounce1
+        div.double-bounce2
 leaflet(
-center="center",
-controls="controls",
-markers="location",
-tiles="tiles",
+center="center"
+controls="controls"
+markers="location"
+tiles="tiles"
 height='height'
-paths='paths')
+paths='paths'
+ng-if="!data_loading")
