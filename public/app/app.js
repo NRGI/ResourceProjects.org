@@ -2,6 +2,7 @@
 angular.module('app', [
     'angular.filter',
     'iso-3166-country-codes',
+    'angular-google-analytics',
     'leaflet-directive',
     'ngDialog',
     'ngResource',
@@ -12,7 +13,9 @@ angular.module('app', [
 ]);
 
 angular.module('app')
-    .config(function($routeProvider, $locationProvider) {
+    .config(function($routeProvider, $locationProvider, AnalyticsProvider) {
+
+        AnalyticsProvider.setAccount('UA-59246536-4');
         // role checks
         var routeRoleChecks = {
             supervisor: {auth: function(nrgiAuthSrvc) {
