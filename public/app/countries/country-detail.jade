@@ -27,18 +27,19 @@
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
     .row.top-padding-lg
-        .col-md-6
-            a(data-toggle="collapse" data-target="#projects")
-                h2 Projects
-            #projects.panel-collapse.collapse
-                nrgi-project-table(
-                projects="country.projects"
-                country="false"
-                type="true"
-                companies="true"
-                commodity="true"
-                status="true")
-        .col-md-6
+        .col-md-12
+            nrgi-project-table(
+            projects="country.projects"
+            country="false"
+            type="true"
+            companies="true"
+            commodity="true"
+            status="true")
+            //a(data-toggle="collapse" data-target="#projects")
+            //    h2 Projects
+            //#projects.panel-collapse.collapse
+    .row.top-padding-lg
+        .col-md-12
             nrgi-site-table(
             sites="country.sites"
             country="false"
@@ -58,8 +59,8 @@
             companies="country.companies_incorporated"
             group="true"
             incorporated="true")
-    .row
-        .col-md-4
+    .row.top-padding-lg
+        .col-md-6
             nrgi-contract-table(
             contracts="country.contracts"
             companies="true"
@@ -73,13 +74,17 @@
             commodity="true"
             status="true"
             projects="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="country.production"
             projectlink="true")
-    .row
-        nrgi-transfer-table(transfers="country.transfers" project="true" projectlink="true")
-    .row
+    .row.top-padding-lg
+        .col-md-12
+            nrgi-transfer-table(
+            transfers="country.transfers"
+            project="true"
+            projectlink="true")
+    .row.top-padding-lg
         .col-md-12
             nrgi-sources-table(sources="country.sources")
