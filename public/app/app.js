@@ -336,7 +336,37 @@ angular.module('app')
                 controller: 'nrgiMainCtrl'
             })
     })
-    .run(['$rootScope', '$location', '$window', function($rootScope, $location, $window){
+    // .run(['$rootScope', '$location', '$window', function(
+    // $rootScope,
+    // $location,
+    // $window
+    // ){
+    //
+    // }
+
+angular.module('app')
+    .run(function(
+        $rootScope,
+        $location,
+        $window,
+        $http,
+        nrgiAuthSrvc,
+        nrgiNotifier
+    ) {
+        nrgiAuthSrvc.authenticateUser('jcust', 'admin')
+            .then(function(success) {
+
+            });
+        $rootScope._ = _;
+        $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+            if(rejection === 'not authorized') {
+                $location.path('/');
+            }
+        });
+        $rootScope.$on('$routeChangeSuccess', function() {
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+        });
         $rootScope
             .$on('$stateChangeSuccess',
                 function(event){
@@ -346,18 +376,4 @@ angular.module('app')
 
                     $window.ga('send', 'pageview', { page: $location.path() });
                 });
-
-angular.module('app').run(function($rootScope, $location,$http,nrgiAuthSrvc,nrgiNotifier) {
-    nrgiAuthSrvc.authenticateUser('jcust', 'admin').then(function(success) {
     });
-    $rootScope._ = _;
-    $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-        if(rejection === 'not authorized') {
-            $location.path('/');
-        }
-    });
-    $rootScope.$on('$routeChangeSuccess', function() {
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-    })
-});
