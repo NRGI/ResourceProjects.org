@@ -335,7 +335,7 @@ angular.module('app')
                 templateUrl: '/partials/main/main',
                 controller: 'nrgiMainCtrl'
             })
-    })
+    });
     // .run(['$rootScope', '$location', '$window', function(
     // $rootScope,
     // $location,
@@ -347,6 +347,7 @@ angular.module('app')
 angular.module('app')
     .run(function(
         $rootScope,
+        $routeParams,
         $location,
         $window,
         $http,
@@ -366,14 +367,13 @@ angular.module('app')
         });
         $rootScope.$on('$routeChangeSuccess', function() {
             document.body.scrollTop = document.documentElement.scrollTop = 0;
+            var output=$location.path()+"?";
+            angular.forEach($routeParams,function(value,key){
+                output+=key+"="+value+"&";
+            });
+            output=output.substr(0,output.length-1);
+
+            console.log(output);
+            $window.ga(['_trackPageview', output]);
         });
-        $rootScope
-            .$on('$stateChangeSuccess',
-                function(event){
-
-                    if (!$window.ga)
-                        return;
-
-                    $window.ga('send', 'pageview', { page: $location.path() });
-                });
     });
