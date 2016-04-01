@@ -795,7 +795,6 @@ exports.getSiteByID = function(req, res) {
 };
 
 exports.getSitesMap = function(req, res) {
-    console.log(req.params.field);
     var site_len, site_counter;
     var field = req.params.field;
     async.waterfall([

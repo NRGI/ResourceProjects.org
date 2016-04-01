@@ -72,11 +72,12 @@
     .row
         .col-md-6
             nrgi-project-table(
-            projects="company.projects"
             country="true"
             commodity="true"
             status="true"
-            type="true"
+            commoditytype="true"
+            type="'company'"
+            id="company._id"
             companies="false")
         .col-md-6
             nrgi-site-table(

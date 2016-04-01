@@ -1,4 +1,4 @@
-a(data-toggle="collapse" data-target="#sources")
+a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#sources")
     h2 Sources
 #sources.panel-collapse.collapse
     table.table.table-striped.projects(ts-wrapper ng-class="sources.length >= 8 ? 'header-fixed' : ''")#project-sources

@@ -121,7 +121,8 @@
                             td.project-description
                                 span(ng-bind-html="site.description|sanitize")
             nrgi-company-table(
-            companies="site.companies"
+            id="site._id"
+            type="'site'"
             stake="true"
             group="true")
     .row

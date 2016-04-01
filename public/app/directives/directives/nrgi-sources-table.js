@@ -7,7 +7,8 @@ angular
             restrict: 'EA',
             controller: 'nrgiSourcesTableCtrl',
             scope: {
-                sources: '='
+                id:'=',
+                type:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-sources-table'
         };

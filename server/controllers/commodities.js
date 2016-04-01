@@ -107,7 +107,6 @@ var Commodity 		= require('mongoose').model('Commodity'),
 						link_len = sites.length;
 						link_counter = 0;
 						sites.forEach(function (site) {
-							console.log(site);
 							if(site.field){
 								c.fields += 1;
 							}else{
@@ -132,8 +131,8 @@ exports.getCommodityByID = function(req, res) {
 		getCommodity,
 		getCommodityLinks,
 		getContracts,
-		getProjectLocation,
-		getCompanyGroup
+		getProjectLocation
+		//getCompanyGroup
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -153,15 +152,15 @@ exports.getCommodityByID = function(req, res) {
 			});
 	}
 	function getCommodityLinks(commodity, callback) {
-		commodity.company_groups = [];
-		commodity.companies = [];
+		//commodity.company_groups = [];
+		//commodity.companies = [];
 		commodity.projects = [];
 		commodity.contracts_link = [];
 		commodity.concessions = [];
 		commodity.sources = {};
 		Link.find({commodity: commodity._id})
-			.populate('company_group','_id company_group_name')
-			.populate('company')
+			//.populate('company_group','_id company_group_name')
+			//.populate('company')
 			.populate('contract')
 			.deepPopulate('project project.proj_country.country project.proj_commodity.commodity ' +
 			'concession concession.concession_country.country concession.concession_commodity.commodity source.source_type_id')
@@ -178,22 +177,22 @@ exports.getCommodityByID = function(req, res) {
 							}
 						}
 						switch (entity) {
-							case 'company':
-								if (!commodity.companies.hasOwnProperty(link._id)) {
-									commodity.companies.push({
-										_id: link.company._id,
-										company_name: link.company.company_name
-									});
-								}
-								break;
-							case 'company_group':
-								if (!commodity.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-									commodity.company_groups.push({
-										_id: link.company_group._id,
-										company_group_name: link.company_group.company_group_name
-									});
-								}
-								break;
+							//case 'company':
+							//	if (!commodity.companies.hasOwnProperty(link._id)) {
+							//		commodity.companies.push({
+							//			_id: link.company._id,
+							//			company_name: link.company.company_name
+							//		});
+							//	}
+							//	break;
+							//case 'company_group':
+							//	if (!commodity.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+							//		commodity.company_groups.push({
+							//			_id: link.company_group._id,
+							//			company_group_name: link.company_group.company_group_name
+							//		});
+							//	}
+							//	break;
 							case 'concession':
 								if (!commodity.concessions.hasOwnProperty(link.concession._id)) {
 									commodity.concessions.push({
@@ -284,47 +283,47 @@ exports.getCommodityByID = function(req, res) {
 			callback(null, commodity);
 		}
 	}
-	function getCompanyGroup(commodity, callback) {
-		var company_len = commodity.companies.length;
-		var company_counter = 0;
-		if(company_len>0) {
-			commodity.companies.forEach(function (company) {
-				Link.find({company: company._id})
-					.populate('company_group', '_id company_group_name')
-					.exec(function (err, links) {
-						if (links.length > 0) {
-							++company_counter;
-							link_len = links.length;
-							link_counter = 0;
-							company.company_groups = [];
-							links.forEach(function (link) {
-								++link_counter;
-								var entity = _.without(link.entities, 'company')[0];
-								switch (entity) {
-									case 'company_group':
-										if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-											company.company_groups.push({
-												_id: link.company_group._id,
-												company_group_name: link.company_group.company_group_name
-											});
-										}
-										break;
-									default:
-										console.log('error');
-								}
-								if (company_counter == company_len && link_counter == link_len) {
-									res.send(commodity);
-								}
-							});
-						} else {
-							res.send(commodity);
-						}
-					});
-			});
-		} else{
-			res.send(commodity);
-		}
-	}
+	//function getCompanyGroup(commodity, callback) {
+	//	var company_len = commodity.companies.length;
+	//	var company_counter = 0;
+	//	if(company_len>0) {
+	//		commodity.companies.forEach(function (company) {
+	//			Link.find({company: company._id})
+	//				.populate('company_group', '_id company_group_name')
+	//				.exec(function (err, links) {
+	//					if (links.length > 0) {
+	//						++company_counter;
+	//						link_len = links.length;
+	//						link_counter = 0;
+	//						company.company_groups = [];
+	//						links.forEach(function (link) {
+	//							++link_counter;
+	//							var entity = _.without(link.entities, 'company')[0];
+	//							switch (entity) {
+	//								case 'company_group':
+	//									if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+	//										company.company_groups.push({
+	//											_id: link.company_group._id,
+	//											company_group_name: link.company_group.company_group_name
+	//										});
+	//									}
+	//									break;
+	//								default:
+	//									console.log('error');
+	//							}
+	//							if (company_counter == company_len && link_counter == link_len) {
+	//								res.send(commodity);
+	//							}
+	//						});
+	//					} else {
+	//						res.send(commodity);
+	//					}
+	//				});
+	//		});
+	//	} else{
+	//		res.send(commodity);
+	//	}
+	//}
 };
 exports.createCommodity = function(req, res, next) {
 	var commodityData = req.body;

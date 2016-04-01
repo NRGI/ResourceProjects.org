@@ -95,5 +95,5 @@ angular
                 $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
             }
             $scope.$apply();
-        },2000)
+        },100)
     });

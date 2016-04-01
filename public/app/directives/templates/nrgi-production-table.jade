@@ -1,4 +1,4 @@
-a(data-toggle="collapse" data-target="#productions")
+a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#productions")
     h2 Production Stats
 #productions.panel-collapse.collapse
     table.table.table-striped.projects(ts-wrapper ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info

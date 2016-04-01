@@ -1,5 +1,6 @@
 'use strict';
-angular.module('app').controller('nrgiProductionTableCtrl', function ($scope) {
+angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrgiProdTablesSrvc) {
+    $scope.production=[];
     setTimeout(function(){
         $scope.csv_production =[];
         $scope.getHeaderProduction = function () {return ['Year', 'Volume', 'Unit', 'Commodity', 'Price', 'Price unit', 'Level']};
@@ -16,5 +17,13 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope) {
             });
 
         })
-    },2000)
+    },2000);
+    $scope.getData=function(id,type) {
+        console.log(id,type)
+        if ($scope.production.length == 0) {
+        nrgiProdTablesSrvc.get({_id: id, type: type}, function (success) {
+                $scope.production=success.production;
+            })
+        }
+    }
 });

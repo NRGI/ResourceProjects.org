@@ -35,18 +35,20 @@
                                     span(ng-bind-html="concession.concession_name|sanitize")
                                 | {{$last ? '' : ', '}}
                 nrgi-company-table(
-                companies="contract.companies"
+                id="contract._id"
+                type="'contract'"
                 stake='false'
                 group='true')
 
     .row.top-padding-med
         .col-md-6
             nrgi-project-table(
-            projects="contract.projects"
             country="true"
             commodity="true"
             status="true"
-            type="true"
+            type="'contract'"
+            commoditytype="true"
+            id="contract._id"
             companies="false")
         .col-md-6
             nrgi-site-table(

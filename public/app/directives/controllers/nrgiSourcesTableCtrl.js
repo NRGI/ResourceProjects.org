@@ -2,7 +2,7 @@
 
 angular
     .module('app')
-    .controller('nrgiSourcesTableCtrl', function ($scope) {
+    .controller('nrgiSourcesTableCtrl', function ($scope,nrgiSourceTablesSrvc) {
         setTimeout(function(){
             $scope.csv_sources =[];
             $scope.getHeaderSources = function () {return ['Name', 'Type', 'Authority']};
@@ -16,4 +16,15 @@ angular
 
             })
         },2000)
+        $scope.sources=[];
+        $scope.getData=function(id,type) {
+            console.log(id,type)
+            if ($scope.sources.length == 0) {
+                nrgiSourceTablesSrvc.get({_id: id, type: type}, function (success) {
+                    $scope.sources=success.sources;
+                })
+            }
+        }
+
+
     });

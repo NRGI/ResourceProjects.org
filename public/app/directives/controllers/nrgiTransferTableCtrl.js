@@ -2,7 +2,7 @@
 
 angular
     .module('app')
-    .controller('nrgiTransferTableCtrl', function ($scope) {
+    .controller('nrgiTransferTableCtrl', function ($scope,nrgiTransferTablesSrvc) {
         setTimeout(function(){
             $scope.csv_transfers =[]; var header_transfer=[]; var fields=[];
             var headers = [
@@ -41,4 +41,14 @@ angular
                 })
             });
         },2000)
+
+        $scope.transfers=[];
+        $scope.getData=function(id,type) {
+            console.log(id,type)
+            if ($scope.transfers.length == 0) {
+                nrgiTransferTablesSrvc.get({_id: id, type: type}, function (success) {
+                    $scope.transfers=success.transfers;
+                })
+            }
+        }
     });

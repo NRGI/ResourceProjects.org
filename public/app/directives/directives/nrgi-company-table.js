@@ -7,15 +7,16 @@ angular
             restrict: 'EA',
             controller: 'nrgiCompanyTableCtrl',
             scope: {
-                companies: '=',
                 group: '=',
+                type: '=',
                 stake: '=',
                 project:'=',
                 site:'=',
                 contract:'=',
                 concession:'=',
                 incorporated: '=',
-                operation: '='
+                operation: '=',
+                id:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-company-table'
         };

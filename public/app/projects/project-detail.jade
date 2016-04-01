@@ -129,19 +129,25 @@
                             td.project-description
                                 span(ng-bind-html="project.description|sanitize")
             nrgi-company-table(
-            companies="project.companies"
+            id="project._id"
+            type="'project'"
             stake="false"
             group="true")
     .row
         .col-md-12
-            nrgi-production-table(production="project.production")
+            nrgi-production-table(
+            id="project._id"
+            type="'project'")
     .row
         .col-md-12
             nrgi-transfer-table(
-            transfers="project.transfers"
+            id="project._id"
+            type="'project'"
             projectlink="false"
             project="false")
 
     .row
         .col-md-12
-            nrgi-sources-table(sources="project.sources")
+            nrgi-sources-table(
+            id="project._id"
+            type="'project'")

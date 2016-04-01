@@ -7,12 +7,13 @@ angular
             restrict: 'EA',
             controller: 'nrgiProjectTableCtrl',
             scope: {
-                projects: '=',
                 country: '=',
                 type: '=',
+                commoditytype:'=',
                 companies: '=',
                 commodity: '=',
-                status: '='
+                status: '=',
+                id: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-project-table'
         };

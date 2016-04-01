@@ -11,7 +11,8 @@ var auth 			= require('./auth'),
 	companyGroups 	= require('../controllers/companyGroups'),
 	countries 		= require('../controllers/countries'),
 	sources 		= require('../controllers/sources'),
-	sites 			= require('../controllers/sites');
+	sites 			= require('../controllers/sites'),
+	tables 			= require('../controllers/tables');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -256,6 +257,15 @@ module.exports	= function(app) {
 	app.get('/partials/*', function(req, res) {
 		res.render('../../public/app/' + req.params[0]);
 	});
+
+
+	//TABLE
+	app.get('/api/company_table/:type/:id', tables.getCompanyTable);
+	app.get('/api/project_table/:type', tables.getProjectTable);
+	app.get('/api/prod_table/:type/:id', tables.getProductionTable);
+	app.get('/api/transfer_table/:type/:id', tables.getTransferTable);
+	app.get('/api/source_table/:type/:id', tables.getSourceTable);
+
 
 	app.post('/login', auth.authenticate);
 

@@ -196,7 +196,7 @@ exports.getConcessionByID = function(req, res) {
         // getLinkedSites,
         getTransfers,
         getProduction,
-        getCompanyGroup,
+        //getCompanyGroup,
         getProjectCoordinate
     ], function (err, result) {
         if (err) {
@@ -221,7 +221,7 @@ exports.getConcessionByID = function(req, res) {
     }
 
     function getConcessionLinks(concession, callback) {
-        concession.companies = [];
+        //concession.companies = [];
         concession.projects = [];
         concession.contracts = [];
         concession.sites = [];
@@ -255,12 +255,12 @@ exports.getConcessionByID = function(req, res) {
                             }
                         }
                         switch (entity) {
-                            case 'company':
-                                if (!concession.companies.hasOwnProperty(link.company._id)) {
-                                    concession.companies.push({
-                                        _id: link.company._id,
-                                        company_name: link.company.company_name
-                                    });
+                            //case 'company':
+                            //    if (!concession.companies.hasOwnProperty(link.company._id)) {
+                            //        concession.companies.push({
+                            //            _id: link.company._id,
+                            //            company_name: link.company.company_name
+                            //        });
                                     //TODO deal with shares and operation
                                     // concession.concession_operated_by.forEach(function(operator) {
                                     //     console.log(_.last(operator));
@@ -279,8 +279,8 @@ exports.getConcessionByID = function(req, res) {
 
                                     // console.log(_.last(_.last(concession.concession_operated_by).company)._id);
                                     // console.log(concession.concession_company_share);
-                                }
-                                break;
+                                //}
+                                //break;
                             case 'contract':
                                 if (!_.contains(concession.contracts, link.contract.contract_id)) {
                                     concession.contracts.push(link.contract);
@@ -386,7 +386,6 @@ exports.getConcessionByID = function(req, res) {
                         if (!concession.sources[link.source._id]) {
                             concession.sources[link.source._id] = link.source;
                         }
-                        console.log(link.entities);
                         switch (link.entities) {
                             case 'project':
                                 concession.projects.push({
@@ -581,10 +580,10 @@ exports.getConcessionByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(concession.transfers).transfer_links.push({
-                                _id: transfer.project._id,
-                                route: transfer.project.proj_id,
+                                _id: transfer.site._id,
+                                route: transfer.site.proj_id,
                                 type: type,
-                                name: transfer.project.proj_name});
+                                name: transfer.site.proj_name});
                         }
                         if (transfers_counter===transfers_len) {
                             callback(null, concession);
@@ -668,46 +667,46 @@ exports.getConcessionByID = function(req, res) {
                 }
             });
     }
-    function getCompanyGroup(concession, callback) {
-        concession_len = concession.companies.length;
-        concession_counter = 0;
-        if(concession_len>0) {
-            concession.companies.forEach(function (company) {
-                Link.find({company: company._id, entities:'company_group'})
-                    .populate('company_group', '_id company_group_name')
-                    .exec(function (err, links) {
-                        ++concession_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        company.company_groups = [];
-                            links.forEach(function (link) {
-                                if (!concession.sources[link.source._id]) {
-                                    concession.sources[link.source._id] = link.source;
-                                }
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'company')[0];
-                                switch (entity) {
-                                    case 'company_group':
-                                        if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                            company.company_groups.push({
-                                                _id: link.company_group._id,
-                                                company_group_name: link.company_group.company_group_name
-                                            });
-                                        }
-                                        break;
-                                    default:
-                                        console.log(entity, 'link skipped...');
-                                }
-                            });
-                        if (concession_counter == concession_len && link_counter == link_len) {
-                            callback(null, concession);
-                        }
-                    });
-            });
-        } else {
-            callback(null, concession);
-        }
-    }
+    //function getCompanyGroup(concession, callback) {
+    //    concession_len = concession.companies.length;
+    //    concession_counter = 0;
+    //    if(concession_len>0) {
+    //        concession.companies.forEach(function (company) {
+    //            Link.find({company: company._id, entities:'company_group'})
+    //                .populate('company_group', '_id company_group_name')
+    //                .exec(function (err, links) {
+    //                    ++concession_counter;
+    //                    link_len = links.length;
+    //                    link_counter = 0;
+    //                    company.company_groups = [];
+    //                        links.forEach(function (link) {
+    //                            if (!concession.sources[link.source._id]) {
+    //                                concession.sources[link.source._id] = link.source;
+    //                            }
+    //                            ++link_counter;
+    //                            var entity = _.without(link.entities, 'company')[0];
+    //                            switch (entity) {
+    //                                case 'company_group':
+    //                                    if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+    //                                        company.company_groups.push({
+    //                                            _id: link.company_group._id,
+    //                                            company_group_name: link.company_group.company_group_name
+    //                                        });
+    //                                    }
+    //                                    break;
+    //                                default:
+    //                                    console.log(entity, 'link skipped...');
+    //                            }
+    //                        });
+    //                    if (concession_counter == concession_len && link_counter == link_len) {
+    //                        callback(null, concession);
+    //                    }
+    //                });
+    //        });
+    //    } else {
+    //        callback(null, concession);
+    //    }
+    //}
     function getProjectCoordinate(concession,callback) {
         proj_counter = 0;
         proj_len = concession.projects.length;
