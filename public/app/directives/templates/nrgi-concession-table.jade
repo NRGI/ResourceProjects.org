@@ -1,6 +1,5 @@
-a(data-toggle="collapse" data-target="#concessions")
-    h2 Concessions
-#concessions.panel-collapse.collapse
+h2 Concessions
+div
     table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
         thead
             tr
@@ -30,9 +29,10 @@ a(data-toggle="collapse" data-target="#concessions")
                                    | {{status.string | ucfirst}}
                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.concession_projects {{concession.projects}}
-    .download
-        span.glyphicon.glyphicon-download(aria-hidden="true")
-        span
-            |  Download:
-            =' '
-            a(href="" ng-csv="csv_concessions" csv-header="getHeaderConcessions()" filename="companies.csv") Concessions CSV
+    div(ng-if="concessions.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span
+                |  Download:
+                =' '
+                a(href="" ng-csv="csv_concessions" csv-header="getHeaderConcessions()" filename="companies.csv") Concessions CSV

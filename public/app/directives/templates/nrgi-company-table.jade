@@ -15,7 +15,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies")
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
         tbody
             tr(
-            ng-repeat="company in companies",ts-repeat)
+            ng-repeat="company in companies | unique:'_id'" ts-repeat)
                 td.company_name: a(href="company/{{company._id}}")
                         span(ng-bind-html="company.company_name|sanitize")
                 td.company_groups(ng-if="group==true"): text(ng-repeat="group in company.company_groups | unique: '_id'")
@@ -26,12 +26,17 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies")
                 //td.company_stake(ng-if="site==true") {{company.sites}}
                 //td.company_stake(ng-if="contract==true") {{company.contracts}}
                 //td.company_stake(ng-if="concession==true") {{company.concessions}}
-                td.company_stake(ng-if="stake==true") {{company.stake}}
-    .download
-        span.glyphicon.glyphicon-download(aria-hidden="true")
-        span  Download:
-            =' '
-            a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV
+                td.company_stake(ng-if="stake==true && !company.stake")
+                td.company_stake(ng-if="stake==true && company.stake")
+                    | {{company.stake.share*100}}%
+                    em(ng-if="company.stake.timestamp"): small  (True at: {{company.stake.timestamp|date:'yyyy-MM-dd'}})
+                //td.company_operator(ng-if="stake==true && company.operator"): small operator
+    div(ng-if="companies.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+                =' '
+                a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV
 
 a(ng-if="operation==true" data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies_operation")
     h2 Companies Operating In

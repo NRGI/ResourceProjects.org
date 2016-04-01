@@ -50,8 +50,7 @@
                         tr(ng-if='company.open_corporates_id')
                             td.detail_label.small Open Corporates ID:
                             td.company_open_corporates_id
-                                //a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
-                                a(target="_blank" href='{{company.open_corporates_id}}') {{company.open_corporates_id}}
+                                a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr(ng-if='company.companies_house_id')
                             td.detail_label.small Companies House ID:
                             td.company_companies_house_id
@@ -69,8 +68,8 @@
                             td.company_description
                                 span(ng-bind-html="company.description|sanitize")
 
-    .row
-        .col-md-6
+    .row.top-padding-lg
+        .col-md-12
             nrgi-project-table(
             country="true"
             commodity="true"
@@ -79,7 +78,8 @@
             type="'company'"
             id="company._id"
             companies="false")
-        .col-md-6
+    .row.top-padding-lg
+        .col-md-12
             nrgi-site-table(
             sites="company.sites"
             country="true"
@@ -87,7 +87,7 @@
             commodity="true"
             status="true"
             type="false")
-    .row
+    .row.top-padding-lg
         .col-md-6
             nrgi-contract-table(
             contracts="company.contracts"
@@ -102,18 +102,19 @@
             type="true"
             status="false"
             projects="false")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
             transfers="company.transfers"
             project="false"
             projectlink="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="company.production"
             projectlink="true")
-
-    .row
+    .row.top-padding-lg
         .col-md-12
-            nrgi-sources-table(sources="company.sources")
+            nrgi-sources-table(
+            id="company._id"
+            type="'company'")

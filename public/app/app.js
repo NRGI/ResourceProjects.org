@@ -2,18 +2,23 @@
 angular.module('app', [
     'angular.filter',
     'iso-3166-country-codes',
+    'angular-google-analytics',
     'leaflet-directive',
     'ngDialog',
     'ngResource',
     'ngRoute',
     'tableSort',
     'ngCsv',
-    'ngSanitize',
-    'infinite-scroll'
+    'ngSanitize'
 ]);
 
 angular.module('app')
-    .config(function($routeProvider, $locationProvider) {
+    .config(function($routeProvider, $locationProvider, AnalyticsProvider) {
+
+        AnalyticsProvider
+            .setAccount([{ tracker: 'UA-59246536-4', name: "resourceprojects.org" }])
+            .logAllCalls(true)
+            .startOffline(true);
         // role checks
         var routeRoleChecks = {
             supervisor: {auth: function(nrgiAuthSrvc) {
@@ -331,17 +336,44 @@ angular.module('app')
                 controller: 'nrgiMainCtrl'
             })
     });
+    // .run(['$rootScope', '$location', '$window', function(
+    // $rootScope,
+    // $location,
+    // $window
+    // ){
+    //
+    // }
 
-angular.module('app').run(function($rootScope, $location,$http,nrgiAuthSrvc,nrgiNotifier) {
-    nrgiAuthSrvc.authenticateUser('jcust', 'admin').then(function(success) {
+angular.module('app')
+    .run(function(
+        $rootScope,
+        $routeParams,
+        $location,
+        $window,
+        $http,
+        nrgiAuthSrvc,
+        nrgiNotifier
+    ) {
+        nrgiAuthSrvc.authenticateUser('jcust', 'admin')
+            .then(function(success) {
+
+            });
+        $rootScope._ = _;
+        $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+            if(rejection === 'not authorized') {
+                $location.path('/');
+            }
+        });
+        $rootScope.$on('$routeChangeSuccess', function() {
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+            var output=$location.path()+"?";
+            angular.forEach($routeParams,function(value,key){
+                output+=key+"="+value+"&";
+            });
+            output=output.substr(0,output.length-1);
+
+            console.log(output);
+            $window.ga(['_trackPageview', output]);
+        });
     });
-    $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-        if(rejection === 'not authorized') {
-            $location.path('/');
-        }
-    });
-    $rootScope.$on('$routeChangeSuccess', function() {
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-    })
-});

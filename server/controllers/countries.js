@@ -295,7 +295,6 @@ exports.getCountryByID = function(req, res) {
     }
     function getSites(country, callback) {
         country.sites = [];
-        country.company_commodity = [];
         Site.find({'site_country.country': country._id})
             .populate('site_commodity.commodity')
             .exec(function (err, sites) {
@@ -340,9 +339,9 @@ exports.getCountryByID = function(req, res) {
                             });
                         }
                         if (site.site_commodity.length>0) {
-                            if (_.where(country.company_commodity, {_id:_.last(site.site_commodity)._id}).length<1) {
-                                country.company_commodity.push({
-                                    _id: _.last(site.site_commodity)._id,
+                            if (_.where(country.commodities, {_id: _.last(site.site_commodity).commodity._id}).length<1) {
+                                country.commodities.push({
+                                    _id: _.last(site.site_commodity).commodity._id,
                                     commodity_name: _.last(site.site_commodity).commodity.commodity_name,
                                     commodity_type: _.last(site.site_commodity).commodity.commodity_type,
                                     commodity_id: _.last(site.site_commodity).commodity.commodity_id
@@ -794,7 +793,6 @@ exports.getCountryByID = function(req, res) {
             res.send(country);
         }
     }
-
 };
 
 exports.createCountry = function(req, res, next) {

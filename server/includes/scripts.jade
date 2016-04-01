@@ -18,10 +18,19 @@ script(type="text/javascript", src="/vendor/underscore/underscore.js")
 script(type="text/javascript", src="/vendor/angular-underscore/angular-underscore.min.js")
 script(type="text/javascript", src="/vendor/restangular/dist/restangular.js")
 script(type="text/javascript", src="/vendor/ng-csv/build/ng-csv.js")
-script(type="text/javascript", src="/vendor/ngInfiniteScroll/build/ng-infinite-scroll.js")
 script(type="text/javascript", src="/vendor/angular-sanitize/angular-sanitize.js")
 script(type="text/javascript", src="/vendor/plotlyjs/plotly.js")
 script(type="text/javascript", src="/vendor/angular-plotly/src/angular-plotly.js")
+script(type='text/javascript').
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q || []).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-59246536-4', 'resourceprojects.org');
+    ga('send', 'pageview');
+script(type="text/javascript", src="/vendor/angular-google-analytics/dist/angular-google-analytics.min.js")
+script(type="text/javascript", src="/vendor/angular-google-analytics/dist/angular-google-analytics.min.js")
+
 //script(type='text/javascript').
 //    $(document).ready(function(){
 //        $('.typeahead').typeahead({
@@ -145,6 +154,7 @@ script(type="text/javascript", src="/app/services/nrgiSourcesSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiUserSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiUserListSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiSitesSrvc.js")
+script(type="text/javascript", src="/app/services/nrgiTablesSrvc.js")
 //- METHODS
 script(type="text/javascript", src="/app/services/methods/nrgiCommoditiesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiCompaniesMethodSrvc.js")

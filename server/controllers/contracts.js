@@ -11,18 +11,7 @@ var Contract 		= require('mongoose').model('Contract'),
     async           = require('async'),
     _               = require('underscore'),
     request         = require('request');
-//.populate('comments.author', 'firstName lastName role')
-// Transfer.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {company:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
-// Production.find({$or: [
-//     {project:{$in: project.transfers_query}},
-//     {site:{$in: project.transfers_query}},
-//     {country:{$in: project.transfers_query}},
-//     {concession:{$in: project.transfers_query}}]})
+
 exports.getContracts = function(req, res) {
     var contract_len, link_len, contract_counter, link_counter,
         limit = Number(req.params.limit),
@@ -625,35 +614,14 @@ exports.getContractByID = function(req, res) {
             });
     }
     function getProjectCoordinate(contract,callback) {
-        var project_counter = 0;
+        proj_counter = 0;
+        proj_len = contract.projects.length;
+
         contract.location = [];
-        contract.polygon = [];
+        // contract.polygon = [];
         if (contract.site_coordinates.sites.length>0) {
             contract.site_coordinates.sites.forEach(function (site_loc) {
                 contract.location.push(site_loc);
-            })
-        }
-        if (contract.concessions.length>0) {
-            contract.concessions.forEach(function (concession,i) {
-                if (concession.concession_polygon.length>0) {
-                    contract.polygon[i]={};
-                    contract.coordinate=[];
-                    var len=concession.concession_polygon.length;
-                    var counter=0;
-                    concession.concession_polygon.forEach(function (con_loc) {
-                        ++counter;
-                        contract.coordinate.push({
-                            'lat': con_loc.loc[0],
-                            'lng': con_loc.loc[1],
-                            message:"<a href='concession/" + concession._id + "'>" + concession.concession_name + "</a></br>" + concession.concession_name
-                        });
-                        if(len == counter){
-                            contract.polygon[i].coordinate=contract.coordinate;
-                            contract.polygon[i].message= "<a href='concession/" + concession._id + "'>" + concession.concession_name + "</a></br>" + concession.concession_name;
-
-                        }
-                    })
-                }
             })
         }
         if (contract.site_coordinates.fields.length>0) {
@@ -661,10 +629,9 @@ exports.getContractByID = function(req, res) {
                 contract.location.push(field_loc);
             })
         }
-        var project_len = contract.projects.length;
-        if(project_len>0) {
+        if(proj_len>0) {
             contract.projects.forEach(function (project) {
-                ++project_counter;
+                ++proj_counter;
                 project.proj_coordinates.forEach(function (loc) {
                     contract.location.push({
                         'lat': loc.loc[0],
@@ -674,15 +641,38 @@ exports.getContractByID = function(req, res) {
                         'type': 'project',
                         'id': project.proj_id
                     });
-                    if (project_counter == project_len) {
-                        callback(null, contract);
-                    }
-                })
+                });
+                if (proj_counter == proj_len) {
+                    callback(null, contract);
+                }
             });
         } else{
             callback(null, contract);
         }
 
+        // if (contract.concessions.length>0) {
+        //     contract.concessions.forEach(function (concession,i) {
+        //         if (concession.concession_polygon.length>0) {
+        //             contract.polygon[i]={};
+        //             contract.coordinate=[];
+        //             var len=concession.concession_polygon.length;
+        //             var counter=0;
+        //             concession.concession_polygon.forEach(function (con_loc) {
+        //                 ++counter;
+        //                 contract.coordinate.push({
+        //                     'lat': con_loc.loc[0],
+        //                     'lng': con_loc.loc[1],
+        //                     message:"<a href='concession/" + concession._id + "'>" + concession.concession_name + "</a></br>" + concession.concession_name
+        //                 });
+        //                 if(len == counter){
+        //                     contract.polygon[i].coordinate=contract.coordinate;
+        //                     contract.polygon[i].message= "<a href='concession/" + concession._id + "'>" + concession.concession_name + "</a></br>" + concession.concession_name;
+        //
+        //                 }
+        //             })
+        //         }
+        //     })
+        // }
     }
 
 };

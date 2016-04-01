@@ -259,9 +259,9 @@ exports.getCompanyGroupByID = function(req, res) {
                                             });
                                         }
                                         if (link.site.site_commodity.length>0) {
-                                            if (_.where(companyGroup.concession_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
-                                                companyGroup.concession_commodity.push({
-                                                    _id: _.last(link.project.site_commodity)._id,
+                                            if (_.where(companyGroup.commodities, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                                companyGroup.commodities.push({
+                                                    _id: _.last(link.site.site_commodity)._id,
                                                     commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
                                                     commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
                                                     commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
@@ -311,10 +311,10 @@ exports.getCompanyGroupByID = function(req, res) {
                                         if (link.concession.concession_commodity.length>0) {
                                             if (_.where(companyGroup.commodities, {_id: _.last(link.concession.concession_commodity).commodity._id}).length<1) {
                                                 companyGroup.commodities.push({
-                                                    _id: _.last(link.project.proj_commodity).commodity._id,
-                                                    commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
-                                                    commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
-                                                    commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
+                                                    _id: _.last(link.concession.concession_commodity).commodity._id,
+                                                    commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
+                                                    commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
+                                                    commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
                                                 });
                                             }
                                         }
@@ -415,10 +415,10 @@ exports.getCompanyGroupByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(companyGroup.transfers).transfer_links.push({
-                                _id: transfer.project._id,
-                                route: transfer.project.proj_id,
+                                _id: transfer.site._id,
+                                route: transfer.site.proj_id,
                                 type: type,
-                                name: transfer.project.proj_name});
+                                name: transfer.site.proj_name});
                         }
                         if (transfers_counter===transfers_len) {
                             callback(null, companyGroup);
@@ -480,10 +480,10 @@ exports.getCompanyGroupByID = function(req, res) {
                                 type = 'site';
                             }
                             _.last(companyGroup.production).production_links.push({
-                                _id: prod.project._id,
-                                route: prod.project.proj_id,
+                                _id: prod.site._id,
+                                route: prod.site.proj_id,
                                 type: type,
-                                name: prod.project.proj_name});
+                                name: prod.site.proj_name});
                         }
                         if (production_counter===production_len) {
                             callback(null, companyGroup);

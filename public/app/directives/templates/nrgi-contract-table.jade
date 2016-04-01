@@ -1,6 +1,5 @@
-a(data-toggle="collapse" data-target="#contracts")
-    h2 Contracts
-#contracts.panel-collapse.collapse
+h2 Contracts
+div
     table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
         thead
             tr
@@ -32,9 +31,10 @@ a(data-toggle="collapse" data-target="#contracts")
                 td.contract_rc_id(ng-if="companies!=true")
                     a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract._id}}') {{contract._id}}
                 td.contract_companies(ng-if="companies==true") {{contract.companies}}
-    .download
-        span.glyphicon.glyphicon-download(aria-hidden='true')
-        span
-            |  Download:
-            =' '
-            a(href="" ng-csv="csv_contracts" csv-header="getHeaderContracts()" filename="contracts.csv") Contracts CSV
+    div(ng-if="contracts.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+                |  Download:
+                =' '
+                a(href="" ng-csv="csv_contracts" csv-header="getHeaderContracts()" filename="contracts.csv") Contracts CSV

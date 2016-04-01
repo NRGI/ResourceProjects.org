@@ -88,7 +88,7 @@
                 type="'concession'"
                 group='true'
                 stake='true')
-    .row
+    .row.top-padding-lg
         .col-md-6
             nrgi-project-table(
             type="'concession'"
@@ -102,17 +102,19 @@
             nrgi-site-table(
             sites="concession.sites"
             status="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="concession.production"
             projectlink="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
             transfers="concession.transfers"
             projectlink="true")
 
-    .row
+    .row.top-padding-lg
         .col-md-12
-            nrgi-sources-table(sources="concession.sources")
+            nrgi-sources-table(
+            id="concession._id"
+            type="'concession'")

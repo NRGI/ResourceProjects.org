@@ -148,7 +148,7 @@ exports.getSites = function(req, res) {
                                     if (link.concession.concession_commodity.length>0) {
                                         if (_.where(site.site_commodity, {_id:_.last(link.concession.concession_commodity)._id}).length<1) {
                                             site.site_commodity.push({
-                                                _id: _.last(link.concession.concession_commodity)._id,
+                                                _id: _.last(link.concession.concession_commodity).commodity._id,
                                                 commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
                                                 commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
                                                 commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id

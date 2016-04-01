@@ -4,7 +4,7 @@
             span(ng-bind-html="contract.rc_info.contract_name|sanitize")
             =' '
             small Contract
-    .row
+    .row(ng-if="contract.location.length>0")
         .col-md-6
             nrgi-leaflet(data='contract.location' polygon='contract.polygon')
 
@@ -40,7 +40,7 @@
                 stake='false'
                 group='true')
 
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-6
             nrgi-project-table(
             country="true"
@@ -50,6 +50,10 @@
             commoditytype="true"
             id="contract._id"
             companies="false")
+            //a(data-toggle="collapse" data-target="#projects")
+            //    h2 Projects
+            //#projects.panel-collapse.collapse
+
         .col-md-6
             nrgi-site-table(
             sites="contract.sites"
@@ -57,17 +61,19 @@
             commodity="true"
             status="true"
             type="true")
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="contract.production"
             projectlink="true")
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
             transfers="contract.transfers"
             projectlink="true")
 
-    .row.top-padding-med
+    .row.top-padding-lg
         .col-md-12
-            nrgi-sources-table(sources="contract.sources")
+            nrgi-sources-table(
+            id="contract._id"
+            type="'contract'")

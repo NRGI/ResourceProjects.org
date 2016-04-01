@@ -36,10 +36,11 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#transfers")
                     a(href="{{link.type}}/{{link.route}}")
                         span(ng-bind-html="link.name|sanitize")
                     | {{$last ? '' : ', '}}
-    .download
-        span.glyphicon.glyphicon-download(aria-hidden='true')
-        span
-            |  Download:
-            =' '
-            a(href="" ng-csv="csv_transfers" csv-header="getHeaderTransfers()" filename="payments.csv") Payments CSV
+    div(ng-if="transfers.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+                |  Download:
+                =' '
+                a(href="" ng-csv="csv_transfers" csv-header="getHeaderTransfers()" filename="payments.csv") Payments CSV
 

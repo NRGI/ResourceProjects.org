@@ -396,12 +396,7 @@ exports.getSourceTable = function(req, res){
     //    if(company.length>1) {
     //        company = JSON.parse(company);
     //    }
-    //    if(type=='concession') { queries.push({concession:company.id})
-    //    }if(type=='company') { queries.push({company:company.id})
-    //    }if(type=='contract') { queries.push({contract:company.id})
-    //    }if(type=='commodity') { queries.push({commodity:company.id})
-    //    }if(type=='project') { queries.push({project:company.id})
-    //    }
+
     //    if(type=='group') { queries.push({company: company.id});
     //    }
     //});
@@ -417,7 +412,14 @@ exports.getSourceTable = function(req, res){
     function getLinkSite(callback) {
         var project={};
         project.sources = {};
-        Link.find({project:req.params.id})
+        if(type=='concession') { queries={concession:req.params.id}
+        }if(type=='company') { queries={company:req.params.id}
+        }if(type=='contract') { queries={contract:req.params.id}
+        }if(type=='commodity') { queries={commodity:req.params.id}
+        }if(type=='project') { queries={project:req.params.id}
+        }if(type=='group') { queries={company_group:req.params.id}
+        }
+        Link.find(queries)
             .populate('source')
             .deepPopulate('source.source_type_id')
             .exec(function (err, links) {

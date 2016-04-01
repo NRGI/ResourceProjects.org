@@ -14,9 +14,10 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#sources")
                 td.source_type: a(href='source_type/{{value.source_type_id._id}}')
                     span(ng-bind-html="value.source_type_id.source_type_name|sanitize")
                 td.source_authority {{value.source_type_id.source_type_authority}}
-    .download
-        span.glyphicon.glyphicon-download(aria-hidden='true')
-        span
-            |  Download:
-            =' '
-            a(href="" ng-csv="csv_sources" csv-header="getHeaderSources()" filename="sources.csv") Sources CSV
+    div(ng-if="sources")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+                |  Download:
+                =' '
+                a(href="" ng-csv="csv_sources" csv-header="getHeaderSources()" filename="sources.csv") Sources CSV

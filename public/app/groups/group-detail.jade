@@ -55,7 +55,7 @@
                             td.project-label.small Desctiption:
                             td.description
                                 span(ng-bind-html="group.description|sanitize")
-    .row
+    .row.top-padding-lg
         .col-md-6
             nrgi-project-table(
             country="true"
@@ -64,7 +64,9 @@
             type="'group'"
             companies="false"
             commodity="false")
-
+            //a(data-toggle="collapse" data-target="#projects")
+            //    h2 Projects
+            //#projects.panel-collapse.collapse
         .col-md-6
             nrgi-site-table(
             sites="company.sites"
@@ -73,7 +75,7 @@
             status="true"
             type="true")
 
-    .row
+    .row.top-padding-lg
         .col-md-6
             nrgi-contract-table(
             contracts="group.contracts"
@@ -90,17 +92,19 @@
             status="false"
             projects="false")
 
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
             transfers="group.transfers"
             project="false"
             projectlink="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
             production="group.production"
             projectlink="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
-            nrgi-sources-table(sources="group.sources")
+            nrgi-sources-table(
+            id="group._id"
+            type="'group'")

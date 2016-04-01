@@ -1,6 +1,6 @@
 .container.top-padding-med
     .well
-        legend Dataset Management
+        legend Dataset Import Management
         .pull-right
             form.form-inline
                 .form-group
@@ -23,7 +23,7 @@
                     td
                         text {{dataset.name}}
                     td(style={"width": "25%", "word-wrap": "break-word"})
-                        a(href="{{dataset.source_url}}").wrap-content {{dataset.source_url}}
+                        a(href="{{dataset.source_url}}" target="_blank").wrap-content {{dataset.source_url}}
                     td(style={"width": "30%"})
                         p(ng-repeat="action in dataset.actions")
                             text {{action.name}} &nbsp;
@@ -32,10 +32,15 @@
                             a(ng-if="action.status == 'Failed'" class=["label", "label-danger"] data-toggle="tooltip" title="Click to read full report" href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}" target="_new") Failed
                     td
                         .row
-                            span(ng-if="dataset.type == 'Google Sheets'")
+                            span(ng-if="(dataset.type == 'Google Sheets') && !dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
-                            span(ng-if="dataset.type != 'Google Sheets'")
+                            span(ng-if="(dataset.type != 'Google Sheets') || dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default.disabled() Import
+                        .row
+                            span(ng-if="dataset.status.isReadyForChecked")
+                                a.btn.center-block.btn-default.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
+                            span(ng-if="!dataset.status.isReadyForChecked")
+                                a.btn.center-block.btn-default.disabled() Unload (not implemented yet)
                         .row
                             span(ng-if="dataset.hasDuplicates")
                                 a.btn.center-block.btn-default(href="/admin/reconcile") Reconcile
@@ -46,4 +51,5 @@
                                 a.btn.center-block.btn-default(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
                             span(ng-if="!dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default.disabled() Mark as cleaned
-        a.btn.center-block.btn-default(href="/admin/etl/datasets/new") Create New Dataset
+        a.btn.block.btn-default(href="/admin/etl/datasets/new") Create New Import
+        a.btn.block.btn-default(target="_new" href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)
