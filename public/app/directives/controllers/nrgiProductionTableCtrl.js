@@ -19,7 +19,6 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
         })
     },2000);
     $scope.getData=function(id,type) {
-        console.log(id,type)
         if ($scope.production.length == 0) {
         nrgiProdTablesSrvc.get({_id: id, type: type}, function (success) {
                 $scope.production=success.production;

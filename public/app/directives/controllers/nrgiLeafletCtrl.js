@@ -6,8 +6,6 @@ angular
         $scope.center = [];
         $scope.location = [];
         $rootScope.projects=[];
-        if ($scope.map ==true)
-            $scope.data_loading = true;
         var tilesDict = {
             openstreetmap: {
                 url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
@@ -36,7 +34,8 @@ angular
             }
         });
         setTimeout( function(){
-
+            if ($scope.map ==true)
+                $scope.data_loading = true;
             if ($scope.data.length > 0)
                 var len = $scope.data.length;
             var counter =0;
@@ -85,7 +84,7 @@ angular
                 lng = +data.lng;
                 if (len == counter && $scope.map==true) {
                     $scope.data_loading = false;
-                    $scope.center = {lat: 0,lng: 0,zoom:2};
+                    $scope.center = {lat: 0,lng: 0,zoom:1};
                 }
                 if (len == counter && $scope.map !=true&&$scope.data.length>1) {
 
@@ -96,15 +95,17 @@ angular
                 }
             });
             $scope.$apply();
-            if($scope.polygon.length>1){
-                angular.forEach($scope.polygon,function(polygon,i){
-                    $scope.paths.polygon.latlngs[i] = polygon.coordinate;
-                });
-                $scope.paths.polygon.type="multiPolygon";
-            }
-            if($scope.polygon.length==1){
-                $scope.paths.polygon.type="polygon";
-                $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
+            if($scope.polygon) {
+                if ($scope.polygon.length > 1) {
+                    angular.forEach($scope.polygon, function (polygon, i) {
+                        $scope.paths.polygon.latlngs[i] = polygon.coordinate;
+                    });
+                    $scope.paths.polygon.type = "multiPolygon";
+                }
+                if ($scope.polygon.length == 1) {
+                    $scope.paths.polygon.type = "polygon";
+                    $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
+                }
             }
             $scope.$apply();
         },100)

@@ -795,7 +795,7 @@ exports.getSiteByID = function(req, res) {
 };
 
 exports.getSitesMap = function(req, res) {
-    var site_len, site_counter;
+    var site_len, site_counter,site_type;
     var field = req.params.field;
     async.waterfall([
         getSite
@@ -816,12 +816,17 @@ exports.getSitesMap = function(req, res) {
                     sites.forEach(function (site) {
                         ++site_counter;
                         site.site_coordinates.forEach(function (loc) {
+                            if(field==true){
+                                site_type ='field';
+                            }else{
+                                site_type='site';
+                            }
                             data.push({
                                 'lat': loc.loc[0],
                                 'lng': loc.loc[1],
                                 'message': site.site_name,
                                 'timestamp': loc.timestamp,
-                                'type': site.site_type,
+                                'type': site_type,
                                 'id': site._id
                             })
                         })

@@ -75,7 +75,7 @@ exports.getCompanyTable = function(req, res){
                         _.each(links,function(link){
                             ++link_counter;
                             company.company_groups.push(link.company_group);
-                        })
+                        });
                         if(link_len==link_counter&&companies_counter == companies_len){
                             callback(null, companies);
                         }
@@ -103,16 +103,16 @@ exports.getProjectTable = function(req, res){
     function getLinkedProjects(callback) {
         var type = req.params.type;
         var queries=[];
-        _.each(req.query._id,function(company) {
-            if(company.length>1) {
-                company = JSON.parse(company);
+        _.each(req.query,function(company) {
+            //if(company.length>1) {
+            //    company = JSON.parse(company);
+            //}
+            if(type=='concession') { queries.push({concession:company, entities:"project"})
+            }if(type=='company') { queries.push({company:company, entities:"project"})
+            }if(type=='contract') { queries.push({contract:company, entities:"project"})
+            }if(type=='commodity') { queries.push({commodity:company, entities:"project"})
             }
-            if(type=='concession') { queries.push({concession:company.id, entities:"project"})
-            }if(type=='company') { queries.push({company:company.id, entities:"project"})
-            }if(type=='contract') { queries.push({contract:company.id, entities:"project"})
-            }if(type=='commodity') { queries.push({commodity:company.id, entities:"project"})
-            }
-            if(type=='group') { queries.push({company: company.id, entities: "project"});
+            if(type=='group') { queries.push({company: company, entities: "project"});
             }
         });
         async.eachOfSeries(queries, function (query) {
@@ -174,7 +174,7 @@ exports.getProjectTable = function(req, res){
     }
 };
 exports.getProductionTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter;
+    var link_counter, link_len, queries,companies_len, companies_counter;
     var type = req.params.type;
     var id=req.params.id;
     //_.each(req.query._id,function(company) {
@@ -189,6 +189,11 @@ exports.getProductionTable = function(req, res){
     //    if(type=='group') { queries.push({project: company.id, entities: "site"});
     //    }
     //});
+    if(type=='concession') { queries={concession:req.params.id, entities:"site"}
+    }if(type=='company') { queries={company:req.params.id, entities:"site"}
+    }if(type=='contract') { queries={contract:req.params.id, entities:"site"}
+    }if(type=='commodity') { queries={commodity:req.params.id, entities:"site"}
+    }if(type=='project') {  queries={project:req.params.id, entities:"site"}}
     async.waterfall([
         getLinkSite,
         getProduction
@@ -202,7 +207,7 @@ exports.getProductionTable = function(req, res){
     function getLinkSite(callback) {
         var projects = {};
         projects.sites =[];
-        Link.find({project:req.params.id, entities:"site"})
+        Link.find(queries)
             .populate('site')
             .exec(function (err, links) {
                 if (links) {
@@ -231,9 +236,17 @@ exports.getProductionTable = function(req, res){
         projects.production = [];
         _.each(projects.sites, function (site) {
             if(site.site=='') {
-                query = {$or: [{project: req.params.id}]};
+                if(type=='concession'){ query={$or: [{concession:req.params.id}]}
+                }if(type=='company') {  query={$or: [{company:req.params.id}]}
+                }if(type=='contract') { query={$or: [{contract:req.params.id}]}
+                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}]}
+                }if(type=='project') {  query={$or: [{project:req.params.id}]}}
             } else{
-                query = {$or: [{project: req.params.id}, {site: site.site}]};
+                if(type=='concession'){ query={$or: [{concession:req.params.id}, {site: site.site}]}
+                }if(type=='company') {  query={$or: [{company:req.params.id}, {site: site.site}]}
+                }if(type=='contract') { query={$or: [{contract:req.params.id}, {site: site.site}]}
+                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}, {site: site.site}]}
+                }if(type=='project') {  query={$or: [{project:req.params.id}, {site: site.site}]}}
             }
             Production.find(query)
                 .populate('production_commodity')
@@ -281,18 +294,18 @@ exports.getProductionTable = function(req, res){
     }
 };
 exports.getTransferTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter;
+    var link_counter, link_len, queries, companies_counter;
     var type = req.params.type;
     var id=req.params.id;
     //_.each(req.query._id,function(company) {
     //    if(company.length>1) {
     //        company = JSON.parse(company);
     //    }
-    //    if(type=='concession') { queries.push({concession:company.id, entities:"project"})
-    //    }if(type=='company') { queries.push({company:company.id, entities:"project"})
-    //    }if(type=='contract') { queries.push({contract:company.id, entities:"project"})
-    //    }if(type=='commodity') { queries.push({commodity:company.id, entities:"project"})
-    //    }
+        if(type=='concession') { queries={concession:req.params.id, entities:"site"}
+        }if(type=='company') { queries={company:req.params.id, entities:"site"}
+        }if(type=='contract') { queries={contract:req.params.id, entities:"site"}
+        }if(type=='commodity') { queries={commodity:req.params.id, entities:"site"}
+    }if(type=='project') {  queries={project:req.params.id, entities:"site"}}
     //    if(type=='group') { queries.push({project: company.id, entities: "site"});
     //    }
     //});
@@ -309,12 +322,12 @@ exports.getTransferTable = function(req, res){
     function getLinkSite(callback) {
         var projects = {};
         projects.sites =[];
-        Link.find({project:req.params.id, entities:"site"})
+        Link.find(queries)
             .populate('site')
             .exec(function (err, links) {
-                if (links.length>0) {
-                    link_len = links.length;
-                    link_counter = 0;
+                link_len = links.length;
+                link_counter = 0;
+                if (link_len>0) {
                     _.each(links, function (link) {
                         ++link_counter;
                         projects.sites[link_counter-1]={};
@@ -328,7 +341,6 @@ exports.getTransferTable = function(req, res){
                 } else {
                     projects.sites[0] ={site: ''};
                     callback(null, projects);
-
                 }
             });
     }
@@ -339,9 +351,17 @@ exports.getTransferTable = function(req, res){
         projects.transfers = [];
         _.each(projects.sites, function (site) {
             if(site.site=='') {
-                query = {$or: [{project: req.params.id}]};
+                if(type=='concession'){ query={$or: [{concession:req.params.id}]}
+                }if(type=='company') {  query={$or: [{company:req.params.id}]}
+                }if(type=='contract') { query={$or: [{contract:req.params.id}]}
+                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}]}
+                }if(type=='project') {  query={$or: [{project:req.params.id}]}}
             } else{
-                query = {$or: [{project: req.params.id}, {site: site.site}]};
+                if(type=='concession'){ query={$or: [{concession:req.params.id}, {site: site.site}]}
+                }if(type=='company') {  query={$or: [{company:req.params.id}, {site: site.site}]}
+                }if(type=='contract') { query={$or: [{contract:req.params.id}, {site: site.site}]}
+                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}, {site: site.site}]}
+                }if(type=='project') {  query={$or: [{project:req.params.id}, {site: site.site}]}}
             }
             Transfer.find(query)
                 .populate('company country')
@@ -352,13 +372,12 @@ exports.getTransferTable = function(req, res){
                     if (transfers_len > 0) {
                         transfers.forEach(function (transfer) {
                             ++transfers_counter;
-                            if (!project_transfers.hasOwnProperty(transfer._id)) {
                                 project_transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
-                                    country: {
-                                        name: transfer.country.name,
-                                        iso2: transfer.country.iso2},
+                                    //country: {
+                                    //    name: transfer.country.name,
+                                    //    iso2: transfer.country.iso2},
                                     transfer_type: transfer.transfer_type,
                                     transfer_unit: transfer.transfer_unit,
                                     transfer_value: transfer.transfer_value,
@@ -369,7 +388,7 @@ exports.getTransferTable = function(req, res){
                                 if (transfer.company!==null) {
                                     _.last(project_transfers).company = {_id: transfer.company._id, company_name: transfer.company.company_name};
                                 }
-                            }
+
                             if (transfers_counter === transfers_len && project_counter === project_len) {
                                 project_transfers = _.uniq(project_transfers, function (a) {
                                     return a._id;

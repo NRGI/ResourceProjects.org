@@ -22,10 +22,10 @@ angular
             var id_company = [];
             if(type=='group'){
                 _.each(id,function(_id){
-                    id_company.push({id:_id._id})
+                    id_company.push(_id._id)
                 });
             }else{
-                id_company.push({id:id})
+                id_company.push(id)
             }
             id = id_company;
             if ($scope.projects.length == 0) {

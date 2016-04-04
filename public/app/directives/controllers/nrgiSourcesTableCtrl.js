@@ -18,7 +18,6 @@ angular
         },2000)
         $scope.sources=[];
         $scope.getData=function(id,type) {
-            console.log(id,type)
             if ($scope.sources.length == 0) {
                 nrgiSourceTablesSrvc.get({_id: id, type: type}, function (success) {
                     $scope.sources=success.sources;

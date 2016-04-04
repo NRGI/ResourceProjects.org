@@ -285,17 +285,18 @@ exports.getCompanyByID = function(req, res) {
                                 }
                                 break;
                             case 'project':
+                                company.projects.push(link.project);
                                 company.transfers_query.push(link.project._id);
-                                company.projects.push({
-                                    _id: link.project._id,
-                                    proj_name: link.project.proj_name,
-                                    proj_id: link.project.proj_id,
-                                    proj_country: link.project.proj_country,
-                                    proj_coordinates: link.project.proj_coordinates,
-                                    proj_type: link.project.proj_type,
-                                    proj_commodity: link.project.proj_commodity,
-                                    proj_status: link.project.proj_status
-                                });
+                                //company.projects.push({
+                                //    _id: link.project._id,
+                                //    proj_name: link.project.proj_name,
+                                //    proj_id: link.project.proj_id,
+                                //    proj_country: link.project.proj_country,
+                                //    proj_coordinates: link.project.proj_coordinates,
+                                //    proj_type: link.project.proj_type,
+                                //    proj_commodity: link.project.proj_commodity,
+                                //    proj_status: link.project.proj_status
+                                //});
                                 if (link.project.proj_commodity.length>0) {
                                     if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                         company.company_commodity.push({
@@ -414,101 +415,101 @@ exports.getCompanyByID = function(req, res) {
             callback(null, company);
         }
     }
-    function getLinkedProjects(company, callback) {
-        site_len = company.sites.length;
-        site_counter = 0;
-        if(site_len>0) {
-            company.sites.forEach(function (site) {
-                Link.find({site: site._id, entities:'project'})
-                    .populate('project')
-                    .deepPopulate('project.proj_country.country project.proj_commodity.commodity source.source_type_id')
-                    .exec(function (err, links) {
-                        ++site_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        if (link_len>0) {
-                            links.forEach(function (link) {
-                                if (!company.sources[link.source._id]) {
-                                    company.sources[link.source._id] = link.source;
-                                }
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'site')[0];
-                                switch (entity) {
-                                    case 'project':
-                                        company.projects.push({
-                                            _id: link.project._id,
-                                            proj_name: link.project.proj_name,
-                                            proj_id: link.project.proj_id,
-                                            proj_commodity: link.project.proj_commodity,
-                                            proj_status: link.project.proj_status,
-                                            proj_coordinates: link.project.proj_coordinates
-                                        });
-                                        break;
-                                    default:
-                                        console.log(entity, 'link skipped...');
-                                }
-                            });
-                            if (site_counter == site_len && link_counter == link_len) {
-                                callback(null, company);
-                            }
-                        } else {
-                            if (site_counter == site_len && link_counter == link_len) {
-                                callback(null, company);
-                            }
-                        }
-                    });
-            });
-        } else {
-            callback(null, company);
-        }
-    }
-    function getLinkedSites(company, callback) {
-        proj_len = company.projects.length;
-        proj_counter = 0;
-        if(proj_len>0) {
-            callback(null, company);
-            company.projects.forEach(function (project) {
-                Link.find({project: project._id, entities:'site'})
-                    .populate('site')
-                    .deepPopulate('site.site_country.country site.site_commodity.commodity source.source_type_id')
-                    .exec(function (err, links) {
-                        ++proj_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        if (link_len>0) {
-                            links.forEach(function (link) {
-                                if (!company.sources[link.source._id]) {
-                                    company.sources[link.source._id] = link.source;
-                                }
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'site')[0];
-                                switch (entity) {
-                                    case 'project':
-                                        company.projects.push({
-                                            _id: link.project._id,
-                                            proj_name: link.project.proj_name,
-                                            proj_id: link.project.proj_id,
-                                            proj_commodity: link.project.proj_commodity,
-                                            proj_status: link.project.proj_status,
-                                            proj_coordinates: link.project.proj_coordinates
-                                        });
-                                        break;
-                                    default:
-                                        console.log(entity, 'link skipped...');
-                                }
-                            });
-
-                        } else {
-                            if (site_counter == site_len && link_counter == link_len) {
-                                callback(null, company);
-                            }
-                        }
-                    });
-            });
-        } else {
-            callback(null, company);
-        }
-    }
+    //function getLinkedProjects(company, callback) {
+    //    site_len = company.sites.length;
+    //    site_counter = 0;
+    //    if(site_len>0) {
+    //        company.sites.forEach(function (site) {
+    //            Link.find({site: site._id, entities:'project'})
+    //                .populate('project')
+    //                .deepPopulate('project.proj_country.country project.proj_commodity.commodity source.source_type_id')
+    //                .exec(function (err, links) {
+    //                    ++site_counter;
+    //                    link_len = links.length;
+    //                    link_counter = 0;
+    //                    if (link_len>0) {
+    //                        links.forEach(function (link) {
+    //                            if (!company.sources[link.source._id]) {
+    //                                company.sources[link.source._id] = link.source;
+    //                            }
+    //                            ++link_counter;
+    //                            var entity = _.without(link.entities, 'site')[0];
+    //                            switch (entity) {
+    //                                case 'project':
+    //                                    company.projects.push({
+    //                                        _id: link.project._id,
+    //                                        proj_name: link.project.proj_name,
+    //                                        proj_id: link.project.proj_id,
+    //                                        proj_commodity: link.project.proj_commodity,
+    //                                        proj_status: link.project.proj_status,
+    //                                        proj_coordinates: link.project.proj_coordinates
+    //                                    });
+    //                                    break;
+    //                                default:
+    //                                    console.log(entity, 'link skipped...');
+    //                            }
+    //                        });
+    //                        if (site_counter == site_len && link_counter == link_len) {
+    //                            callback(null, company);
+    //                        }
+    //                    } else {
+    //                        if (site_counter == site_len && link_counter == link_len) {
+    //                            callback(null, company);
+    //                        }
+    //                    }
+    //                });
+    //        });
+    //    } else {
+    //        callback(null, company);
+    //    }
+    //}
+    //function getLinkedSites(company, callback) {
+    //    proj_len = company.projects.length;
+    //    proj_counter = 0;
+    //    if(proj_len>0) {
+    //        callback(null, company);
+    //        company.projects.forEach(function (project) {
+    //            Link.find({project: project._id, entities:'site'})
+    //                .populate('site')
+    //                .deepPopulate('site.site_country.country site.site_commodity.commodity source.source_type_id')
+    //                .exec(function (err, links) {
+    //                    ++proj_counter;
+    //                    link_len = links.length;
+    //                    link_counter = 0;
+    //                    if (link_len>0) {
+    //                        links.forEach(function (link) {
+    //                            if (!company.sources[link.source._id]) {
+    //                                company.sources[link.source._id] = link.source;
+    //                            }
+    //                            ++link_counter;
+    //                            var entity = _.without(link.entities, 'site')[0];
+    //                            switch (entity) {
+    //                                case 'project':
+    //                                    company.projects.push({
+    //                                        _id: link.project._id,
+    //                                        proj_name: link.project.proj_name,
+    //                                        proj_id: link.project.proj_id,
+    //                                        proj_commodity: link.project.proj_commodity,
+    //                                        proj_status: link.project.proj_status,
+    //                                        proj_coordinates: link.project.proj_coordinates
+    //                                    });
+    //                                    break;
+    //                                default:
+    //                                    console.log(entity, 'link skipped...');
+    //                            }
+    //                        });
+    //
+    //                    } else {
+    //                        if (site_counter == site_len && link_counter == link_len) {
+    //                            callback(null, company);
+    //                        }
+    //                    }
+    //                });
+    //        });
+    //    } else {
+    //        callback(null, company);
+    //    }
+    //}
     function getTransfers(company, callback) {
         company.transfers = [];
         Transfer.find({$or: [

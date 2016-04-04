@@ -105,13 +105,15 @@
     .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
-            transfers="company.transfers"
+            type="'company'"
+            id="company._id"
             project="false"
             projectlink="true")
     .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
-            production="company.production"
+            type="'company'"
+            id="company._id"
             projectlink="true")
     .row.top-padding-lg
         .col-md-12

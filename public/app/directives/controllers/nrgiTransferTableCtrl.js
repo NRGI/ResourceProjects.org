@@ -44,7 +44,6 @@ angular
 
         $scope.transfers=[];
         $scope.getData=function(id,type) {
-            console.log(id,type)
             if ($scope.transfers.length == 0) {
                 nrgiTransferTablesSrvc.get({_id: id, type: type}, function (success) {
                     $scope.transfers=success.transfers;

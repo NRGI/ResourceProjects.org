@@ -64,12 +64,14 @@
     .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
-            production="contract.production"
+            id="contract._id"
+            type="'contract'"
             projectlink="true")
     .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
-            transfers="contract.transfers"
+            id="contract._id"
+            type="'contract'"
             projectlink="true")
 
     .row.top-padding-lg
