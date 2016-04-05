@@ -174,26 +174,15 @@ exports.getProjectTable = function(req, res){
     }
 };
 exports.getProductionTable = function(req, res){
-    var link_counter, link_len, queries,companies_len, companies_counter;
+    var link_counter, link_len, queries,production_counter,production_len;
     var type = req.params.type;
-    var id=req.params.id;
-    //_.each(req.query._id,function(company) {
-    //    if(company.length>1) {
-    //        company = JSON.parse(company);
-    //    }
-    //    if(type=='concession') { queries.push({concession:company.id, entities:"project"})
-    //    }if(type=='company') { queries.push({company:company.id, entities:"project"})
-    //    }if(type=='contract') { queries.push({contract:company.id, entities:"project"})
-    //    }if(type=='commodity') { queries.push({commodity:company.id, entities:"project"})
-    //    }
-    //    if(type=='group') { queries.push({project: company.id, entities: "site"});
-    //    }
-    //});
-    if(type=='concession') { queries={concession:req.params.id, entities:"site"}
-    }if(type=='company') { queries={company:req.params.id, entities:"site"}
-    }if(type=='contract') { queries={contract:req.params.id, entities:"site"}
-    }if(type=='commodity') { queries={commodity:req.params.id, entities:"site"}
-    }if(type=='project') {  queries={project:req.params.id, entities:"site"}}
+    var projects = {};
+    projects.production_query =[];
+    if(type=='concession') { queries={concession:req.params.id}; projects.production_query = [req.params.id];}
+    if(type=='company') { queries={company:req.params.id};projects.production_query = [req.params.id];}
+    if(type=='contract') { queries={contract:req.params.id};projects.production_query = [req.params.id];}
+    if(type=='project') {  queries={project:req.params.id};projects.production_query = [req.params.id];}
+    if(type=='site') {  queries={site:req.params.id};projects.production_query = [req.params.id];}
     async.waterfall([
         getLinkSite,
         getProduction
@@ -205,20 +194,46 @@ exports.getProductionTable = function(req, res){
         }
     });
     function getLinkSite(callback) {
-        var projects = {};
-        projects.sites =[];
         Link.find(queries)
-            .populate('site')
+            .populate('site project concession company')
             .exec(function (err, links) {
                 if (links) {
                     link_len = links.length;
                     link_counter = 0;
                     _.each(links, function (link) {
                         ++link_counter;
-                        projects.sites[link_counter - 1] = {};
-                        projects.sites[link_counter - 1] = {
-                            site: link.site._id
-                        };
+                        var entity = _.without(link.entities, type)[0];
+                        switch (entity) {
+                            case 'project':
+                                if (link.project._id != undefined) {
+                                    if (!_.contains(projects.production_query, link.project._id)) {
+                                        projects.production_query.push(link.project._id);
+                                    }
+                                }
+                                break;
+                            case 'site':
+                                if (link.site._id != undefined) {
+                                    if (!_.contains(projects.production_query, link.site._id)) {
+                                        projects.production_query.push(link.site._id);
+                                    }
+                                }
+                                break;
+
+                            case 'concession':
+                                if (link.concession._id != undefined) {
+                                    if (!_.contains(projects.production_query, link.concession._id)) {
+                                        projects.production_query.push(link.concession._id);
+                                    }
+                                }
+                                break;
+                            case 'company':
+                                if (link.company._id != undefined) {
+                                    if (!_.contains(projects.production_query, link.company._id)) {
+                                        projects.production_query.push(link.company._id);
+                                    }
+                                }
+                                break;
+                        }
                         if (link_len == link_counter) {
                             callback(null, projects);
                         }
@@ -230,88 +245,64 @@ exports.getProductionTable = function(req, res){
             });
     }
     function getProduction(projects, callback) {
-        project_len = projects.sites.length;
-        project_counter = 0;
-        var production = [];var query='';
+        var productions = [];var query='';
         projects.production = [];
-        _.each(projects.sites, function (site) {
-            if(site.site=='') {
-                if(type=='concession'){ query={$or: [{concession:req.params.id}]}
-                }if(type=='company') {  query={$or: [{company:req.params.id}]}
-                }if(type=='contract') { query={$or: [{contract:req.params.id}]}
-                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}]}
-                }if(type=='project') {  query={$or: [{project:req.params.id}]}}
-            } else{
-                if(type=='concession'){ query={$or: [{concession:req.params.id}, {site: site.site}]}
-                }if(type=='company') {  query={$or: [{company:req.params.id}, {site: site.site}]}
-                }if(type=='contract') { query={$or: [{contract:req.params.id}, {site: site.site}]}
-                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}, {site: site.site}]}
-                }if(type=='project') {  query={$or: [{project:req.params.id}, {site: site.site}]}}
-            }
-            Production.find(query)
+        if(type=='concession'){ query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
+        if(type=='company') {query={$or: [{project: {$in: projects.production_query}},{site: {$in: projects.production_query}},{concession: {$in: projects.production_query}}]}}
+        if(type=='contract') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
+        if(type=='project'||type=='site') {  query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
+        Production.find(query)
                 .populate('production_commodity')
                 .exec(function (err, production) {
-                    ++project_counter;
-                    production_counter = 0;
-                    production_len = production.length;
-                    if (production_len > 0) {
-                        production.forEach(function (prod) {
-                            ++production_counter;
-                            if (!production.hasOwnProperty(prod._id)) {
-                                production.push({
-                                    _id: prod._id,
-                                    production_year: prod.production_year,
-                                    production_volume: prod.production_volume,
-                                    production_unit: prod.production_unit,
-                                    production_commodity: {
-                                        _id: prod.production_commodity._id,
-                                        commodity_name: prod.production_commodity.commodity_name,
-                                        commodity_id: prod.production_commodity.commodity_id
-                                    },
-                                    production_price: prod.production_price,
-                                    production_price_unit: prod.production_price_unit,
-                                    production_level: prod.production_level
-                                    // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
-                                });
-
-                            }
-                            if (production_counter === production_len && project_counter === project_len) {
-                                production = _.uniq(production, function (a) {
-                                    return a._id;
-                                });
-                                projects.production=production;
-                                callback(null, projects);
-                            }
-                        })
-                    }else{
-                        if(project_counter === project_len){
-
+                production_counter = 0;
+                production_len = production.length;
+                if (production_len > 0) {
+                    production.forEach(function (prod) {
+                        ++production_counter;
+                        if (!productions.hasOwnProperty(prod._id)) {
+                            productions.push({
+                                _id: prod._id,
+                                production_year: prod.production_year,
+                                production_volume: prod.production_volume,
+                                production_unit: prod.production_unit,
+                                production_commodity: {
+                                    _id: prod.production_commodity._id,
+                                    commodity_name: prod.production_commodity.commodity_name,
+                                    commodity_id: prod.production_commodity.commodity_id
+                                },
+                                production_price: prod.production_price,
+                                production_price_unit: prod.production_price_unit,
+                                production_level: prod.production_level
+                                // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
+                            });
+                        }
+                        if (production_counter === production_len) {
+                            productions= _.uniq(productions, function (a) {
+                                return a._id;
+                            });
+                            projects.production = productions;
                             callback(null, projects);
                         }
+                    })
+                } else {
+                    if (production_counter === production_len) {
+                        callback(null, projects);
                     }
-                })
-        })
+                }
+            })
     }
 };
 exports.getTransferTable = function(req, res){
-    var link_counter, link_len, queries, companies_counter;
-    var type = req.params.type;
-    var id=req.params.id;
-    //_.each(req.query._id,function(company) {
-    //    if(company.length>1) {
-    //        company = JSON.parse(company);
-    //    }
-        if(type=='concession') { queries={concession:req.params.id, entities:"site"}
-        }if(type=='company') { queries={company:req.params.id, entities:"site"}
-        }if(type=='contract') { queries={contract:req.params.id, entities:"site"}
-        }if(type=='commodity') { queries={commodity:req.params.id, entities:"site"}
-    }if(type=='project') {  queries={project:req.params.id, entities:"site"}}
-    //    if(type=='group') { queries.push({project: company.id, entities: "site"});
-    //    }
-    //});
+    var link_counter, link_len, queries, company={},transfers_counter,transfers_len,type = req.params.type,projects = {};
+    projects.transfers_query =[];
+    if(type=='concession') { queries={concession:req.params.id}; projects.transfers_query = [req.params.id];}
+    if(type=='company') { queries={company:req.params.id};projects.transfers_query = [req.params.id];}
+    if(type=='contract') { queries={contract:req.params.id};projects.transfers_query = [req.params.id];}
+    if(type=='project') {  queries={project:req.params.id};projects.transfers_query = [req.params.id];}
+    if(type=='site') {  queries={site:req.params.id};projects.transfers_query = [req.params.id];}
     async.waterfall([
         getLinkSite,
-        getProduction
+        getTransfers
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -320,58 +311,72 @@ exports.getTransferTable = function(req, res){
         }
     });
     function getLinkSite(callback) {
-        var projects = {};
-        projects.sites =[];
         Link.find(queries)
-            .populate('site')
+            .populate('site project')
             .exec(function (err, links) {
                 link_len = links.length;
                 link_counter = 0;
                 if (link_len>0) {
                     _.each(links, function (link) {
                         ++link_counter;
-                        projects.sites[link_counter-1]={};
-                        projects.sites[link_counter-1]={
-                            site: link.site._id
-                        };
+                        var entity = _.without(link.entities, type)[0];
+                        switch (entity) {
+                            case 'project':
+                                if (link.project._id != undefined) {
+                                    if (!_.contains(projects.transfers_query, link.project._id)) {
+                                        projects.transfers_query.push(link.project._id);
+                                    }
+                                }
+                                break;
+                            case 'site':
+                                if (link.site._id != undefined) {
+                                    if (!_.contains(projects.transfers_query, link.site._id)) {
+                                        projects.transfers_query.push(link.site._id);
+                                    }
+                                }
+                                break;
+
+                            case 'concession':
+                                if (link.concession._id != undefined) {
+                                    if (!_.contains(projects.transfers_query, link.concession._id)) {
+                                        projects.transfers_query.push(link.concession._id);
+                                    }
+                                }
+                                break;
+                            case 'company':
+                                if (link.company._id != undefined) {
+                                    if (!_.contains(projects.transfers_query, link.company._id)) {
+                                        projects.transfers_query.push(link.company._id);
+                                    }
+                                }
+                                break;
+                        }
                         if (link_len == link_counter) {
                             callback(null, projects);
                         }
                     })
                 } else {
-                    projects.sites[0] ={site: ''};
                     callback(null, projects);
                 }
             });
     }
-    function getProduction(projects, callback) {
-        project_len = projects.sites.length;
-        project_counter = 0;
+    function getTransfers(projects, callback) {
         var project_transfers = [];var query='';
         projects.transfers = [];
-        _.each(projects.sites, function (site) {
-            if(site.site=='') {
-                if(type=='concession'){ query={$or: [{concession:req.params.id}]}
-                }if(type=='company') {  query={$or: [{company:req.params.id}]}
-                }if(type=='contract') { query={$or: [{contract:req.params.id}]}
-                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}]}
-                }if(type=='project') {  query={$or: [{project:req.params.id}]}}
-            } else{
-                if(type=='concession'){ query={$or: [{concession:req.params.id}, {site: site.site}]}
-                }if(type=='company') {  query={$or: [{company:req.params.id}, {site: site.site}]}
-                }if(type=='contract') { query={$or: [{contract:req.params.id}, {site: site.site}]}
-                }if(type=='commodity'){ query={$or: [{commodity:req.params.id}, {site: site.site}]}
-                }if(type=='project') {  query={$or: [{project:req.params.id}, {site: site.site}]}}
-            }
+        if(type=='concession'){ query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}}]}}
+        if(type=='company') {query={$or: [{project: {$in: projects.transfers_query}},{site: {$in: projects.transfers_query}},{concession: {$in: projects.transfers_query}}]}}
+        if(type=='contract') { query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
+        if(type=='project'||type=='site') {  query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}}]}}
+        if(projects.transfers_query!=null) {
             Transfer.find(query)
                 .populate('company country')
                 .exec(function (err, transfers) {
-                    ++project_counter;
                     transfers_counter = 0;
                     transfers_len = transfers.length;
                     if (transfers_len > 0) {
                         transfers.forEach(function (transfer) {
                             ++transfers_counter;
+                            if (!project_transfers.hasOwnProperty(transfer._id)) {
                                 project_transfers.push({
                                     _id: transfer._id,
                                     transfer_year: transfer.transfer_year,
@@ -385,40 +390,34 @@ exports.getTransferTable = function(req, res){
                                     transfer_audit_type: transfer.transfer_audit_type
                                     // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
                                 });
-                                if (transfer.company!==null) {
-                                    _.last(project_transfers).company = {_id: transfer.company._id, company_name: transfer.company.company_name};
-                                }
-
-                            if (transfers_counter === transfers_len && project_counter === project_len) {
+                            }
+                            if (transfer.company !== null) {
+                                _.last(project_transfers).company = {
+                                    _id: transfer.company._id,
+                                    company_name: transfer.company.company_name
+                                };
+                            }
+                            if (transfers_counter === transfers_len) {
                                 project_transfers = _.uniq(project_transfers, function (a) {
                                     return a._id;
                                 });
-                                projects.transfers=project_transfers;
+                                projects.transfers = project_transfers;
                                 callback(null, projects);
                             }
                         })
-                    } else{
-                        if(project_counter === project_len){
+                    } else {
+                        if (transfers_counter === transfers_len) {
                             callback(null, projects);
                         }
                     }
-                })
-        })
+                });
+        }
     }
 };
 exports.getSourceTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter;
+    var link_counter, link_len;
     var type = req.params.type;
     var queries=[];
-    var id=req.params.id;
-    //_.each(req.query._id,function(company) {
-    //    if(company.length>1) {
-    //        company = JSON.parse(company);
-    //    }
-
-    //    if(type=='group') { queries.push({company: company.id});
-    //    }
-    //});
     async.waterfall([
         getLinkSite
     ], function (err, result) {

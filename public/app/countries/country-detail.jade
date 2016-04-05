@@ -51,14 +51,14 @@
     .row.top-padding-lg
         .col-md-6
             nrgi-company-table(
-            companies="country.companies"
-            group="true"
-            operation="true")
-        .col-md-6
-            nrgi-company-table(
             companies="country.companies_incorporated"
             group="true"
             incorporated="true")
+        .col-md-6
+            nrgi-company-table(
+            companies="country.companies"
+            group="true"
+            operation="true")
     .row.top-padding-lg
         .col-md-6
             nrgi-contract-table(

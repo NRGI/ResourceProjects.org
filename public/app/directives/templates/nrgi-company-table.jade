@@ -1,6 +1,6 @@
 a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies")
-    h2 Companies
-        span(ng-if="incorporated==true")  Incorporated
+    h2(ng-if="incorporated!=true&&operation!=true") Companies
+    h2(ng-if="incorporated==true") Companies Incorporated
 #companies.panel-collapse.collapse
     table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead
@@ -39,7 +39,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies")
                 a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV
 
 a(ng-if="operation==true" data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies_operation")
-    h2 Companies Operating In
+    h2(ng-if="operation==true") Companies Operating In
 #companies_operation.panel-collapse.collapse
     table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead

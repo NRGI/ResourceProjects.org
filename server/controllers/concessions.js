@@ -152,7 +152,8 @@ exports.getConcessions = function(req, res) {
             Transfer.find({$or: [
                 {project:{$in: concession.transfers_query}},
                 {site:{$in: concession.transfers_query}},
-                {concession:{$in: concession.transfers_query}}]})
+                {concession:{$in: concession.transfers_query}}
+            ]})
                 .count()
                 .exec(function (err, transfer_count) {
                     ++concession_counter;

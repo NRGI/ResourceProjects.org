@@ -219,12 +219,7 @@ exports.getSiteByID = function(req, res) {
     async.waterfall([
         getSite,
         getSiteLinks,
-        getTransfers,
-        getProduction,
-        getSiteCoordinate,
-        getProjectLinks,
-        getProjectCoordinate,
-        getCompanyGroup
+        getProjectLinks
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -247,15 +242,12 @@ exports.getSiteByID = function(req, res) {
             });
     }
     function getSiteLinks(site, callback) {
-        site.companies = [];
-        site.projects = [];
         site.concessions = [];
         site.contracts = [];
         site.sites = [];
-        site.transfers_query = [site._id];
+        site.projects = [];
+        site.proj_coordinates=[];
         site.source_type = {p: false, c: false};
-        site.site_coords = {sites: [], fields: []};
-        site.sources = {};
         var commodity = site.site_commodity;
         site.site_commodity = [];
         if (commodity.length>0) {
@@ -287,26 +279,20 @@ exports.getSiteByID = function(req, res) {
                                 site.source_type.p = true;
                             }
                         }
-                        if (!site.sources[link.source._id]) {
-                            //TODO clean up returned data if performance lags
-                            site.sources[link.source._id] = link.source;
-                        }
                         switch (entity) {
                             case 'project':
-                                site.transfers_query.push(link.project._id);
-                                site.projects.push({
-                                    _id: link.project._id,
-                                    proj_name: link.project.proj_name,
-                                    proj_id: link.project.proj_id,
-                                    proj_country: link.project.proj_country,
-                                    proj_coordinates: link.project.proj_coordinates,
-                                    proj_type: link.project.proj_type,
-                                    proj_commodity: link.project.proj_commodity,
-                                    proj_status: link.project.proj_status
+                                site.projects.push(link.project);
+                                link.project.proj_coordinates.forEach(function (loc) {
+                                    site.proj_coordinates.push({
+                                        'lat': loc.loc[0],
+                                        'lng': loc.loc[1],
+                                        'message': link.project.proj_name,
+                                        'timestamp': loc.timestamp,
+                                        'type': 'project',
+                                        'id': link.project.proj_id
+                                    });
                                 });
                                 if (link.project.proj_commodity.length>0) {
-
-
                                     if (_.where(site.site_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                         site.site_commodity.push({
                                             _id: _.last(link.project.proj_commodity).commodity._id,
@@ -318,15 +304,14 @@ exports.getSiteByID = function(req, res) {
                                 }
                                 break;
                             case 'site':
-                                site.transfers_query.push(link.site._id);
                                 site.sites.push({
                                     _id: link.site._id,
                                     field: link.site.field,
                                     site_name: link.site.site_name
                                 });
-                                if (link.site.field && link.site.site_coords.length>0) {
-                                    link.site.site_coords.forEach(function (loc) {
-                                        site.site_coords.fields.push({
+                                if (link.site.field && link.site.site_coordinates.length>0) {
+                                    link.site.site_coordinates.forEach(function (loc) {
+                                        site.proj_coordinates.fields.push({
                                             'lat': loc.loc[0],
                                             'lng': loc.loc[1],
                                             'message': link.site.site_name,
@@ -335,9 +320,9 @@ exports.getSiteByID = function(req, res) {
                                             'id': link.site._id
                                         });
                                     });
-                                } else if (!link.site.field && link.site.site_coords.length>0) {
-                                    link.site.site_coords.forEach(function (loc) {
-                                        site.site_coords.sites.push({
+                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
+                                    link.site.site_coordinates.forEach(function (loc) {
+                                        site.proj_coordinates.sites.push({
                                             'lat': loc.loc[0],
                                             'lng': loc.loc[1],
                                             'message': link.site.site_name,
@@ -348,8 +333,6 @@ exports.getSiteByID = function(req, res) {
                                     });
                                 }
                                 if (link.site.site_commodity.length>0) {
-
-
                                     if (_.where(site.site_commodity, {_id: _.last(link.site.site_commodity).commodity._id}).length<1) {
                                         site.site_commodity.push({
                                             _id: _.last(link.site.site_commodity).commodity._id,
@@ -360,17 +343,7 @@ exports.getSiteByID = function(req, res) {
                                     }
                                 }
                                 break;
-                            case 'company':
-                                if (!site.companies.hasOwnProperty(link.company._id)) {
-                                    site.transfers_query.push(link.company._id);
-                                    site.companies.push({
-                                        _id: link.company._id,
-                                        company_name: link.company.company_name
-                                    });
-                                }
-                                break;
                             case 'concession':
-                                site.transfers_query.push(link.concession._id);
                                 site.concessions.push({
                                     _id: link.concession._id,
                                     concession_name: link.concession.concession_name
@@ -401,160 +374,6 @@ exports.getSiteByID = function(req, res) {
                 }
             });
     }
-    function getTransfers(site, callback) {
-        site.transfers = [];
-        Transfer.find({$or: [
-                {project:{$in: site.transfers_query}},
-                {site:{$in: site.transfers_query}}]})
-            .populate('company country project site')
-            .deepPopulate('source.source_type_id')
-            .exec(function(err, transfers) {
-                transfers_counter = 0;
-                transfers_len = transfers.length;
-                if (transfers_len>0) {
-                    transfers.forEach(function (transfer) {
-                        if (!site.sources[transfer.source._id]) {
-                            //TODO clean up returned data if performance lags
-                            site.sources[transfer.source._id] = transfer.source;
-                        }
-                        ++transfers_counter;
-                        site.transfers.push({
-                            _id: transfer._id,
-                            transfer_year: transfer.transfer_year,
-                            country: {
-                                name: transfer.country.name,
-                                iso2: transfer.country.iso2},
-                            transfer_type: transfer.transfer_type,
-                            transfer_unit: transfer.transfer_unit,
-                            transfer_value: transfer.transfer_value,
-                            transfer_level: transfer.transfer_level,
-                            transfer_audit_type: transfer.transfer_audit_type,
-                            transfer_links: []
-                            // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
-                        });
-                        if (transfer.company!==null) {
-                            _.last(site.transfers).company = {_id: transfer.company._id, company_name: transfer.company.company_name};
-                        }
-                        if (transfer.project!==null && transfer.project) {
-                            _.last(site.transfers).transfer_links.push({
-                                _id: transfer.project._id,
-                                route: transfer.project.proj_id,
-                                type: 'project',
-                                name: transfer.project.proj_name});
-                        }
-                        if (transfer.site!==null && transfer.site) {
-                            var type;
-                            if (transfer.site.field) {
-                                type = 'field';
-                            } else {
-                                type = 'site';
-                            }
-                            if(transfer.project!=undefined) {
-                                _.last(site.transfers).transfer_links.push({
-                                    _id: transfer.project._id,
-                                    route: transfer.project.proj_id,
-                                    type: type,
-                                    name: transfer.project.proj_name
-                                });
-                            }
-                        }
-                        if (transfers_counter===transfers_len) {
-                            callback(null, site);
-                        }
-                    });
-                } else {
-                    callback(null, site);
-                }
-            });
-    }
-    function getProduction(site, callback) {
-        site.production = [];
-        Production.find({$or: [
-                {project:{$in: site.transfers_query}},
-                {site:{$in: site.transfers_query}}]})
-            .populate('production_commodity project site')
-            .deepPopulate('source.source_type_id')
-            // .lean()
-            .exec(function(err, production) {
-                production_counter = 0;
-                production_len = production.length;
-                if (production_len>0) {
-                    production.forEach(function (prod) {
-                        if (!site.sources[prod.source._id]) {
-                            //TODO clean up returned data if performance lags
-                            site.sources[prod.source._id] = prod.source;
-                        }
-                        ++production_counter;
-                        site.production.push({
-                            _id: prod._id,
-                            production_year: prod.production_year,
-                            production_volume: prod.production_volume,
-                            production_unit: prod.production_unit,
-                            production_commodity: {
-                                _id: prod.production_commodity._id,
-                                commodity_name: prod.production_commodity.commodity_name,
-                                commodity_id: prod.production_commodity.commodity_id},
-                            production_price: prod.production_price,
-                            production_price_unit: prod.production_price_unit,
-                            production_level: prod.production_level,
-                            production_links: []
-                            // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
-                        });
-                        if (prod.project!==null && prod.project) {
-                            _.last(site.production).production_links.push({
-                                _id: prod.project._id,
-                                route: prod.project.proj_id,
-                                type: 'project',
-                                name: prod.project.proj_name});
-                        }
-                        if (prod.site!==null && prod.site) {
-                            var type;
-                            if (prod.site.field) {
-                                type = 'field';
-                            } else {
-                                type = 'site';
-                            }
-                            _.last(site.production).production_links.push({
-                                _id: prod.site._id,
-                                route: prod.site._id,
-                                type: type,
-                                name: prod.site.site_name});
-                        }
-                        if (production_counter===production_len) {
-                            callback(null, site);
-                        }
-                    });
-                } else {
-                    callback(null, site);
-                }
-            });
-    }
-    function getSiteCoordinate(site, callback) {
-        site.coordinates = [];
-        if (site.site_coords.sites.length>0) {
-            site.site_coords.sites.forEach(function (site_loc) {
-                site.coordinates.push(site_loc);
-            })
-        }
-        if (site.site_coords.fields.length>0) {
-            site.site_coords.fields.forEach(function (field_loc) {
-                site.coordinates.push(field_loc);
-            })
-        }
-        if (site.site_coordinates.length>0) {
-            site.site_coordinates.forEach(function (loc) {
-                site.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': site.site_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'site',
-                    'id': site._id
-                });
-            });
-        }
-        callback(null, site);
-    }
     function getProjectLinks(site, callback) {
         proj_len = site.projects.length;
         proj_counter = 0;
@@ -580,10 +399,6 @@ exports.getSiteByID = function(req, res) {
                                         site.source_type.p = true;
                                     }
                                 }
-                                if (!site.sources[link.source._id]) {
-                                    //TODO clean up returned data if performance lags
-                                    site.sources[link.source._id] = link.source;
-                                }
                                 switch (entity) {
                                     case 'site':
                                         if (link.site.site_commodity.length>0) {
@@ -596,35 +411,6 @@ exports.getSiteByID = function(req, res) {
                                                 });
                                             }
                                         }
-                                        // project.transfers_query.push(link.site._id);
-                                        // project.sites.push({
-                                        //     _id: link.site._id,
-                                        //     field: link.site.field,
-                                        //     site_name: link.site.site_name
-                                        // });
-                                        // if (link.site.field && link.site.site_coordinates.length>0) {
-                                        //     link.site.site_coordinates.forEach(function (loc) {
-                                        //         project.site_coordinates.fields.push({
-                                        //             'lat': loc.loc[0],
-                                        //             'lng': loc.loc[1],
-                                        //             'message': link.site.site_name,
-                                        //             'timestamp': loc.timestamp,
-                                        //             'type': 'field',
-                                        //             'id': link.site._id
-                                        //         });
-                                        //     });
-                                        // } else if (!link.site.field && link.site.site_coordinates.length>0) {
-                                        //     link.site.site_coordinates.forEach(function (loc) {
-                                        //         project.site_coordinates.sites.push({
-                                        //             'lat': loc.loc[0],
-                                        //             'lng': loc.loc[1],
-                                        //             'message': link.site.site_name,
-                                        //             'timestamp': loc.timestamp,
-                                        //             'type': 'site',
-                                        //             'id': link.site._id
-                                        //         });
-                                        //     });
-                                        // }
                                         break;
                                     case 'project':
                                         if (link.project.proj_commodity.length>0) {
@@ -638,17 +424,7 @@ exports.getSiteByID = function(req, res) {
                                             }
                                         }
                                         break;
-                                    case 'company':
-                                        if (!site.companies.hasOwnProperty(link.company._id)) {
-                                            // project.transfers_query.push(link.company._id);
-                                            site.companies.push({
-                                                _id: link.company._id,
-                                                company_name: link.company.company_name
-                                            });
-                                        }
-                                        break;
                                     case 'concession':
-                                        // project.transfers_query.push(link.concession._id);
                                         site.concessions.push({
                                             _id: link.concession._id,
                                             concession_name: link.concession.concession_name
@@ -675,123 +451,6 @@ exports.getSiteByID = function(req, res) {
             callback(null, site);
         }
     }
-    function getProjectCoordinate(site, callback) {
-        var proj_counter = 0;
-        site.proj_coordinates=[];
-        var proj_len = site.projects.length;
-        if(proj_len>0) {
-            site.projects.forEach(function (project) {
-                ++proj_counter;
-                project.proj_coordinates.forEach(function (loc) {
-                    site.proj_coordinates.push({
-                        'lat': loc.loc[0],
-                        'lng': loc.loc[1],
-                        'message': project.proj_name,
-                        'timestamp': loc.timestamp,
-                        'type': 'project',
-                        'id': project.proj_id
-                    });
-                });
-                if (proj_counter == proj_len) {
-                    callback(null, site);
-                }
-            });
-        } else {
-            callback(null, site);
-        }
-    }
-    function getCompanyGroup(site, callback) {
-        companies_len = site.companies.length;
-        companies_counter = 0;
-        if (companies_len > 0) {
-            site.companies.forEach(function (company) {
-                Link.find({company: company._id, entities: 'company_group'})
-                    .populate('company_group', '_id company_group_name')
-                    .deepPopulate('source.source_type_id')
-                    .exec(function (err, links) {
-                        ++companies_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        company.company_groups = [];
-                        if (link_len > 0) {
-                            links.forEach(function (link) {
-                                if (!site.sources[link.source._id]) {
-                                    //TODO clean up returned data if performance lags
-                                    site.sources[link.source._id] = link.source;
-                                }
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'company')[0];
-                                switch (entity) {
-                                    case 'company_group':
-                                        if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                            company.company_groups.push({
-                                                _id: link.company_group._id,
-                                                company_group_name: link.company_group.company_group_name
-                                            });
-                                        }
-                                        break;
-                                    default:
-                                        console.log('link doesn\'t specify a company_group but rather a ${entity}');
-                                }
-                                if (companies_counter == companies_len && link_counter == link_len) {
-                                    callback(null, site);
-                                }
-                            });
-                        } else if (companies_counter == companies_len) {
-                            callback(null, site);
-                        }
-                    });
-            });
-        } else {
-            callback(null, site);
-        }
-    }
-    // function getCompanyGroup(site, callback) {
-    //     companies_len = site.companies.length;
-    //     companies_counter = 0;
-    //     if (companies_len > 0) {
-    //         site.companies.forEach(function (company) {
-    //             Link.find({company: company._id, entities: 'company_group'})
-    //                 .populate('company_group', '_id company_group_name')
-    //                 .deepPopulate('source.source_type_id')
-    //                 .exec(function (err, links) {
-    //                     ++companies_counter;
-    //                     link_len = links.length;
-    //                     link_counter = 0;
-    //                     company.company_groups = [];
-    //                     if (link_len > 0) {
-    //                         links.forEach(function (link) {
-    //                             if (!site.sources[link.source._id]) {
-    //                                 //TODO clean up returned data if performance lags
-    //                                 site.sources[link.source._id] = link.source;
-    //                             }
-    //                             ++link_counter;
-    //                             var entity = _.without(link.entities, 'company')[0];
-    //                             switch (entity) {
-    //                                 case 'company_group':
-    //                                     if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-    //                                         company.company_groups.push({
-    //                                             _id: link.company_group._id,
-    //                                             company_group_name: link.company_group.company_group_name
-    //                                         });
-    //                                     }
-    //                                     break;
-    //                                 default:
-    //                                     console.log('link doesn\'t specify a company_group but rather a ${entity}');
-    //                             }
-    //                             if (companies_counter == companies_len && link_counter == link_len) {
-    //                                 callback(null, site);
-    //                             }
-    //                         });
-    //                     } else if (companies_counter == companies_len) {
-    //                         callback(null, site);
-    //                     }
-    //                 });
-    //         });
-    //     } else {
-    //         callback(null, site);
-    //     }
-    // }
 };
 
 exports.getSitesMap = function(req, res) {
