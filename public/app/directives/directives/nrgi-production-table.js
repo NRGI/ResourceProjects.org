@@ -7,7 +7,6 @@ angular
             restrict: 'EA',
             controller: 'nrgiProductionTableCtrl',
             scope: {
-                //production: '=',
                 projectlink: '=',
                 id:'=',
                 type:'='

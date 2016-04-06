@@ -1,5 +1,6 @@
-h2 Sites and Fields
-div
+a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#sites")
+    h2 Sites and Fields
+#sites.panel-collapse.collapse
     table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead
             tr

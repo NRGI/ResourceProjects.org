@@ -247,7 +247,31 @@ exports.getSiteByID = function(req, res) {
         site.sites = [];
         site.projects = [];
         site.proj_coordinates=[];
+        site.coordinates=[];
         site.source_type = {p: false, c: false};
+        if (site.field && site.site_coordinates.length>0) {
+            site.site_coordinates.forEach(function (loc) {
+                site.coordinates.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': site.site_name,
+                    'timestamp': loc.timestamp,
+                    'type': 'field',
+                    'id': site._id
+                });
+            });
+        } else if (!site.field && site.site_coordinates.length>0) {
+            site.site_coordinates.forEach(function (loc) {
+                site.coordinates.push({
+                    'lat': loc.loc[0],
+                    'lng': loc.loc[1],
+                    'message': site.site_name,
+                    'timestamp': loc.timestamp,
+                    'type': 'site',
+                    'id': site._id
+                });
+            });
+        }
         var commodity = site.site_commodity;
         site.site_commodity = [];
         if (commodity.length>0) {
@@ -283,7 +307,7 @@ exports.getSiteByID = function(req, res) {
                             case 'project':
                                 site.projects.push(link.project);
                                 link.project.proj_coordinates.forEach(function (loc) {
-                                    site.proj_coordinates.push({
+                                    site.coordinates.push({
                                         'lat': loc.loc[0],
                                         'lng': loc.loc[1],
                                         'message': link.project.proj_name,

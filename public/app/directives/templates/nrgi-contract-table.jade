@@ -1,5 +1,6 @@
-h2 Contracts
-div
+a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
+    h2 Contracts
+#contracts.panel-collapse.collapse
     table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
         thead
             tr

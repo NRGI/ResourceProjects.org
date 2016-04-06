@@ -7,7 +7,8 @@ angular
             restrict: 'EA',
             controller: 'nrgiSiteTableCtrl',
             scope: {
-                sites: '=',
+                name:'=',
+                id:'=',
                 commodity: '=',
                 status: '=',
                 country: '=',

@@ -7,7 +7,8 @@ angular
             restrict: 'EA',
             controller: 'nrgiContractTableCtrl',
             scope: {
-                contracts: '=',
+                type: '=',
+                id: '=',
                 companies: '=',
                 commodity: '=',
                 country: '='

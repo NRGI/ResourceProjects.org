@@ -102,10 +102,10 @@
                                 table.table.table-striped.locations(ts-wrapper)
                                     tbody
                                         tr
-                                            th.tablesort-sortable-th(ts-criteria='name') Name
+                                            th.tablesort-sortable-th(ts-criteria='message') Name
                                             th.tablesort-sortable-th(ts-criteria='lat') Lat
                                             th.tablesort-sortable-th(ts-criteria='lng') Lng
-                                            th.tablesort-sortable-th(ts-criteria='lng') Type
+                                            th.tablesort-sortable-th(ts-criteria='type') Type
                                             th.location-th
                                         tr(ng-repeat='location in project.coordinates',ts-repeat)
                                             td.location_name

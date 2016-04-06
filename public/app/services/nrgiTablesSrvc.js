@@ -41,3 +41,27 @@ angular.module('app')
 
         return ProjectResource;
     })
+    .factory('nrgiSiteFieldTablesSrvc', function($resource) {
+        var ProjectResource = $resource('/api/site_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ProjectResource;
+    })
+    .factory('nrgiContractTablesSrvc', function($resource) {
+        var ProjectResource = $resource('/api/contract_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ProjectResource;
+    })
+    .factory('nrgiConcessionTablesSrvc', function($resource) {
+        var ProjectResource = $resource('/api/concession_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ProjectResource;
+    })

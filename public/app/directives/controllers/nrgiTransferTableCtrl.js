@@ -8,7 +8,6 @@ angular
             if ($scope.transfers.length == 0) {
                 nrgiTransferTablesSrvc.get({_id: id, type: type}, function (success) {
                     $scope.transfers=success.transfers;
-
                     $scope.csv_transfers =[]; var header_transfer=[]; var fields=[];
                     var headers = [
                         {name:'Year',status:true,field:'transfer_year'},
@@ -30,11 +29,11 @@ angular
                     angular.forEach($scope.transfers, function(transfer,key) {
                         $scope.csv_transfers[key] = [];
                         angular.forEach(fields, function (field) {
-                            //if(field=='country') {
-                            //    var country_name = transfer[field].name.toString();
-                            //    country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
-                            //    $scope.csv_transfers[key].push(country_name);
-                            //}
+                            if(field=='country') {
+                                var country_name = transfer[field].name.toString();
+                                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                $scope.csv_transfers[key].push(country_name);
+                            }
                             if(field=='company') {
                                 var company_name = transfer[field].company_name.toString();
                                 company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);

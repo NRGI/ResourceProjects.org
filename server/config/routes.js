@@ -271,6 +271,9 @@ module.exports	= function(app) {
 	app.get('/api/prod_table/:type/:id', tables.getProductionTable);
 	app.get('/api/transfer_table/:type/:id', tables.getTransferTable);
 	app.get('/api/source_table/:type/:id', tables.getSourceTable);
+	app.get('/api/site_table/:type/:id', tables.getSiteFieldTable);
+	app.get('/api/contract_table/:type/:id', tables.getContractTable);
+	app.get('/api/concession_table/:type/:id', tables.getConcessionTable);
 
 
 	app.post('/login', auth.authenticate);
