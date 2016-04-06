@@ -23,7 +23,7 @@ randomstring = require('just.randomstring');
 //TODO: API Key could be set as environment variable
 //API_KEY = process.env.CHAPIKEY
 
-// define desired report years hear
+// define desired report years here
 years = _.range(2000, 2016);
 
 //country code is always GB
@@ -50,7 +50,7 @@ exports.importData = function(action_id, finalcallback) {
 		console.log("year: " + year);
 				
 		// Call Companies House Extractives API
-		// TODO: At the moment, some fake data are used for testing purposes. This should be changed to the real API URL as sson as data are available.
+		// TODO: At the moment, some fake data are used for testing purposes. This should be changed to the real API URL as soon as data are available.
 		
 		request
 		//.get('https://extractives.companieshouse.gov.uk/api/year'+year.toString()+'/json')
