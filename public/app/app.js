@@ -2,7 +2,7 @@
 angular.module('app', [
     'angular.filter',
     'iso-3166-country-codes',
-    //'angular-google-analytics',
+    'angular-google-analytics',
     'leaflet-directive',
     'ngDialog',
     'ngResource',
@@ -13,13 +13,13 @@ angular.module('app', [
 ]);
 
 angular.module('app')
-    .config(function($routeProvider, $locationProvider) {
-        //
-        //AnalyticsProvider
-        //    .setAccount([{ tracker: 'UA-59246536-4', name: "resourceprojects.org" }])
-        //    .logAllCalls(true)
-        //    .startOffline(true);
-        //// role checks
+    .config(function($routeProvider, $locationProvider, AnalyticsProvider) {
+
+        AnalyticsProvider
+            .setAccount([{ tracker: 'UA-59246536-4', name: "resourceprojects.org" }])
+            .logAllCalls(true)
+            .startOffline(true);
+        // role checks
         var routeRoleChecks = {
             supervisor: {auth: function(nrgiAuthSrvc) {
                 return nrgiAuthSrvc.authorizeCurrentUserForRoute('admin')
@@ -374,6 +374,6 @@ angular.module('app')
             output=output.substr(0,output.length-1);
 
             console.log(output);
-            //$window.ga(['_trackPageview', output]);
+            $window.ga(['_trackPageview', output]);
         });
     });
