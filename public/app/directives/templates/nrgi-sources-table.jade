@@ -8,7 +8,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#sources")
                 th.tablesort-sortable-th(ts-criteria='source_type_id.source_type_name') Type
                 th.tablesort-sortable-th(ts-criteria='source_type_id.source_type_authority') Authority
         tbody
-            tr(ng-repeat="source in sources"
+            tr(ng-repeat="source in sources | unique: '_id'"
             ts-repeat)
                 td.source_id: a(href='source/{{source._id}}')
                     span(ng-bind-html="source.source_name|sanitize")

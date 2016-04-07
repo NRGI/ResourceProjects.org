@@ -19,15 +19,6 @@ angular
         });
         $scope.getHeaderProjects = function () {return header_project};
         $scope.getData=function(id,type) {
-            var id_company = [];
-            if(type=='group'){
-                _.each(id,function(_id){
-                    id_company.push(_id._id)
-                });
-            }else{
-                id_company.push(id)
-            }
-            id = id_company;
             if ($scope.projects.length == 0) {
                 nrgiProjectTablesSrvc.get({_id: id, type: type},function (success) {
                     $scope.projects = success.projects;

@@ -46,13 +46,13 @@
                         tr
                             td.detail_label.small Commodity type:
                             td.concession_commodity_type
-                                span(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity.commodity_type'")
+                                span(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity_type'")
                                     | {{commodity.commodity_type | ucfirst | addSpaces}}
                                     | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Commodities:
                             td.concession_commodities
-                                span(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
+                                span(ng-repeat="commodity in concession.concession_commodity | unique: '_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

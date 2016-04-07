@@ -10,8 +10,8 @@ angular.module('app')
     return ProjectResource;
     })
     .factory('nrgiProjectTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/project_table/:type', {type:"@type"}, {
-            query:  {method:'GET', isArray: false, params:{_id:"@id"}},
+        var ProjectResource = $resource('/api/project_table/:type/:_id', {_id: "@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false},
             update: {method: 'PUT', isArray: false}
         });
 

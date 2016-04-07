@@ -267,7 +267,7 @@ module.exports	= function(app) {
 
 	//TABLE
 	app.get('/api/company_table/:type/:id', tables.getCompanyTable);
-	app.get('/api/project_table/:type', tables.getProjectTable);
+	app.get('/api/project_table/:type/:id', tables.getProjectTable);
 	app.get('/api/prod_table/:type/:id', tables.getProductionTable);
 	app.get('/api/transfer_table/:type/:id', tables.getTransferTable);
 	app.get('/api/source_table/:type/:id', tables.getSourceTable);

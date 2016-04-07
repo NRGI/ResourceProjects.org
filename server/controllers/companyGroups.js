@@ -86,13 +86,16 @@ exports.getCompanyGroups = function(req, res) {
         companyGroup_counter = 0;
         if(companyGroup_len>0) {
             async.forEach(companyGroups, function (group) {
+                group.project_count = 0;
                 if(Object.keys(group.companies).length != 0) {
                     Link.find({entities: 'project',$or: [group.companies]})
-                        .count()
+                        .populate('project')
                         .exec(function (err, proj_count) {
+                            proj_count = _.uniq(proj_count, function (a) {
+                                return a.project._id;
+                            });
                             ++companyGroup_counter;
-                            group.project_count = 0;
-                            group.project_count = proj_count;
+                            group.project_count = proj_count.length;
                             if (companyGroup_counter == companyGroup_len) {
                                 res.send({data: companyGroups, count: companyGroup_count});
                             }

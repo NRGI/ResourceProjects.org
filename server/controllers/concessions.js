@@ -55,6 +55,16 @@ exports.getConcessions = function(req, res) {
         concession_counter = 0;
         if(concession_len>0) {
             concessions.forEach(function (concession) {
+                var commodities=concession.concession_commodity;
+                concession.concession_commodity=[];
+                _.each(commodities,function(commodity){
+                    concession.concession_commodity.push({
+                        _id: commodity.commodity._id,
+                        commodity_name: commodity.commodity.commodity_name,
+                        commodity_type: commodity.commodity.commodity_type,
+                        commodity_id: commodity.commodity.commodity_id
+                    });
+                });
                 concession.transfers_query = [concession._id];
                 concession.source_type = {p: false, c: false};
                 Link.find({concession: concession._id})
@@ -229,6 +239,16 @@ exports.getConcessionByID = function(req, res) {
         concession.site_coordinates = {sites: [], fields: []};
         concession.polygon=[];
         concession.proj_coordinates = [];
+        var commodities=concession.concession_commodity;
+        concession.concession_commodity=[];
+        _.each(commodities,function(commodity){
+            concession.concession_commodity.push({
+                _id: commodity.commodity._id,
+                commodity_name: commodity.commodity.commodity_name,
+                commodity_type: commodity.commodity.commodity_type,
+                commodity_id: commodity.commodity.commodity_id
+            });
+        })
         if (concession.concession_polygon.length>0) {
             var len=concession.concession_polygon.length;
             var counter=0;

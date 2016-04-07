@@ -5,15 +5,33 @@ var Project 		= require('mongoose').model('Project'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Production 	    = require('mongoose').model('Production'),
     Commodity 	    = require('mongoose').model('Commodity'),
+    Site 	        = require('mongoose').model('Site'),
+    Concession 	    = require('mongoose').model('Concession'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
 
 exports.getCompanyTable = function(req, res){
     var link_counter, link_len, companies_len, companies_counter;
-
+    var type = req.params.type;
+    var query='';
+    if(type=='project') { query = {project:req.params.id, entities:"company"}}
+    if(type=='site'||type=='field') { query = {site:req.params.id, entities:"company"}}
+    if(type=='concession') { query = {concession:req.params.id, entities:"company"}}
+    if(type=='contract') { query = {contract:req.params.id, entities:"company"}}
+    if(type=='commodity') { query = {commodity:req.params.id}}
+    var models = [
+        {name:'Site',field:{'site_commodity.commodity':req.params.id},params:'site'},
+        {name:'Concession',field:{'concession_commodity.commodity':req.params.id},params:'concession'},
+        {name:'Project',field:{'proj_commodity.commodity':req.params.id},params:'project'}
+    ];
+    var companies = {};
+    companies.companies = [];companies.query=[];
+    var models_len,models_counter=0,counter=0;
     async.waterfall([
         getProjectLinks,
+        getCommodityLinks,
+        getCommodityCompany,
         getCompanyGroup
     ], function (err, result) {
         if (err) {
@@ -23,44 +41,96 @@ exports.getCompanyTable = function(req, res){
         }
     });
     function getProjectLinks(callback) {
-        var type = req.params.type;
-        var query='';
-        if(type=='project') { query = {project:req.params.id, entities:"company"}
-        }
-        if(type=='site'||type=='field') { query = {site:req.params.id, entities:"company"}
-        }
-        if(type=='concession') { query = {concession:req.params.id, entities:"company"}
-        }
-        if(type=='contract') { query = {contract:req.params.id, entities:"company"}
-        }
-        Link.find(query)
-            .populate('company')
-            .deepPopulate('company_group')
-            .exec(function(err, links) {
-                if(links) {
-                    var companies ={};
-                    companies.companies=[];
-                    link_len = links.length;
-                    link_counter = 0;
-                    _.each(links,function(link){
-                        ++link_counter;
-                        companies.companies.push({
-                            company_name:link.company.company_name,
-                            _id:link.company._id,
-                            company_groups:[]
-                        });
-                        companies.companies = _.uniq(companies.companies, function (a) {
-                            return a._id;
-                        });
-                        if(link_len==link_counter){
-                            callback(null, companies);
-                        }
+        if(type!='commodity') {
+            Link.find(query)
+                .populate('company')
+                .deepPopulate('company_group')
+                .exec(function (err, links) {
+                    if (links) {
+                        link_len = links.length;
+                        link_counter = 0;
+                        _.each(links, function (link) {
+                            ++link_counter;
+                            companies.companies.push({
+                                company_name: link.company.company_name,
+                                _id: link.company._id,
+                                company_groups: []
+                            });
+                            companies.companies = _.uniq(companies.companies, function (a) {
+                                return a._id;
+                            });
+                            if (link_len == link_counter) {
+                                callback(null, companies);
+                            }
 
-                    })
-                } else {
-                    callback(err);
-                }
+                        })
+                    } else {
+                        callback(err);
+                    }
+                });
+        } else{
+            callback(null, companies);
+        }
+    }
+    function getCommodityLinks(companies,callback) {
+        if(type=='commodity') {
+            models_counter=0;
+            companies.query=[];
+            models_len = models.length;
+            _.each(models, function(model) {
+                var name = require('mongoose').model(model.name);
+                var $field = model.field;
+                name.find($field).exec(function (err, responce) {
+                    models_counter++;
+                    _.each(responce, function(re) {
+                        counter++;
+                        if(model.params=='project'){companies.query.push({project:re._id,entities:'company'})}
+                        if(model.params=='concession'){companies.query.push({concession:re._id,entities:'company'})}
+                        if(model.params=='site'){companies.query.push({site:re._id,entities:'company'})}
+                    });
+                    if(models_counter==models_len){
+                        callback(null, companies);
+                    }
+                });
             });
+        }else {
+            callback(null, companies);
+        }
+    }
+    function getCommodityCompany(companies, callback) {
+        if(type=='commodity') {
+            companies_len = companies.query.length;
+            companies_counter = 0;
+            if (companies_len > 0) {
+                companies.query.forEach(function (query) {
+                    Link.find({$or: [query]})
+                        .populate('company company_group')
+                        .exec(function (err, links) {
+                            ++companies_counter;
+                            link_len = links.length;
+                            link_counter = 0;
+                            _.each(links, function (link) {
+                                ++link_counter;
+                                companies.companies.push({
+                                    company_name: link.company.company_name,
+                                    _id: link.company._id,
+                                    company_groups: []
+                                });
+                                companies.companies = _.uniq(companies.companies, function (a) {
+                                    return a._id;
+                                });
+                            });
+                            if (link_len == link_counter && companies_counter == companies_len) {
+                                callback(null, companies);
+                            }
+                        });
+                });
+            } else {
+                callback(null, companies);
+            }
+        } else {
+            callback(null, companies);
+        }
     }
     function getCompanyGroup(companies, callback) {
         companies_len = companies.companies.length;
@@ -90,9 +160,18 @@ exports.getCompanyTable = function(req, res){
 };
 exports.getProjectTable = function(req, res){
     var link_counter, link_len, companies_len, companies_counter;
-
+    var type = req.params.type;
+    var query={};
+    var projects = {};
+    projects.projects = [];
+    if(type=='concession') { query={concession:req.params.id, entities:"project"}}
+    if(type=='company') { query={company:req.params.id, entities:"project"}}
+    if(type=='contract') { query={contract:req.params.id, entities:"project"}}
+    if(type=='commodity') { query={'proj_commodity.commodity':req.params.id}}
+    if(type=='group') { query={company: req.params.id, entities: "project"}}
     async.waterfall([
         getLinkedProjects,
+        getCommodityProjects,
         getCompanyCount
     ], function (err, result) {
         if (err) {
@@ -102,27 +181,11 @@ exports.getProjectTable = function(req, res){
         }
     });
     function getLinkedProjects(callback) {
-        var type = req.params.type;
-        var queries=[];
-        _.each(req.query,function(company) {
-            //if(company.length>1) {
-            //    company = JSON.parse(company);
-            //}
-            if(type=='concession') { queries.push({concession:company, entities:"project"})
-            }if(type=='company') { queries.push({company:company, entities:"project"})
-            }if(type=='contract') { queries.push({contract:company, entities:"project"})
-            }if(type=='commodity') { queries.push({commodity:company, entities:"project"})
-            }
-            if(type=='group') { queries.push({company: company, entities: "project"});
-            }
-        });
-        async.eachOfSeries(queries, function (query) {
+        if(type!='commodity') {
             Link.find(query)
                 .deepPopulate('project.proj_country.country project.proj_commodity.commodity')
                 .exec(function (err, links) {
                     if (links) {
-                        var projects = {};
-                        projects.projects = [];
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -147,7 +210,45 @@ exports.getProjectTable = function(req, res){
                         callback(err);
                     }
                 });
-        })
+        } else{
+            projects.projects = [];
+            callback(null, projects);
+        }
+    }
+    function getCommodityProjects(projects, callback) {
+        if(type=='commodity') {
+            Project.find(query)
+                .populate('commodity country')
+                .deepPopulate('proj_commodity.commodity proj_country.country')
+                .exec(function (err, proj) {
+                    link_len = proj.length;
+                    link_counter = 0;
+                    if(link_len>0) {
+                        _.each(proj, function (project) {
+                            ++link_counter;
+                            projects.projects.push({
+                                proj_id: project.proj_id,
+                                proj_name: project.proj_name,
+                                proj_country: project.proj_country,
+                                proj_commodity: project.proj_commodity,
+                                proj_status: project.proj_status,
+                                _id: project._id,
+                                companies: 0
+                            });
+                            if (link_len == link_counter) {
+                                projects.projects = _.uniq(projects.projects, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, projects);
+                            }
+                        })
+                    }else{
+                        callback(null, projects);
+                    }
+                });
+        } else{
+            callback(null, projects);
+        }
     }
     function getCompanyCount(projects, callback) {
         companies_len = projects.projects.length;
@@ -185,6 +286,7 @@ exports.getProductionTable = function(req, res){
     if(type=='contract') { queries={contract:req.params.id};projects.production_query = [req.params.id];}
     if(type=='project') {  queries={project:req.params.id};projects.production_query = [req.params.id];}
     if(type=='site') {  queries={site:req.params.id};projects.production_query = [req.params.id];}
+    if(type=='commodity') {  queries={commodity:req.params.id};projects.production_query = [req.params.id];}
     async.waterfall([
         getLinks,
         getProduction
@@ -252,6 +354,7 @@ exports.getProductionTable = function(req, res){
         if(type=='concession'){ query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
         if(type=='company') {query={$or: [{project: {$in: projects.production_query}},{site: {$in: projects.production_query}},{concession: {$in: projects.production_query}}]}}
         if(type=='contract') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
+        if(type=='commodity') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='project'||type=='site') {  query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
         Production.find(query)
                 .populate('production_commodity')
@@ -302,6 +405,7 @@ exports.getTransferTable = function(req, res){
     if(type=='contract') { queries={contract:req.params.id};projects.transfers_query = [req.params.id];}
     if(type=='project') {  queries={project:req.params.id};projects.transfers_query = [req.params.id];}
     if(type=='site') {  queries={site:req.params.id};projects.transfers_query = [req.params.id];}
+    if(type=='commodity') {  queries={commodity:req.params.id};projects.transfers_query = [req.params.id];}
     async.waterfall([
         getLinks,
         getTransfers
@@ -368,6 +472,7 @@ exports.getTransferTable = function(req, res){
         if(type=='concession'){ query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}}]}}
         if(type=='company') {query={$or: [{project: {$in: projects.transfers_query}},{site: {$in: projects.transfers_query}},{concession: {$in: projects.transfers_query}}]}}
         if(type=='contract') { query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
+        if(type=='commodity') { query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
         if(type=='project'||type=='site') {  query={$or: [{project:{$in: projects.transfers_query}},{site:{$in: projects.transfers_query}}]}}
         if(projects.transfers_query!=null) {
             Transfer.find(query)
@@ -417,10 +522,23 @@ exports.getTransferTable = function(req, res){
     }
 };
 exports.getSiteFieldTable = function(req, res){
-    var link_counter, link_len;
-
+    var link_counter, link_len,site_counter,site_len;
+    var site ={};
+    site.sites=[];
+    var type = req.params.type;
+    var query='';
+    if(type=='company') { query = {company:req.params.id, entities:"site"}
+    }
+    if(type=='concession') { query = {concession:req.params.id, entities:"site"}
+    }
+    if(type=='contract') { query = {contract:req.params.id, entities:"site"}
+    }
+    if(type=='commodity') { query = {'site_commodity.commodity':req.params.id}
+    }
     async.waterfall([
-        getLinks
+        getLinks,
+        getSites,
+        getCompanyCount
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -429,46 +547,105 @@ exports.getSiteFieldTable = function(req, res){
         }
     });
     function getLinks(callback) {
-        var site ={};
-        site.sites=[];
-        var type = req.params.type;
-        var query='';
-        if(type=='company') { query = {company:req.params.id, entities:"site"}
-        }
-        if(type=='concession') { query = {concession:req.params.id, entities:"site"}
-        }
-        if(type=='contract') { query = {contract:req.params.id, entities:"site"}
-        }
-        Link.find(query)
-            .populate('site commodity country')
-            .deepPopulate('site.site_country.country site.site_commodity.commodity')
-            .exec(function(err, links) {
-                if(links) {
-                    link_len = links.length;
-                    link_counter = 0;
-                    _.each(links,function(link){
-                        ++link_counter;
-                        site.sites.push({
-                            _id: link.site._id,
-                            field: link.site.field,
-                            site_name: link.site.site_name,
-                            site_status: link.site.site_status,
-                            site_country: link.site.site_country,
-                            site_commodity:link.site.site_commodity
-                        });
-
-                        if(link_len==link_counter){
-                            site.sites = _.uniq(site.sites, function (a) {
-                                return a._id;
+        if(type!='commodity') {
+            Link.find(query)
+                .populate('site commodity country')
+                .deepPopulate('site.site_country.country site.site_commodity.commodity')
+                .exec(function (err, links) {
+                    if (links) {
+                        link_len = links.length;
+                        link_counter = 0;
+                        _.each(links, function (link) {
+                            ++link_counter;
+                            site.sites.push({
+                                _id: link.site._id,
+                                field: link.site.field,
+                                site_name: link.site.site_name,
+                                site_status: link.site.site_status,
+                                site_country: link.site.site_country,
+                                site_commodity: link.site.site_commodity
                             });
-                            callback(null, site);
-                        }
 
-                    })
-                } else {
-                    callback(err);
-                }
-            });
+                            if (link_len == link_counter) {
+                                site.sites = _.uniq(site.sites, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, site);
+                            }
+
+                        })
+                    } else {
+                        callback(err);
+                    }
+                });
+        } else {
+            site.sites=[];
+            callback(null, site);
+        }
+    }
+
+    function getSites(site, callback) {
+        if(type=='commodity') {
+            Site.find(query)
+                .populate('contract commodity country site_country.country site_commodity.commodity')
+                .exec(function (err, sites) {
+                    site_counter = 0;
+                    site_len = sites.length;
+                    if(site_len>0) {
+                        sites.forEach(function (s) {
+                            ++site_counter;
+                            site.sites.push({
+                                _id: s._id,
+                                field: s.field,
+                                site_name: s.site_name,
+                                site_status: s.site_status,
+                                site_country: s.site_country,
+                                site_commodity: s.site_commodity,
+                                companies:0
+                            });
+                            if (site_counter === site_len) {
+                                site.sites = _.uniq(site.sites, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, site);
+                            }
+                        });
+                    }else {
+                        callback(null, site);
+                    }
+                });
+        }else {
+            callback(null, site);
+        }
+    }
+    function getCompanyCount(sites, callback) {
+        if (type == 'commodity') {
+            site_len = sites.sites.length;
+            site_counter = 0;
+            if (site_len > 0) {
+                sites.sites.forEach(function (site) {
+                    Link.find({site: site._id, entities: 'company'})
+                        .populate('company', '_id company_name')
+                        .exec(function (err, links) {
+                            ++site_counter;
+                            link_len = links.length;
+                            link_counter = 0;
+                            _.each(links, function (link) {
+                                ++link_counter;
+                                site.companies = +1;
+                            });
+                            if (link_len == link_counter && site_counter == site_len) {
+                                callback(null, sites);
+                            }
+
+                        });
+                });
+            } else {
+                callback(null, sites);
+            }
+        } else {
+            callback(null, sites);
+        }
     }
 };
 exports.getContractTable = function(req, res){
@@ -493,6 +670,8 @@ exports.getContractTable = function(req, res){
         if(type=='company') { query = {company:req.params.id, entities:"contract"}
         }
         if(type=='concession') { query = {concession:req.params.id, entities:"site"}
+        }
+        if(type=='commodity') { query = {commodity:req.params.id, entities:"site"}
         }
         Link.find(query)
             .populate('contract commodity country')
@@ -577,10 +756,19 @@ exports.getContractTable = function(req, res){
     }
 };
 exports.getConcessionTable = function(req, res){
-    var link_counter, link_len;
-
+    var link_counter, link_len,concession_len,concession_counter;
+    var type = req.params.type;
+    var query = '';
+    if (type == 'company') {
+        query = {company: req.params.id, entities: "concession"}
+    }
+    if (type == 'commodity') {
+        query = {'concession_commodity.commodity': req.params.id}
+    }
     async.waterfall([
-        getLinks
+        getLinks,
+        getConcessions,
+        getProjectCount
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -589,48 +777,128 @@ exports.getConcessionTable = function(req, res){
         }
     });
     function getLinks(callback) {
-        var company ={};
-        company.concessions=[];
-        var type = req.params.type;
-        var query='';
-        if(type=='company') { query = {company:req.params.id, entities:"concession"}
-        }
-        Link.find(query)
-            .populate('concession commodity country')
-            .deepPopulate('concession.concession_commodity.commodity concession.concession_country.country ')
-            .exec(function(err, links) {
-                if(links) {
-                    link_len = links.length;
-                    link_counter = 0;
-                    _.each(links,function(link){
-                        ++link_counter;
-                        company.concessions.push({
-                            _id: link.concession._id,
-                            concession_name: link.concession.concession_name,
-                            concession_country: _.first(link.concession.concession_country).country,
-                            concession_commodities: link.concession.concession_commodity,
-                            concession_status: link.concession.concession_status
-                        });
-                        if(link_len==link_counter){
-                            company.concessions = _.uniq(company.concessions, function (a) {
-                                return a._id;
+        var company = {};
+        company.concessions = [];
+        if (type != 'commodity') {
+            Link.find(query)
+                .populate('concession commodity country')
+                .deepPopulate('concession.concession_commodity.commodity concession.concession_country.country ')
+                .exec(function (err, links) {
+                    if (links) {
+                        link_len = links.length;
+                        link_counter = 0;
+                        _.each(links, function (link) {
+                            ++link_counter;
+                            company.concessions.push({
+                                _id: link.concession._id,
+                                concession_name: link.concession.concession_name,
+                                concession_country: _.first(link.concession.concession_country).country,
+                                concession_commodities: link.concession.concession_commodity,
+                                concession_status: link.concession.concession_status
                             });
-                            callback(null, company);
-                        }
+                            if (link_len == link_counter) {
+                                company.concessions = _.uniq(company.concessions, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, company);
+                            }
 
-                    })
-                } else {
-                    callback(err);
-                }
-            });
+                        })
+                    } else {
+                        callback(err);
+                    }
+                });
+        } else{
+            callback(null, company);
+        }
+
+    }
+    function getConcessions(company,callback) {
+        if (type == 'commodity') {
+            Concession.find(query)
+                .populate('commodity country')
+                .deepPopulate('concession_commodity.commodity concession_country.country')
+                .exec(function (err, concessions) {
+                    concession_len = concessions.length;
+                    concession_counter = 0;
+                    if(concession_len>0) {
+                        _.each(concessions, function (concession) {
+                            ++concession_counter;
+                            company.concessions.push({
+                                _id: concession._id,
+                                concession_name: concession.concession_name,
+                                concession_country: _.first(concession.concession_country).country,
+                                concession_commodities: concession.concession_commodity,
+                                concession_status: concession.concession_status,
+                                projects: 0
+                            });
+                            if (concession_len == concession_counter) {
+                                company.concessions = _.uniq(company.concessions, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, company);
+                            }
+                        });
+                    } else{
+                        callback(null, company);
+                    }
+                });
+        } else{
+            callback(null, company);
+        }
+    }
+    function getProjectCount(company,callback) {
+        var type = req.params.type;
+        if (type == 'commodity') {
+            concession_len =company.concessions.length;
+            concession_counter=0;
+            if(concession_len>0) {
+                _.each(company.concessions, function (concession) {
+                    Link.find({concession: concession._id, entities: 'project'})
+                        .populate('project')
+                        .exec(function (err, links) {
+                            concession_counter++;
+                            links = _.uniq(links, function (a) {
+                                return a.project._id;
+                            });
+                            concession.projects = links.length;
+                            if (concession_len == concession_counter) {
+                                callback(null, company);
+                            }
+                        });
+                })
+            }else{
+                callback(null, company);
+            }
+        }else{
+            callback(null, company);
+        }
     }
 };
 exports.getSourceTable = function(req, res){
     var link_counter, link_len;
     var type = req.params.type;
     var queries=[];
+    var project={};
+    project.sources = [];
+    if(type=='concession') { queries={concession:req.params.id}
+    }if(type=='company') { queries={company:req.params.id}
+    }if(type=='contract') { queries={contract:req.params.id}
+    }if(type=='commodity') { queries={commodity:req.params.id}
+    }if(type=='project') { queries={project:req.params.id}
+    }if(type=='group') { queries={company_group:req.params.id}
+    }
+    var models = [
+        {name:'Site',field:{'site_commodity.commodity':req.params.id},params:'site'},
+        {name:'Concession',field:{'concession_commodity.commodity':req.params.id},params:'concession'},
+        {name:'Project',field:{'proj_commodity.commodity':req.params.id},params:'project'}
+    ];
+    project.query=[];
+    var models_len,models_counter=0,counter=0;
     async.waterfall([
-        getLinkSite
+        getLinkSite,
+        getCommodityLinks,
+        getCommoditySource
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -639,37 +907,93 @@ exports.getSourceTable = function(req, res){
         }
     });
     function getLinkSite(callback) {
-        var project={};
-        project.sources = [];
-        if(type=='concession') { queries={concession:req.params.id}
-        }if(type=='company') { queries={company:req.params.id}
-        }if(type=='contract') { queries={contract:req.params.id}
-        }if(type=='commodity') { queries={commodity:req.params.id}
-        }if(type=='project') { queries={project:req.params.id}
-        }if(type=='group') { queries={company_group:req.params.id}
-        }
-        Link.find(queries)
-            .populate('source')
-            .deepPopulate('source.source_type_id')
-            .exec(function (err, links) {
-                if(links.length>0) {
-                link_len = links.length;
-                link_counter = 0;
-                    links.forEach(function (link) {
-                        ++link_counter;
-                        if (links) {
+        if(type!='commodity') {
+            Link.find(queries)
+                .populate('source')
+                .deepPopulate('source.source_type_id')
+                .exec(function (err, links) {
+                    if (links.length > 0) {
+                        link_len = links.length;
+                        link_counter = 0;
+                        links.forEach(function (link) {
+                            ++link_counter;
+                            if (links) {
                                 project.sources.push(link.source);
-                        }
-                        if (link_counter == link_len) {
-                            project.sources = _.uniq(project.sources, function (a) {
-                                return a._id;
-                            });
-                            callback(null, project);
-                        }
+                            }
+                            if (link_counter == link_len) {
+                                project.sources = _.uniq(project.sources, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, project);
+                            }
+                        });
+                    } else {
+                        callback(null, project);
+                    }
+                });
+        } else{
+            callback(null, project);
+        }
+    }
+    function getCommodityLinks(project,callback) {
+        if(type=='commodity') {
+            models_counter=0;
+            project.query=[];
+            models_len = models.length;
+            _.each(models, function(model) {
+                var name = require('mongoose').model(model.name);
+                var $field = model.field;
+                name.find($field).exec(function (err, responce) {
+                    models_counter++;
+                    _.each(responce, function(re) {
+                        counter++;
+                        if(model.params=='project'){project.query.push({project:re._id})}
+                        if(model.params=='concession'){project.query.push({concession:re._id})}
+                        if(model.params=='site'){project.query.push({site:re._id})}
                     });
-                }else {
-                    callback(null, project);
-                }
+                    if(models_counter==models_len){
+                        callback(null, project);
+                    }
+                });
             });
+        }else {
+            callback(null, project);
+        }
+    }
+    function getCommoditySource(project, callback) {
+        if(type=='commodity') {
+            companies_len = project.query.length;
+            companies_counter = 0;
+            if (companies_len > 0) {
+                project.query.forEach(function (query) {
+                    Link.find({$or: [query]})
+                        .populate('source')
+                        .deepPopulate('source.source_type_id')
+                        .exec(function (err, links) {
+                            ++companies_counter;
+                            link_len = links.length;
+                            link_counter = 0;
+                            if(link_len>0) {
+                                _.each(links, function (link) {
+                                    ++link_counter;
+                                    project.sources.push(link.source);
+                                });
+                            } else{
+                                ++link_counter;
+                            }
+                            if (link_len == link_counter && companies_counter == companies_len) {
+                                project.sources = _.uniq(project.sources, function (a) {
+                                    return a._id;
+                                });
+                                callback(null, project);
+                            }
+                        });
+                });
+            } else {
+                callback(null, project);
+            }
+        } else {
+            callback(null, project);
+        }
     }
 };

@@ -4,7 +4,7 @@
             span(ng-bind-html="commodity.commodity_name|sanitize")
             =' '
             small Commodity
-    .row
+    .row(ng-if='commodity.location.length>0')
         .col-md-12
             nrgi-leaflet(data='commodity.location')
     .info-box
@@ -42,7 +42,8 @@
             status="true")
         .col-md-6
             nrgi-site-table(
-            sites="commodity.sites"
+            name="'commodity'"
+            id="commodity._id"
             country="true"
             commoditytype="false"
             company="true"
@@ -52,13 +53,15 @@
     .row
         .col-md-6
             nrgi-contract-table(
-            contracts="commodity.contracts"
+            type="'commodity'"
+            id="commodity._id"
             companies="true"
             commodity="false"
             country="true")
         .col-md-6
             nrgi-concession-table(
-            concessions="commodity.concessions"
+            name="'commodity'"
+            id="commodity._id"
             country="true"
             type="false"
             commodity="false"

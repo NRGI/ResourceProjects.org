@@ -78,7 +78,7 @@ exports.getCountries = function(req, res) {
             Project.find({'proj_country.country': country._id})
                 .count()
                 .exec(function (err, count){
-                    ++countries_counter
+                    ++countries_counter;
                     country.project_count = count;
                     if (countries_counter == countries_len) {
                         callback(null, country_count, countries);
@@ -93,7 +93,7 @@ exports.getCountries = function(req, res) {
             Site.find({'site_country.country': country._id, field:false})
                 .count()
                 .exec(function (err, count){
-                    ++countries_counter
+                    ++countries_counter;
                     country.site_count = count;
                     if (countries_counter == countries_len) {
                         callback(null, country_count, countries);
@@ -108,7 +108,7 @@ exports.getCountries = function(req, res) {
             Site.find({'site_country.country': country._id, field:true})
                 .count()
                 .exec(function (err, count){
-                    ++countries_counter
+                    ++countries_counter;
                     country.field_count = count;
                     if (countries_counter == countries_len) {
                         callback(null, country_count, countries);
@@ -123,7 +123,7 @@ exports.getCountries = function(req, res) {
             Concession.find({'concession_country.country': country._id})
                 .count()
                 .exec(function (err, count){
-                    ++countries_counter
+                    ++countries_counter;
                     country.concession_count = count;
                     if (countries_counter == countries_len) {
                         callback(null, country_count, countries);
@@ -138,7 +138,7 @@ exports.getCountries = function(req, res) {
             Transfer.find({'country': country._id})
                 .count()
                 .exec(function (err, count){
-                    ++countries_counter
+                    ++countries_counter;
                     country.transfer_count = count;
                     if (countries_counter == countries_len) {
                         // callback(null, {data:countries, count:country_count})
@@ -784,7 +784,7 @@ exports.getCountryByID = function(req, res) {
                         'type': 'project',
                         'id': project.proj_id
                     });
-                })
+                });
                 if (project_counter == project_len) {
                     res.send(country);
                 }

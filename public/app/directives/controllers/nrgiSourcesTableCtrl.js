@@ -9,7 +9,7 @@ angular
         $scope.getData=function(id,type) {
             if ($scope.sources.length == 0) {
                 nrgiSourceTablesSrvc.get({_id: id, type: type}, function (success) {
-                    $scope.sources = success.sources;
+                    $scope.sources = _.uniq(success.sources, function(a) { return a._id; });
                     angular.forEach($scope.sources, function(p) {
                         $scope.csv_sources.push({
                             'name': p.source_name,

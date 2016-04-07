@@ -5,7 +5,7 @@ a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#sites")
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='site_name') Name
-                th.tablesort-sortable-th(ng-if="type==true" ts-criteria='site_type[site_type.length - 1].string') Type
+                th.tablesort-sortable-th(ng-if="type==true" ts-criteria='site.field') Type
                 th.tablesort-sortable-th(ng-if="country==true" ts-criteria='site_country[site_country.length - 1].country.name') Country
                 th.tablesort-sortable-th(ng-if="commoditytype==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_type') Commodity Type
                 th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_name') Commodity
@@ -21,9 +21,9 @@ a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#sites")
                         span(ng-bind-html="site.site_name|sanitize")
                     a(ng-if="!site.field",href='site/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")
-                td.site_country(ng-if="type==true"): text(ng-repeat="type in site.site_type")
-                    | {{type.string | ucfirst}}
-                    | {{$last ? '' : ', '}}
+                td.site_country(ng-if="type==true")
+                    text(ng-if='site.field') field
+                    text(ng-if='!site.field') site
                 td.site_country(ng-if="country==true"): text(ng-repeat="country in site.site_country | unique: 'country._id'")
                     a(href='country/{{country.country.iso2}}')
                         span(ng-bind-html="country.country.name|sanitize")

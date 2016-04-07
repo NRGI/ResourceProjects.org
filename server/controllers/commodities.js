@@ -136,6 +136,8 @@ exports.getCommodityByID = function(req, res) {
 	], function (err, result) {
 		if (err) {
 			res.send(err);
+		} else{
+			res.send(result);
 		}
 	});
 
