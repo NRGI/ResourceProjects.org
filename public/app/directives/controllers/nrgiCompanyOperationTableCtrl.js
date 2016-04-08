@@ -1,19 +1,12 @@
 'use strict';
 angular
     .module('app')
-    .controller('nrgiCompanyTableCtrl', function ($scope,nrgiTablesSrvc) {
+    .controller('nrgiCompanyOperationTableCtrl', function ($scope,nrgiTablesSrvc) {
         $scope.companies=[];
-        $scope.company_of_operation=[];
         $scope.getData=function(id,type){
             if($scope.companies.length==0) {
                 nrgiTablesSrvc.get({_id: id,type:type}, function (success) {
-                    console.log(type);
-                    if(type=='countries_of_operation'){
-                        $scope.company_of_operation = success.companies;
-                        console.log($scope.company_of_operation )
-                    } else {
-                        $scope.companies = success.companies;
-                    }
+                    $scope.companies = success.companies;
                     $scope.csv_company =[]; var header_company=[]; var fields=[]; var str; var com =', ';
                     var headers = [{name:'Name',status:true,field:'company_name'},
                         {name:'Group',status:$scope.group,field:'company_groups'},

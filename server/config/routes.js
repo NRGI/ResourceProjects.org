@@ -1,18 +1,25 @@
 
-var auth 			= require('./auth'),
-    search 			= require('../controllers/search'),
-	users 			= require('../controllers/users'),
-	datasets  		= require('../controllers/datasets'),
-	commodities 	= require('../controllers/commodities'),
-	concessions 	= require('../controllers/concessions'),
-	companies 		= require('../controllers/companies'),
-	projects 		= require('../controllers/projects'),
-	contracts 		= require('../controllers/contracts'),
-	companyGroups 	= require('../controllers/companyGroups'),
-	countries 		= require('../controllers/countries'),
-	sources 		= require('../controllers/sources'),
-	sites 			= require('../controllers/sites'),
-	tables 			= require('../controllers/tables');
+var auth 				= require('./auth'),
+    search 				= require('../controllers/search'),
+	users 				= require('../controllers/users'),
+	datasets  			= require('../controllers/datasets'),
+	commodities 		= require('../controllers/commodities'),
+	concessions 		= require('../controllers/concessions'),
+	companies 			= require('../controllers/companies'),
+	projects 			= require('../controllers/projects'),
+	contracts 			= require('../controllers/contracts'),
+	companyGroups 		= require('../controllers/companyGroups'),
+	countries 			= require('../controllers/countries'),
+	sources 			= require('../controllers/sources'),
+	sites 				= require('../controllers/sites'),
+	project_tables 		= require('../controllers/project_tables'),
+	concession_tables 	= require('../controllers/concession_tables'),
+	contract_tables 	= require('../controllers/contract_tables'),
+	source_tables 		= require('../controllers/source_tables'),
+	production_tables 	= require('../controllers/production_tables'),
+	transfer_tables 	= require('../controllers/transfer_tables'),
+	site_tables 	= require('../controllers/site_tables'),
+	company_tables 		= require('../controllers/company_tables');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -266,14 +273,14 @@ module.exports	= function(app) {
 
 
 	//TABLE
-	app.get('/api/company_table/:type/:id', tables.getCompanyTable);
-	app.get('/api/project_table/:type/:id', tables.getProjectTable);
-	app.get('/api/prod_table/:type/:id', tables.getProductionTable);
-	app.get('/api/transfer_table/:type/:id', tables.getTransferTable);
-	app.get('/api/source_table/:type/:id', tables.getSourceTable);
-	app.get('/api/site_table/:type/:id', tables.getSiteFieldTable);
-	app.get('/api/contract_table/:type/:id', tables.getContractTable);
-	app.get('/api/concession_table/:type/:id', tables.getConcessionTable);
+	app.get('/api/company_table/:type/:id', company_tables.getCompanyTable);
+	app.get('/api/project_table/:type/:id', project_tables.getProjectTable);
+	app.get('/api/prod_table/:type/:id', production_tables.getProductionTable);
+	app.get('/api/transfer_table/:type/:id', transfer_tables.getTransferTable);
+	app.get('/api/source_table/:type/:id', source_tables.getSourceTable);
+	app.get('/api/site_table/:type/:id', site_tables.getSiteFieldTable);
+	app.get('/api/contract_table/:type/:id', contract_tables.getContractTable);
+	app.get('/api/concession_table/:type/:id', concession_tables.getConcessionTable);
 
 
 	app.post('/login', auth.authenticate);

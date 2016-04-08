@@ -3,6 +3,7 @@
 angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiContractTablesSrvc) {
     $scope.contracts=[];
     $scope.getData=function(id,type) {
+        console.log(id,type,$scope.contracts.length)
         if ($scope.contracts.length == 0) {
             nrgiContractTablesSrvc.get({_id: id, type: type}, function (success) {
                 $scope.contracts=success.contracts;

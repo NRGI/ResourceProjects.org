@@ -60,16 +60,15 @@
             nrgi-project-table(
             country="true"
             commoditytype="true"
-            id="group.companies"
+            id="group._id"
             type="'group'"
             companies="false"
-            commodity="false")
-            //a(data-toggle="collapse" data-target="#projects")
-            //    h2 Projects
-            //#projects.panel-collapse.collapse
+            commodity="true"
+            status="true")
         .col-md-6
             nrgi-site-table(
-            sites="company.sites"
+            id="group._id"
+            name="'group'"
             country="true"
             commodity="true"
             status="true"
@@ -78,14 +77,16 @@
     .row.top-padding-lg
         .col-md-6
             nrgi-contract-table(
-            contracts="group.contracts"
+            id="group._id"
+            type="'group'"
             companies="false"
             commodity="true"
             country="true")
 
         .col-md-6
             nrgi-concession-table(
-            concessions="group.concessions"
+            id="group._id"
+            name="'group'"
             commodity="true"
             type="true"
             country="true"
@@ -95,13 +96,15 @@
     .row.top-padding-lg
         .col-md-12
             nrgi-transfer-table(
-            transfers="group.transfers"
+            id="group._id"
+            type="'group'"
             project="false"
             projectlink="true")
     .row.top-padding-lg
         .col-md-12
             nrgi-production-table(
-            production="group.production"
+            id="group._id"
+            type="'group'"
             projectlink="true")
     .row.top-padding-lg
         .col-md-12

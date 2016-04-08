@@ -15,7 +15,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
             ng-repeat="contract in contracts | unique: '_id'"
             ts-repeat)
                 td.contract_name(ng-if="companies!=true")
-                    a(href='/contract/{{contract._id}}') {{contract.contract_name}}
+                    a(href='/contract/{{contract.contract_id}}') {{contract.contract_name}}
                 td.contract_rc_id(ng-if="companies==true")
                     a(href='/contract/{{contract._id}}') {{contract._id}}
                 td.contract_country(ng-if="country==true")
@@ -30,7 +30,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
                             span(ng-bind="contract.contract_commodity.toString()")
 
                 td.contract_rc_id(ng-if="companies!=true")
-                    a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract._id}}') {{contract._id}}
+                    a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract.contract_id}}') {{contract.contract_id}}
                 td.contract_companies(ng-if="companies==true") {{contract.companies}}
     div(ng-if="contracts.length>0")
         .download
