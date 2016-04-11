@@ -53,18 +53,6 @@ angular
                     if (data.coordinates.length>0) {
                         $scope.location.push(data.coordinates[0]);
                     }
-                // }else if($scope.map ==true && $scope.site==false){
-                //     $scope.location.push({
-                //         lat: data.lat,
-                //         lng: data.lng,
-                //         message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
-                //     });
-                // }else if($scope.map ==true && $scope.site==true){
-                //     $scope.location.push({
-                //         lat: data.lat,
-                //         lng: data.lng,
-                //         message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message
-                //     });
                 }else {
                     if (data.type == 'project') {
                         $scope.location.push({
@@ -87,8 +75,7 @@ angular
                     $scope.center = {lat: 0,lng: 0,zoom:1};
                 }
                 if (len == counter && $scope.map !=true&&$scope.data.length>1) {
-
-                    $scope.center = {lat: lat/len , lng:lng/len, zoom:0};
+                    $scope.center = {lat: 0 , lng:lng, zoom:0};
                 }
                 if (len == counter && $scope.map !=true&&$scope.data.length==1) {
                     $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
@@ -108,5 +95,5 @@ angular
                 }
             }
             $scope.$apply();
-        },100)
+        },2000)
     });

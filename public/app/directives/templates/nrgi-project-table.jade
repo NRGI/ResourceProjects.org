@@ -1,7 +1,7 @@
 a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#projects")
     h2 Projects
 #projects.panel-collapse.collapse
-    table.table.table-striped.projects(ts-wrapper ng-class="projects.length >= 8 ? 'header-fixed' : ''")#project-info
+    table.table.table-striped.projects(ts-wrapper ng-class="projects.length >= 8 ? 'header-fixed' : ''" width="100%" height="100%")
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='proj_name') Name
