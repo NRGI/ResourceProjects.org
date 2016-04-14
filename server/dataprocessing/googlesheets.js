@@ -72,9 +72,9 @@ exports.processData = function(link, callback) {
                                 numProcessed++;
                                 if (numProcessed == numSheets) {
                                     var reporter = {
-                                        text: report,
+                                        report: report,
                                         add: function(more) {
-                                            this.text += more;
+                                            this.report += more;
                                         }
                                     }
                                     parseData(sheets, reporter, callback);
@@ -105,7 +105,7 @@ function parseGsDate(input) {
 }
 
 //Data needed for inter-entity reference
-var sourceTypes, sources, countries, commodities, companies, company_groups, projects, contracts;
+var sourceTypes, sources, countries, commodities, commoditiesById, companies, company_groups, projects, contracts;
 
 //TODO: Move to new duplicates model
 var makeNewSource = function(flagDuplicate, newRow, duplicateId) {
@@ -148,7 +148,8 @@ var makeNewCompanyGroup = function(newRow) {
     //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var companyg = {
-        company_group_name: newRow[7]
+        company_group_name: newRow[7],
+        company_group_record_established: sources[newRow[0].toLowerCase()]._id
     };
 
     if (newRow[0] != "") {
@@ -166,11 +167,12 @@ var makeNewCompany = function(newRow) {
     //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var company = {
-        company_name: newRow[3]
+        company_name: newRow[3],
+        company_established_source: sources[newRow[0].toLowerCase()]._id
     };
 
     if (newRow[5] != "") {
-        company.open_corporates_id = newRow[5]; //Note currently URL in spreadsheet
+        company.open_corporates_id = newRow[5].split('/').pop(); //URL in 0.5. May change to ID in 0.6.
     }
     if (newRow[2] != "") {
         //TODO: This is not very helpful for the end user
@@ -202,12 +204,16 @@ var makeNewCompany = function(newRow) {
 var makeNewProject = function(newRow) {
     var project = {
         proj_name: newRow[1],
+        proj_established_source: sources[newRow[0].toLowerCase()]._id
     };
     return project;
 }
 
 var updateProjectFacts = function(doc, row, report)
 {
+    //TODO:
+    //-- Test addtoset operator thing and check that duplicate facts don't get added
+    //In general should be allowing duplicates unless coming from same source
     var fact;
     //Update status and commodity
     if (row[9] != "") {
@@ -280,19 +286,48 @@ var updateProjectFacts = function(doc, row, report)
         }
     }
     else if (doc.proj_country) delete doc.proj_country; //Don't push
+
+
+
     return doc;
 }
 
-var makeNewSite = function(newRow) {
-    console.log(newRow);
+var makeNewSite = function(newRow, projDoc) {
     var site = {
         site_name: newRow[2],
         site_established_source: sources[newRow[0].toLowerCase()]._id,
         site_country: [{country: countries[newRow[5]]._id, source: sources[newRow[0].toLowerCase()]._id}] //TODO: How in the world can there multiple versions of country
     }
     if (newRow[3] != "") site.site_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
-    //TODO FIELD INFO     field: Boolean //
     if (newRow[6] != "") site.site_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow[9] != "") site.site_commodity = [{commodity: commodities[newRow[9]]._id, source: sources[newRow[0].toLowerCase()]._id}];
+    else { //Inherit
+        if (projDoc.proj_commodity) {
+            site.site_commodity = projDoc.proj_commodity;
+        }
+    }
+
+    site.field = true; //If oil/gas or unclear/unknown
+    if (site.site_commodity[0]) {
+        if (commoditiesById[site.site_commodity[0].commodity].commodity_type == "mining") {
+            site.field = false; // "type = site"
+        }
+    }
+
+    //TODO (future template)
+    //site_operated_by: [fact],
+    //site_company_share: [fact],
+
+    if (newRow[10] != "") {
+        var status;
+        if (newRow[10].indexOf('/') != -1) {
+            status = newRow[10].split('/')[1]; //Workaround to cope with "construction/development"
+        }
+        else status = newRow[10];
+        status = status.toLowerCase().replace(/ /g, '_');
+        site.site_status = [{string: status, timestamp: parseGsDate(newRow[11]), source: sources[newRow[0].toLowerCase()]._id}];
+    }
+
     return site;
 }
 
@@ -301,12 +336,10 @@ var makeNewProduction = function(newRow) {
         production_commodity: commodities[newRow[8]]._id,
         production_year: parseInt(newRow[5]),
         production_country: countries[newRow[2]]._id,
-        production_level: 'country',
         source: sources[newRow[0].toLowerCase()]._id
     }
     if (newRow[3] != "") {
         production.project = projects[newRow[3].toLowerCase()]._id;
-        production.production_level = 'project';
     }
     if (newRow[4] != "") {
         production.company = companies[newRow[4].toLowerCase()]._id;
@@ -328,12 +361,6 @@ var makeNewProduction = function(newRow) {
 }
 
 var makeNewTransfer = function(newRow, transfer_audit_type) {
-    //TODO: This is not very helpful for the end user
-    if (!countries[newRow[2]]) {
-        console.log("SERIOUS ERROR: Missing country in the DB");
-        return false;
-    }
-
     var transfer = {
         source: sources[newRow[0].toLowerCase()]._id,
         country: countries[newRow[2]]._id,
@@ -412,8 +439,8 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
         ]},
         function(err, doc) {
             var testAndCreateLink = function(skipTest, link, company_id) {
+                link.company = company_id;
                 var createLink = function() {
-                    link.company = company_id;
                     link.entities = ['company', 'company_group'];
                     Link.create(link, function(err, nlmodel) {
                         if (err) {
@@ -427,7 +454,6 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                     });
                 };
                 if (!skipTest) {
-                    link.company = company_id;
                     Link.findOne(
                         link,
                         function (err, lmodel) {
@@ -505,10 +531,11 @@ function parseData(sheets, report, finalcallback) {
             //links throughout!//
         ], function (err, report) {
             if (err) {
+                console.log(err);
                 console.log("PARSE: Got an error\n");
-                return finalcallback("Failed", report.text);
+                return finalcallback("Failed", report.report);
             }
-            finalcallback("Success", report.text);
+            finalcallback("Success", report.report);
         }
     );
 
@@ -568,6 +595,7 @@ function parseData(sheets, report, finalcallback) {
         //Complete commodity list is in the DB
         result.add("Getting commodities from database...\n");
         commodities = new Object;
+        commoditiesById = new Object;
         Commodity.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -578,6 +606,7 @@ function parseData(sheets, report, finalcallback) {
                 var cmty;
                 for (cmty of cresult) {
                     commodities[cmty.commodity_name] = cmty;
+                    commoditiesById[cmty._id] = cmty;
                 }
                 callback(null, result);
             }
@@ -755,35 +784,28 @@ function parseData(sheets, report, finalcallback) {
                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                             return wcallback(`Failed: ${projectsReport.report}`);
                         }
-                        //console.log("Returned\n: " + model)
                         //Take first country that occurs - TODO, correct if/when projects go back to having single countries
-                        /*console.log(util.inspect(model));
-                         console.log((model.proj_id));
-                         console.log(row[5]);*/
-                        if (!model.proj_id && (row[5] != "")) { //Because of convention it can happen that projects at first don't have a country entered. In the worst case they get no ID.
-                            model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()  },
-                                function(err, model) {
-                                    console.log(err);
-                                }
-                            );
+                        if (row[5] != "") {  //Projects must have countries even if sites come afterwards
+                            if (!model.proj_id) {
+                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()},
+                                    function(err) {
+                                        if (err) {
+                                            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
+                                            return wcallback(`Failed: ${projectsReport.report}`);
+                                        }
+                                        projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`);
+                                        projects[row[rowIndex].toLowerCase()] = model;
+                                        return wcallback(null, model); //Continue to site stuff
+                                    }
+                                );
+                            }
+                            else return wcallback(null, model); //Continue to site stuff
                         }
-                        projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`);
-                        projects[row[rowIndex].toLowerCase()] = model;
-                        //Not needed in newest model, keeping commented out for now in case needed elsewhere
-                        //Country.update(
-                        //    {_id: countries[row[5]]._id},
-                        //    {$addToSet: //Only create new fact if wasn't here before
-                        //        {projects: {project: model._id, source: sources[row[0]]._id}}
-                        //    },
-                        //    {},
-                        //    function (err, cmodel) {
-                        //        if (err) {
-                        //            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                        //            return wcallback(`Failed: ${projectsReport.report}`);
-                        //        }
-                        return wcallback(null, model); //Continue to site stuff
-                        //    }
-                        //);
+                        else {
+                            projectsReport.add(`Invalid data in row - projects and sites must have a country (${row}). Aborting.\n`);
+                            return wcallback(`Failed: ${projectsReport.report}`);
+                        }
+
                     }
                 );
             }
@@ -802,6 +824,12 @@ function parseData(sheets, report, finalcallback) {
                             }
                             else if (sitemodel) {
                                 //Site already exists - check for link, could be missing if site is from another project
+                                //TODO: For now if we find location add it to the site. In future sheets all site info should be in same row somewhere
+                                var update = {};
+                                if (row[3] != "") update.site_address = {string: row[3], source: sources[row[0].toLowerCase()]._id};
+                                if (row[6] != "") update.site_coordinates = {loc: [parseFloat(row[6]), parseFloat(row[7])], source: sources[row[0].toLowerCase()]._id};
+                                sitemodel.update({$addToSet: update});
+                                //TODO: check $addToSet
                                 var found = false;
                                 Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},
                                     function (err, sitelinkmodel) {
@@ -821,7 +849,7 @@ function parseData(sheets, report, finalcallback) {
                             }
                             else { //Site doesn't exist - create and link
                                 Site.create(
-                                    makeNewSite(row),
+                                    makeNewSite(row, projDoc),
                                     function (err, newsitemodel) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
@@ -1120,16 +1148,19 @@ function parseData(sheets, report, finalcallback) {
                                 [
                                     function (linkcallback) {
                                         //TODO to change it for 0.6 as it is a bit more explicit there
-                                        newConcession = {}; //Holder for potentially new facts; in theory don't need to check if they exist
-                                        if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
-                                            newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
+                                        var newConcession = {}; //Holder for potentially new fact; in theory don't need to check if it exists
+                                        var newProjectData = {}; //ditto, copy across to project (TODO: this is for the 0.5 template and may change)
+                                        if ((row[2] != "") && (row[4] != "") && (row[4] == "TRUE")) {
+                                            newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
+                                            newProjectData.proj_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
                                         }
                                         if ((row[2] != "") && (row[3] != "")) {
                                             var share = parseInt(row[3].replace("%", ""))/100.0;
-                                            newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id};
+                                            newProjectData.proj_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id};
                                         }
                                         if (row[10] != "") {
-                                            newConcession.concession_country = [{country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}]
+                                            newConcession.concession_country = {country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id};
                                         }
                                         Concession.update(
                                             {_id: doc._id},
@@ -1139,7 +1170,17 @@ function parseData(sheets, report, finalcallback) {
                                             {},
                                             function (err, cmodel) {
                                                 if (err) return linkcallback(err);
-                                                linkcallback(null);
+                                                Project.update(
+                                                    {_id: projects[row[1].toLowerCase()]._id},
+                                                    {$addToSet: //Only create new fact if wasn't here before
+                                                    newProjectData,
+                                                    },
+                                                    {},
+                                                    function (cperr, cpmodel) {
+                                                        if (cperr) return linkcallback(cperr);
+                                                        return linkcallback(null);
+                                                    }
+                                                );
                                             }
                                         );
                                     },
@@ -1258,12 +1299,15 @@ function parseData(sheets, report, finalcallback) {
                                 concession_name: row[8],
                                 concession_established_source: sources[row[0].toLowerCase()]._id
                             };
-                            if ((row[2] != "") && (row[4] != "") && (row[4] != "TRUE")) {
+                            var newProjectData = {};
+                            if ((row[2] != "") && (row[4] != "") && (row[4] == "TRUE")) {
                                 newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
+                                newProjectData.proj_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}];
                             }
                             if ((row[2] != "") && (row[3] != "")) {
                                 var share = parseInt(row[3].replace("%", ""))/100.0;
                                 newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
+                                newProjectData.proj_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}];
                             }
                             if (row[10] != "") {
                                 newConcession.concession_country = [{country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}]
@@ -1278,6 +1322,19 @@ function parseData(sheets, report, finalcallback) {
                                     concReport += (`Created concession ${row[8]}.\n`);
                                     async.series(
                                         [
+                                            function (linkcallback) {
+                                                Project.update(
+                                                    {_id: projects[row[1].toLowerCase()]._id},
+                                                    {$addToSet: //Only create new fact if wasn't here before
+                                                    newProjectData,
+                                                    },
+                                                    {},
+                                                    function (cperr, cpmodel) {
+                                                        if (cperr) return linkcallback(cperr);
+                                                        return linkcallback(null);
+                                                    }
+                                                );
+                                            },
                                             function (linkcallback) { // concession <-> project
                                                 var newConcessionLink = {
                                                     concession: cmodel._id,
@@ -1391,7 +1448,7 @@ function parseData(sheets, report, finalcallback) {
             //TODO?: Currently hard req. for country, commodity, if proj or company there should be valid
             if ((row[2] == "") || !countries[row[2]] || ((row[3] != "") && !projects[row[3].toLowerCase()] ) || ((row[4] != "") && !companies[row[4].toLowerCase()] ) || !sources[row[0].toLowerCase()] || (row[8] == "") || !commodities[row[8]] || (row[5] == "") ) {
                 prodReport.add(`Invalid or missing data in row: ${row}. Aborting.\n`);
-                return callback(`Failed: ${prodReport}`);
+                return callback(`Failed: ${prodReport.report}`);
             }
             //Production - match by country + project/company (if present) + year + commodity
             //TODO extend for sites later
@@ -1447,7 +1504,7 @@ function parseData(sheets, report, finalcallback) {
             //Hard req. for country at this point
             if (((row[5] != "") && !projects[row[5].toLowerCase()]) || !sources[row[0].toLowerCase()] || row[2] == "" || !countries[row[2]] ) {
                 transReport.add(`Invalid or missing data in row: ${row}. Aborting.\n`);
-                return callback(`Failed: ${transReport}`);
+                return callback(`Failed: ${transReport.report}`);
             }
             //Transfer - many possible ways to match
             //Determine if payment or receipt
@@ -1505,7 +1562,7 @@ function parseData(sheets, report, finalcallback) {
                         var newTransfer = makeNewTransfer(row, transfer_audit_type);
                         if (!newTransfer) {
                             transReport.add(`Invalid or missing data in row: ${row}. Aborting.\n`);
-                            return callback(`Failed: ${transReport}`);
+                            return callback(`Failed: ${transReport.report}`);
                         }
                         Transfer.create(
                             newTransfer,
