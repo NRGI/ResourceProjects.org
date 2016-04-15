@@ -13,6 +13,8 @@ module.exports = function(app, config) {
 	function compile(str, path) {
 		return stylus(str).set('filename', path);
 	}
+    console.error(config);
+    console.error(process.env);
 	// set up view engine
 	app.set('views', config.rootPath + '/server/views');
 	app.set('view engine', 'jade');
