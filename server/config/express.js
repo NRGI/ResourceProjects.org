@@ -1,6 +1,6 @@
 'use strict';
 var express 		= require('express'),
-    walk            = require('walk'),
+    // walk            = require('walk'),
     stylus 			= require('stylus'),
     logger 			= require('morgan'),
     bodyParser 		= require('body-parser'),
@@ -16,16 +16,16 @@ module.exports = function(app, config) {
 	}
     // console.error(config);
     // console.error(process.env);
-    var files   = [];
-    var walker  = walk.walk('./server/config', { followLinks: false });
-    walker.on('file', function(root, stat, next) {
-        // Add this file to the list of files
-        files.push(root + '/' + stat.name);
-        next();
-    });
-    walker.on('end', function() {
-        console.error(files);
-    });
+    // var files   = [];
+    // var walker  = walk.walk('./server/config', { followLinks: false });
+    // walker.on('file', function(root, stat, next) {
+    //     // Add this file to the list of files
+    //     files.push(root + '/' + stat.name);
+    //     next();
+    // });
+    // walker.on('end', function() {
+    //     console.error(files);
+    // });
 
 
 	// set up view engine
