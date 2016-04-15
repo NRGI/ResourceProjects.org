@@ -13,7 +13,9 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request');
 
 exports.getTransferTable = function(req, res){
-    var link_counter, link_len, queries,query, company={},transfers_counter,transfers_len,companies_len,companies_counter,type = req.params.type,projects = {};
+    var link_counter, link_len, queries,query, company={},transfers_counter,transfers_len,companies_len,companies_counter,type = req.params.type,projects = {},
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
     projects.transfers_query =[];
     if(type=='concession') { queries={concession:req.params.id}; projects.transfers_query = [req.params.id];}
     if(type=='company') { queries={company:req.params.id};projects.transfers_query = [req.params.id];}
@@ -111,8 +113,10 @@ exports.getTransferTable = function(req, res){
                                 companies.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                companies = _.uniq(companies, function (a) {
-                                    return a._id;
+                                companies = _.map(_.groupBy(companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, companies);
                             }
@@ -220,7 +224,10 @@ exports.getTransferTable = function(req, res){
         if (type=='country') { query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{country:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
             Transfer.find(query)
+                .skip(skip)
+                .limit(limit)
                 .populate('company country')
+                .lean()
                 .exec(function (err, transfers) {
                     transfers_counter = 0;
                     transfers_len = transfers.length;
@@ -249,8 +256,10 @@ exports.getTransferTable = function(req, res){
                                 };
                             }
                             if (transfers_counter === transfers_len) {
-                                project_transfers = _.uniq(project_transfers, function (a) {
-                                    return a._id;
+                                project_transfers = _.map(_.groupBy(project_transfers,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 projects.transfers = project_transfers;
                                 callback(null, projects);

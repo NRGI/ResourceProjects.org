@@ -45,6 +45,8 @@ angular
                 counter++;
                 if($scope.project==true && data.type=='project'){
                     $scope.location.push({lat: data.lat, lng: data.lng,message: data.message});
+                }else if($scope.project!=true &&data.type=='project'){
+                    $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='project/" + data.id + "'>" + data.message + "</a></br>" + data.message});
                 }else if(data.type=='site'){
                     $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message});
                 }else if(data.type=='field'){

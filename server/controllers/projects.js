@@ -59,7 +59,6 @@ exports.getProjects = function(req, res) {
     function getProjectLinks(project_count, projects, callback) {
         project_len = projects.length;
         project_counter = 0;
-        var company =[];
         if(project_len>0) {
             projects.forEach(function (project) {
                 project.transfers_query = [project._id];
@@ -83,6 +82,7 @@ exports.getProjects = function(req, res) {
                         project.contract_count = 0;
                         project.site_count = 0;
                         project.field_count = 0;
+                        var company =[];
                         project.concession_count = 0;
                         links.forEach(function (link) {
                             ++link_counter;
@@ -99,8 +99,10 @@ exports.getProjects = function(req, res) {
                             switch (entity) {
                                 case 'company':
                                     company.push(link.company);
-                                    company = _.uniq(company, function (a) {
-                                        return a._id;
+                                    company = _.map(_.groupBy(company,function(doc){
+                                        return doc._id;
+                                    }),function(grouped){
+                                        return grouped[0];
                                     });
                                     project.company_count =company.length;
                                     break;

@@ -1,4 +1,4 @@
-a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
+a(data-toggle="collapse" ng-click='openClose=!openClose;getContracts(id,type)' data-target="#contracts")
     h2 Contracts
 #contracts.panel-collapse.collapse
     table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
@@ -10,7 +10,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
                 th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='contract_commodity.toString()') Commodity
                 th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='_id') RC-ID
                 th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') Companies
-        tbody
+        tbody(when-scrolled='loadMoreContracts()')
             tr(
             ng-repeat="contract in contracts | unique: '_id'"
             ts-repeat)

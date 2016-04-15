@@ -14,7 +14,9 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getContractTable = function(req, res){
-    var link_counter, link_len,companies_len,companies_counter;
+    var link_counter, link_len,companies_len,companies_counter,
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
     var company ={};var commodity=[];
     company.contracts_link=[];
     var type = req.params.type;
@@ -55,9 +57,12 @@ exports.getContractTable = function(req, res){
                             ++link_counter;
                             company.contracts_link.push({_id: link.contract.contract_id});
                             if (link_len == link_counter) {
-                                company.contracts_link = _.uniq(company.contracts_link, function (a) {
-                                    return a._id;
+                                company.contracts_link = _.map(_.groupBy(company.contracts_link,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
+                                company.contracts_link=company.contracts_link.splice(skip,limit+skip);
                                 callback(null, company);
                             }
 
@@ -143,6 +148,7 @@ exports.getContractTable = function(req, res){
                         companies: 0
                     });
                     if (contract_counter == contract_len) {
+                        company.contracts=company.contracts.splice(skip,limit+skip);
                         callback(null, company);
                     }
                 });
@@ -220,8 +226,10 @@ exports.getContractTable = function(req, res){
                             .exec(function (err, companies) {
                                 contract_counter++;
                                 if(companies.length>0) {
-                                    companies = _.uniq(companies, function (a) {
-                                        return a._id;
+                                    companies = _.map(_.groupBy(companies,function(doc){
+                                        return doc._id;
+                                    }),function(grouped){
+                                        return grouped[0];
                                     });
                                     contract.companies = companies.length;
                                 }
@@ -292,8 +300,10 @@ exports.getContractTable = function(req, res){
                                 companies.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                companies = _.uniq(companies, function (a) {
-                                    return a._id;
+                                companies = _.map(_.groupBy(companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, companies);
                             }
@@ -326,8 +336,10 @@ exports.getContractTable = function(req, res){
                                         ++link_counter;
                                         contract.push(link.contract);
                                         if (link_len == link_counter && companies_counter == companies_len) {
-                                            contract = _.uniq(contract, function (a) {
-                                                return a._id;
+                                            contract = _.map(_.groupBy(contract,function(doc){
+                                                return doc._id;
+                                            }),function(grouped){
+                                                return grouped[0];
                                             });
                                             callback(null, contract);
                                         }
@@ -366,7 +378,8 @@ exports.getContractTable = function(req, res){
                         });
 
                         if (contract_counter == contract_len) {
-                            callback(null, contracts);
+                            company.contracts=company.contracts.splice(skip,limit+skip);
+                            callback(null, company);
                         }
                     });
                 });

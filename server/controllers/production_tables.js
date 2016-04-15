@@ -14,7 +14,9 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getProductionTable = function(req, res){
-    var link_counter, link_len, queries,production_counter,production_len,companies_len,companies_counter;
+    var link_counter, link_len, queries,production_counter,production_len,companies_len,companies_counter,
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
     var type = req.params.type;
     var projects = {};
     projects.production_query =[];
@@ -115,8 +117,10 @@ exports.getProductionTable = function(req, res){
                                 companies.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                companies = _.uniq(companies, function (a) {
-                                    return a._id;
+                                companies = _.map(_.groupBy(companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, companies);
                             }
@@ -222,7 +226,10 @@ exports.getProductionTable = function(req, res){
         if(type=='group') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{company:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         Production.find(query)
+            .skip(skip)
+            .limit(limit)
             .populate('production_commodity')
+            .lean()
             .exec(function (err, production) {
                 production_counter = 0;
                 production_len = production.length;
@@ -247,8 +254,10 @@ exports.getProductionTable = function(req, res){
                             });
                         }
                         if (production_counter === production_len) {
-                            productions= _.uniq(productions, function (a) {
-                                return a._id;
+                            productions = _.map(_.groupBy(productions,function(doc){
+                                return doc._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             projects.production = productions;
                             callback(null, projects);
