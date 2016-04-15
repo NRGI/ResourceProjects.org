@@ -86,10 +86,14 @@ exports.getCompanies = function(req, res) {
                                         break;
                                     case 'project':
                                         projects.push(link.project);
-                                        projects = _.uniq(projects, function (a) {
-                                            return a._id;
+                                        projects = _.map(_.groupBy(projects,function(doc){
+                                            return doc._id;
+                                        }),function(grouped){
+                                            return grouped[0];
                                         });
                                         company.project_count = projects.length;
+
+                                        if(link.project!=null){
                                         if (link.project.proj_commodity.length>0) {
                                             if (_.where(company.company_commodity, {_id:_.last(link.project.proj_commodity)._id}).length<1) {
                                                 company.company_commodity.push({
@@ -102,7 +106,7 @@ exports.getCompanies = function(req, res) {
                                         }
                                         if (!_.contains(company.transfers_query, link.project)) {
                                             company.transfers_query.push(link.project);
-                                        }
+                                        }}
                                         break;
                                     case 'site':
                                         if (link.site.site_commodity.length>0) {
@@ -230,8 +234,10 @@ exports.getCompanyByID = function(req, res) {
                                             'id': link.site._id
                                         });
                                     });
-                                    company.proj_coordinates = _.uniq(company.proj_coordinates, function (a) {
-                                        return a.id;
+                                    company.proj_coordinates = _.map(_.groupBy(company.proj_coordinates,function(doc){
+                                        return doc._id;
+                                    }),function(grouped){
+                                        return grouped[0];
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
@@ -244,8 +250,10 @@ exports.getCompanyByID = function(req, res) {
                                             'id': link.site._id
                                         });
                                     });
-                                    company.proj_coordinates = _.uniq(company.proj_coordinates, function (a) {
-                                        return a.id;
+                                    company.proj_coordinates = _.map(_.groupBy(company.proj_coordinates,function(doc){
+                                        return doc._id;
+                                    }),function(grouped){
+                                        return grouped[0];
                                     });
                                 }
                                 if (link.site.site_commodity.length>0) {
@@ -270,8 +278,10 @@ exports.getCompanyByID = function(req, res) {
                                         'id': link.project.proj_id
                                     });
                                 });
-                                company.proj_coordinates = _.uniq(company.proj_coordinates, function (a) {
-                                    return a.id;
+                                company.proj_coordinates = _.map(_.groupBy(company.proj_coordinates,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 if (link.project.proj_commodity.length>0) {
                                     if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {

@@ -212,10 +212,10 @@ exports.getCountryByID = function(req, res) {
                             country.proj_coordinates.push({
                                 'lat': loc.loc[0],
                                 'lng': loc.loc[1],
-                                'message': project.proj_name,
+                                'message': proj.proj_name,
                                 'timestamp': loc.timestamp,
                                 'type': 'project',
-                                'id': project.proj_id
+                                'id': proj.proj_id
                             });
                         });
                         if (proj.proj_commodity.length>0) {

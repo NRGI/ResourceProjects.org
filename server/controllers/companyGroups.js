@@ -91,8 +91,10 @@ exports.getCompanyGroups = function(req, res) {
                     Link.find({entities: 'project',$or: [group.companies]})
                         .populate('project')
                         .exec(function (err, proj_count) {
-                            proj_count = _.uniq(proj_count, function (a) {
-                                return a.project._id;
+                            proj_count = _.map(_.groupBy(proj_count,function(doc){
+                                return doc.project._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             ++companyGroup_counter;
                             group.project_count = proj_count.length;
