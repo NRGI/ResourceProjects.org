@@ -62,8 +62,10 @@ exports.getCompanyTable = function(req, res){
                                 _id: link.company._id,
                                 company_groups: []
                             });
-                            companies.companies = _.uniq(companies.companies, function (a) {
-                                return a._id;
+                            companies.companies = _.map(_.groupBy(companies.companies,function(doc){
+                                return doc._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             if (link_len == link_counter) {
                                 callback(null, companies);
@@ -122,8 +124,10 @@ exports.getCompanyTable = function(req, res){
                                     _id: link.company._id,
                                     company_groups: []
                                 });
-                                companies.companies = _.uniq(companies.companies, function (a) {
-                                    return a._id;
+                                companies.companies = _.map(_.groupBy(companies.companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                             });
                             if (link_len == link_counter && companies_counter == companies_len) {

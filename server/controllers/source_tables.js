@@ -14,7 +14,9 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getSourceTable = function(req, res){
-    var link_counter, link_len,companies_len,companies_counter;
+    var link_counter, link_len,companies_len,companies_counter,
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
     var type = req.params.type;
     var queries=[];
     var project={};
@@ -68,9 +70,12 @@ exports.getSourceTable = function(req, res){
                             ++link_counter;
                             project.sources.push(link.source);
                             if (link_counter == link_len) {
-                                project.sources = _.uniq(project.sources, function (a) {
-                                    return a._id;
+                                var uniques = _.map(_.groupBy(project.sources,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
+                                project.sources=uniques.splice(skip,limit+skip);
                                 callback(null, project);
                             }
                         });
@@ -134,6 +139,8 @@ exports.getSourceTable = function(req, res){
     function getSource(project, callback) {
         if(type=='commodity'||type=='country') {
             companies_len = project.query.length;
+            var source =[];
+            var i =0;
             companies_counter = 0;
             if (companies_len > 0) {
                 project.query.forEach(function (query) {
@@ -147,15 +154,20 @@ exports.getSourceTable = function(req, res){
                             if(link_len>0) {
                                 _.each(links, function (link) {
                                     ++link_counter;
-                                    project.sources.push(link.source);
+                                    if(link.source!=null) {
+                                        source.push(link.source);
+                                    }
                                 });
                             } else{
                                 ++link_counter;
                             }
                             if (link_len == link_counter && companies_counter == companies_len) {
-                                project.sources = _.uniq(project.sources, function (a) {
-                                    return a._id;
+                                var uniques = _.map(_.groupBy(source,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
+                                project.sources=uniques.splice(skip,limit+skip);
                                 callback(null, project);
                             }
                         });
@@ -179,18 +191,17 @@ exports.getSourceTable = function(req, res){
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
-
                             project.sources.push(link.source);
                             if(link.company!=undefined) {
                                 company.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                project.sources = _.uniq(project.sources, function (a) {
-                                    return a._id;
+                                var uniques = _.map(_.groupBy(company,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
-                                company = _.uniq(company, function (a) {
-                                    return a._id;
-                                });
+                                company.sources=uniques.splice(skip,limit+skip);
                                 callback(null, company);
                             }
                         })
@@ -214,16 +225,19 @@ exports.getSourceTable = function(req, res){
                             .deepPopulate('source.source_type_id')
                             .exec(function (err, links) {
                                 ++companies_counter;
-                                if (links) {
+                                if (links.length>0) {
                                     link_len = links.length;
                                     link_counter = 0;
                                     _.each(links, function (link) {
                                         ++link_counter;
                                         project.sources.push(link.source);
                                         if (link_len == link_counter && companies_counter == companies_len) {
-                                            project.sources = _.uniq(project.sources, function (a) {
-                                                return a._id;
+                                            var uniques = _.map(_.groupBy(project.sources,function(doc){
+                                                return doc._id;
+                                            }),function(grouped){
+                                                return grouped[0];
                                             });
+                                            project.sources=uniques.splice(skip,limit+skip);
                                             callback(null, project);
                                         }
 

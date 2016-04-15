@@ -1,4 +1,4 @@
-a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies")
+a(data-toggle="collapse" ng-click='openClose=!openClose;getCompany(id,type)' data-target="#companies")
     h2(ng-if="incorporated!=true&&operation!=true") Companies
     h2(ng-if="incorporated==true") Companies Incorporated
 #companies.panel-collapse.collapse
@@ -13,7 +13,7 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#companies")
                 //th.tablesort-sortable-th(ng-if="contract==true" ts-criteria='') No. Contracts
                 //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
-        tbody
+        tbody(when-scrolled='loadMoreCompany()')
             tr(
             ng-repeat="company in companies | unique:'_id'" ts-repeat)
                 td.company_name: a(href="company/{{company._id}}")

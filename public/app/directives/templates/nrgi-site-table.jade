@@ -1,4 +1,4 @@
-a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#sites")
+a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
     h2 Sites and Fields
 #sites.panel-collapse.collapse
     table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
@@ -12,7 +12,7 @@ a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#sites")
                 th.tablesort-sortable-th(ng-if="status==true" ts-criteria='site_status[site_status.length - 1].string') Status
                 th.tablesort-sortable-th(ng-if="company==true" ts-criteria='site_status[site_status.length - 1].string') Companies
 
-        tbody
+        tbody(when-scrolled='loadMoreSites()')
             tr(
             ng-repeat="site in sites"
             ts-repeat)

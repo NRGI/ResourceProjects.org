@@ -13,7 +13,9 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request');
 
 exports.getProjectTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter;
+    var link_counter, link_len, companies_len, companies_counter,
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
     var type = req.params.type;
     var query={};
     var projects = {};
@@ -42,6 +44,7 @@ exports.getProjectTable = function(req, res){
         if(type!='commodity'&&type!='group'&&type!='country') {
             Link.find(query)
                 .deepPopulate('project.proj_country.country project.proj_commodity.commodity')
+                .lean()
                 .exec(function (err, links) {
                     if (links) {
                         link_len = links.length;
@@ -58,9 +61,12 @@ exports.getProjectTable = function(req, res){
                                 companies: 0
                             });
                             if (link_len == link_counter) {
-                                projects.projects = _.uniq(projects.projects, function (a) {
-                                    return a._id;
+                                projects.projects = _.map(_.groupBy(projects.projects,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
+                                projects.projects=projects.projects.splice(skip,limit+skip);
                                 callback(null, projects);
                             }
                         })
@@ -76,8 +82,11 @@ exports.getProjectTable = function(req, res){
     function getCommodityProjects(projects, callback) {
         if(type=='commodity') {
             Project.find(query)
+                .skip(skip)
+                .limit(limit)
                 .populate('commodity country')
                 .deepPopulate('proj_commodity.commodity proj_country.country')
+                .lean()
                 .exec(function (err, proj) {
                     link_len = proj.length;
                     link_counter = 0;
@@ -94,8 +103,10 @@ exports.getProjectTable = function(req, res){
                                 companies: 0
                             });
                             if (link_len == link_counter) {
-                                projects.projects = _.uniq(projects.projects, function (a) {
-                                    return a._id;
+                                projects.projects = _.map(_.groupBy(projects.projects,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, projects);
                             }
@@ -112,8 +123,14 @@ exports.getProjectTable = function(req, res){
         if(type=='country') {
             projects.projects = [];
             Project.find(query)
+                .skip(skip)
+                .limit(limit)
+                .sort({
+                    proj_name: 'asc'
+                })
                 .populate('commodity country')
                 .deepPopulate('proj_commodity.commodity proj_country.country')
+                .lean()
                 .exec(function (err, proj) {
                     link_len = proj.length;
                     link_counter = 0;
@@ -130,8 +147,10 @@ exports.getProjectTable = function(req, res){
                                 companies: 0
                             });
                             if (link_len == link_counter) {
-                                projects.projects = _.uniq(projects.projects, function (a) {
-                                    return a._id;
+                                projects.projects = _.map(_.groupBy(projects.projects,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, projects);
                             }
@@ -155,8 +174,10 @@ exports.getProjectTable = function(req, res){
                         .exec(function (err, links) {
                             ++companies_counter;
                             link_counter = 0;
-                            links = _.uniq(links, function (a) {
-                                return a.company._id;
+                            links = _.map(_.groupBy(links,function(doc){
+                                return doc._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             link_len = links.length;
                             if(links.length>0) {
@@ -164,8 +185,6 @@ exports.getProjectTable = function(req, res){
                                     ++link_counter;
                                     project.companies = +1;
                                 });
-                            } else{
-                                ++link_counter;
                             }
                             if (link_len == link_counter && companies_counter == companies_len) {
                                 callback(null, projects);
@@ -192,8 +211,10 @@ exports.getProjectTable = function(req, res){
                             ++link_counter;
                             company.push({_id:link.company});
                             if (link_len == link_counter) {
-                                company = _.uniq(company, function (a) {
-                                    return a._id;
+                                company = _.map(_.groupBy(company,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, company);
                             }
@@ -232,9 +253,12 @@ exports.getProjectTable = function(req, res){
                                         companies: 0
                                     });
                                     if (link_len == link_counter&&companies_counter==companies_len) {
-                                        projects.projects = _.uniq(projects.projects, function (a) {
-                                            return a._id;
+                                        projects.projects = _.map(_.groupBy(projects.projects,function(doc){
+                                            return doc._id;
+                                        }),function(grouped){
+                                            return grouped[0];
                                         });
+                                        projects.projects=projects.projects.splice(skip,limit+skip);
                                         callback(null, projects);
                                     }
                                 })
