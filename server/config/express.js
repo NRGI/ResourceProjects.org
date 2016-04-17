@@ -14,8 +14,8 @@ module.exports = function(app, config) {
 	function compile(str, path) {
 		return stylus(str).set('filename', path);
 	}
-    // console.error(config);
-    // console.error(process.env);
+    console.error(config);
+    console.error(process.env);
     // var files   = [];
     // var walker  = walk.walk('./server/config', { followLinks: false });
     // walker.on('file', function(root, stat, next) {

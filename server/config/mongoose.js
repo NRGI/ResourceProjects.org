@@ -32,10 +32,6 @@ model_load.forEach(function(model_name) {
 
 
 module.exports 	= function(config, user, pass, env) {
-    console.error(config);
-    console.error(user);
-    console.error(pass);
-    console.error(env);
     if (env === 'local') {
         mongoose.connect(config.db);
     } else {
