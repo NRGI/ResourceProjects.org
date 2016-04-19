@@ -32,9 +32,9 @@
                             a(ng-if="action.status == 'Failed'" class=["label", "label-danger"] data-toggle="tooltip" title="Click to read full report" href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}" target="_new") Failed
                     td
                         .row
-                            span(ng-if="(dataset.type == 'Google Sheets') && !dataset.status.isReadyForChecked")
+                            span(ng-if="!dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
-                            span(ng-if="(dataset.type != 'Google Sheets') || dataset.status.isReadyForChecked")
+                            span(ng-if="dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-default.disabled() Import
                         .row
                             span(ng-if="dataset.status.isReadyForChecked")

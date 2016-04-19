@@ -135,13 +135,20 @@ function createDefaultDatasets() {
                 actions: []
             });
             Dataset.create({
+                name: "Google Sheet: Total 2015 0.5",
+                source_url: 'https://docs.google.com/spreadsheets/d/1LtApoNKx_CwBIAzyAYzUooFoLmJDF-vh6gSlgVyA6bE/pub',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
                 _id: '56737e170e8cc07115211ee4',
                 name: "Companies House API",
                 type: "Placeholder for CRON Job",
                 source_url: 'https://extractives.companieshouse.gov.uk/api/',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
-                actions: ['56737e170e4ac07115211ee4']
+                actions: []
             }, function(err, model) {
             console.log(err);
             });
