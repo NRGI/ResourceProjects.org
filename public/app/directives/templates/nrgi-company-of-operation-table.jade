@@ -27,8 +27,9 @@ a(data-toggle="collapse" ng-click='sopenClose=!openClose;getCompanyOperation(id,
                 //td.company_stake(ng-if="contract==true") {{company.contracts}}
                 //td.company_stake(ng-if="concession==true") {{company.concessions}}
                 td.company_stake(ng-if="stake==true") {{company.stake}}
-    .download
-        span.glyphicon.glyphicon-download(aria-hidden="true")
-        span  Download:
-        =' '
-        a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV
+    div(ng-if="companies.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+            =' '
+            a(href="" ng-csv="csv_company" csv-header="getHeaderCompany()" filename="companies.csv") Companies CSV

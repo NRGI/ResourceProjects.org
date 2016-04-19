@@ -68,7 +68,7 @@ exports.getContractTable = function(req, res){
 
                         })
                     } else {
-                        callback(err);
+                        callback(null, company);
                     }
                 });
         } else {
@@ -113,7 +113,7 @@ exports.getContractTable = function(req, res){
                         commodity = commodities;
                         callback(null, commodity);
                     } else {
-                        callback(err);
+                        callback(null, company);
                     }
                 });
         } else {
@@ -123,37 +123,49 @@ exports.getContractTable = function(req, res){
     function getCommodityContractsApi(commodity, callback) {
         if (type == 'commodity'||type == 'country') {
             var contract_query='';
+            var getContract=false;
             if(type == 'commodity'){
-                contract_query = 'recource=' + commodity[0].commodity_name;
+                if(commodity.length>0) {
+                    contract_query = 'recource=' + commodity[0].commodity_name;
+                    getContract=true;
+                }
             }
             if(type == 'country'){
                 contract_query = 'country=' + req.params.id;
+                getContract=true;
             }
             company.contracts = [];
-            request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
-                var body = JSON.parse(body);
-                var contract_counter = 0;
-                var contract_len = body.results.length;
-                _.each(body.results, function (contract) {
-                    ++contract_counter;
-                    company.contracts.push({
-                        _id: contract.open_contracting_id,
-                        id: '',
-                        contract_name: contract.name,
-                        contract_country: {
-                            code: contract.country_code,
-                            name: []
-                        },
-                        contract_commodity: contract.resource,
-                        companies: 0
-                    });
-                    if (contract_counter == contract_len) {
-                        company.contracts=company.contracts.splice(skip,limit+skip);
+            if(getContract==true) {
+                request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
+                    var body = JSON.parse(body);
+                    var contract_counter = 0;
+                    var contract_len = body.results.length;
+                    if(contract_len>0) {
+                        _.each(body.results, function (contract) {
+                            ++contract_counter;
+                            company.contracts.push({
+                                _id: contract.open_contracting_id,
+                                id: '',
+                                contract_name: contract.name,
+                                contract_country: {
+                                    code: contract.country_code,
+                                    name: []
+                                },
+                                contract_commodity: contract.resource,
+                                companies: 0
+                            });
+                            if (contract_counter == contract_len) {
+                                company.contracts = company.contracts.splice(skip, limit + skip);
+                                callback(null, company);
+                            }
+                        });
+                    }else {
                         callback(null, company);
                     }
                 });
-
-            });
+            }else {
+                callback(null, company);
+            }
         } else {
             callback(null, company);
         }
@@ -277,6 +289,10 @@ exports.getContractTable = function(req, res){
                                     });
                             }
                         })
+                    } else{
+                        if (contract_counter == contract_len) {
+                            callback(null, company);
+                        }
                     }
                 })
             } else {
@@ -346,7 +362,6 @@ exports.getContractTable = function(req, res){
 
                                     })
                                 } else {
-                                    company ={};
                                     callback(null, company);
                                 }
                             });

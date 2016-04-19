@@ -71,7 +71,7 @@ exports.getProjectTable = function(req, res){
                             }
                         })
                     } else {
-                        callback(err);
+                        callback(null, projects);
                     }
                 });
         } else{
@@ -263,7 +263,7 @@ exports.getProjectTable = function(req, res){
                                     }
                                 })
                             } else {
-                                callback(err);
+                                callback(null, projects);
                             }
                         });
                 })
