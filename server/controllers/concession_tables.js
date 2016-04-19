@@ -66,7 +66,7 @@ exports.getConcessionTable = function(req, res){
 
                         })
                     } else {
-                        callback(err);
+                        callback(null, company);
                     }
                 });
         } else{
