@@ -8,7 +8,7 @@
     .row(ng-if="site.coordinates.length>0")
         .col-md-12
             nrgi-leaflet(data='site.coordinates' site='true')
-    .row
+    .row.top-padding-med
         .col-md-6
             .info-box
                 h2(ng-if='site.field') Field Info
