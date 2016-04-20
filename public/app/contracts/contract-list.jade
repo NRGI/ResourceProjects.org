@@ -19,14 +19,14 @@
     table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
         thead
             tr
-                th.col-md-3.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
-                th.col-md-1.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
-                th.col-md-3.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Contract Type
-                th.col-md-1.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_type') Commodity Type
-                th.col-md-1.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='projects|parseInt') Projects
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='sites|parseInt') Sites
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='fields|parseInt') Fields
+                th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
+                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
+                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Contract Type
+                th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_type') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
+                th.text-center.tablesort-sortable-th(ts-criteria='projects|parseInt') Projects
+                th.text-center.tablesort-sortable-th(ts-criteria='sites|parseInt') Sites
+                th.text-center.tablesort-sortable-th(ts-criteria='fields|parseInt') Fields
         tbody
             tr(ng-repeat="contract in contracts | unique: '_id'",ts-repeat)
                 td.contract_id: a(href='contract/{{ contract.contract_id }}')
