@@ -26,16 +26,16 @@
     table#sites.table.table-striped(ts-wrapper)
         thead
             tr
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_name') Name
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_type[0].string') Commodity Type
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_commodity[0].commodity_name') Commodity
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="company_count|parseInt")  Companies
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="project_count|parseInt")  Projects
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="concession_count|parseInt")  Concessions
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="transfer_count|parseInt")  Payments
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="production_count|parseInt")  Production
+                th.tablesort-sortable-th(ts-criteria='site_name') Name
+                th.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(ts-criteria='site_type[0].string') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='site_commodity[0].commodity_name') Commodity
+                th.text-center.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
+                th.text-center.tablesort-sortable-th(ts-criteria="company_count|parseInt")  Companies
+                th.text-center.tablesort-sortable-th(ts-criteria="project_count|parseInt")  Projects
+                th.text-center.tablesort-sortable-th(ts-criteria="concession_count|parseInt")  Concessions
+                th.text-center.tablesort-sortable-th(ts-criteria="transfer_count|parseInt")  Payments
+                th.text-center.tablesort-sortable-th(ts-criteria="production_count|parseInt")  Production
         tbody
             tr(ng-repeat="site in sites | unique: '_id'",ts-repeat)
                 td.site_name
