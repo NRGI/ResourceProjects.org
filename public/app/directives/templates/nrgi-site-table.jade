@@ -1,7 +1,7 @@
 a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
     h2 Sites and Fields
 #sites.panel-collapse.collapse
-    table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
+    table.load_table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='site_name') Name
@@ -13,9 +13,10 @@ a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-
                 th.tablesort-sortable-th(ng-if="company==true" ts-criteria='site_status[site_status.length - 1].string') Companies
 
         tbody(when-scrolled='loadMoreSites()')
+            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-site")
             tr(
             ng-repeat="site in sites"
-            ts-repeat)
+            ts-repeat ng-class="expression")
                 td.site_id
                     a(ng-if="site.field",href='field/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")

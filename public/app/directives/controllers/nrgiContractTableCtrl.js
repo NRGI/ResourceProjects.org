@@ -1,20 +1,27 @@
 'use strict';
 
-angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiContractTablesSrvc) {
-    $scope.contracts=[];
+angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiContractTablesSrvc,usSpinnerService) {
     $scope.openClose=false;
     $scope.limit = 50;
     $scope.page = 0;
     $scope.loading = false;
+    $scope.expression='';
+    $scope.contracts=[];
+    $scope.csv_contracts = [];
+    var country_name='';
+    var header_contracts = [];
+    var fields = [];
+    usSpinnerService.spin('spinner-contract');
     $scope.loadMoreContracts=function() {
         if($scope.loading==false) {
+            usSpinnerService.spin('spinner-contract');
             $scope.page = $scope.page+$scope.limit;
             $scope.getContracts($scope.id, $scope.type);
         }
     };
     $scope.getContracts=function(id,type) {
         if ($scope.openClose == true) {
-            if ($scope.contracts.length == 0 || $scope.loading == false) {
+            if ($scope.contracts.length==0||$scope.loading == false) {
                 $scope.loading = true;
                 nrgiContractTablesSrvc.get({
                     _id: id,
@@ -22,19 +29,20 @@ angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiC
                     skip: $scope.page,
                     limit: $scope.limit
                 }, function (success) {
+                    if(success.contracts.length==0){
+                        $scope.expression = 'showLast';
+                    }
                     if (success.contracts.length > 0) {
                         _.each(success.contracts, function (contract) {
                             $scope.contracts.push(contract);
                         });
                     }
+                    usSpinnerService.stop('spinner-contract');
                     if (success.contracts.length < $scope.limit) {
                         $scope.loading = true;
                     } else {
                         $scope.loading = false;
                     }
-                    $scope.csv_contracts = [];
-                    var header_contracts = [];
-                    var fields = [];
                     var headers = [{name: 'Name', status: !$scope.companies, field: 'contract_name'},
                         {name: 'RC-ID', status: $scope.companies, field: '_id'},
                         {name: 'Country ', status: $scope.country, field: 'contract_country'},
@@ -54,8 +62,11 @@ angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiC
                         $scope.csv_contracts[key] = [];
                         angular.forEach(fields, function (field) {
                             if (field == 'contract_country') {
-                                var country_name = contract[field].name.toString();
-                                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                country_name='';
+                                if(contract[field]!= undefined) {
+                                    country_name = contract[field].name.toString();
+                                    country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                }
                                 $scope.csv_contracts[key].push(country_name);
                             }
                             if (field != 'contract_country') {

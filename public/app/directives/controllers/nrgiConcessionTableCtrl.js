@@ -1,13 +1,23 @@
 'use strict';
 
-angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$filter,nrgiConcessionTablesSrvc) {
+angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$filter,nrgiConcessionTablesSrvc,usSpinnerService) {
     $scope.concessions=[];
     $scope.openClose=false;
     $scope.limit = 50;
     $scope.page = 0;
     $scope.loading = false;
+    $scope.expression='';
+    $scope.csv_concessions = [];
+    var country_name='';
+    var header_concessions = [];
+    var fields = [];
+    var str;
+    var commodity_name='';
+    var com = ', ';
+    usSpinnerService.spin('spinner-concession');
     $scope.loadMoreConcessions=function() {
         if($scope.loading==false) {
+            usSpinnerService.spin('spinner-concession');
             $scope.page = $scope.page+$scope.limit;
             $scope.getConcessions($scope.id, $scope.type);
         }
@@ -22,21 +32,20 @@ angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$fi
                     skip: $scope.page,
                     limit: $scope.limit
                 }, function (success) {
+                    if(success.concessions.length==0){
+                        $scope.expression = 'showLast';
+                    }
                     if (success.concessions.length > 0) {
                         _.each(success.concessions, function (contract) {
                             $scope.concessions.push(contract);
                         });
                     }
+                    usSpinnerService.stop('spinner-concession');
                     if (success.concessions.length < $scope.limit) {
                         $scope.loading = true;
                     } else {
                         $scope.loading = false;
                     }
-                    $scope.csv_concessions = [];
-                    var header_concessions = [];
-                    var fields = [];
-                    var str;
-                    var com = ', ';
                     var headers = [
                         {name: 'Name', status: true, field: 'concession_name'},
                         {name: 'Country', status: true, field: 'concession_country'},
@@ -60,8 +69,10 @@ angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$fi
                                 if (concession[field].length > 0) {
                                     str = '';
                                     angular.forEach(concession[field], function (commodity, i) {
-                                        var commodity_name = commodity.commodity.commodity_name.toString();
-                                        commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
+                                        if(commodity.commodity!=undefined) {
+                                            commodity_name = commodity.commodity.commodity_name.toString();
+                                            commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
+                                        }
                                         if (i != concession[field].length - 1) {
                                             str = str + commodity_name + com;
                                         } else {
@@ -93,8 +104,11 @@ angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$fi
                                 }
                             }
                             if (field == 'concession_country') {
-                                var country_name = concession[field].name.toString();
-                                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                country_name='';
+                                if(concession[field]!=undefined) {
+                                    country_name = concession[field].name.toString();
+                                    country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                }
                                 $scope.csv_concessions[key].push(country_name);
                             }
                             if (field == 'concession_type') {

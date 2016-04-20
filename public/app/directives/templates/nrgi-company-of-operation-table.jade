@@ -1,7 +1,7 @@
-a(data-toggle="collapse" ng-click='sopenClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
+a(data-toggle="collapse" ng-click='openClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
     h2 Companies Operating In
 #companies_operation.panel-collapse.collapse
-    table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
+    table.load_table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='company_name') Name
@@ -13,9 +13,10 @@ a(data-toggle="collapse" ng-click='sopenClose=!openClose;getCompanyOperation(id,
                 //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
         tbody(when-scrolled='loadMoreCompanyOperation()')
+            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-companyOperation")
             | {{company_of_operation}}
             tr(
-            ng-repeat="company in companies",ts-repeat)
+            ng-repeat="company in companies",ts-repeat ng-class="expression")
                 td.company_name: a(href="company/{{company._id}}")
                     span(ng-bind-html="company.company_name|sanitize")
                 td.company_groups(ng-if="group==true"): text(ng-repeat="group in company.company_groups | unique: '_id'")

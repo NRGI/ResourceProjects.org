@@ -128,11 +128,13 @@
                             td.project-label.our-id Desctiption:
                             td.project-description
                                 span(ng-bind-html="project.description|sanitize")
-            nrgi-company-table(
-            id="project._id"
-            type="'project'"
-            stake="false"
-            group="true")
+            .row
+                .col-md-12
+                    nrgi-company-table(
+                    id="project._id"
+                    type="'project'"
+                    stake="false"
+                    group="true")
     .row.top-padding-lg
         .col-md-12
             nrgi-production-table(

@@ -9,7 +9,8 @@ angular.module('app', [
     'ngRoute',
     'tableSort',
     'ngCsv',
-    'ngSanitize'
+    'ngSanitize',
+    'angularSpinner'
 ]);
 
 angular.module('app')

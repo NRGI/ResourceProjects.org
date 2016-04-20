@@ -2,15 +2,25 @@
 
 angular
     .module('app')
-    .controller('nrgiProjectTableCtrl', function ($scope,$filter,nrgiProjectTablesSrvc) {
+    .controller('nrgiProjectTableCtrl', function ($scope,$filter,nrgiProjectTablesSrvc,usSpinnerService) {
         $scope.projects=[];
         $scope.loading=false;
         $scope.openClose=false;
         $scope.limit = 50;
         $scope.page = 0;
-        $scope.csv_project =[]; var header_project=[]; var fields=[]; var str; var com =', ';
+        $scope.expression='';
+        $scope.csv_project =[];
+        var commodity_name='';
+        var country_name='';
+        var type_name='';
+        var header_project=[];
+        var fields=[];
+        var str;
+        var com =', ';
+        usSpinnerService.spin('spinner-project');
         $scope.loadMoreProjects=function() {
             if($scope.loading==false) {
+                usSpinnerService.spin('spinner-project');
                 $scope.page = $scope.page+$scope.limit;
                 $scope.getProjects($scope.id, $scope.type);
             }
@@ -25,11 +35,15 @@ angular
                         skip: $scope.page,
                         limit: $scope.limit
                     }, function (success) {
+                        if(success.projects.length==0){
+                            $scope.expression = 'showLast';
+                        }
                         if (success.projects.length > 0) {
                             _.each(success.projects, function (project) {
                                 $scope.projects.push(project);
                             });
                         }
+                        usSpinnerService.stop('spinner-project');
                         if (success.projects.length < $scope.limit) {
                             $scope.loading = true;
                         } else {
@@ -58,8 +72,11 @@ angular
                                             return a.commodity._id;
                                         });
                                         angular.forEach(commodities, function (commodity, i) {
-                                            var commodity_name = commodity.commodity.commodity_name.toString();
-                                            commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
+                                            commodity_name='';
+                                            if(commodity.commodity!=undefined) {
+                                                commodity_name = commodity.commodity.commodity_name.toString();
+                                                commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
+                                            }
                                             if (i != commodities.length - 1) {
                                                 str = str + commodity_name + com;
                                             } else {
@@ -94,8 +111,11 @@ angular
                                     if (p[field].length > 0) {
                                         str = '';
                                         angular.forEach(p[field], function (country, i) {
-                                            var country_name = country.country.name.toString();
-                                            country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                            country_name='';
+                                            if(country.country!=undefined) {
+                                                country_name = country.country.name.toString();
+                                                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                            }
                                             if (i != p[field].length - 1) {
                                                 str = str + country_name + com;
                                             } else {
@@ -114,8 +134,11 @@ angular
                                             return a.commodity.commodity_type;
                                         });
                                         angular.forEach(proj_commodity, function (type, i) {
-                                            var type_name = type.commodity.commodity_type.toString();
-                                            type_name = type_name.charAt(0).toUpperCase() + type_name.substr(1);
+                                            type_name='';
+                                            if(type.commodity!=undefined) {
+                                                type_name = type.commodity.commodity_type.toString();
+                                                type_name = type_name.charAt(0).toUpperCase() + type_name.substr(1);
+                                            }
                                             if (i != proj_commodity.length - 1) {
                                                 str = str + type_name + com;
                                             } else {

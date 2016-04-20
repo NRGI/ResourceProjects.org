@@ -2,14 +2,24 @@
 
 angular
     .module('app')
-    .controller('nrgiSiteTableCtrl', function ($scope,$filter,nrgiSiteFieldTablesSrvc) {
+    .controller('nrgiSiteTableCtrl', function ($scope,$filter,nrgiSiteFieldTablesSrvc,usSpinnerService) {
         $scope.sites=[];
         $scope.openClose=false;
         $scope.limit = 50;
         $scope.page = 0;
+        $scope.expression='';
         $scope.loading = false;
+        $scope.csv_site = [];
+        var commodity_name='';
+        var country_name ='';
+        var header_site = [];
+        var fields = [];
+        var str;
+        var com = ', ';
+        usSpinnerService.spin('spinner-site');
         $scope.loadMoreSites=function() {
             if($scope.loading==false) {
+                usSpinnerService.spin('spinner-site');
                 $scope.page = $scope.page+$scope.limit;
                 $scope.getSites($scope.id, $scope.type);
             }
@@ -19,21 +29,20 @@ angular
                 if ($scope.sites.length == 0 || $scope.loading == false) {
                     $scope.loading = true;
                     nrgiSiteFieldTablesSrvc.get({_id: id, type: type,skip: $scope.page, limit: $scope.limit}, function (success) {
+                        if(success.sites.length==0){
+                            $scope.expression = 'showLast';
+                        }
                         if (success.sites.length > 0) {
                             _.each(success.sites, function (site) {
                                 $scope.sites.push(site);
                             });
                         }
+                        usSpinnerService.stop('spinner-site');
                         if (success.sites.length < $scope.limit) {
                             $scope.loading = true;
                         } else {
                             $scope.loading = false;
                         }
-                        $scope.csv_site = [];
-                        var header_site = [];
-                        var fields = [];
-                        var str;
-                        var com = ', ';
                         var headers = [{name: 'Name', status: true, field: 'site_name'},
                             {name: 'Type', status: $scope.type, field: 'site_type'},
                             {name: 'Country', status: $scope.country, field: 'site_country'},
@@ -60,8 +69,11 @@ angular
                                             return a.commodity._id;
                                         });
                                         angular.forEach(commodities, function (commodity, i) {
-                                            var commodity_name = commodity.commodity.commodity_name.toString();
-                                            commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
+                                            commodity_name='';
+                                            if(commodity.commodity!=undefined) {
+                                                commodity_name = commodity.commodity.commodity_name.toString();
+                                                commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
+                                            }
                                             if (i != commodities.length - 1) {
                                                 str = str + commodity_name + com;
                                             } else {
@@ -96,8 +108,10 @@ angular
                                     if (p[field].length > 0) {
                                         str = '';
                                         angular.forEach(p[field], function (country, i) {
-                                            var country_name = country.country.name.toString();
-                                            country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                            if(country.country!=undefined) {
+                                                country_name = country.country.name.toString();
+                                                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                            }
                                             if (i != p[field].length - 1) {
                                                 str = str + country_name + com;
                                             } else {

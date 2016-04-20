@@ -1,15 +1,17 @@
 a(data-toggle="collapse" ng-click='openClose=!openClose;getSources(id,type)' data-target="#sources")
     h2 Sources
 #sources.panel-collapse.collapse
-    table.table.table-striped.projects(ts-wrapper ng-class="sources.length >= 8 ? 'header-fixed' : ''")#project-sources
+    table.load_table.table.table-striped.projects(ts-wrapper ng-class="sources.length >= 8 ? 'header-fixed' : ''")#project-sources
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='source_name') Name
                 th.tablesort-sortable-th(ts-criteria='source_type_id.source_type_name') Type
                 th.tablesort-sortable-th(ts-criteria='source_type_id.source_type_authority') Authority
         tbody(when-scrolled='loadMoreSources()')
+            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-source")
             tr(ng-repeat="source in sources | unique: '_id'"
-            ts-repeat)
+            ts-repeat
+            ng-class="expression")
                 td.source_id: a(href='source/{{source._id}}')
                     span(ng-bind-html="source.source_name|sanitize")
                 td.source_type: a(href='source_type/{{source.source_type_id._id}}')

@@ -1,7 +1,7 @@
 a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
     h2 Concessions
 #concessions.panel-collapse.collapse
-    table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
+    table.load_table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='concession_name') Name
@@ -11,7 +11,8 @@ a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)'
                 th.tablesort-sortable-th(ng-if="status==true" ts-criteria='count|parseInt') Status
                 th.tablesort-sortable-th(ng-if="projects==true" ts-criteria='projects|parseInt') No. Projects
         tbody(when-scrolled='loadMoreConcessions()')
-            tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
+            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-concession")
+            tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat ng-class="expression")
                 td.concession_name
                     a(href='/concession/{{concession._id}}')
                         span(ng-bind-html="concession.concession_name|sanitize")

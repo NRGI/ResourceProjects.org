@@ -415,7 +415,7 @@ li .glyphicon[disabled]
   width 40px
   height 40px
   position relative
-  margin 100px auto
+  margin 45px auto
 
 .double-bounce1, .double-bounce2
   width 100%
@@ -469,3 +469,22 @@ li .glyphicon[disabled]
 //  color rgba(0, 0, 0, 0.5);
 //  text-transform none;
 //  font-family Open-Sans-Regular
+.load_table .showIfLast td:after
+  content: "" !important;
+.load_table .showLast td:after
+  content: "No data" !important;
+@-moz-document url-prefix()
+  #transfers .header-fixed>tbody
+    width: 100%!important;
+    position: absolute !important;
+    height: auto;
+    max-height: 300px !important;
+    overflow-y:scroll !important;
+    top:25%;
+  .header-fixed>tbody
+    width: 100%!important;
+    position: absolute !important;
+    height: auto;
+    max-height: 300px !important;
+    overflow-y:scroll !important;
+    top:21%;
