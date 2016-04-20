@@ -6,14 +6,14 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
     table.load_table.table.table-striped.projects(ts-wrapper ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
         thead
             tr
-                th.col-md-1.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
-                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_volume') Volume
-                th.col-md-1.tablesort-sortable-th(ts-criteria='production_unit') Unit
-                th.col-md-1.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
-                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
-                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
-                th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
-                th.col-md-1.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
+                th.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
+                th.text-right.tablesort-sortable-th(ts-criteria='production_volume') Volume
+                th.tablesort-sortable-th(ts-criteria='production_unit') Unit
+                th.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
+                th.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
+                th.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
+                th.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
+                th.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
         tbody(when-scrolled='loadMoreProduction()')
             span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-production")
             tr(
