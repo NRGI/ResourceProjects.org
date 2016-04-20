@@ -30,6 +30,7 @@ model_load.forEach(function(model_name) {
     require('../models/' + model_name);
 });
 
+
 module.exports 	= function(config, user, pass, env) {
     if (env === 'local') {
         mongoose.connect(config.db);
@@ -46,6 +47,7 @@ module.exports 	= function(config, user, pass, env) {
     }
 
     var db = mongoose.connection;
+    
     db.on('error', console.error.bind(console, 'connection error...'));
     db.once('open', function callback() {
         console.log('Resource Projects db opened');

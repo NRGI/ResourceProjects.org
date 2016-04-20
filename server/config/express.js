@@ -1,5 +1,6 @@
 'use strict';
 var express 		= require('express'),
+    // walk            = require('walk'),
     stylus 			= require('stylus'),
     logger 			= require('morgan'),
     bodyParser 		= require('body-parser'),
