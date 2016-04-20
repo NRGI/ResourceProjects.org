@@ -1,7 +1,7 @@
 'use strict';
 angular
     .module('app')
-    .controller('nrgiCompanyTableCtrl', function ($scope,nrgiTablesSrvc,usSpinnerService) {
+    .controller('nrgiCompanyTableCtrl', function ($scope, nrgiTablesSrvc, usSpinnerService) {
         $scope.companies=[];
         $scope.openClose=false;
         $scope.limit = 50;
@@ -22,6 +22,7 @@ angular
                 $scope.getCompany($scope.id, $scope.type);
             }
         };
+        console.error($scope.id);
         $scope.getCompany=function(id,type){
             if ($scope.openClose == true) {
                 if ($scope.companies.length==0||$scope.loading == false) {
