@@ -1,5 +1,7 @@
-a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
-    h2 Concessions
+button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
+    h4.text-justify Concessions
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
+//    h2 Concessions
 #concessions.panel-collapse.collapse
     table.load_table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
         thead

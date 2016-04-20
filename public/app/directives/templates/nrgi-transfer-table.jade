@@ -1,5 +1,7 @@
-a(data-toggle="collapse" ng-click='openClose=!openClose;getTransfers(id,type)' data-target="#transfers")
-    h2 Payments
+button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getTransfers(id,type)' data-target="#transfers")
+    h4.text-justify Payments
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getTransfers(id,type)' data-target="#transfers")
+//    h2 Payments
 #transfers.panel-collapse.collapse
     table.load_table.table.table-striped.projects(ng-class="transfers.length >= 8 ? 'header-fixed' : ''" ts-wrapper width="100%" height="100%")#transfer-info
         thead
