@@ -43,7 +43,7 @@
                         tr(ng-if="company.company_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.company_commodities
-                                span(ng-repeat="commodity in company.company_commodity")
+                                span(ng-repeat="commodity in company.company_commodity | unique: 'commodity_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

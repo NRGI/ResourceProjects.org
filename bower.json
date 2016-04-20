@@ -28,6 +28,7 @@
     "restangular": "^1.5.1",
     "plotlyjs": "plotly#^1.4.1",
     "angular-google-analytics": "^1.1.7"
+    "angular-spinner": "^0.8.1"
   },
   "moduleType": [
     "node"
@@ -38,5 +39,6 @@
   "devDependencies": {
     "esri-leaflet": "~1.0.1",
     "angular-leaflet-directive": "angular-leaflet#~0.10.0"
+    "angular-spinner": "^0.8.1"
   }
 }
