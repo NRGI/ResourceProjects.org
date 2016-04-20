@@ -1,5 +1,7 @@
-a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
-    h2 Sites and Fields
+button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
+    h4.text-justify Sites and Fields
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
+//    h2 Sites and Fields
 #sites.panel-collapse.collapse
     table.load_table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead

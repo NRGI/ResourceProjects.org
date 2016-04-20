@@ -1,5 +1,7 @@
-a(data-toggle="collapse" ng-click='openClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
-    h2 Companies Operating In
+button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
+    h4.text-justify Companies Operating In
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
+//    h2 Companies Operating In
 #companies_operation.panel-collapse.collapse
     table.load_table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead

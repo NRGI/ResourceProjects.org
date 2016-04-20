@@ -1,6 +1,9 @@
-a(data-toggle="collapse" ng-click='openClose=!openClose;getCompany(id,type)' data-target="#companies")
-    h2(ng-if="incorporated!=true&&operation!=true") Companies
-    h2(ng-if="incorporated==true") Companies Incorporated
+button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getCompany(id,type)' data-target="#companies")
+    h4.text-justify(ng-if="incorporated!=true&&operation!=true") Companies
+    h4.text-justify(ng-if="incorporated==true") Companies Incorporated
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getCompany(id,type)' data-target="#companies")
+//    h2(ng-if="incorporated!=true&&operation!=true") Companies
+//    h2(ng-if="incorporated==true") Companies Incorporated
 #companies.panel-collapse.collapse
     table.load_table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead
