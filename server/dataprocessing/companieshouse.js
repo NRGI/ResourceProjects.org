@@ -54,19 +54,17 @@ exports.importData = function(action_id, finalcallback) {
 	
 				// Call Companies House Extractives API
 				// TODO: At the moment, some fake data are used for testing purposes. This should be changed to the real API URL as soon as data are available.
-	
+				
 				request
 					.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
 					//.get('http://localhost:3030/api/testdata')
 					.auth(API_KEY, '')
 					.end(function(err,res) {
-	
 						if (err || !res.ok) {
 							reporter.add('error in retrieving data from Companies House: ' + err);
 							return finalcallback("Failed", reporter.text);	// continue loop
 						}
 						else {
-	
 							if (!res.body || res.body == {}) {
 								// no data
 								return finalcallback("Failed", reporter.text);
@@ -81,14 +79,12 @@ exports.importData = function(action_id, finalcallback) {
 									},
 	
 									function (err) {
-	
 										if (err) {
 											reporter.add('Error in one retrieved report for year ' + year + '\n');
 											return fcallback(err);
 										}
 										reporter.add('Successfully handled report data for year ' + year + '\n');
 										fcallback(null);
-	
 									}
 	
 								);
@@ -98,14 +94,12 @@ exports.importData = function(action_id, finalcallback) {
 					});
 			},
 			function (err) {
-	
 				if (err) {
 					reporter.add('Error in retrieved data from CH API: \n' + err);
 					return finalcallback("Failed",reporter.text);
 				}
 				reporter.add('Successfully handled all data from CH API\n');
 				finalcallback("Success",reporter.text);
-	
 			}
 		);
 	}
@@ -422,6 +416,15 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				projDoc.proj_id = projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
 			}
 
+			if (projName.indexOf(" ") > -1) {
+				var spacePos = projName.indexOf(" ");
+				projDoc.proj_id = projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+
+			}
+			else {
+				projDoc.proj_id = projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			}
+
 			if (!doc_id) doc_id = new ObjectId;
 			Project.findByIdAndUpdate(
 				doc_id,
@@ -600,7 +603,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			if (country.length == 3) {
 				country_id = countries[country]._id;
 			}
-			
 			if (!country_id) { //If not 3 letters or if not found
                 report.add('Invalid country code. Aborting.\n');
 				return ccallback(true);
@@ -696,6 +698,31 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
 			}
 			
+			//Enforce only one country per project...
+			update.proj_country = [{country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}];
+			//In theory this only adds the country if not already there
+			Project.update({proj_name: projectPaymentEntry.projectName}, update, {}, function(err, numAffected) {
+				console.log(err);
+				console.log(numAffected);
+			});
+
+			//Add in country information for the project
+			var update = {};
+
+			//Update project ID
+			var iso2country = countries[projectPaymentEntry.countryCodeList].iso2.toLowerCase();
+
+	        var projName = projectPaymentEntry.projectName;
+
+			if (projName.indexOf(" ") > -1) {
+				var spacePos = projName.indexOf(" ");
+				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+
+			}
+			else {
+				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			}
+
 			//Enforce only one country per project...
 			update.proj_country = [{country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}];
 			//In theory this only adds the country if not already there
