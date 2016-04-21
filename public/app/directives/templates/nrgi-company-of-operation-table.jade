@@ -2,7 +2,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
     h4.text-justify Companies Operating In
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
 //    h2 Companies Operating In
-#companies_operation.panel-collapse.collapse
+#companies_operation.panel-collapse.collapse.in
     table.load_table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead
             tr
@@ -14,7 +14,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
                 //th.tablesort-sortable-th(ng-if="contract==true" ts-criteria='') No. Contracts
                 //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
-        tbody(when-scrolled='loadMoreCompanyOperation()')
+        tbody
             span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-companyOperation")
             | {{company_of_operation}}
             tr(

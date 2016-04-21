@@ -7,9 +7,7 @@ var Commodity 		= require('mongoose').model('Commodity'),
 	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
 exports.getCommodities = function(req, res) {
-	var commodity_len, link_len, commodity_counter, link_counter,
-		limit = Number(req.params.limit),
-		skip = Number(req.params.skip);
+	var commodity_len, link_len, commodity_counter, link_counter;
 	async.waterfall([
 		commodityCount,
 		getCommoditySet,

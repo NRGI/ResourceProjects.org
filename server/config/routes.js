@@ -273,14 +273,14 @@ module.exports	= function(app) {
 
 
 	//TABLE
-	app.get('/api/company_table/:type/:id/:limit/:skip', company_tables.getCompanyTable);
-	app.get('/api/project_table/:type/:id/:limit/:skip', project_tables.getProjectTable);
-	app.get('/api/prod_table/:type/:id/:limit/:skip', production_tables.getProductionTable);
-	app.get('/api/transfer_table/:type/:id/:limit/:skip', transfer_tables.getTransferTable);
-	app.get('/api/source_table/:type/:id/:limit/:skip', source_tables.getSourceTable);
-	app.get('/api/site_table/:type/:id/:limit/:skip', site_tables.getSiteFieldTable);
-	app.get('/api/contract_table/:type/:id/:limit/:skip', contract_tables.getContractTable);
-	app.get('/api/concession_table/:type/:id/:limit/:skip', concession_tables.getConcessionTable);
+	app.get('/api/company_table/:type/:id', company_tables.getCompanyTable);
+	app.get('/api/project_table/:type/:id', project_tables.getProjectTable);
+	app.get('/api/prod_table/:type/:id', production_tables.getProductionTable);
+	app.get('/api/transfer_table/:type/:id', transfer_tables.getTransferTable);
+	app.get('/api/source_table/:type/:id', source_tables.getSourceTable);
+	app.get('/api/site_table/:type/:id', site_tables.getSiteFieldTable);
+	app.get('/api/contract_table/:type/:id', contract_tables.getContractTable);
+	app.get('/api/concession_table/:type/:id', concession_tables.getConcessionTable);
 
 
 	app.post('/login', auth.authenticate);

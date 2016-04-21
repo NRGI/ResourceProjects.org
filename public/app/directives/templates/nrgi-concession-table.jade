@@ -2,7 +2,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
     h4.text-justify Concessions
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
 //    h2 Concessions
-#concessions.panel-collapse.collapse
+#concessions.panel-collapse.collapse.in
     table.load_table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
         thead
             tr
@@ -12,7 +12,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
                 th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='concession_commodities[concession_commodities.length-1].commodity.commodity_name') Commodity
                 th.tablesort-sortable-th(ng-if="status==true" ts-criteria='count|parseInt') Status
                 th.tablesort-sortable-th(ng-if="projects==true" ts-criteria='projects|parseInt') No. Projects
-        tbody(when-scrolled='loadMoreConcessions()')
+        tbody
             span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-concession")
             tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat ng-class="expression")
                 td.concession_name

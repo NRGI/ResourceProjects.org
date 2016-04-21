@@ -14,9 +14,7 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getProductionTable = function(req, res){
-    var link_counter, link_len, queries,production_counter,production_len,companies_len,companies_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var link_counter, link_len, queries,production_counter,production_len,companies_len,companies_counter;
     var type = req.params.type;
     var projects = {};
     projects.production_query =[];
@@ -226,10 +224,7 @@ exports.getProductionTable = function(req, res){
         if(type=='group') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{company:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         Production.find(query)
-            .skip(skip)
-            .limit(limit)
             .populate('production_commodity')
-            .lean()
             .exec(function (err, production) {
                 production_counter = 0;
                 production_len = production.length;

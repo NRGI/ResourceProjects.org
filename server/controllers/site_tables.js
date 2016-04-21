@@ -15,9 +15,7 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getSiteFieldTable = function(req, res){
-    var link_counter, link_len,site_counter,site_len,companies_len,companies_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var link_counter, link_len,site_counter,site_len,companies_len,companies_counter;
     var site ={};
     site.sites=[];
     var type = req.params.type;
@@ -68,7 +66,6 @@ exports.getSiteFieldTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                site.sites = site.sites.splice(skip,limit);
                                 callback(null, site);
                             }
 
@@ -85,10 +82,7 @@ exports.getSiteFieldTable = function(req, res){
     function getSites(site, callback) {
         if(type=='commodity') {
             Site.find(query)
-                .skip(skip)
-                .limit(limit)
                 .populate('contract commodity country site_country.country site_commodity.commodity')
-                .lean()
                 .exec(function (err, sites) {
                     site_counter = 0;
                     site_len = sites.length;
@@ -126,10 +120,7 @@ exports.getSiteFieldTable = function(req, res){
         if(type=='country') {
             site.sites = [];
             Site.find(query)
-                .skip(skip)
-                .limit(limit)
                 .populate('contract commodity country site_country.country site_commodity.commodity')
-                .lean()
                 .exec(function (err, sites) {
                     link_len = sites.length;
                     link_counter = 0;
@@ -254,7 +245,6 @@ exports.getSiteFieldTable = function(req, res){
                                         }),function(grouped){
                                             return grouped[0];
                                         });
-                                        site.sites=site.sites.splice(skip,limit+skip);
                                         callback(null, site);
                                     }
 

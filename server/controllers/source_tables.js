@@ -14,9 +14,7 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getSourceTable = function(req, res){
-    var link_counter, link_len,companies_len,companies_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var link_counter, link_len,companies_len,companies_counter;
     var type = req.params.type;
     var queries=[];
     var project={};
@@ -75,7 +73,7 @@ exports.getSourceTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                project.sources=uniques.splice(skip,limit+skip);
+                                project.sources=uniques;
                                 callback(null, project);
                             }
                         });
@@ -167,7 +165,7 @@ exports.getSourceTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                project.sources=uniques.splice(skip,limit+skip);
+                                project.sources=uniques;
                                 callback(null, project);
                             }
                         });
@@ -201,7 +199,7 @@ exports.getSourceTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                company.sources=uniques.splice(skip,limit+skip);
+                                company.sources=uniques;
                                 callback(null, company);
                             }
                         })
@@ -237,7 +235,7 @@ exports.getSourceTable = function(req, res){
                                             }),function(grouped){
                                                 return grouped[0];
                                             });
-                                            project.sources=uniques.splice(skip,limit+skip);
+                                            project.sources=uniques;
                                             callback(null, project);
                                         }
 
