@@ -2,7 +2,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
     h4.text-justify Sites and Fields
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
 //    h2 Sites and Fields
-#sites.panel-collapse.collapse
+#sites.panel-collapse.collapse.in
     table.load_table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead
             tr
@@ -14,7 +14,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
                 th.tablesort-sortable-th(ng-if="status==true" ts-criteria='site_status[site_status.length - 1].string') Status
                 th.tablesort-sortable-th(ng-if="company==true" ts-criteria='site_status[site_status.length - 1].string') Companies
 
-        tbody(when-scrolled='loadMoreSites()')
+        tbody
             span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-site")
             tr(
             ng-repeat="site in sites"

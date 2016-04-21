@@ -4,7 +4,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getCompany(id,type)' data-target="#companies")
 //    h2(ng-if="incorporated!=true&&operation!=true") Companies
 //    h2(ng-if="incorporated==true") Companies Incorporated
-#companies.panel-collapse.collapse
+#companies.panel-collapse.collapse.in
     table.load_table.table.table-striped.companies(ng-class="companies.length >= 8 ? 'header-fixed' : ''" ts-wrapper)#company-info
         thead
             tr
@@ -16,7 +16,7 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
                 //th.tablesort-sortable-th(ng-if="contract==true" ts-criteria='') No. Contracts
                 //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
-        tbody(when-scrolled='loadMoreCompany()')
+        tbody
             span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-company")
             tr(
             ng-repeat="company in companies | unique:'_id'" ts-repeat ng-class="expression")

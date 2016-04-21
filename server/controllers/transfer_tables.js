@@ -13,9 +13,7 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request');
 
 exports.getTransferTable = function(req, res){
-    var link_counter, link_len, queries,query, company={},transfers_counter,transfers_len,companies_len,companies_counter,type = req.params.type,projects = {},
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var link_counter, link_len, queries,query, company={},transfers_counter,transfers_len,companies_len,companies_counter,type = req.params.type,projects = {};
     projects.transfers_query =[];
     if(type=='concession') { queries={concession:req.params.id}; projects.transfers_query = [req.params.id];}
     if(type=='company') { queries={company:req.params.id};projects.transfers_query = [req.params.id];}
@@ -224,10 +222,7 @@ exports.getTransferTable = function(req, res){
         if (type=='country') { query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{country:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
             Transfer.find(query)
-                .skip(skip)
-                .limit(limit)
                 .populate('company country')
-                .lean()
                 .exec(function (err, transfers) {
                     transfers_counter = 0;
                     transfers_len = transfers.length;

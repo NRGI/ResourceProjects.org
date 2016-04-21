@@ -2,58 +2,54 @@
 angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrgiProdTablesSrvc,usSpinnerService) {
     $scope.production = [];
     $scope.loading = false;
-    $scope.openClose = false;
-    $scope.limit = 50;
-    $scope.page = 0;
-    $scope.expression='';
+    $scope.openClose = true;
     $scope.csv_production = [];
+    $scope.expression='';
     var commodity='';
     usSpinnerService.spin('spinner-production');
-    $scope.loadMoreProduction = function () {
-        if ($scope.loading == false) {
-            usSpinnerService.spin('spinner-production');
-            $scope.page = $scope.page+$scope.limit;
+    $scope.$watch('id', function(value) {
+        if(value!=undefined){
+            $scope.loading = false;
             $scope.getProduction($scope.id, $scope.type);
         }
-    };
+    });
     $scope.getProduction = function (id, type) {
-        if ($scope.openClose == true) {
-            if ($scope.production.length == 0 || $scope.loading == false) {
-                $scope.loading = true;
-                nrgiProdTablesSrvc.get({_id: id, type: type, skip: $scope.page, limit: $scope.limit}, function (success) {
-                    if(success.production.length==0){
-                        $scope.expression = 'showLast';
-                    }
-                    if (success.production.length > 0) {
-                        _.each(success.production, function (production) {
-                            $scope.production.push(production);
-                        });
-                    }
-                    usSpinnerService.stop('spinner-production');
-                    if (success.production.length < $scope.limit) {
-                        $scope.loading = true;
-                    } else {
-                        $scope.loading = false;
-                    }
-                    $scope.getHeaderProduction = function () {
-                        return ['Year', 'Volume', 'Unit', 'Commodity', 'Price', 'Price unit', 'Level']
-                    };
-                    angular.forEach($scope.production, function (p) {
-                        if(p.production_commodity!=undefined){
-                            commodity=p.production_commodity.commodity_name
+        if ($scope.id != undefined) {
+            if ($scope.openClose == true) {
+                if ($scope.production.length == 0 || $scope.loading == false) {
+                    $scope.loading = true;
+                    nrgiProdTablesSrvc.get({
+                        _id: id,
+                        type: type
+                    }, function (success) {
+                        $scope.expression='';
+                        if (success.production.length == 0 && $scope.production.length == 0) {
+                            $scope.expression = 'showLast';
                         }
-                        $scope.csv_production.push({
-                            'year': p.production_year,
-                            'volume': p.production_volume,
-                            'unit': p.production_unit,
-                            'commodity': commodity,
-                            'price': p.production_price,
-                            'price_unit': p.production_price_unit,
-                            'level': p.production_level
-                        });
+                        $scope.production=success.production;
+                        usSpinnerService.stop('spinner-production');
+                        $scope.getHeaderProduction = function () {
+                            return ['Year', 'Volume', 'Unit', 'Commodity', 'Price', 'Price unit', 'Level']
+                        };
+                        angular.forEach($scope.production, function (p) {
+                            if (p.production_commodity != undefined) {
+                                commodity = p.production_commodity.commodity_name
+                            }
+                            $scope.csv_production.push({
+                                'year': p.production_year,
+                                'volume': p.production_volume,
+                                'unit': p.production_unit,
+                                'commodity': commodity,
+                                'price': p.production_price,
+                                'price_unit': p.production_price_unit,
+                                'level': p.production_level
+                            });
 
+                        })
+                    }, function(error){
+                        usSpinnerService.stop('spinner-production');
                     })
-                })
+                }
             }
         }
     }

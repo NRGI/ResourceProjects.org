@@ -14,9 +14,7 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getContractTable = function(req, res){
-    var link_counter, link_len,companies_len,companies_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var link_counter, link_len,companies_len,companies_counter;
     var company ={};var commodity=[];
     company.contracts_link=[];
     var type = req.params.type;
@@ -62,7 +60,6 @@ exports.getContractTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                company.contracts_link=company.contracts_link.splice(skip,limit+skip);
                                 callback(null, company);
                             }
 
@@ -155,7 +152,6 @@ exports.getContractTable = function(req, res){
                                 companies: 0
                             });
                             if (contract_counter == contract_len) {
-                                company.contracts = company.contracts.splice(skip, limit + skip);
                                 callback(null, company);
                             }
                         });
@@ -393,7 +389,6 @@ exports.getContractTable = function(req, res){
                         });
 
                         if (contract_counter == contract_len) {
-                            company.contracts=company.contracts.splice(skip,limit+skip);
                             callback(null, company);
                         }
                     });

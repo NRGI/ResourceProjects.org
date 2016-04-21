@@ -13,9 +13,7 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request');
 
 exports.getProjectTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var link_counter, link_len, companies_len, companies_counter;
     var type = req.params.type;
     var query={};
     var projects = {};
@@ -66,7 +64,6 @@ exports.getProjectTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                projects.projects=projects.projects.splice(skip,limit+skip);
                                 callback(null, projects);
                             }
                         })
@@ -82,11 +79,8 @@ exports.getProjectTable = function(req, res){
     function getCommodityProjects(projects, callback) {
         if(type=='commodity') {
             Project.find(query)
-                .skip(skip)
-                .limit(limit)
                 .populate('commodity country')
                 .deepPopulate('proj_commodity.commodity proj_country.country')
-                .lean()
                 .exec(function (err, proj) {
                     link_len = proj.length;
                     link_counter = 0;
@@ -123,14 +117,11 @@ exports.getProjectTable = function(req, res){
         if(type=='country') {
             projects.projects = [];
             Project.find(query)
-                .skip(skip)
-                .limit(limit)
                 .sort({
                     proj_name: 'asc'
                 })
                 .populate('commodity country')
                 .deepPopulate('proj_commodity.commodity proj_country.country')
-                .lean()
                 .exec(function (err, proj) {
                     link_len = proj.length;
                     link_counter = 0;
@@ -258,7 +249,6 @@ exports.getProjectTable = function(req, res){
                                         }),function(grouped){
                                             return grouped[0];
                                         });
-                                        projects.projects=projects.projects.splice(skip,limit+skip);
                                         callback(null, projects);
                                     }
                                 })
