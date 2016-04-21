@@ -29,6 +29,7 @@ angular
                             type: type
                         }, function (success) {
                             $scope.expression='';
+                            $scope.companies=success.companies;
                             if (success.companies.length == 0 && $scope.companies.length == 0) {
                                 $scope.expression = 'showLast';
                             }
