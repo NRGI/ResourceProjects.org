@@ -44,7 +44,7 @@ exports.getProjectTable = function(req, res){
                 .deepPopulate('project.proj_country.country project.proj_commodity.commodity')
                 .lean()
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -195,7 +195,7 @@ exports.getProjectTable = function(req, res){
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {

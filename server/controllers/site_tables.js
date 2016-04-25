@@ -187,7 +187,7 @@ exports.getSiteFieldTable = function(req, res){
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -225,7 +225,7 @@ exports.getSiteFieldTable = function(req, res){
                         .deepPopulate('site.site_country.country site.site_commodity.commodity')
                         .exec(function (err, links) {
                             ++companies_counter;
-                            if (links) {
+                            if (links.length>0) {
                                 link_len = links.length;
                                 link_counter = 0;
                                 _.each(links, function (link) {

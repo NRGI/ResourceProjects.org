@@ -102,7 +102,7 @@ exports.getTransferTable = function(req, res){
             var companies =[];
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {

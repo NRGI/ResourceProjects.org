@@ -52,7 +52,7 @@ exports.getProductionTable = function(req, res){
             Link.find(queries)
                 .populate('site project concession company')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -106,7 +106,7 @@ exports.getProductionTable = function(req, res){
             var companies =[];
             Link.find(queries)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {

@@ -8,10 +8,11 @@ var mongoose = require('mongoose'),
 require('mongoose-html-2').loadType(mongoose);
 
 var siteSchema, Site,
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
     ObjectId        = Schema.Types.ObjectId,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
         type: HTML,
@@ -57,6 +58,7 @@ siteSchema = new Schema({
 });
 
 siteSchema.plugin(mongooseHistory, hst_options);
+siteSchema.plugin(deepPopulate);
 siteSchema.plugin(searchPlugin,{
    fields:['site_name']
 });
