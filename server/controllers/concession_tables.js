@@ -43,7 +43,7 @@ exports.getConcessionTable = function(req, res){
                 .populate('concession commodity country')
                 .deepPopulate('concession.concession_commodity.commodity concession.concession_country.country ')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -178,7 +178,7 @@ exports.getConcessionTable = function(req, res){
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {

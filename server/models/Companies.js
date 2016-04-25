@@ -9,7 +9,7 @@ var companySchema, Company,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     ObjectId        = Schema.Types.ObjectId,
-    source          = {type: ObjectId, ref: 'Sources'},
+    source          = {type: ObjectId, ref: 'Source'},
     fact            = require("./Facts"),
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
