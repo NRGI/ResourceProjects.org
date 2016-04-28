@@ -31,7 +31,7 @@
                         tr
                             td.detail_label.small Commodities:
                             td.commodities
-                                text(ng-repeat="commodity in group.commodities | unique: '_id'")
+                                text(ng-repeat="commodity in group.commodities | unique: 'commodity_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

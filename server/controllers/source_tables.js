@@ -90,7 +90,6 @@ exports.getSourceTable = function(req, res){
                                 project.sources.push(responce[0].site_established_source);
                             }
                             if (type == 'group') {
-                                console.log(responce[0])
                                 project.sources.push(responce[0].company_group_record_established);
                             }
                             callback(null, project);
@@ -115,7 +114,6 @@ exports.getSourceTable = function(req, res){
                         links.forEach(function (link) {
                             ++link_counter;
                             if(type=='project') {
-                                console.log(link.project.proj_established_source);
                                 project.sources.push(link.project.proj_established_source);}
                             if(type=='company') { project.sources.push(link.company.company_established_source);}
                             if(type=='concession') { project.sources.push(link.concession.concession_established_source);}
