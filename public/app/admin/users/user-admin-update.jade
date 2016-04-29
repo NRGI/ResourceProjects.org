@@ -1,84 +1,103 @@
 .container.top-padding-med
-	.well
-		form.form-horizontal(name='profile_form')
+	.card
+		form(name='profile_form')
 			fieldset
-				legend {{user.first_name}} {{user.last_name}}'s Profile
-				.form-group
-					label.col-md-2.control-label(form="") First Name
-					.col-md-10
-						input.form-control(
-						name="first_name"
-						type="text"
-						ng-model="user.first_name"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="last_name") Last Name
-					.col-md-10
-						input.form-control(
-						name="last_name"
-						type="text"
-						ng-model="user.last_name"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="username") Username
-					.col-md-10
-						input.form-control(
-						name="username"
-						type="text"
-						ng-model="user.username"
-						readonly)
-				.form-group
-					label.col-md-2.control-label(form="email") Email
-					.col-md-10
-						input.form-control(
-						name="email"
-						type="email"
-						ng-model="user.email"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="roles") Roles
-					.col-md-10
-						input.form-control(
-						name="roles"
-						type="text"
-						ng-model="user.roles"
-						readonly)
-				.form-group
-					label.col-md-2.control-label(form="address") Address
-					.col-md-10
-						input.form-control(
-						name="address"
-						type="text"
-						ng-model="user.address"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="language") Language
-					.col-md-10
-						input.form-control(
-						name="language"
-						type="text"
-						ng-model="user.language"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="password") Password
-					.col-md-10
-						input.form-control(
-						name="password"
-						type="password"
-						ng-model="password")
-				.form-group
-					label.col-md-2.control-label(form="password") Repeat Password
-					.col-md-10
-						input.form-control(
-						name="password"
-						type="password"
-						ng-model="password_rep")
-				.form-group
-					.col-md-10.col-md-offset-2
-						.pull-right
-							//- button.btn.btn-primary(ng-click="userUpdate()", ng-disabled="signupFormm.$invalid") Submit
-							button.btn.btn-primary(ng-click="userUpdate()", ng-disabled="") Submit
-							| &nbsp;
-							button.btn.btn-danger(ng-click="userDelete()", ng-disabled="") Delete
-							| &nbsp;
-							a.btn.btn-default(href="/") Cancel
+				.col-xs-12
+					legend {{user.first_name}} {{user.last_name}}'s Profile
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="first_name") First Name
+						.col-md-10
+							input.form-control(
+							id="first_name"
+							name="first_name"
+							type="text"
+							ng-model="user.first_name"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="last_name") Last Name
+						.col-md-10
+							input.form-control(
+							id="last_name"
+							name="last_name"
+							type="text"
+							ng-model="user.last_name"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="username") Username
+						.col-md-10
+							input.form-control(
+							id="username"
+							name="username"
+							type="text"
+							ng-model="user.username"
+							readonly)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="email") Email
+						.col-md-10
+							input.form-control(
+							id="email"
+							name="email"
+							type="email"
+							ng-model="user.email"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="roles") Roles
+						.col-md-10
+							input.form-control(
+							id="roles"
+							name="roles"
+							type="text"
+							ng-model="user.roles"
+							readonly)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="address") Address
+						.col-md-10
+							input.form-control(
+							id="address"
+							name="address"
+							type="text"
+							ng-model="user.address"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="language") Language
+						.col-md-10
+							input.form-control(
+							id="language"
+							name="language"
+							type="text"
+							ng-model="user.language"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="password") Password
+						.col-md-10
+							input.form-control(
+							id="password"
+							name="password"
+							type="password"
+							ng-model="password")
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.control-label(for="password") Repeat Password
+						.col-md-10
+							input.form-control(
+							id="password"
+							name="password"
+							type="password"
+							ng-model="password_rep")
+				.form-group.row
+					.col-xs-12
+						.col-md-10.col-md-offset-2
+							.pull-xs-right
+								button.btn.btn-primary(ng-click="userUpdate()", ng-disabled="") Submit
+								| &nbsp;
+								button.btn.btn-danger(ng-click="userDelete()", ng-disabled="") Delete
+								| &nbsp;
+								a.btn.btn-secondary(href="/") Cancel

@@ -30,7 +30,7 @@
                                 span.text-uppercase  ({{alias.reference}})
                             span(ng-if="!$last") ,
                             =" "
-    .row
+    .row.top-padding-lg
         .col-md-6
             nrgi-project-table(
             country="true"
@@ -50,7 +50,7 @@
             type="true"
             commodity="false"
             status="true")
-    .row
+    .row.top-padding-lg
         .col-md-6
             nrgi-contract-table(
             type="'commodity'"
@@ -67,7 +67,7 @@
             commodity="false"
             status="true"
             projects="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-company-table(
             type="'commodity'"
@@ -78,7 +78,7 @@
             site="true"
             contract="true"
             concession="true")
-    .row
+    .row.top-padding-lg
         .col-md-12
             nrgi-sources-table(
             id="commodity._id"

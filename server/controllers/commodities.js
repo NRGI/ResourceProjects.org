@@ -7,7 +7,9 @@ var Commodity 		= require('mongoose').model('Commodity'),
 	request         = require('request'),
 	encrypt 		= require('../utilities/encryption');
 exports.getCommodities = function(req, res) {
-	var commodity_len, link_len, commodity_counter, link_counter;
+	var commodity_len, link_len, commodity_counter, link_counter,
+		limit = Number(req.params.limit),
+		skip = Number(req.params.skip);
 	async.waterfall([
 		commodityCount,
 		getCommoditySet,
@@ -113,7 +115,8 @@ exports.getCommodities = function(req, res) {
 	//}
 };
 exports.getCommodityByID = function(req, res) {
-	var link_counter, link_len;
+	var link_counter, link_len,
+		commodity={};
 
 	async.waterfall([
 		getCommodity,
@@ -139,34 +142,38 @@ exports.getCommodityByID = function(req, res) {
 			});
 	}
 	function getCommodityLinks(commodity, callback) {
-		commodity.location = [];
-		Project.find({'proj_commodity.commodity': commodity._id})
-			.populate('commodity country')
-			.deepPopulate('proj_commodity.commodity proj_country.country')
-			.exec(function (err, proj) {
-				link_len = proj.length;
-				link_counter = 0;
-				if (link_len > 0) {
-					_.each(proj, function (project) {
-						++link_counter;
-						project.proj_coordinates.forEach(function (loc) {
-							commodity.location.push({
-								'lat': loc.loc[0],
-								'lng': loc.loc[1],
-								'message': project.proj_name,
-								'timestamp': loc.timestamp,
-								'type': 'project',
-								'id': project.proj_id
+		if (commodity.length > 0) {
+			commodity.location = [];
+			Project.find({'proj_commodity.commodity': commodity._id})
+				.populate('commodity country')
+				.deepPopulate('proj_commodity.commodity proj_country.country')
+				.exec(function (err, proj) {
+					link_len = proj.length;
+					link_counter = 0;
+					if (link_len > 0) {
+						_.each(proj, function (project) {
+							++link_counter;
+							project.proj_coordinates.forEach(function (loc) {
+								commodity.location.push({
+									'lat': loc.loc[0],
+									'lng': loc.loc[1],
+									'message': project.proj_name,
+									'timestamp': loc.timestamp,
+									'type': 'project',
+									'id': project.proj_id
+								});
 							});
-						});
-						if (link_len == link_counter) {
-							callback(null, commodity);
-						}
-					})
-				} else {
-					callback(null, commodity);
-				}
-			})
+							if (link_len == link_counter) {
+								callback(null, commodity);
+							}
+						})
+					} else {
+						callback(null, commodity);
+					}
+				})
+		}else{
+			callback(null, commodity);
+		}
 	}
 };
 exports.createCommodity = function(req, res, next) {
@@ -190,8 +197,6 @@ exports.updateCommodity = function(req, res) {
 			return res.send({ reason: err.toString() });
 		}
 		commodity.commodity_name= commodityUpdates.commodity_name;
-		commodity.commodity_code= commodityUpdates.commodity_code;
-		commodity.commodity_aliases= commodityUpdates.commodity_aliases;
 		commodity.save(function(err) {
 			if(err) {
 				err = new Error('Error');

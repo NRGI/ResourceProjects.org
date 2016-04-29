@@ -1,40 +1,26 @@
 .container.top-padding-med
-   .well
-      form.form-horizontal(name='create_commodity_form')
+   .card
+      form(name='create_commodity_form')
          fieldset
-            legend New Commodity Information
-            .form-group
-               label.col-md-2.control-label(form="name") Commodity name
-               .col-md-10
-                  input.form-control(
-                  name="name"
-                  type="text"
-                  placeholder="Commodity name"
-                  ng-model="commodity.commodity_name"
-                  required)
-            .form-group
-               label.col-md-2.control-label(form="commodity_code") Code
-               .col-md-10
-                  input.form-control(
-                  name="commodity_code"
-                  type="text"
-                  placeholder="Code"
-                  ng-model="commodity.commodity_code"
-                  )
-            //.form-group
-            //   label.col-md-2.control-label(form="commodity_aliases") Aliases
-            //   .col-md-10
-            //      input.form-control(
-            //      name="commodity_aliases"
-            //      type="text"
-            //      placeholder="Aliases"
-            //      ng-model="commodity.commodity_aliases"
-            //      )
-            .form-group
-               .col-md-10.col-md-offset-2
-                  .pull-right
-                     button.btn.btn-primary(
-                     ng-click="commodityCreate()"
-                     ng-disabled="create_commodity_form.$invalid") Submit
-                     | &nbsp;
-                     a.btn.btn-default(href="/admin/commodity-admin") Cancel
+            .col-xs-12
+               legend New Commodity Information
+            .form-group.row
+               .col-xs-12
+                  label.col-md-2.form-control-label(for="name") Commodity name
+                  .col-md-10
+                     input.form-control(
+                     id="name"
+                     name="name"
+                     type="text"
+                     placeholder="Commodity name"
+                     ng-model="commodity.commodity_name"
+                     required)
+            .form-group.row
+               .col-xs-12
+                  .col-md-10.col-md-offset-2
+                     .pull-xs-right
+                        button.btn.btn-primary(
+                        ng-click="commodityCreate()"
+                        ng-disabled="create_commodity_form.$invalid") Submit
+                        | &nbsp;
+                        a.btn.btn-secondary(href="/admin/commodity-admin") Cancel

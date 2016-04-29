@@ -1,10 +1,11 @@
 .container.top-padding-med
-	.well
-		legend Sources
-		.pull-right
-			.btn-group
-				button.btn.btn-default.pull-right(type='button')
-					a(href='/admin/create-source') Create new source
+	.card
+		.col-xs-12
+			legend Sources
+			.pull-xs-right
+				.btn-group
+					button.btn.btn-secondary.pull-xs-right(type='button')
+						a(href='/admin/create-source') Create new source
 		table.table
 			thead
 				tr
@@ -19,4 +20,4 @@
 					td.source_type {{source.source_type}}
 					td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
 					td
-						a.btn.center-block.btn-default(href="/admin/source-admin/{{source._id}}") Edit
+						a.btn.center-block.btn-secondary(href="/admin/source-admin/{{source._id}}") Edit

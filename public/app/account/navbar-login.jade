@@ -1,15 +1,17 @@
 .navbar-right(ng-controller="nrgiNavBarLoginCtrl")
     //- LOGIN NAVBAR
     form.navbar-form.right-padding-lg(ng-hide="identity.isAuthenticated()")
-        .form-group
-            input.form-control(
-            placeholder="Username"
-            ng-model="username")
-        .form-group
-            input.form-control(
-            type="password"
-            placeholder="Password"
-            ng-model="password")
+        .form-group.row
+            .col-xs-12
+                input.form-control(
+                placeholder="Username"
+                ng-model="username")
+        .form-group.row
+            .col-xs-12
+                input.form-control(
+                type="password"
+                placeholder="Password"
+                ng-model="password")
         button.btn.btn-primary(ng-click="signin(username, password)")
             span.glyphicon.glyphicon-log-in(title="Login")  Login
         //- TODO add forgot password functionality

@@ -12,8 +12,8 @@ block main-content
             .col-md-8
                 .nav-collapse
                     ul.nav.list-inline.left-padding-lg
-                        li
-                            a(href='/projects') Projects
+                        li.nav-item
+                            a.nav-link(href='/projects') Projects
                         //li
                         //    a.dropdown-toggle(data-toggle="dropdown") Projects
                         //        b.caret
@@ -22,14 +22,14 @@ block main-content
                         //            a(href='/projects') Projects
                         //li
                         //    a(href='/projects') Payments
-                        li
-                            a(href='/projects/map') Map
-                        li
-                            a.dropdown-toggle(data-toggle="dropdown") Other Data
+                        li.nav-item
+                            a.nav-link(href='/projects/map') Map
+                        li.nav-item
+                            a.nav-link.dropdown-toggle(data-toggle="dropdown") Other Data
                                 b.caret
                             ul.dropdown-menu
                                 li
-                                    a(href='/sites').dropdown-item Sites
+                                    a.nav-link(href='/sites').dropdown-item Sites
                                 li
                                     a(href='/fields').dropdown-item Fields
                                 li
@@ -44,8 +44,8 @@ block main-content
                                     a(href='/countries').dropdown-item Countries
                                 //li
                                 //    a(href='/commodities').dropdown-item Commodities
-                        li
-                            a.dropdown-toggle(data-toggle="dropdown") About
+                        li.nav-item
+                            a.nav-link.dropdown-toggle(data-toggle="dropdown") About
                                 b.caret
                             ul.dropdown-menu
                                 li
@@ -54,8 +54,8 @@ block main-content
                                 //    a(href='/sources').dropdown-item Sources
                                 li
                                     a(href='/glossary').dropdown-item Glossary
-                        li
-                            a.dropdown-toggle(data-toggle="dropdown") Admin
+                        li.nav-item
+                            a.nav-link.dropdown-toggle(data-toggle="dropdown") Admin
                                 b.caret
                             ul.dropdown-menu
                                 li

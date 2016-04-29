@@ -1,57 +1,66 @@
 .container.top-padding-med
-    .well
-        form.form-horizontal(name='create_country_form')
+    .card
+        form(name='create_country_form')
             fieldset
-                legend New Country Information
-                .form-group
-                    label.col-md-2.control-label(form="name") Country Name
-                    .col-md-10
-                        input.form-control(
-                        name="name"
-                        type="text"
-                        placeholder="Country name"
-                        ng-model="country.name"
-                        required)
-                .form-group
-                    label.col-md-2.control-label(form="iso2") Country ISO 2
-                    .col-md-10
-                        input.form-control(
-                        name="iso2"
-                        type="text"
-                        placeholder="Country ISO 2"
-                        ng-model="country.iso2"
-                        )
-                .form-group
-                    label.col-md-2.control-label(form="country_aliases") Country Aliases
-                    .col-md-10
-                        input.form-control(
-                        name="country_aliases"
-                        type="text"
-                        placeholder="Country aliases")
-                        //ng-model="country.country_aliases"
-                .form-group
-                    label.col-md-2.control-label(form="country_type") Commodity Type(s)
-                    .col-md-10
-                        input.form-control(
-                        name="country_type"
-                        type="text"
-                        placeholder="Access archive"
-                        ng-model="country.country_type.string"
-                        )
-                .form-group
-                    label.col-md-2.control-label(form="country_commodity") Commodities
-                    .col-md-10
-                        textarea.form-control(
-                        name="country_commodity"
-                        type="text"
-                        placeholder="Commodities")
-                        //ng-model="country.country_commodity"
-
-                .form-group
-                    .col-md-10.col-md-offset-2
-                        .pull-right
-                            button.btn.btn-primary(
-                            ng-click="countryCreate()"
-                            ng-disabled="create_country_form.$invalid") Submit
-                            | &nbsp;
-                            a.btn.btn-default(href="/") Cancel
+                .col-xs-12
+                    legend New Country Information
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="name") Country Name
+                        .col-md-10
+                            input.form-control(
+                            id="name"
+                            name="name"
+                            type="text"
+                            placeholder="Country name"
+                            ng-model="country.name"
+                            required)
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="iso2") Country ISO 2
+                        .col-md-10
+                            input.form-control(
+                            id="iso2"
+                            name="iso2"
+                            type="text"
+                            placeholder="Country ISO 2"
+                            ng-model="country.iso2"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="country_aliases") Country Aliases
+                        .col-md-10
+                            input.form-control(
+                            id="country_aliases"
+                            name="country_aliases"
+                            type="text"
+                            placeholder="Country aliases")
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="country_type") Commodity Type(s)
+                        .col-md-10
+                            input.form-control(
+                            id="country_type"
+                            name="country_type"
+                            type="text"
+                            placeholder="Access archive"
+                            ng-model="country.country_type.string"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="country_commodity") Commodities
+                        .col-md-10
+                            textarea.form-control(
+                            id="country_commodity"
+                            name="country_commodity"
+                            type="text"
+                            placeholder="Commodities")
+                .form-group.row
+                    .col-xs-12
+                        .col-md-10.col-md-offset-2
+                            .pull-xs-right
+                                button.btn.btn-primary(
+                                ng-click="countryCreate()"
+                                ng-disabled="create_country_form.$invalid") Submit
+                                | &nbsp;
+                                a.btn.btn-secondary(href="/") Cancel
