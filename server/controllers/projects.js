@@ -309,6 +309,7 @@ exports.getProjectByID = function(req, res) {
             .populate('proj_country.country')
             .populate('proj_aliases', '_id alias')
             .populate('proj_commodity.commodity')
+            .deepPopulate('proj_established_source.source_type_id')
             .lean()
             .exec(function(err, project) {
                 if(project) {
@@ -326,6 +327,13 @@ exports.getProjectByID = function(req, res) {
         //project.sites = [];
         //project.transfers_query = [project._id];
         project.source_type = {p: false, c: false};
+        if (project.proj_established_source.source_type_id.source_type_authority === 'authoritative') {
+            project.source_type.c = true;
+        } else if (project.proj_established_source.source_type_id.source_type_authority === 'non-authoritative') {
+            project.source_type.c = true;
+        } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
+            project.source_type.p = true;
+        }
         project.site_coordinates = {sites: [], fields: []};
         project.sources = {};
         Link.find({project: project._id})
