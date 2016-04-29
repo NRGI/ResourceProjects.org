@@ -1,7 +1,8 @@
 .container.top-padding-med
-	.well
-		legend RP users
-		.pull-right
+	.card
+		.col-xs-12
+			legend RP users
+		.pull-xs-right
 			form.form-inline
 				.form-group
 					input.form-control(
@@ -27,4 +28,4 @@
 						p(ng-repeat="role in user.roles")
 							text {{role}}
 					td
-						a.btn.center-block.btn-default(href="/admin/user-admin/{{user._id}}") Edit
+						a.btn.center-block.btn-secondary(href="/admin/user-admin/{{user._id}}") Edit

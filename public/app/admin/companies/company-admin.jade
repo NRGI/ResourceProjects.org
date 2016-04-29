@@ -1,10 +1,11 @@
 .container.top-padding-med
-	.well
-		legend Companies
-		.pull-right
-			.btn-group
-				button.btn.btn-default.pull-right(type='button')
-					a(href='/admin/create-company') Create new concession
+	.card
+		.col-xs-12
+			legend Companies
+			.pull-xs-right
+				.btn-group
+					button.btn.btn-secondary.pull-xs-right(type='button')
+						a(href='/admin/create-company') Create new company
 		table.table
 			thead
 				tr
@@ -19,4 +20,4 @@
 						span(ng-bind-html="group.company_group_name|sanitize")
 						| {{$last ? '' : ', '}}
 					td
-						a.btn.center-block.btn-default(href="/admin/company-admin/{{company._id}}") Edit
+						a.btn.center-block.btn-secondary(href="/admin/company-admin/{{company._id}}") Edit

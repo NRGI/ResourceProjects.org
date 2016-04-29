@@ -1,10 +1,11 @@
 .container.top-padding-med
-	.well
-		legend Concessions
-		.pull-right
-			.btn-group
-				button.btn.btn-default.pull-right(type='button')
-					a(href='/admin/create-concession') Create new concession
+	.card
+		.col-xs-12
+			legend Concessions
+			.pull-xs-right
+				.btn-group
+					button.btn.btn-secondary.pull-xs-right(type='button')
+						a(href='/admin/create-concession') Create new concession
 		table.table
 			thead
 				tr
@@ -20,4 +21,4 @@
 							| {{status.string | ucfirst}}
 							text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
 					td
-						a.btn.center-block.btn-default(href="/admin/concession-admin/{{concession._id}}") Edit
+						a.btn.center-block.btn-secondary(href="/admin/concession-admin/{{concession._id}}") Edit

@@ -1,7 +1,8 @@
 .container.top-padding-med
-    .well
-        legend Dataset Import Management
-        .pull-right
+    .card
+        .col-xs-12
+            legend Dataset Import Management
+        .pull-xs-right
             form.form-inline
                 .form-group
                     input.form-control(
@@ -33,23 +34,23 @@
                     td
                         .row
                             span(ng-if="!dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-default(ng-click="startAction('import', dataset._id)") Import
+                                a.btn.center-block.btn-secondary(ng-click="startAction('import', dataset._id)") Import
                             span(ng-if="dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-default.disabled() Import
+                                a.btn.center-block.btn-secondary.disabled() Import
                         .row
                             span(ng-if="dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-default.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
+                                a.btn.center-block.btn-secondary.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
                             span(ng-if="!dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-default.disabled() Unload (not implemented yet)
+                                a.btn.center-block.btn-secondary.disabled() Unload (not implemented yet)
                         .row
                             span(ng-if="dataset.hasDuplicates")
-                                a.btn.center-block.btn-default(href="/admin/reconcile") Reconcile
+                                a.btn.center-block.btn-secondary(href="/admin/reconcile") Reconcile
                             span(ng-if="!dataset.hasDuplicates")
-                                a.btn.center-block.btn-default.disabled() Reconcile
+                                a.btn.center-block.btn-secondary.disabled() Reconcile
                         .row
                             span(ng-if="dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-default(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
+                                a.btn.center-block.btn-secondary(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
                             span(ng-if="!dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-default.disabled() Mark as cleaned
-        a.btn.block.btn-default(href="/admin/etl/datasets/new") Create New Import
-        a.btn.block.btn-default(target="_new" href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)
+                                a.btn.center-block.btn-secondary.disabled() Mark as cleaned
+        a.btn.block.btn-secondary(href="/admin/etl/datasets/new") Create New Import
+        a.btn.block.btn-secondary(target="_new" href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)
