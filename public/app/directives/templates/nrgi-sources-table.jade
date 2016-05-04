@@ -1,17 +1,27 @@
-button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getSources(id,type)' data-target="#sources")
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getSources(id,type)'
+data-target="#sources")
     h4.text-justify Sources
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getSources(id,type)' data-target="#sources")
 //    h2 Sources
 #sources.panel-collapse.collapse.in
-    table.load_table.table.table-striped.projects(ts-wrapper ng-class="sources.length >= 8 ? 'header-fixed' : ''")#project-sources
+    table.load_table.table.table-striped.projects(
+    ts-wrapper
+    ng-class="sources.length >= 8 ? 'header-fixed' : ''")#project-sources
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='source_name') Name
                 th.tablesort-sortable-th(ts-criteria='source_type_id.source_type_name') Type
                 th.tablesort-sortable-th(ts-criteria='source_type_id.source_type_authority') Authority
         tbody
-            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-source")
-            tr(ng-repeat="source in sources | unique: '_id'"
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-source")
+            tr(
+            ng-repeat="source in sources | unique: '_id'"
             ts-repeat
             ng-class="expression")
                 td.source_id: a(href='source/{{source._id}}')
@@ -25,4 +35,8 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_sources" csv-header="getHeaderSources()" filename="sources.csv") Sources CSV
+                a(
+                href=""
+                ng-csv="csv_sources"
+                csv-header="getHeaderSources()"
+                filename="sources.csv") Sources CSV

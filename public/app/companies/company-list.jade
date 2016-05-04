@@ -24,7 +24,9 @@
 
     .row
         .col-md-12
-            table.table.table-striped(about='http://resourceprojects.org/company' ts-wrapper)
+            table.table.table-striped(
+            about='http://resourceprojects.org/company'
+            ts-wrapper)
                 thead
                     tr
                         th.tablesort-sortable-th(ts-criteria='company_name') Company
@@ -34,7 +36,9 @@
                         th.text-center.tablesort-sortable-th(ts-criteria='field_count | parseInt') Fields
                         th.text-center.tablesort-sortable-th(ts-criteria='transfer_count | parseInt') Payments
                 tbody
-                    tr(ng-repeat="company in companies | unique: '_id'",ts-repeat)
+                    tr(
+                    ng-repeat="company in companies | unique: '_id'"
+                    ts-repeat)
                         td.company_name: a(href='company/{{company._id}}')
                             span(ng-bind-html="company.company_name|sanitize")
                         td.company_groups: text(ng-repeat="group in company.company_groups | unique: '_id'")

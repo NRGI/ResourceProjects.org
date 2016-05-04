@@ -3,7 +3,9 @@ block main-content
     .navbar
         .navbar-inner
             .container
-                a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+                a.btn.btn-navbar(
+                data-toggle='collapse'
+                data-target='.nav-collapse')
                     span.icon-bar
                     span.icon-bar
                     span.icon-bar
@@ -72,7 +74,10 @@ block main-content
                         ResourceProjects.org is a prototype under developement. Current data on the site is illustrative only, and no warranty of its accuracy or completeness is provided. ResourceProjects.org
                         is licensed under CC-BY-SA.
                 .col-lg-5.video_player
-                    video(poster='../assets/map.jpg' width='100%' controls='controls')
+                    video(
+                    poster='../assets/map.jpg'
+                    width='100%'
+                    controls='controls')
     footer
         .container
             .strapline
@@ -85,4 +90,6 @@ block main-content
                         a(href='mailto:apedersen@resourcegovernance.org') apedersen@resourcegovernance.org
                     .text-center
                         .brand(href='/')
-                            img(src='../assets/logo.jpg'  alt='Natural Resource Governance Institute Logo')
+                            img(
+                            src='../assets/logo.jpg'
+                            alt='Natural Resource Governance Institute Logo')

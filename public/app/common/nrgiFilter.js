@@ -26,10 +26,4 @@ angular.module('app')
             }
             return num;
         };
-    })
-
-'use strict';
-
-angular.module('app')
-
-;
+    });

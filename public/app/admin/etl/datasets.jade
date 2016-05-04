@@ -24,13 +24,29 @@
                     td
                         text {{dataset.name}}
                     td(style={"width": "25%", "word-wrap": "break-word"})
-                        a(href="{{dataset.source_url}}" target="_blank").wrap-content {{dataset.source_url}}
+                        a(
+                        href="{{dataset.source_url}}"
+                        target="_blank").wrap-content {{dataset.source_url}}
                     td(style={"width": "30%"})
                         p(ng-repeat="action in dataset.actions")
                             text {{action.name}} &nbsp;
-                            a(ng-if="action.status == 'Success'" class=["label", "label-success"] data-toggle="tooltip" title="Click to read full report" href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}" target="_new") Success
-                            span(ng-if="action.status == 'Started'" class=["label", "label-warning"]) Running
-                            a(ng-if="action.status == 'Failed'" class=["label", "label-danger"] data-toggle="tooltip" title="Click to read full report" href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}" target="_new") Failed
+                            a(
+                            ng-if="action.status == 'Success'"
+                            class=["label", "label-success"]
+                            data-toggle="tooltip"
+                            title="Click to read full report"
+                            href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}"
+                            target="_new") Success
+                            span(
+                            ng-if="action.status == 'Started'"
+                            class=["label", "label-warning"]) Running
+                            a(
+                            ng-if="action.status == 'Failed'"
+                            class=["label", "label-danger"]
+                            data-toggle="tooltip"
+                            title="Click to read full report"
+                            href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}"
+                            target="_new") Failed
                     td
                         .row
                             span(ng-if="!dataset.status.isReadyForChecked")
@@ -53,4 +69,6 @@
                             span(ng-if="!dataset.status.isReadyForChecked")
                                 a.btn.center-block.btn-secondary.disabled() Mark as cleaned
         a.btn.block.btn-secondary(href="/admin/etl/datasets/new") Create New Import
-        a.btn.block.btn-secondary(target="_new" href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)
+        a.btn.block.btn-secondary(
+        target="_new"
+        href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)

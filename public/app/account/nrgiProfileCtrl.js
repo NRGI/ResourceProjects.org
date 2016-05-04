@@ -23,11 +23,11 @@ angular.module('app')
                 email: $scope.email
             };
             // check if password update exists and pass it in
-            if($scope.password && $scope.passowrd.length > 0) {
-                newUserData.password = $scope.password;
+            if($scope.password && $scope.password.length > 0) {
+                new_user_data.password = $scope.password;
             }
             // use authorization service to update user data
-            nrgiUserMethodSrvc.updateCurrentUser(new_user_data).then(function() {
+            nrgiUserMethodSrvc.updateUser(new_user_data).then(function() {
                 nrgiNotifier.notify('Your user account has been updated');
             }, function(reason) {
                 nrgiNotifier.notify(reason);

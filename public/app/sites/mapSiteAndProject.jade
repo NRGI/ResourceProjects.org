@@ -5,11 +5,16 @@
             h1 {{header}} Map
         .col-md-5
         .col-md-3
-          .btn-group(role='group', aria-label='...')
+          .btn-group(
+          role='group'
+          aria-label='...')
               button.btn.btn-secondary.pull-xs-right(type='button')
                   a(href='/{{record_type}}') List View
 
   .row
      .col-md-12
        #map
-         nrgi-leaflet#projectMap(data='siteMarkers' site='field' map='true')
+         nrgi-leaflet#projectMap(
+         data='siteMarkers'
+         site='field'
+         map='true')

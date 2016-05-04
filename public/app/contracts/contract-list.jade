@@ -16,7 +16,9 @@
     first="first"
     select="select")
 
-    table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
+    table.table.table-striped(
+    about='http://resourceprojects.org/contracts'
+    ts-wrapper)
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
@@ -28,7 +30,9 @@
                 th.text-center.tablesort-sortable-th(ts-criteria='sites|parseInt') Sites
                 th.text-center.tablesort-sortable-th(ts-criteria='fields|parseInt') Fields
         tbody
-            tr(ng-repeat="contract in contracts | unique: '_id'",ts-repeat)
+            tr(
+            ng-repeat="contract in contracts | unique: '_id'"
+            ts-repeat)
                 td.contract_id: a(href='contract/{{ contract.contract_id }}')
                     span(ng-bind-html="contract.contract_id | sanitize")
                 td.contract_countries: span(ng-repeat="rc_info in contract.rc_info")

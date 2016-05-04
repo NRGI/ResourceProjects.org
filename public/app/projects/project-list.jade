@@ -7,7 +7,9 @@
                     small(ng-if="count") {{count}}
             .col-md-5
             .col-md-3
-                .btn-group(role='group', aria-label='...')
+                .btn-group(
+                role='group'
+                aria-label='...')
                     button.btn.btn-secondary.pull-xs-right(type='button')
                         a(href='/projects/map') Map View
 
@@ -23,7 +25,9 @@
     first="first"
     select="select")
 
-    table#projects.table.table-striped(about='http://resourceprojects.org/project' ts-wrapper)
+    table#projects.table.table-striped(
+    about='http://resourceprojects.org/project'
+    ts-wrapper)
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='proj_name') Name
@@ -37,7 +41,9 @@
                 th.text-center.tablesort-sortable-th(ts-criteria="production_count | parseInt")  Production
                 //th.col-md-1.text-center.tablesort-sortable-th(ts-criteria="site_transfers|parseInt")  Associated Payments
         tbody
-            tr(ng-repeat="project in projects | unique: '_id'" ts-repeat)
+            tr(
+            ng-repeat="project in projects | unique: '_id'"
+            ts-repeat)
                 td.proj_name
                     a(href='project/{{project.proj_id}}')
                         span(ng-bind-html="project.proj_name|sanitize")
@@ -59,7 +65,9 @@
                     | {{$last ? '' : ', '}}
                 td.proj_status
                     em(ng-if="project.proj_status.length<1") ..
-                    text(ng-if="project.proj_status.length>0" ng-repeat="status in project.proj_status")
+                    text(
+                    ng-if="project.proj_status.length>0"
+                    ng-repeat="status in project.proj_status")
                         text(ng-if="$last")
                             | {{status.string | ucfirst}}
                             text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})

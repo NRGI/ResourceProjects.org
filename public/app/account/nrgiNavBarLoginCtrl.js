@@ -20,7 +20,7 @@ angular.module('app')
                     nrgiNotifier.notify('Username/Password combination incorrect');
                 }
             });
-        }
+        };
         // signout function for signout button
         $scope.signout = function() {
             nrgiAuthSrvc.logoutUser().then(function() {

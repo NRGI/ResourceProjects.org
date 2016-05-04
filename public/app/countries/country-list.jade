@@ -4,7 +4,9 @@
             = ' '
             small(ng-if="count") {{count}}
 
-    table.table.table-striped(about='http://resourceprojects.org/country' ts-wrapper)
+    table.table.table-striped(
+    about='http://resourceprojects.org/country'
+    ts-wrapper)
         thead
             tr
                 th(ts-criteria='name') Country
@@ -14,7 +16,9 @@
                 th.text-center(ts-criteria='concession_count|parseInt') Concessions
                 th.text-center(ts-criteria='transfer_count|parseInt') Payments
         tbody
-            tr(ng-repeat="country in countries | unique: 'iso2'" ts-repeat)
+            tr(
+            ng-repeat="country in countries | unique: 'iso2'"
+            ts-repeat)
                 td.country_name: a(href='country/{{ country.iso2 }}') {{country.name | isoCountry}}
                 td.text-center.country_projects {{country.project_count}}
                 td.text-center.country_sites {{country.site_count}}
