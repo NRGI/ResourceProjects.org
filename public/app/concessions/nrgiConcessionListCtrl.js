@@ -6,7 +6,6 @@ angular.module('app')
         ISO3166,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        $sce,
         nrgiConcessionsSrvc
     ) {
         $scope.limit = 50;

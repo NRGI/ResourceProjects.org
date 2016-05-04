@@ -4,7 +4,7 @@
   "description": "Fronted for the resourceprojcects.org frontend",
   "main": "server.js",
   "scripts": {
-    "test": "./node_modules/karma/bin/karma start --single-run --browsers PhantomJS",
+    "test": "./node_modules/karma/bin/karma start --single-run --browsers Chrome",
     "start": "node server.js"
   },
   "repository": {

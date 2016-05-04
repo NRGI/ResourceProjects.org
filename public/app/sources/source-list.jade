@@ -20,7 +20,9 @@
 	first="first"
 	select="select")
 
-	table.table.table-striped(about='http://resourceprojects.org/source',ts-wrapper)
+	table.table.table-striped(
+	about='http://resourceprojects.org/source'
+	ts-wrapper)
 		thead
 			tr
 				th.tablesort-sortable-th(ts-criteria='source_name') Source
@@ -28,7 +30,9 @@
 				th.tablesort-sortable-th(ts-criteria='source_date') Source date
 				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
 		tbody
-			tr(ng-repeat="source in sources | unique: '_id'", ts-repeat)
+			tr(
+			ng-repeat="source in sources | unique: '_id'"
+			ts-repeat)
 				td.source_name
 					a(href='source/{{ source._id }}')
 						span(ng-bind-html="source.source_name|sanitize")

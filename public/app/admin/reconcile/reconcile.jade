@@ -28,16 +28,24 @@
                         text Duplicate: {{dataset.name}}
                     td Created by SOMEONE on SOMEDATE in action SOMEACTION for dataset SOMEDATASET
                     td
-                        a.btn.btn-danger(data-toggle="tooltip" title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
+                        a.btn.btn-danger(
+                        data-toggle="tooltip"
+                        title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
                             span(class="glyphicon glyphicon-remove")
                         &nbsp;
-                        a.btn.btn-warning(data-toggle="tooltip" title="If the name of the entity represents an alias, store its name as such, then remove it and move all linked data to the original entity.")
+                        a.btn.btn-warning(
+                        data-toggle="tooltip"
+                        title="If the name of the entity represents an alias, store its name as such, then remove it and move all linked data to the original entity.")
                             span(class="glyphicon glyphicon-paste")
                         &nbsp;
-                        a.btn.btn-warning(data-toggle="tooltip" title="Move all linked data to the original entity and copy this entity's details into the original. You will then be redirected to the edit page for the original entity to clean up.")
+                        a.btn.btn-warning(
+                        data-toggle="tooltip"
+                        title="Move all linked data to the original entity and copy this entity's details into the original. You will then be redirected to the edit page for the original entity to clean up.")
                             span(class="glyphicon glyphicon-transfer")
                         &nbsp;
-                        a.btn.btn-success(data-toggle="tooltip" title="Mark this entity as a fully-fledged independent entity. No changes to the suspected original are made.")
+                        a.btn.btn-success(
+                        data-toggle="tooltip"
+                        title="Mark this entity as a fully-fledged independent entity. No changes to the suspected original are made.")
                             span(class="glyphicon glyphicon-check")
                     td
                         textarea(placeholder="Space for notes")

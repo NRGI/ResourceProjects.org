@@ -34,7 +34,9 @@
                 //th.tablesort-sortable-th(ts-criteria='concessions|parseInt') No. Concessions
                 //th.tablesort-sortable-th(ts-criteria='payments|parseInt') No. Payment Records
         tbody
-            tr(ng-repeat="group in groups | unique: '_id'",ts-repeat)
+            tr(
+            ng-repeat="group in groups | unique: '_id'"
+            ts-repeat)
                 td.company_group_name
                     a(href='group/{{group._id}}') {{group.company_group_name}}
                 td.text-center.company_group_companies {{group.company_count}}

@@ -6,7 +6,9 @@
             small Concession
     .row(ng-if='concession.proj_coordinates.length>0')
         .col-md-12
-            nrgi-leaflet(data='concession.proj_coordinates' polygon='concession.polygon')
+            nrgi-leaflet(
+            data='concession.proj_coordinates'
+            polygon='concession.polygon')
     .row.top-padding-med
         .col-md-6
             .info-box

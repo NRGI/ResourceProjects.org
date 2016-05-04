@@ -17,7 +17,8 @@
     select="select")
     .row
         .col-md-12
-            table.table.table-striped(about='http://resourceprojects.org/contracts',ts-wrapper)
+            table.table.table-striped(about='http://resourceprojects.org/contracts'
+            ts-wrapper)
                 thead
                     tr
                         th.tablesort-sortable-th(ts-criteria='concession_name') Name
@@ -31,11 +32,15 @@
                         th.text-center.tablesort-sortable-th(ts-criteria='transfer_count | parseInt') Payment records
                         th.text-center.tablesort-sortable-th(ts-criteria='production_count | parseInt') Production records
                 tbody
-                    tr(ng-repeat="concession in concessions" ts-repeat)
+                    tr(
+                    ng-repeat="concession in concessions"
+                    ts-repeat)
                         td.concession_name: a(href='/concession/{{ concession._id }}')
                             span(ng-bind-html="concession.concession_name|sanitize")
                         td.concession_country: text(ng-repeat="country in concession.concession_country | unique: 'country._id'")
-                            a(ng-if="$first" href='/country/{{country.country.iso2}}')
+                            a(
+                            ng-if="$first"
+                            href='/country/{{country.country.iso2}}')
                                 span(ng-bind-html="country.country.name|sanitize")
                             | {{$last ? '' : ', '}}
                         td.concession_commodity_type
@@ -48,7 +53,9 @@
                             | {{$last ? '' : ', '}}
                         td.text-center.concession_status
                             em(ng-if="concession.concession_status.length<1") ..
-                            text(ng-if="concession.concession_status.length>0" ng-repeat="status in concession.concession_status")
+                            text(
+                            ng-if="concession.concession_status.length>0"
+                            ng-repeat="status in concession.concession_status")
                                 text(ng-if="$last")
                                     | {{status.string | ucfirst}}
                                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})

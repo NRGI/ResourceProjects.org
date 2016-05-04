@@ -1,9 +1,15 @@
-button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getProduction(id,type)' data-target="#productions")
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getProduction(id,type)'
+data-target="#productions")
     h4.text-justify Production Stats
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getProduction(id,type)' data-target="#productions")
 //    h2 Production Stats
 #productions.panel-collapse.collapse.in
-    table.load_table.table.table-striped.projects(ts-wrapper ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
+    table.load_table.table.table-striped.projects(
+    ts-wrapper
+    ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
@@ -13,9 +19,14 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
                 th.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
                 th.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
                 th.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
-                th.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
+                th.tablesort-sortable-th(
+                ng-if="projectlink==true"
+                ts-criteria='production_links.name') Projects and Sites
         tbody
-            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-production")
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-production")
             tr(
             ng-repeat="prod in production"
             ts-repeat ng-class="expression")
@@ -42,4 +53,8 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_production" csv-header="getHeaderProduction()" filename="productions.csv") Production Stats CSV
+                a(
+                href=""
+                ng-csv="csv_production"
+                csv-header="getHeaderProduction()"
+                filename="productions.csv") Production Stats CSV

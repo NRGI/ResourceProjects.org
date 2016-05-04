@@ -1,23 +1,40 @@
-button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getTransfers(id,type)' data-target="#transfers")
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getTransfers(id,type)'
+data-target="#transfers")
     h4.text-justify Payments
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getTransfers(id,type)' data-target="#transfers")
 //    h2 Payments
 #transfers.panel-collapse.collapse.in
-    table.load_table.table.table-striped.projects(ng-class="transfers.length >= 8 ? 'header-fixed' : ''" ts-wrapper width="100%" height="100%")#transfer-info
+    table.load_table.table.table-striped.projects(
+    ng-class="transfers.length >= 8 ? 'header-fixed' : ''"
+    ts-wrapper
+    width="100%"
+    height="100%")#transfer-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='transfer_year|parseInt') Year
-                th.tablesort-sortable-th(ng-if="project==true" ts-criteria='project.project_name') Project
+                th.tablesort-sortable-th(
+                ng-if="project==true"
+                ts-criteria='project.project_name') Project
                 th.tablesort-sortable-th(ts-criteria='company.company_name') Paid by
-                th.tablesort-sortable-th(ng-if="project!=true" ts-criteria='country.name') Paid to
+                th.tablesort-sortable-th(
+                ng-if="project!=true"
+                ts-criteria='country.name') Paid to
                 th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                 th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
                 th.text-center.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value
                 th.tablesort-sortable-th(ts-criteria='transfer_level') Level
                 th.tablesort-sortable-th(ts-criteria='transfer_audit_type') Payment or receipt?
-                th.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='transfer_links.name') Projects and Sites
+                th.tablesort-sortable-th(
+                ng-if="projectlink==true"
+                ts-criteria='transfer_links.name') Projects and Sites
         tbody
-            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-payments")
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-payments")
             tr(
             ng-repeat="transfer in transfers"
             ts-repeat ng-class="expression")
@@ -45,5 +62,9 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_transfers" csv-header="getHeaderTransfers()" filename="payments.csv") Payments CSV
+                a(
+                href=""
+                ng-csv="csv_transfers"
+                csv-header="getHeaderTransfers()"
+                filename="payments.csv") Payments CSV
 

@@ -2,13 +2,18 @@ extend ../includes/layout
 block main-content
     .navbar.navbar-fixed-top.navbar-inner
         .container-fluid
-            a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+            a.btn.btn-navbar(
+            data-toggle='collapse'
+            data-target='.nav-collapse')
                 span.icon-bar
                 span.icon-bar
                 span.icon-bar
             .col-md-4
                 a.brand(href='/')
-                    img(src='../assets/rp-logo-2.png' width='185' alt='Natural Resource Governance Institute Logo')
+                    img(
+                    src='../assets/rp-logo-2.png'
+                    width='185'
+                    alt='Natural Resource Governance Institute Logo')
             .col-md-8
                 .nav-collapse
                     ul.nav.list-inline.left-padding-lg
@@ -29,7 +34,7 @@ block main-content
                                 b.caret
                             ul.dropdown-menu
                                 li
-                                    a.nav-link(href='/sites').dropdown-item Sites
+                                    a(href='/sites').dropdown-item Sites
                                 li
                                     a(href='/fields').dropdown-item Fields
                                 li
@@ -97,7 +102,10 @@ block main-content
                     .col-md-3
                         .row.top-padding-med
                             a.brand(href='http://resourcegovernance.org')
-                                img(src='../assets/nrgi-logo.png' width='185' alt='Natural Resource Governance Institute Logo')
+                                img(
+                                src='../assets/nrgi-logo.png'
+                                width='185'
+                                alt='Natural Resource Governance Institute Logo')
                         //.row
                         //    a.navbar-brand(href="http://resourcecontracts.org")
                         //        | Resource

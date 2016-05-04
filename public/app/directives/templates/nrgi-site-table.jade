@@ -1,28 +1,53 @@
-button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getSites(id,name)'
+data-target="#sites")
     h4.text-justify Sites and Fields
 //a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
 //    h2 Sites and Fields
 #sites.panel-collapse.collapse.in
-    table.load_table.table.table-striped.sites(ts-wrapper ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
+    table.load_table.table.table-striped.sites(
+    ts-wrapper
+    ng-class="sites.length >= 8 ? 'header-fixed' : ''")#site-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='site_name') Name
-                th.tablesort-sortable-th(ng-if="type==true" ts-criteria='site.field') Type
-                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='site_country[site_country.length - 1].country.name') Country
-                th.tablesort-sortable-th(ng-if="commoditytype==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_type') Commodity Type
-                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_name') Commodity
-                th.tablesort-sortable-th(ng-if="status==true" ts-criteria='site_status[site_status.length - 1].string') Status
-                th.tablesort-sortable-th(ng-if="company==true" ts-criteria='site_status[site_status.length - 1].string') Companies
+                th.tablesort-sortable-th(
+                ng-if="type==true"
+                ts-criteria='site.field') Type
+                th.tablesort-sortable-th(
+                ng-if="country==true"
+                ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(
+                ng-if="commoditytype==true"
+                ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_type') Commodity Type
+                th.tablesort-sortable-th(
+                ng-if="commodity==true"
+                ts-criteria='site_commodity[site_commodity.length - 1].commodity.commodity_name') Commodity
+                th.tablesort-sortable-th(
+                ng-if="status==true"
+                ts-criteria='site_status[site_status.length - 1].string') Status
+                th.tablesort-sortable-th(
+                ng-if="company==true"
+                ts-criteria='site_status[site_status.length - 1].string') Companies
 
         tbody
-            span(us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}" spinner-start-active="true" spinner-key="spinner-site")
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-site")
             tr(
             ng-repeat="site in sites"
             ts-repeat ng-class="expression")
                 td.site_id
-                    a(ng-if="site.field",href='field/{{site._id}}')
+                    a(
+                    ng-if="site.field"
+                    href='field/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")
-                    a(ng-if="!site.field",href='site/{{site._id}}')
+                    a(
+                    ng-if="!site.field"
+                    href='site/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")
                 td.site_country(ng-if="type==true")
                     text(ng-if='site.field') field
@@ -48,4 +73,8 @@ button.btn.btn-primary-outline.btn-block(type="button" data-toggle="collapse" ng
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_site" csv-header="getHeaderSites()" filename="sites.csv") Site and Fields CSV
+                a(
+                href=""
+                ng-csv="csv_site"
+                csv-header="getHeaderSites()"
+                filename="sites.csv") Site and Fields CSV
