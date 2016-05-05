@@ -355,10 +355,10 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiNotifier
     ) {
-        nrgiAuthSrvc.authenticateUser('jcust', 'admin')
-            .then(function(success) {
-
-            });
+        //nrgiAuthSrvc.authenticateUser('jcust', 'admin')
+        //    .then(function(success) {
+        //
+        //    });
         $rootScope._ = _;
         $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
             document.body.scrollTop = document.documentElement.scrollTop = 0;

@@ -20,7 +20,7 @@ angular
                 $scope.getCompany($scope.id, $scope.type);
             }
         });
-        console.error($scope.id);
+        //console.error($scope.id);
         $scope.getCompany=function(id,type) {
             if ($scope.id!=undefined){
                 if ($scope.openClose == true) {
