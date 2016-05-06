@@ -1,0 +1,40 @@
+.container
+	.page-header
+		h1 Source Types
+
+	nrgi-list-nav(
+	page="page"
+	type="record_type"
+	show="show_count"
+	count="count"
+	limit="limit"
+	last="last"
+	next="next"
+	prev="prev"
+	first="first"
+	select="select")
+
+	table.table.table-striped(
+	ts-wrapper)
+		thead
+			tr
+				th.tablesort-sortable-th(ts-criteria='source_name') Source
+		tbody
+			tr(
+			ng-repeat="type in sourceTypes | unique: '_id'"
+			ts-repeat)
+				td.source_type_name
+					a(href='source_type/{{ type._id }}')
+						span(ng-bind-html="type.source_type_name|sanitize")
+
+	nrgi-list-nav(
+	page="page"
+	type="record_type"
+	show="show_count"
+	count="count"
+	limit="limit"
+	last="last"
+	next="next"
+	prev="prev"
+	first="first"
+	select="select")

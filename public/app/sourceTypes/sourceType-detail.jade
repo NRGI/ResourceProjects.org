@@ -1,0 +1,43 @@
+.container
+    .page-header
+        h1
+            span(ng-bind-html="source_type.source_type_name|sanitize")
+            =' '
+            small Source Type
+    .row
+        .col-md-6
+            .info-box
+                table#project-info
+                    tbody
+                        tr
+                            td.project-label.id ID:
+                            td {{source_type.source_type_id}}
+                        tr
+                            td.project-label.authority Authority:
+                            td {{source_type.source_type_authority}}
+                        tr
+                            td.project-label.display Display:
+                            td {{source_type.source_type_display}}
+
+        .col-md-6
+            .info-box
+                table#source-type-example
+
+                    tbody
+                        tr
+                            td.project-label Examples:
+                            td.source_notes
+                                span(ng-bind-html="source_type.source_type_examples|sanitize")
+
+    .row.top-padding-lg
+        .col-md-12
+            nrgi-production-table(
+            id="source_type._id"
+            type="'source_type'")
+    .row.top-padding-lg
+        .col-md-12
+            nrgi-transfer-table(
+            id="source_type._id"
+            type="'source_type'"
+            projectlink="false"
+            project="false")

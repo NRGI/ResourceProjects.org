@@ -21,6 +21,7 @@ exports.getTransferTable = function(req, res){
     if(type=='project') {  queries={project:req.params.id};projects.transfers_query = [req.params.id];}
     if(type=='site') {  queries={site:req.params.id};projects.transfers_query = [req.params.id];}
     if(type=='group') { query={company_group: req.params.id, entities: "company"};projects.transfers_query = [req.params.id];}
+    if(type=='source_type') {  query={source_type_id:req.params.id};}
     var models = [
         {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
         {name:'Company',field:{'countries_of_operation.country':req.params.id},params:'country'},
@@ -35,6 +36,7 @@ exports.getTransferTable = function(req, res){
         getGroupCompany,
         getGroupLinks,
         getCountryLinks,
+        getSource,
         getTransfers
     ], function (err, result) {
         if (err) {
@@ -209,6 +211,27 @@ exports.getTransferTable = function(req, res){
             callback(null, projects);
         }
     }
+    function getSource(projects,callback) {
+        if(type=='source_type') {
+            Source.find(query).exec(function(err,sources){
+                if(sources.length>0){
+                    _.each(sources, function(source) {
+                        projects.transfers_query.push(source._id);
+                    });
+                    projects.transfers_query = _.map(_.groupBy(projects.transfers_query,function(doc){
+                        return doc;
+                    }),function(grouped){
+                        return grouped[0];
+                    });
+                    callback(null, projects);
+                }else {
+                    callback(null, projects);
+                }
+            })
+        }else {
+            callback(null, projects);
+        }
+    }
     function getTransfers(projects, callback) {
         var project_transfers = [];
         var query = '';
@@ -220,6 +243,7 @@ exports.getTransferTable = function(req, res){
         if (type == 'project' || type == 'site') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
         if (type == 'group') {query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{company:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
         if (type=='country') { query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{country:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
+        if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
             Transfer.find(query)
                 .populate('company country')
