@@ -1,22 +1,22 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiSourceListCtrl', function (
+    .controller('nrgiSourceTypeListCtrl', function (
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiSourcesSrvc
+        nrgiSourceTypesSrvc
     ) {
         $scope.limit = 50;
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
         var loadSources = function(limit,page){
-            nrgiSourcesSrvc.query({skip: page, limit: limit}, function (response) {
+            nrgiSourceTypesSrvc.query({skip: page, limit: limit}, function (response) {
                 $scope.count = response.count;
                 $scope.limit = limit;
                 $scope.page = page;
-                $scope.sources=response.data;
+                $scope.sourceTypes=response.data;
                 $scope.show_count = response.data.length+$scope.page;
             });
         };
@@ -42,4 +42,3 @@ angular.module('app')
             }
         }
     });
-

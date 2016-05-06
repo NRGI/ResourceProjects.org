@@ -19,7 +19,8 @@ var auth 				= require('./auth'),
 	production_tables 	= require('../controllers/production_tables'),
 	transfer_tables 	= require('../controllers/transfer_tables'),
 	site_tables 	= require('../controllers/site_tables'),
-	company_tables 		= require('../controllers/company_tables');
+	company_tables 		= require('../controllers/company_tables'),
+	sourceTypes 		= require('../controllers/sourceTypes');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -123,6 +124,19 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/sources/:id', sources.deleteSource);
 
+	/////////////////////////
+	///// SOURCE TYPES CRUD ////////
+	/////////////////////////
+	app.get('/api/sourcetypes/:limit/:skip', sourceTypes.getSourceTypes);
+	app.get('/api/sourcetypes/:id', sourceTypes.getSourceTypeByID);
+
+	// POST
+	app.post('/api/sourcetypes',  sourceTypes.createSourceType);
+	// PUT
+	app.put('/api/sourcetypes',  sourceTypes.updateSourceType);
+	// DELETE
+	app.delete('/api/sourcetypes/:id', sourceTypes.deleteSourceType);
+
 	//DATASETS - TODO: protect with admin
 	app.get('/api/datasets', datasets.getDatasets);
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
@@ -175,12 +189,12 @@ module.exports	= function(app) {
 	//Start an ETL step
 	app.post('/api/datasets/:id/actions', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createAction);
 
-	// POST
-	app.post('/api/sources',  sources.createSource);
-	// PUT
-	app.put('/api/sources',  sources.updateSource);
-	// DELETE
-	app.delete('/api/sources/:id', sources.deleteSource);
+	//// POST
+	//app.post('/api/sources',  sources.createSource);
+	//// PUT
+	//app.put('/api/sources',  sources.updateSource);
+	//// DELETE
+	//app.delete('/api/sources/:id', sources.deleteSource);
 	
 	/////////////////////////////////////////////
 	///// COMPANIES HOUSE DUMMY DATASETS ////////
