@@ -56,6 +56,7 @@
     "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-contrib-uglify": "^0.6.0",
     "grunt-contrib-watch": "^0.6.1",
+    "jasmine": "^2.4.1",
     "karma": "^0.12.25",
     "karma-chai-plugins": "^0.2.3",
     "karma-chrome-launcher": "^1.0.1",
