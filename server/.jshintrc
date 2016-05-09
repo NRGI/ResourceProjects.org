@@ -1,0 +1,10 @@
+{
+  "node": true,
+  "strict": true,
+  "curly": true,
+  "globals": {
+    "_": true,
+    "document": true,
+    "require": false
+  }
+}
