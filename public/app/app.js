@@ -283,6 +283,14 @@ angular.module('app')
                 templateUrl: '/partials/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
+            .when('/sourcetypes', {
+                templateUrl: '/partials/sourceTypes/sourceType-list',
+                controller: 'nrgiSourceListCtrl'
+            })
+            .when('/sourcetype/:id', {
+                templateUrl: '/partials/sourceTypes/sourceType-detail',
+                controller: 'nrgiSourceDetailCtrl'
+            })
             //.when('/admin/site-admin', {
             //    templateUrl: '/partials/admin/sites/site-admin',
             //    controller: 'nrgiSiteAdminCtrl',
@@ -355,10 +363,10 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiNotifier
     ) {
-        nrgiAuthSrvc.authenticateUser('jcust', 'admin')
-            .then(function(success) {
-
-            });
+        //nrgiAuthSrvc.authenticateUser('jcust', 'admin')
+        //    .then(function(success) {
+        //
+        //    });
         $rootScope._ = _;
         $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
             document.body.scrollTop = document.documentElement.scrollTop = 0;

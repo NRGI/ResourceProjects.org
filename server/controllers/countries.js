@@ -192,12 +192,12 @@ exports.getCountryByID = function(req, res) {
     }
     function getProjects(country, callback) {
         country.proj_coordinates = [];
-        country.projects = [];
+        //country.projects = [];
         country.location = [];
         country.commodities = [];
-        country.sources = {};
+        //country.sources = {};
         country.transfers_query = [country._id];
-        country.site_coordinates = {sites: [], fields: []};
+        //country.site_coordinates = {sites: [], fields: []};
         Project.find({'proj_country.country': country._id})
             .populate('proj_country.country')
             .populate('proj_aliases', ' _id alias')
@@ -238,7 +238,7 @@ exports.getCountryByID = function(req, res) {
             });
     }
     function getSites(country, callback) {
-        country.sites = [];
+        //country.sites = [];
         Site.find({'site_country.country': country._id})
             .populate('site_commodity.commodity')
             .exec(function (err, sites) {

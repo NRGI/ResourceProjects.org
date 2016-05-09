@@ -24,6 +24,7 @@ exports.getProductionTable = function(req, res){
     if(type=='project') {  queries={project:req.params.id};projects.production_query = [req.params.id];}
     if(type=='site') {  queries={site:req.params.id};projects.production_query = [req.params.id];}
     if(type=='commodity') {  queries={commodity:req.params.id};projects.production_query = [req.params.id];}
+    if(type=='source_type') {  queries={source_type_id:req.params.id};}
     if(type=='group') { queries={company_group: req.params.id, entities: "company"};projects.production_query = [req.params.id];}
     var models = [
         {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
@@ -39,6 +40,7 @@ exports.getProductionTable = function(req, res){
         getGroupCompany,
         getGroupLinks,
         getCountryLinks,
+        getSource,
         getProduction
     ], function (err, result) {
         if (err) {
@@ -48,7 +50,7 @@ exports.getProductionTable = function(req, res){
         }
     });
     function getLinks(callback) {
-        if(type!='group'&&type!='country') {
+        if(type!='group'&&type!='country' && type!='source_type') {
             Link.find(queries)
                 .populate('site project concession company')
                 .exec(function (err, links) {
@@ -213,6 +215,22 @@ exports.getProductionTable = function(req, res){
             callback(null, projects);
         }
     }
+    function getSource(projects,callback) {
+        if(type=='source_type') {
+            Source.find(queries).exec(function(err,sources){
+                if(sources.length>0){
+                    _.each(sources, function(source) {
+                        projects.production_query.push(source._id);
+                    });
+                    callback(null, projects);
+                }else {
+                    callback(null, projects);
+                }
+            })
+        }else {
+            callback(null, projects);
+        }
+    }
     function getProduction(projects, callback) {
         var productions = [];var query='';
         projects.production = [];
@@ -223,6 +241,7 @@ exports.getProductionTable = function(req, res){
         if(type=='project'||type=='site') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
         if(type=='group') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{company:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
+        if(type=='source_type') { query = {$or: [{source:{$in: projects.production_query}}]}}
         Production.find(query)
             .populate('production_commodity')
             .exec(function (err, production) {
