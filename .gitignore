@@ -55,8 +55,8 @@ public/vendor
 build/Release
 
 #CI stuff
-shippable.yml
-travis.yml
+.shippable.yml
+.travis.yml
 
 config.config
 
@@ -73,3 +73,5 @@ newrelic_agent.log
 npm-debug.log
 
 *.html
+
+/shippable/
