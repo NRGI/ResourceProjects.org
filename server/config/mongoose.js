@@ -47,10 +47,9 @@ module.exports 	= function(config, user, pass, env) {
     }
 
     var db = mongoose.connection;
-    console.error(db);
 
     db.on('error', console.error.bind(console, 'connection error...'));
-    db.once('open', function callback() {
+    db.once('connected', function callback() {
         console.log('Resource Projects db opened');
         console.log('\n========================');
         console.log('mongoose version: %s', mongoose.version);
