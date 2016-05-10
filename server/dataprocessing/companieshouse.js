@@ -367,6 +367,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 				notes = 'Found  '+ (searchResult.length-1) + ' potentially matching project names for project ' + projectName + ' during Companies House API import. Date: ' + Date.now()
 
+                //TODO: Switch to async.each or similar (callback in error function)
 				for (originalProject of searchResult) {
 
 					// recently created project is not a duplicate to itself
@@ -388,7 +389,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						);
 					}
 				}
-
+                //TODO: Why is this here, and why only here?
 				// then create a new link between this project and the referring report company
 				createLink(company._id,project_id,source._id, projectName,hcallback);
 				//return hcallback(null);
