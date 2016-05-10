@@ -283,13 +283,13 @@ angular.module('app')
                 templateUrl: '/partials/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
-            .when('/sourcetypes', {
+            .when('/source_types', {
                 templateUrl: '/partials/sourceTypes/sourceType-list',
-                controller: 'nrgiSourceListCtrl'
+                controller: 'nrgiSourceTypeListCtrl'
             })
-            .when('/sourcetype/:id', {
+            .when('/source_type/:id', {
                 templateUrl: '/partials/sourceTypes/sourceType-detail',
-                controller: 'nrgiSourceDetailCtrl'
+                controller: 'nrgiSourceTypeDetailCtrl'
             })
             //.when('/admin/site-admin', {
             //    templateUrl: '/partials/admin/sites/site-admin',
