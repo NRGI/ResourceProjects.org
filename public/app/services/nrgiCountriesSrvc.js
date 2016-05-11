@@ -8,4 +8,11 @@ angular.module('app')
         });
 
         return CountriesResource;
+    })
+    .factory('nrgiCountryCommoditiesSrvc', function($resource) {
+        var CountriesResource = $resource('/api/countrycommodity/:_id', {_id: "@id"}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return CountriesResource;
     });

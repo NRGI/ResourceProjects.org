@@ -4,9 +4,9 @@
             span(ng-bind-html="group.company_group_name|sanitize")
             =' '
             small Group of Companies
-    .row(ng-if="company.proj_coordinates.length>0")
+    .row
         .col-md-12
-            nrgi-leaflet(data='group.location')
+            nrgi-leaflet(type="'group'" id='group._id')
     .row.top-padding-med
         .col-md-6
             .info-box

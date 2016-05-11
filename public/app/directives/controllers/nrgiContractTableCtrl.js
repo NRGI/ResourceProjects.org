@@ -13,7 +13,8 @@ angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiC
     $scope.$watch('id', function(value) {
         if(value!=undefined){
             $scope.loading = false;
-            $scope.getContracts($scope.id, $scope.type);
+            setTimeout(function(){
+            $scope.getContracts($scope.id, $scope.type);},2000)
         }
     });
     $scope.getContracts=function(id,type) {

@@ -174,15 +174,10 @@ exports.getCompanies = function(req, res) {
     }
 };
 
-exports.getCompanyByID = function(req, res) {
-    var link_counter, link_len, production_counter, production_len;
+exports.getCompanyID = function(req, res) {
 
     async.waterfall([
-        getCompany,
-        getCompanyLinks
-        //TODO finish deeply linked projects and sites
-        //TODO get commodity data through stuff linked to concessions
-        //TODO get commodity data through stuff linked to contract
+        getCompany
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -204,60 +199,37 @@ exports.getCompanyByID = function(req, res) {
                 }
             });
     }
-    function getCompanyLinks(company, callback) {
+};
+exports.getCompanyByID = function(req, res) {
+    var company={},link_counter, link_len;
+
+    async.waterfall([
+        getCompanyLinks
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(result);
+        }
+    });
+    function getCompanyLinks(callback) {
         company.company_groups = [];
-        company.proj_coordinates = [];
-        company.contracts_link = [];
-        company.concessions = [];
         company.company_commodity = [];
-        Link.find({company: company._id})
-            .populate('company_group','_id company_group_name')
-            .populate('commodity contract')
+        Link.find({company: req.params.id})
+            .populate('company_group', '_id company_group_name')
+            .populate('commodity concession')
             .deepPopulate('project.proj_country.country project.proj_commodity.commodity site.site_commodity.commodity site.site_country.country concession.concession_country.country concession.concession_commodity.commodity')
-            .exec(function(err, links) {
+            .exec(function (err, links) {
                 link_len = links.length;
                 link_counter = 0;
-                if(link_len>0) {
+                if (link_len > 0) {
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'company')[0];
                         switch (entity) {
                             case 'site':
-                                if (link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        company.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
-                                    });
-                                    company.proj_coordinates = _.map(_.groupBy(company.proj_coordinates,function(doc){
-                                        return doc._id;
-                                    }),function(grouped){
-                                        return grouped[0];
-                                    });
-                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        company.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
-                                    });
-                                    company.proj_coordinates = _.map(_.groupBy(company.proj_coordinates,function(doc){
-                                        return doc._id;
-                                    }),function(grouped){
-                                        return grouped[0];
-                                    });
-                                }
-                                if (link.site.site_commodity.length>0) {
-                                    if (_.where(company.company_commodity, {_id:_.last(link.site.site_commodity)._id}).length<1) {
+                                if (link.site.site_commodity.length > 0) {
+                                    if (_.where(company.company_commodity, {_id: _.last(link.site.site_commodity)._id}).length < 1) {
                                         company.company_commodity.push({
                                             _id: _.last(link.site.site_commodity)._id,
                                             commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
@@ -268,23 +240,8 @@ exports.getCompanyByID = function(req, res) {
                                 }
                                 break;
                             case 'project':
-                                link.project.proj_coordinates.forEach(function (loc) {
-                                    company.proj_coordinates.push({
-                                        'lat': loc.loc[0],
-                                        'lng': loc.loc[1],
-                                        'message': link.project.proj_name,
-                                        'timestamp': loc.timestamp,
-                                        'type': 'project',
-                                        'id': link.project.proj_id
-                                    });
-                                });
-                                company.proj_coordinates = _.map(_.groupBy(company.proj_coordinates,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                if (link.project.proj_commodity.length>0) {
-                                    if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
+                                if (link.project.proj_commodity.length > 0) {
+                                    if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length < 1) {
                                         company.company_commodity.push({
                                             _id: _.last(link.project.proj_commodity).commodity._id,
                                             commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
@@ -303,8 +260,8 @@ exports.getCompanyByID = function(req, res) {
                                 }
                                 break;
                             case 'concession':
-                                if (link.concession.concession_commodity.length>0) {
-                                    if (_.where(company.company_commodity, {_id: _.last(link.concession.concession_commodity).commodity._id}).length<1) {
+                                if (link.concession.concession_commodity.length > 0) {
+                                    if (_.where(company.company_commodity, {_id: _.last(link.concession.concession_commodity).commodity._id}).length < 1) {
                                         company.company_commodity.push({
                                             _id: _.last(link.concession.concession_commodity).commodity._id,
                                             commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
@@ -322,13 +279,12 @@ exports.getCompanyByID = function(req, res) {
                             callback(null, company);
                         }
                     });
-                } else{
+                } else {
                     callback(null, company);
                 }
             });
     }
-};
-
+}
 exports.createCompany = function(req, res, next) {
     var companyData = req.body;
     Company.create(companyData, function(err, company) {

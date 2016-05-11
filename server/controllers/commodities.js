@@ -119,8 +119,7 @@ exports.getCommodityByID = function(req, res) {
 		commodity={};
 
 	async.waterfall([
-		getCommodity,
-		getCommodityLinks
+		getCommodity
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -140,40 +139,6 @@ exports.getCommodityByID = function(req, res) {
 					callback(err);
 				}
 			});
-	}
-	function getCommodityLinks(commodity, callback) {
-		if (commodity.length > 0) {
-			commodity.location = [];
-			Project.find({'proj_commodity.commodity': commodity._id})
-				.populate('commodity country')
-				.deepPopulate('proj_commodity.commodity proj_country.country')
-				.exec(function (err, proj) {
-					link_len = proj.length;
-					link_counter = 0;
-					if (link_len > 0) {
-						_.each(proj, function (project) {
-							++link_counter;
-							project.proj_coordinates.forEach(function (loc) {
-								commodity.location.push({
-									'lat': loc.loc[0],
-									'lng': loc.loc[1],
-									'message': project.proj_name,
-									'timestamp': loc.timestamp,
-									'type': 'project',
-									'id': project.proj_id
-								});
-							});
-							if (link_len == link_counter) {
-								callback(null, commodity);
-							}
-						})
-					} else {
-						callback(null, commodity);
-					}
-				})
-		}else{
-			callback(null, commodity);
-		}
 	}
 };
 exports.createCommodity = function(req, res, next) {
