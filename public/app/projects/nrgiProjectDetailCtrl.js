@@ -20,6 +20,7 @@ angular.module('app')
                         company.stake = {share: company_share.number, timestamp: company_share.timestamp}
                     }
                 });
+
                 // _.each($scope.project.proj_operated_by, function(company_op) {
                 //     if (company._id==company_op.company) {
                 //         company.operator = true;

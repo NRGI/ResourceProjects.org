@@ -9,4 +9,12 @@ angular.module('app')
 
         return GroupResource;
 
+    })
+    .factory('nrgiGroupDataSrvc', function($resource) {
+        var GroupResource = $resource('/api/companyGroupData/:_id', {_id: "@id"}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return GroupResource;
+
     });

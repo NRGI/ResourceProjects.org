@@ -18,8 +18,9 @@ var auth 				= require('./auth'),
 	source_tables 		= require('../controllers/source_tables'),
 	production_tables 	= require('../controllers/production_tables'),
 	transfer_tables 	= require('../controllers/transfer_tables'),
-	site_tables 	= require('../controllers/site_tables'),
+	site_tables 		= require('../controllers/site_tables'),
 	company_tables 		= require('../controllers/company_tables'),
+	map 				= require('../controllers/map'),
 	sourceTypes 		= require('../controllers/sourceTypes');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
@@ -67,7 +68,8 @@ module.exports	= function(app) {
 	/////////////////////////
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
-	app.get('/api/companies/:id', companies.getCompanyByID);
+	app.get('/api/companies/:id', companies.getCompanyID);
+	app.get('/api/companydata/:id', companies.getCompanyByID);
 	// POST
 	app.post('/api/companies',  companies.createCompany);
 	// PUT
@@ -79,7 +81,8 @@ module.exports	= function(app) {
 	///// COMPANYGROUPS CRUD ////////
 	/////////////////////////
 	app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
-	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupByID);
+	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupID);
+	app.get('/api/companyGroupData/:id', companyGroups.getCompanyGroupByID);
 	// POST
 	app.post('/api/companyGroups',  companyGroups.createCompanyGroup);
 	// PUT
@@ -104,6 +107,7 @@ module.exports	= function(app) {
 	/////////////////////////
 	app.get('/api/countries/:limit/:skip', countries.getCountries);
 	app.get('/api/countries/:id', countries.getCountryByID);
+	app.get('/api/countrycommodity/:id', countries.getAllCommodityCountryByID);
 	// POST
 	app.post('/api/countries',  countries.createCountry);
 	// PUT
@@ -137,76 +141,6 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/sourcetypes/:id', sourceTypes.deleteSourceType);
 
-	//DATASETS - TODO: protect with admin
-	app.get('/api/datasets', datasets.getDatasets);
-	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
-	app.get('/api/datasets/:id', datasets.getDatasetByID);
-	
-	//Reporting
-	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
-		datasets.getActionReport,
-		function(req, res) {
-		    res.render('actionreport', {report: req.report});
-	});
-
-	//Reporting
-	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
-		datasets.getActionReport,
-		function(req, res) {
-		    res.render('actionreport', {report: req.report});
-	});
-
-	//Reporting
-	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
-		datasets.getActionReport,
-		function(req, res) {
-		    res.render('actionreport', {report: req.report});
-	});
-
-	//Reporting
-	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
-		datasets.getActionReport,
-		function(req, res) {
-		    res.render('actionreport', {report: req.report});
-	});
-
-	//Reporting
-	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
-		datasets.getActionReport,
-		function(req, res) {
-		    res.render('actionreport', {report: req.report});
-	});
-
-	//Reporting
-	app.get('/admin/etl/datasets/:dataset_id/actions/:action_id/report',
-		datasets.getActionReport,
-		function(req, res) {
-		    res.render('actionreport', {report: req.report});
-	});
-
-	//Create a dataset
-	app.post('/api/datasets', auth.requiresApiLogin, /* auth.requiresRole('admin'),*/ datasets.createDataset);
-	//Start an ETL step
-	app.post('/api/datasets/:id/actions', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createAction);
-
-	//// POST
-	//app.post('/api/sources',  sources.createSource);
-	//// PUT
-	//app.put('/api/sources',  sources.updateSource);
-	//// DELETE
-	//app.delete('/api/sources/:id', sources.deleteSource);
-	
-	/////////////////////////////////////////////
-	///// COMPANIES HOUSE DUMMY DATASETS ////////
-	/////////////////////////////////////////////	
-	
-	app.get('/api/testdata', datasets.getTestdata);	
-
-	/////////////////////////////////////////////
-	///// COMPANIES HOUSE DUMMY DATASETS ////////
-	/////////////////////////////////////////////
-
-	app.get('/api/testdata', datasets.getTestdata);
 
 	/////////////////////////
 	///// SITES CRUD ////////
@@ -214,6 +148,14 @@ module.exports	= function(app) {
 	app.get('/api/sites/:limit/:skip/:field', sites.getSites);
 	app.get('/api/sites/:id', sites.getSiteByID);
 	app.get('/api/sites/map/:field', sites.getSitesMap);
+	// POST
+	app.post('/api/sites',  sites.createSite);
+	// PUT
+	app.put('/api/sites',  sites.updateSite);
+	// DELETE
+	app.delete('/api/sites/:id', sites.deleteSite);
+
+
 
 	//DATASETS - TODO: protect with admin?
 	app.get('/api/datasets', datasets.getDatasets);
@@ -229,31 +171,10 @@ module.exports	= function(app) {
 
 	//Create a dataset - todo protect with admin
 	app.post('/api/datasets', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createDataset);
+	//Create a dataset
+	app.post('/api/datasets', auth.requiresApiLogin, /* auth.requiresRole('admin'),*/ datasets.createDataset);
 	//Start an ETL step
 	app.post('/api/datasets/:id/actions', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createAction);
-
-	// POST
-	app.post('/api/sites',  sites.createSite);
-	// PUT
-	app.put('/api/sites',  sites.updateSite);
-	// DELETE
-	app.delete('/api/sites/:id', sites.deleteSite);
-
-
-	/////////////////////////////////////////////
-	///// COMPANIES HOUSE DUMMY DATASETS ////////
-	/////////////////////////////////////////////
-
-	app.get('/api/testdata', datasets.getTestdata);
-
-
-
-	/////////////////////////////////////////////
-	///// COMPANIES HOUSE DUMMY DATASETS ////////
-	/////////////////////////////////////////////
-
-	app.get('/api/testdata', datasets.getTestdata);
-
 
 
 	/////////////////////////////////////////////
@@ -296,6 +217,7 @@ module.exports	= function(app) {
 	app.get('/api/contract_table/:type/:id', contract_tables.getContractTable);
 	app.get('/api/concession_table/:type/:id', concession_tables.getConcessionTable);
 
+	app.get('/api/coordinate/:type/:id', map.getCoordinateCountryByID);
 
 	app.post('/login', auth.authenticate);
 
