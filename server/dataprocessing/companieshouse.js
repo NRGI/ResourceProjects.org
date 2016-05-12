@@ -60,6 +60,7 @@ exports.importData = function(action_id, finalcallback) {
 					//.get('http://localhost:3030/api/testdata')
 					.auth(API_KEY, '')
 					.end(function(err,res) {
+
 						if (err || !res.ok) {
 							reporter.add('error in retrieving data from Companies House: ' + err);
 							return finalcallback("Failed", reporter.text);	// continue loop
@@ -70,7 +71,7 @@ exports.importData = function(action_id, finalcallback) {
 								return finalcallback("Failed", reporter.text);
 							}
 							else {
-	
+
 								// get all reports for this year and handle them one after another
 								async.eachSeries(res.body, function (chReportData, icallback) {
 	
@@ -388,6 +389,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				createLink(company._id,project_id,source._id, projectName,hcallback);
 				//return hcallback(null);
 
+				// then create a new link between this project and the referring report company
+				createLink(company._id,project_id,source._id, projectName,hcallback);
+				//return hcallback(null);
+
 			}
 
 		}
@@ -411,6 +416,15 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				var spacePos = projName.indexOf(" ");
 				projDoc.proj_id = projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
 			    
+			}
+			else {
+				projDoc.proj_id = projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			}
+
+			if (projName.indexOf(" ") > -1) {
+				var spacePos = projName.indexOf(" ");
+				projDoc.proj_id = projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+
 			}
 			else {
 				projDoc.proj_id = projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
@@ -698,6 +712,31 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
 			}
 			
+			//Enforce only one country per project...
+			update.proj_country = [{country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}];
+			//In theory this only adds the country if not already there
+			Project.update({proj_name: projectPaymentEntry.projectName}, update, {}, function(err, numAffected) {
+				console.log(err);
+				console.log(numAffected);
+			});
+
+			//Add in country information for the project
+			var update = {};
+
+			//Update project ID
+			var iso2country = countries[projectPaymentEntry.countryCodeList].iso2.toLowerCase();
+
+	        var projName = projectPaymentEntry.projectName;
+
+			if (projName.indexOf(" ") > -1) {
+				var spacePos = projName.indexOf(" ");
+				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+
+			}
+			else {
+				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			}
+
 			//Enforce only one country per project...
 			update.proj_country = [{country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}];
 			//In theory this only adds the country if not already there

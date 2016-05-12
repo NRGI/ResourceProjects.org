@@ -15,3 +15,5 @@ angular
             templateUrl: '/partials/directives/templates/nrgi-transfer-table'
         };
     });
+
+
