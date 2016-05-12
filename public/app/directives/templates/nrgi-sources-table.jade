@@ -26,7 +26,7 @@ data-target="#sources")
             ng-class="expression")
                 td.source_id: a(href='source/{{source._id}}')
                     span(ng-bind-html="source.source_name|sanitize")
-                td.source_type: a(href='source_type/{{source.source_type_id._id}}')
+                td.source_type: a(ng-if='source.source_type_display',href='source_type/{{source.source_type_id._id}}')
                     span(ng-bind-html="source.source_type_id.source_type_name|sanitize")
                 td.source_authority {{source.source_type_id.source_type_authority}}
     div(ng-if="sources.length>0")

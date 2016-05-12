@@ -8,11 +8,12 @@ angular.module('app')
         nrgiSourceTypesSrvc
     ) {
         $scope.limit = 50;
+        $scope.display = true;
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
         var loadSources = function(limit,page){
-            nrgiSourceTypesSrvc.query({skip: page, limit: limit}, function (response) {
+            nrgiSourceTypesSrvc.query({skip: page, limit: limit,display: true}, function (response) {
                 $scope.count = response.count;
                 $scope.limit = limit;
                 $scope.page = page;
@@ -42,4 +43,3 @@ angular.module('app')
             }
         }
     });
-

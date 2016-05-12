@@ -43,7 +43,8 @@ angular
                                 {name: 'Currency', status: true, field: 'transfer_unit'},
                                 {name: 'Value ', status: true, field: 'transfer_value'},
                                 {name: 'Level ', status: true, field: 'transfer_level'},
-                                {name: 'Payment or receipt?', status: true, field: 'transfer_audit_type'}];
+                                {name: 'Payment or receipt?', status: true, field: 'transfer_audit_type'},
+                                {name: 'Projects and Sites', status: $scope.projectlink, field: 'proj_site'}];
                             angular.forEach(headers, function (header) {
                                 if (header.status != false && header.status != undefined) {
                                     header_transfer.push(header.name);
@@ -72,7 +73,14 @@ angular
                                         }
                                         $scope.csv_transfers[key].push(company_name);
                                     }
-                                    if (field != 'company' && field != 'country') {
+                                    if (field == 'proj_site') {
+                                        name = '';
+                                        if (transfer[field] != undefined) {
+                                            var name = transfer[field].name.toString();
+                                        }
+                                        $scope.csv_transfers[key].push(name)
+                                    }
+                                    if (field != 'company' && field != 'country'&& field != 'proj_site') {
                                         $scope.csv_transfers[key].push(transfer[field])
                                     }
                                 })

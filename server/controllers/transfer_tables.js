@@ -234,7 +234,7 @@ exports.getTransferTable = function(req, res){
     }
     function getTransfers(projects, callback) {
         var project_transfers = [];
-        var query = '';
+        var query = '';var proj_site={};
         projects.transfers = [];
         if (type == 'concession') { query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
         if (type == 'company') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
@@ -246,12 +246,24 @@ exports.getTransferTable = function(req, res){
         if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
             Transfer.find(query)
-                .populate('company country')
+                .populate('company country project site')
                 .exec(function (err, transfers) {
                     transfers_counter = 0;
                     transfers_len = transfers.length;
                     if (transfers_len > 0) {
                         transfers.forEach(function (transfer) {
+                            console.log(transfer)
+                            if(transfer.project!=undefined){
+                                proj_site =  {name:transfer.project.proj_name,_id:transfer.project.proj_id,type:'project'}
+                            }
+                            if(transfer.site!=undefined){
+                                if(transfer.site.field){
+                                    proj_site =  {name:transfer.site.site_name,_id:transfer.site._id,type:'field'}
+                                }
+                                if(!transfer.site.field){
+                                    proj_site =  {name:transfer.site.site_name,_id:transfer.site._id,type:'site'}
+                                }
+                            }
                             ++transfers_counter;
                             if (!project_transfers.hasOwnProperty(transfer._id)) {
                                 project_transfers.push({
@@ -264,8 +276,8 @@ exports.getTransferTable = function(req, res){
                                     transfer_unit: transfer.transfer_unit,
                                     transfer_value: transfer.transfer_value,
                                     transfer_level: transfer.transfer_level,
-                                    transfer_audit_type: transfer.transfer_audit_type
-                                    // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
+                                    transfer_audit_type: transfer.transfer_audit_type,
+                                    proj_site: proj_site
                                 });
                             }
                             if (transfer.company !== null) {

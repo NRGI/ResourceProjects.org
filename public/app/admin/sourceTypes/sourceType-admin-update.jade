@@ -1,0 +1,88 @@
+.container.top-padding-med
+    .card
+        form(name='update_source_form')
+            fieldset
+                .col-xs-12
+                    legend Source Type Information
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_name") Source Type Name
+                        .col-md-10
+                            input.form-control(
+                            id="source_type_name"
+                            name="source_type_name"
+                            type="text"
+                            placeholder="Source Type name"
+                            ng-model="sourceType.source_type_name"
+                            required)
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_id") Source Type Id
+                        .col-md-10
+                            input.form-control(
+                            id="source_type_id"
+                            name="source_type_id"
+                            type="text"
+                            placeholder="Source type Id"
+                            ng-model="sourceType.source_type_id"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_display") Source Type Display
+                        .col-md-10
+                            select.form-control(
+                            id="source_type_display"
+                            ng-model="sourceType.source_type_display"
+                            ng-options="item.status as item.name for item in type_display"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_authority") Source Type Authority
+                        .col-md-10
+                            select.form-control(
+                            id="source_type_authority"
+                            ng-model="sourceType.source_type_authority"
+                            ng-options="item.name as item.name for item in authority"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_examples") Source Type Examples
+                        .col-md-10
+                            input.form-control(
+                            id="source_type_examples"
+                            name="source_archive_url"
+                            type="text"
+                            placeholder="Source Type Examples"
+                            ng-model="sourceType.source_type_examples"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_url_type") Source Type Url Type
+                        .col-md-10
+                            textarea.form-control(
+                            id="source_type_url_type"
+                            name="source_type_url_type"
+                            type="text"
+                            placeholder="Source Type Url Type"
+                            ng-model="sourceType.source_type_url_type"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="source_type_notes") Source Type Notes
+                        .col-md-10
+                            textarea.form-control(
+                            id="source_type_notes"
+                            name="source_type_notes"
+                            type="text"
+                            placeholder="Source Type Notes"
+                            ng-model="sourceType.source_type_notes"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        .col-md-10.col-md-offset-2
+                            .pull-xs-right
+                                button.btn.btn-primary(ng-click="sourceUpdate()", ng-disabled="") Submit
+                                | &nbsp;
+                                button.btn.btn-danger(ng-click="sourceDelete()", ng-disabled="") Delete
+                                | &nbsp;
+                                a.btn.btn-secondary(href="/admin/source-admin") Cancel

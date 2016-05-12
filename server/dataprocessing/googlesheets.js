@@ -787,7 +787,7 @@ function parseData(sheets, report, finalcallback) {
                         //Take first country that occurs - TODO, correct if/when projects go back to having single countries
                         if (row[5] != "") {  //Projects must have countries even if sites come afterwards
                             if (!model.proj_id) {
-                                model.update({proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()},
+                                Project.update({_id: model._id}, {proj_id: row[5].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
                                     function(err) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
@@ -828,7 +828,7 @@ function parseData(sheets, report, finalcallback) {
                                 var update = {};
                                 if (row[3] != "") update.site_address = {string: row[3], source: sources[row[0].toLowerCase()]._id};
                                 if (row[6] != "") update.site_coordinates = {loc: [parseFloat(row[6]), parseFloat(row[7])], source: sources[row[0].toLowerCase()]._id};
-                                sitemodel.update({$addToSet: update});
+                                Site.update({_id: sitemodel._id}, {$addToSet: update});
                                 //TODO: check $addToSet
                                 var found = false;
                                 Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},

@@ -232,7 +232,7 @@ exports.getProductionTable = function(req, res){
         }
     }
     function getProduction(projects, callback) {
-        var productions = [];var query='';
+        var productions = [];var query='';var proj_site={};
         projects.production = [];
         if(type=='concession'){ query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
         if(type=='company') { query={$or: [{project: {$in: projects.production_query}},{site: {$in: projects.production_query}},{concession: {$in: projects.production_query}}]}}
@@ -243,12 +243,23 @@ exports.getProductionTable = function(req, res){
         if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='source_type') { query = {$or: [{source:{$in: projects.production_query}}]}}
         Production.find(query)
-            .populate('production_commodity')
+            .populate('production_commodity project site')
             .exec(function (err, production) {
                 production_counter = 0;
                 production_len = production.length;
                 if (production_len > 0) {
                     production.forEach(function (prod) {
+                        if(prod.project!=undefined){
+                            proj_site =  {name:prod.project.proj_name,_id:prod.project.proj_id,type:'project'}
+                        }
+                        if(prod.site!=undefined){
+                            if(prod.site.field){
+                                proj_site =  {name:prod.site.site_name,_id:prod.site._id,type:'field'}
+                            }
+                            if(!prod.site.field){
+                                proj_site =  {name:prod.site.site_name,_id:prod.site._id,type:'site'}
+                            }
+                        }
                         ++production_counter;
                         if (!productions.hasOwnProperty(prod._id)) {
                             productions.push({
@@ -263,8 +274,8 @@ exports.getProductionTable = function(req, res){
                                 },
                                 production_price: prod.production_price,
                                 production_price_unit: prod.production_price_unit,
-                                production_level: prod.production_level
-                                // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
+                                production_level: prod.production_level,
+                                proj_site: proj_site
                             });
                         }
                         if (production_counter === production_len) {

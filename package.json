@@ -65,6 +65,7 @@
     "karma-coverage": "^1.0.0",
     "karma-junit-reporter": "^1.0.0",
     "karma-mocha": "^1.0.1",
+    "karma-jade-preprocessor": "0.0.11",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-safari-launcher": "^1.0.0",
     "load-grunt-tasks": "^3.5.0",

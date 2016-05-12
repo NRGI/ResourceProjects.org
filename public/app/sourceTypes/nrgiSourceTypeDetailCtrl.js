@@ -10,5 +10,3 @@ angular.module('app')
             $scope.source_type = success;
         });
     });
-
-

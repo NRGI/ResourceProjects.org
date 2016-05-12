@@ -2,8 +2,11 @@
 
 angular
     .module('app')
-    .controller('nrgiLeafletCtrl', function ($scope,$rootScope) {
-        $scope.center = [];
+    .controller('nrgiLeafletCtrl', function ($scope,$rootScope, nrgiCountryCoordinatesSrvc) {
+
+        $scope.show =false;
+        $scope.center = [];$scope.polygon=[];
+        $scope.alldata = [];
         $scope.location = [];
         $rootScope.projects=[];
         var tilesDict = {
@@ -33,29 +36,73 @@ angular
                 }
             }
         });
-        setTimeout( function(){
-            if ($scope.map ==true)
+        $scope.$watch('id', function(value) {
+            console.log(value)
+            if(value!=undefined) {
+                $scope.getCoordinate(value, $scope.type);
+            }
+        })
+        $scope.$watch('data', function(value) {
+            if(value!=undefined) {
+                console.log(value)
+                $scope.alldata = value;
+
+                if (value.polygon != undefined) {
+                    $scope.polygon = value.polygon;
+                }
+                $scope.loadCoordinate(value, $scope.polygon)
+            }
+        })
+        $scope.getCoordinate =function(id,type){
+            setTimeout(function() {
+                nrgiCountryCoordinatesSrvc.get({
+                    _id: id,
+                    type: type
+                }, function (response) {
+                    $scope.alldata = response.proj_coordinates;
+                    if (response.polygon != undefined) {
+                        $scope.polygon = response.polygon;
+                    }
+                    $scope.loadCoordinate($scope.alldata,$scope.polygon)
+                });
+            },2000)
+        }
+        $scope.loadCoordinate = function(response,polygon){
+            $scope.polygon =polygon;
+            if ($scope.map == true)
                 $scope.data_loading = true;
-            if ($scope.data.length > 0)
-                var len = $scope.data.length;
-            var counter =0;
-            var lat =0;
-            var lng =0;
-            angular.forEach($scope.data,function(data){
+            if ($scope.alldata.length > 0)
+                var len = $scope.alldata.length;
+            var counter = 0;
+            var lat = 0;
+            var lng = 0;
+            angular.forEach(response, function (data) {
                 counter++;
-                if($scope.project==true && data.type=='project'){
-                    $scope.location.push({lat: data.lat, lng: data.lng,message: data.message});
-                }else if($scope.project!=true &&data.type=='project'){
-                    $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='project/" + data.id + "'>" + data.message + "</a></br>" + data.message});
-                }else if(data.type=='site'){
-                    $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message});
-                }else if(data.type=='field'){
-                    $scope.location.push({lat: data.lat, lng: data.lng,message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message});
-                }else if($scope.map ==true){
-                    if (data.coordinates.length>0) {
+                if ($scope.project == true && data.type == 'project') {
+                    $scope.location.push({lat: data.lat, lng: data.lng, message: data.message});
+                } else if ($scope.project != true && data.type == 'project') {
+                    $scope.location.push({
+                        lat: data.lat,
+                        lng: data.lng,
+                        message: "<a href='project/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                    });
+                } else if (data.type == 'site') {
+                    $scope.location.push({
+                        lat: data.lat,
+                        lng: data.lng,
+                        message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                    });
+                } else if (data.type == 'field') {
+                    $scope.location.push({
+                        lat: data.lat,
+                        lng: data.lng,
+                        message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                    });
+                } else if ($scope.map == true) {
+                    if (data.coordinates.length > 0) {
                         $scope.location.push(data.coordinates[0]);
                     }
-                }else {
+                } else {
                     if (data.type == 'project') {
                         $scope.location.push({
                             lat: data.lat,
@@ -72,19 +119,19 @@ angular
                 }
                 lat = +data.lat;
                 lng = +data.lng;
-                if (len == counter && $scope.map==true) {
+                if (len == counter && $scope.map == true) {
                     $scope.data_loading = false;
-                    $scope.center = {lat: 0,lng: 0,zoom:1};
+                    $scope.center = {lat: 0, lng: 0, zoom: 1};
                 }
-                if (len == counter && $scope.map !=true&&$scope.data.length>1) {
-                    $scope.center = {lat: 0 , lng:lng, zoom:0};
+                if (len == counter && $scope.map != true && $scope.alldata.length > 1) {
+                    $scope.center = {lat: 0, lng: lng, zoom: 0};
                 }
-                if (len == counter && $scope.map !=true&&$scope.data.length==1) {
+                if (len == counter && $scope.map != true && $scope.alldata.length == 1) {
                     $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
                 }
-            });
-            $scope.$apply();
-            if($scope.polygon) {
+                $scope.show =true;
+            })
+            if ($scope.polygon != undefined) {
                 if ($scope.polygon.length > 1) {
                     angular.forEach($scope.polygon, function (polygon, i) {
                         $scope.paths.polygon.latlngs[i] = polygon.coordinate;
@@ -96,6 +143,5 @@ angular
                     $scope.paths.polygon.latlngs = $scope.polygon[0].coordinate;
                 }
             }
-            $scope.$apply();
-        },2000)
+        }
     });
