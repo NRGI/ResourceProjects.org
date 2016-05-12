@@ -291,6 +291,21 @@ angular.module('app')
                 templateUrl: '/partials/sourceTypes/sourceType-detail',
                 controller: 'nrgiSourceTypeDetailCtrl'
             })
+            .when('/admin/sourceType-admin', {
+                templateUrl: '/partials/admin/sourceTypes/sourceType-admin',
+                controller: 'nrgiSourceTypeAdminCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/create-sourceType', {
+                templateUrl: '/partials/admin/sourceTypes/create-sourceType',
+                controller: 'nrgiSourceTypeAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/sourceType-admin/:id', {
+                templateUrl: '/partials/admin/sourceTypes/sourceType-admin-update',
+                controller: 'nrgiSourceTypeAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             //.when('/admin/site-admin', {
             //    templateUrl: '/partials/admin/sites/site-admin',
             //    controller: 'nrgiSiteAdminCtrl',
@@ -363,10 +378,10 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiNotifier
     ) {
-        //nrgiAuthSrvc.authenticateUser('jcust', 'admin')
-        //    .then(function(success) {
-        //
-        //    });
+        nrgiAuthSrvc.authenticateUser('jcust', 'admin')
+            .then(function(success) {
+
+            });
         $rootScope._ = _;
         $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
             document.body.scrollTop = document.documentElement.scrollTop = 0;

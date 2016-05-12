@@ -29,18 +29,39 @@ describe('nrgiCommoditiesMethodSrvc', function () {
         httpBackend.verifyNoOutstandingRequest();
     });
 
-    it('should create Commodity and return the response.', function (){
+    it('should create Commodity and return the response.', function () {
         var returnData = {
             "success": true
         };
-        var commodity_data = {commodity_name:"Commodity_test"}
+        var commodity_data = {commodity_name: "Commodity_test"}
 
 
-        httpBackend.expectPOST('/api/commodities',commodity_data).respond(returnData);
+        httpBackend.expectPOST('/api/commodities', commodity_data).respond(returnData);
 
         var createCommodity = nrgiCommoditiesMethodSrvc.createCommodity(commodity_data);
 
-        createCommodity.then(function() {
+        createCommodity.then(function () {
+            result = true;
+        }, function (reason) {
+            result = false;
+        })
+
+        httpBackend.flush();
+
+        expect(result).toBeTruthy();
+    });
+
+    it('should delete Commodity.', function (){
+        var returnData = {
+            "success": true
+        };
+        var id = "56a13e9942c8bef50ec2e9e8"
+
+        httpBackend.expectDELETE('/api/commodities/'+id).respond(returnData);
+
+        var deleteCommodity = nrgiCommoditiesMethodSrvc.deleteCommodity(id);
+
+        deleteCommodity.then(function() {
             result=true;
         }, function(reason) {
             result=false;
@@ -49,6 +70,5 @@ describe('nrgiCommoditiesMethodSrvc', function () {
         httpBackend.flush();
 
         expect(result).toBeTruthy();
-
     });
 });

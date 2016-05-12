@@ -5,7 +5,9 @@ var SourceType 		= require('mongoose').model('SourceType'),
 	encrypt 		= require('../utilities/encryption');
 exports.getSourceTypes = function(req, res) {
 	var limit = Number(req.params.limit),
-		skip = Number(req.params.skip);
+		skip = Number(req.params.skip),
+		display = req.params.display,
+		query ={};
 
 	async.waterfall([
 		sourceTypeCount,
@@ -19,7 +21,10 @@ exports.getSourceTypes = function(req, res) {
 	});
 
 	function sourceTypeCount(callback) {
-		SourceType.find({}).count().exec(function(err, sourceType_count) {
+		if(display==='true'){console.log(display)
+			query={source_type_display:true}
+		}
+		SourceType.find(query).count().exec(function(err, sourceType_count) {
 			if(sourceType_count) {
 				callback(null, sourceType_count);
 			} else {
@@ -28,7 +33,12 @@ exports.getSourceTypes = function(req, res) {
 		});
 	}
 	function getSourceTypeSet(sourceType_count, callback) {
-		SourceType.find(req.query)
+
+		if(display==='true'){
+			console.log(display)
+			query={source_type_display:true}
+		}
+		SourceType.find(query)
 			.sort({
 				source_type_name: 'asc'
 			})
@@ -87,6 +97,13 @@ exports.updateSourceType = function(req, res) {
 			err = new Error('Error');
 			return res.send({ reason: err.toString() });
 		}
+		sourceType.source_type_name=sourceUpdates.source_type_name;
+		sourceType.source_type_id=sourceUpdates.source_type_id;
+		sourceType.source_type_display=sourceUpdates.source_type_display;
+		sourceType.source_type_authority=sourceUpdates.source_type_authority;
+		sourceType.source_type_examples=sourceUpdates.source_type_examples;
+		sourceType.source_type_url_type=sourceUpdates.source_type_url_type;
+		sourceType.source_type_notes=sourceUpdates.source_type_notes;
 		sourceType.save(function(err) {
 			if (err) {
 				err = new Error('Error');

@@ -63,13 +63,14 @@ exports.getProjects = function(req, res) {
             projects.forEach(function (project) {
                 project.transfers_query = [project._id];
                 project.source_type = {p: false, c: false};
+                if(project.proj_established_source!=null){
                 if (project.proj_established_source.source_type_id.source_type_authority === 'authoritative') {
                     project.source_type.c = true;
                 } else if (project.proj_established_source.source_type_id.source_type_authority === 'non-authoritative') {
                     project.source_type.c = true;
                 } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
                     project.source_type.p = true;
-                }
+                }}
                 Link.find({project: project._id})
                     // .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company')
@@ -88,12 +89,14 @@ exports.getProjects = function(req, res) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'project')[0];
                             if (!project.source_type.p || !project.source_type.c) {
-                                if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                    project.source_type.c = true;
-                                } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                    project.source_type.c = true;
-                                } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                    project.source_type.p = true;
+                                if(link.source!=null) {
+                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                        project.source_type.c = true;
+                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                        project.source_type.c = true;
+                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                        project.source_type.p = true;
+                                    }
                                 }
                             }
                             switch (entity) {
@@ -346,13 +349,16 @@ exports.getProjectByID = function(req, res) {
                     links.forEach(function (link) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'project')[0];
+
                         if (!project.source_type.p || !project.source_type.c) {
-                            if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                project.source_type.c = true;
-                            } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                project.source_type.c = true;
-                            } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                project.source_type.p = true;
+                            if(link.source!=null) {
+                                if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                    project.source_type.c = true;
+                                } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                    project.source_type.c = true;
+                                } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                    project.source_type.p = true;
+                                }
                             }
                         }
                         //if (!project.sources[link.source._id]) {

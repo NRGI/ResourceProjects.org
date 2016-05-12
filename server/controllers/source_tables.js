@@ -117,7 +117,9 @@ exports.getSourceTable = function(req, res){
                                 project.sources.push(link.project.proj_established_source);}
                             if(type=='company') { project.sources.push(link.company.company_established_source);}
                             if(type=='concession') { project.sources.push(link.concession.concession_established_source);}
-                            project.sources.push(link.source);
+                            if(link.source!=null) {
+                                project.sources.push(link.source);
+                            }
                             if (link_counter == link_len) {
                                 var uniques = _.map(_.groupBy(project.sources,function(doc){
                                     return doc._id;
@@ -243,8 +245,10 @@ exports.getSourceTable = function(req, res){
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
-                            project.sources.push(link.company_group.company_group_record_established);
-                            project.sources.push(link.source);
+                            if(link.source!=null) {
+                                project.sources.push(link.company_group.company_group_record_established);
+                                project.sources.push(link.source);
+                            }
                             if(link.company!=undefined) {
                                 companies.push({_id: link.company});
                             }
@@ -283,8 +287,10 @@ exports.getSourceTable = function(req, res){
                                     link_counter = 0;
                                     _.each(links, function (link) {
                                         ++link_counter;
-                                        project.sources.push(link.source);
-                                        project.sources.push(link.company.company_established_source);
+                                        if(link.source!=null) {
+                                            project.sources.push(link.source);
+                                            project.sources.push(link.company.company_established_source);
+                                        }
                                         if (link_len == link_counter && companies_counter == companies_len) {
                                             var uniques = _.map(_.groupBy(project.sources,function(doc){
                                                 return doc._id;

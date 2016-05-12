@@ -43,10 +43,11 @@ data-target="#productions")
                     text(ng-if="prod.production_price") {{prod.production_price_unit}}
                     em(ng-if="!prod.production_price") ..
                 td.text-center.production_level {{prod.production_level}}
-                td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in prod.production_links | unique: '_id'")
-                    a(href="{{link.type}}/{{link.route}}")
-                        span(ng-bind-html="link.name|sanitize")
-                    | {{$last ? '' : ', '}}
+                td.project_links(ng-if="projectlink===true")
+                    //: span(ng-repeat="link in prod.production_links | unique: '_id'")
+                    a(href="{{prod.proj_site.type}}/{{prod.proj_site._id}}")
+                        span(ng-bind-html="prod.proj_site.name|sanitize")
+                    //| {{$last ? '' : ', '}}
     div(ng-if="production.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')

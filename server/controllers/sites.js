@@ -92,13 +92,16 @@ exports.getSites = function(req, res) {
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'site')[0];
+                            console.log(site.source_type)
                             if (!site.source_type.p || !site.source_type.c) {
-                                if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                    site.source_type.c = true;
-                                } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                    site.source_type.c = true;
-                                } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                    site.source_type.p = true;
+                                if(link.source!=null) {
+                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                        site.source_type.c = true;
+                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                        site.source_type.c = true;
+                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                        site.source_type.p = true;
+                                    }
                                 }
                             }
                             switch (entity) {
@@ -295,12 +298,14 @@ exports.getSiteByID = function(req, res) {
                         ++link_counter;
                         var entity = _.without(link.entities, 'site')[0];
                         if (!site.source_type.p || !site.source_type.c) {
-                            if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                site.source_type.c = true;
-                            } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                site.source_type.c = true;
-                            } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                site.source_type.p = true;
+                            if(link.source!=null) {
+                                if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                    site.source_type.c = true;
+                                } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                    site.source_type.c = true;
+                                } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                    site.source_type.p = true;
+                                }
                             }
                         }
                         switch (entity) {
@@ -415,12 +420,14 @@ exports.getSiteByID = function(req, res) {
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'project')[0];
                                 if (!site.source_type.p || !site.source_type.c) {
-                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                        site.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        site.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                        site.source_type.p = true;
+                                    if(link.source!=null) {
+                                        if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                            site.source_type.c = true;
+                                        } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                            site.source_type.c = true;
+                                        } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                            site.source_type.p = true;
+                                        }
                                     }
                                 }
                                 switch (entity) {

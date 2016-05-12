@@ -85,12 +85,14 @@ exports.getConcessions = function(req, res) {
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'concession')[0];
                                 if (!concession.source_type.p || !concession.source_type.c) {
-                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                        concession.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        concession.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                        concession.source_type.p = true;
+                                    if (link.source != null) {
+                                        if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                            concession.source_type.c = true;
+                                        } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                            concession.source_type.c = true;
+                                        } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                            concession.source_type.p = true;
+                                        }
                                     }
                                 }
                                 switch (entity) {

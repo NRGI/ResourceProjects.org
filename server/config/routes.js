@@ -131,7 +131,7 @@ module.exports	= function(app) {
 	/////////////////////////
 	///// SOURCE TYPES CRUD ////////
 	/////////////////////////
-	app.get('/api/sourcetypes/:limit/:skip', sourceTypes.getSourceTypes);
+	app.get('/api/sourcetypes/:limit/:skip/:display', sourceTypes.getSourceTypes);
 	app.get('/api/sourcetypes/:id', sourceTypes.getSourceTypeByID);
 
 	// POST

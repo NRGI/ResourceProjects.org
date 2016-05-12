@@ -383,9 +383,10 @@ describe("Unit: Testing Controllers", function() {
         httpMock = $httpBackend;
     }));
 
-    it("should get 'MX' from '/api/countries'", function () {
+    it("should get 'MX' from '/api/countrycommodity'", function () {
 
         httpMock.expectGET('/api/countries/' + ID).respond(data);
+        httpMock.expectGET('/api/countrycommodity/' + data._id).respond(data);
 
         ctrl = controllerService('nrgiCountryDetailCtrl', {
             $scope: scope,

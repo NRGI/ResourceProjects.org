@@ -52,10 +52,11 @@ data-target="#transfers")
                 td.text-right.transfer_value {{transfer.transfer_value | number}}
                 td.transfer_level {{transfer.transfer_level}}
                 td.transfer_audit_type {{transfer.transfer_audit_type | addSpaces}}
-                td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in transfer.transfer_links | unique: '_id'")
-                    a(href="{{link.type}}/{{link.route}}")
-                        span(ng-bind-html="link.name|sanitize")
-                    | {{$last ? '' : ', '}}
+                td.project_links(ng-if="projectlink===true")
+                    //: span(ng-repeat="link in transfer.transfer_links | unique: '_id'")
+                    a(href="{{transfer.proj_site.type}}/{{transfer.proj_site._id}}")
+                        span(ng-bind-html="transfer.proj_site.name|sanitize")
+                    //| {{$last ? '' : ', '}}
     div(ng-if="transfers.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')

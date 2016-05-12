@@ -102,9 +102,10 @@ describe("Unit: Testing Controllers", function() {
         httpMock = $httpBackend;
     }));
 
-    it("should get '56a13a758f224f670e6a376e' from '/api/companies'", function () {
+    it("should get '56a13a758f224f670e6a376e' from '/api/companydata'", function () {
 
         httpMock.expectGET('/api/companies/'+ID).respond(data);
+        httpMock.expectGET('/api/companydata/'+ID).respond(data);
 
         ctrl = controllerService('nrgiCompanyDetailCtrl', {
             $scope: scope,

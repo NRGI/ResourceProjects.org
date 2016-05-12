@@ -17,7 +17,7 @@ angular.module('app')
             $scope.group.companies=[];
             $scope.group.commodities=[];
             angular.forEach(response.companies,function(company) {
-                $scope.company.companies.push(company);
+                $scope.group.companies.push(company);
             });
             angular.forEach(response.commodities,function(commodity) {
                 $scope.group.commodities.push(commodity);
