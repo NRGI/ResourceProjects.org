@@ -12,8 +12,13 @@ describe('nrgiCommoditiesSrvc', function () {
 
     it('requests commodity data for a given `commodityId`', function () {
         var commodityId = 1;
-        $httpBackend.expectGET('/api/commodities/' + commodityId).respond('');
+        $httpBackend.expectGET('/api/commodities?commodityId=' + commodityId).respond('');
         commodityServiceInstance.$get({commodityId: commodityId});
+    });
+    it('requests commodity data list with a skip and limit var', function () {
+        var limit = 10, skip = 1;
+        $httpBackend.expectGET('/api/commodities/' + limit + '/' + skip).respond('');
+        commodityServiceInstance.$get({limit: limit, skip: skip});
     });
 
     afterEach(function() {

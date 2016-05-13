@@ -125,7 +125,9 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'public/vendor/angular/angular.js',
-            // 'node_modules/angular-mocks/angular-mocks.js',
+            'public/vendor/angular-route/angular-route.js',
+            'public/vendor/angular-mocks/angular-mocks.js',
+            'public/vendor/angular-resource/angular-resource.js',
             // 'node_modules/jade/jade.js',
             // 'node_modules/underscore/underscore.js',
             // 'public/vendor/jquery/dist/jquery.js',
@@ -139,12 +141,12 @@ module.exports = function (config) {
             // 'public/vendor/angular-sanitize/angular-sanitize.js',
             // 'public/vendor/angular-route/angular-route.js',
             // 'public/vendor/angular-spinner/angular-spinner.js',
-            // 'public/vendor/angular-resource/angular-resource.js',
+            'public/vendor/angular-resource/angular-resource.js',
             // 'public/vendor/ngDialog/js/ngDialog.js',
             'public/vendor/toastr/toastr.js',
             'tests/unit/app.js',
             'public/app/**/*.js',
-            'tests/unit/controllers/services/nrgiCommoditiesSrvc.spec.js'
+            'tests/unit/services/nrgiCommoditiesSrvc.spec.js'
             // 'tests/unit/filters/addSpaces.spec.js'
             // 'tests/unit/**/*.spec.js'
         ],
