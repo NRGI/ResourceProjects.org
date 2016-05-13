@@ -9,7 +9,6 @@ angular.module('app')
 
         return CompanyResource;
     })
-
     .factory('nrgiCompanyDataSrvc', function($resource) {
         var CompanyResource = $resource('/api/companydata/:_id', {_id: "@id"}, {
             query:  {method:'GET', isArray: false}

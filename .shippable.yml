@@ -7,11 +7,13 @@ branches:
   only:
     - staging
     - master
+    - dev
 
 before_script:
   - npm install --dev
   - npm install -g bower phantomjs
   - bower install
+  - bower install --dev
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
 
@@ -21,10 +23,10 @@ script:
   - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run --reporters coverage
 
 after_success:
-  - sudo docker build -t nrgi/rgi-assessment-tool:$BRANCH .
-  - sudo docker build -t nrgi/rgi-assessment-tool:$BRANCH.$BUILD_NUMBER .
-  - sudo docker push nrgi/rgi-assessment-tool:$BRANCH
-  - sudo docker push nrgi/rgi-assessment-tool:$BRANCH.$BUILD_NUMBER
+  - sudo docker build -t nrgi/rp-org-frontend:$BRANCH .
+  - sudo docker build -t nrgi/rp-org-frontend:$BRANCH.$BUILD_NUMBER .
+  - sudo docker push nrgi/rp-org-frontend:$BRANCH
+  - sudo docker push nrgi/rp-org-frontend:$BRANCH.$BUILD_NUMBER
 
 integrations:
     hub:
