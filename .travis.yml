@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - '0.10'
+
+services:
+  - docker
+
+before_script:
+  - npm install --dev
+  - npm install -g bower
+  - npm install -g phantomjs
+  - bower install
+  - bower install --dev
+
+script:
+  - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run
