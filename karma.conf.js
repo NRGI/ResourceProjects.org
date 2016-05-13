@@ -144,7 +144,7 @@ module.exports = function (config) {
             'public/vendor/toastr/toastr.js',
             'tests/unit/app.js',
             'public/app/**/*.js',
-            'tests/unit/controllers/nrgiCommoditiesMethodSrvc.js'
+            'tests/unit/controllers/services/nrgiCommoditiesSrvc.spec.js'
             // 'tests/unit/filters/addSpaces.spec.js'
             // 'tests/unit/**/*.spec.js'
         ],
