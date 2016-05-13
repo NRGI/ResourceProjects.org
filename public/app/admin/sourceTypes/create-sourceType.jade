@@ -25,6 +25,7 @@
                             type="text"
                             placeholder="Source type Id"
                             ng-model="sourceType.source_type_id"
+                            required
                             )
                 .form-group.row
                     .col-xs-12
@@ -33,7 +34,8 @@
                             select.form-control(
                             id="source_type_display"
                             ng-model="sourceType.source_type_display"
-                            ng-options="item.status as item.name for item in type_display"
+                            ng-options="item as item.name for item in type_display track by item.status"
+                            required
                             )
                 .form-group.row
                     .col-xs-12
@@ -43,6 +45,7 @@
                             id="source_type_authority"
                             ng-model="sourceType.source_type_authority"
                             ng-options="item.name as item.name for item in authority"
+                            required
                             )
                 .form-group.row
                     .col-xs-12
@@ -83,6 +86,6 @@
                             .pull-xs-right
                                 button.btn.btn-primary(
                                 ng-click="sourceCreate()"
-                                ng-disabled="create_source_form.$invalid") Submit
+                                ng-disabled="create_sourceType_form.$invalid") Submit
                                 | &nbsp;
-                                a.btn.btn-secondary(href="/admin/source-admin") Cancel
+                                a.btn.btn-secondary(href="/admin/sourceType-admin") Cancel
