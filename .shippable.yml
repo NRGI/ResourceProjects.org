@@ -11,9 +11,8 @@ branches:
 
 before_script:
   - npm install --dev
-  - npm install -g bower
-  - bower install
-  - bower install --dev
+  - npm install -g bower phantomjs
+  - bower install --allow-root
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
 
