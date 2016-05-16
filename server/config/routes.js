@@ -70,7 +70,8 @@ module.exports	= function(app) {
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyID);
 	app.get('/api/companydata/:id', companies.getCompanyByID);
-	// POST
+	
+    // POST
 	app.post('/api/companies',  companies.createCompany);
 	// PUT
 	app.put('/api/companies',  companies.updateCompany);
