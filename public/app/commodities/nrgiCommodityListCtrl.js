@@ -3,8 +3,6 @@
 angular.module('app')
     .controller('nrgiCommodityListCtrl', function (
         $scope,
-        nrgiAuthSrvc,
-        nrgiIdentitySrvc,
         nrgiCommoditiesSrvc
     ) {
         $scope.limit = 50;
@@ -18,6 +16,7 @@ angular.module('app')
                 $scope.page = page;
                 $scope.commodities=response.data;
                 $scope.show_count = response.data.length+$scope.page;
+                console.log($scope.commodities[0]);
             });
         };
         loadCommodities($scope.limit,$scope.page);

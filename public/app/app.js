@@ -322,13 +322,13 @@ angular.module('app')
             //    resolve: routeRoleChecks.supervisor
             //})
             .when('/glossary', {
-                templateUrl: '/partials/common/glossary'
+                templateUrl: '/partials/main/glossary'
             })
             .when('/contribute', {
-                templateUrl: '/partials/common/contribute'
+                templateUrl: '/partials/main/contribute'
             })
             .when('/about', {
-                templateUrl: '/partials/common/about'
+                templateUrl: '/partials/main/about'
             })
             //
             ////Transfers and related facts
@@ -336,18 +336,18 @@ angular.module('app')
             //    templateUrl: '/partials/common/receipt'
             //})
             //.when('/production/:id_country/:id', {
-            //    templateUrl: '/partials/common/production'
+            //    templateUrl: '/partials/main/production'
             //})
             //.when('/governmentreceipt/:id_country/:id', {
-            //    templateUrl: '/partials/common/governmentreceipt'
+            //    templateUrl: '/partials/main/governmentreceipt'
             //})
             //
             ////Other
             //.when('/model', {
-            //    templateUrl: '/partials/common/dataModel'
+            //    templateUrl: '/partials/main/dataModel'
             //})
             //.when('/namedGraphs', {
-            //    templateUrl: '/partials/common/namedGraphs'
+            //    templateUrl: '/partials/main/namedGraphs'
             //})
             //.when('/classes', {
             //    templateUrl: '/partials/main/classes'
