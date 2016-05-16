@@ -20,7 +20,7 @@ describe('nrgiCompaniesSrvc', function () {
         $httpBackend.expectGET('/api/companies/' + limit + '/' + skip).respond('');
         companyServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('COMPANY UPDATE MISSING')
+    console.info('COMPANY SERVICE: UPDATE MISSING')
 
     afterEach(function() {
         $httpBackend.flush();

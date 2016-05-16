@@ -19,8 +19,8 @@ describe('nrgiDatasetSrvc', function () {
         $httpBackend.expectGET('/api/datasets').respond('');
         datasetServiceInstance.$get({});
     });
-    console.info('DATASET UPDATE MISSING');
-    console.info('DATASET SAVE MISSING');
+    console.info('DATASET SERVICE: UPDATE MISSING');
+    console.info('DATASET SERVICE: SAVE MISSING');
 
     afterEach(function() {
         $httpBackend.flush();

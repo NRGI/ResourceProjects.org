@@ -20,7 +20,7 @@ describe('nrgiCommoditiesSrvc', function () {
         $httpBackend.expectGET('/api/commodities/' + limit + '/' + skip).respond('');
         commodityServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('COMMODITY UPDATE MISSING')
+    console.info('COMMODITY SERVICE: UPDATE MISSING')
 
     afterEach(function() {
         $httpBackend.flush();

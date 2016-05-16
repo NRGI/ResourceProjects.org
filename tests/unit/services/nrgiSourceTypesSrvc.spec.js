@@ -20,8 +20,8 @@ describe('nrgiSourceTypesSrvc', function () {
         $httpBackend.expectGET('/api/sourcetypes/' + limit + '/' + skip).respond('');
         sourceTypeServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('SOURCE TYPE UPDATE MISSING');
-    console.info('SOURCE TYPE DISPLAY MISSING');
+    console.info('SOURCE SERVICE: TYPE UPDATE MISSING');
+    console.info('SOURCE SERVICE: TYPE DISPLAY MISSING');
 
     afterEach(function() {
         $httpBackend.flush();

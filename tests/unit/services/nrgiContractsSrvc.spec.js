@@ -20,7 +20,7 @@ describe('nrgiContractsSrvc', function () {
         $httpBackend.expectGET('/api/contracts/' + limit + '/' + skip).respond('');
         contractServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('CONTRACT UPDATE MISSING');
+    console.info('CONTRACT SERVICE: UPDATE MISSING');
 
     afterEach(function() {
         $httpBackend.flush();

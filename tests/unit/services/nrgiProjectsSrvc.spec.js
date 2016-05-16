@@ -20,7 +20,7 @@ describe('nrgiProjectsSrvc', function () {
         $httpBackend.expectGET('/api/projects/' + limit + '/' + skip).respond('');
         projectServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('PROJECT UPDATE MISSING')
+    console.info('PROJECT SERVICE: UPDATE MISSING')
 
     afterEach(function() {
         $httpBackend.flush();

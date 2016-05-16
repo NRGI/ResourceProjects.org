@@ -9,7 +9,7 @@ describe('nrgiDatasetActionSrvc', function () {
         $httpBackend = _$httpBackend_;
         datasetActionServiceInstance = new nrgiCountryCommoditiesSrvc();
     }));
-    console.error('FIX DATASET ACTION SVC TEST')
+    console.error('DATASET ACTION SERVICE: NO TEST')
 
     // it('requests country data for a given `datasetId`', function () {
     //     var countryId = 1;

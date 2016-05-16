@@ -20,8 +20,8 @@ describe('nrgiSitesSrvc', function () {
         $httpBackend.expectGET('/api/sites/' + limit + '/' + skip).respond('');
         siteServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('SITE UPDATE MISSING');
-    console.info('SITE MAP AND FIELD MISSING');
+    console.info('SITE SERVICE: UPDATE MISSING');
+    console.info('SITE SERVICE: MAP AND FIELD MISSING');
 
     afterEach(function() {
         $httpBackend.flush();

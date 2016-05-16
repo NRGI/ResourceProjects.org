@@ -9,7 +9,7 @@ describe('nrgiCountryCommoditiesSrvc', function () {
         $httpBackend = _$httpBackend_;
         countryCommodityServiceInstance = new nrgiCountryCommoditiesSrvc();
     }));
-    console.error('FIX COUNTRY COMMODITY SVC TEST')
+    console.error('COUNTRY COMMODITY SERVICE: NO TEST')
 
     // it('requests country data for a given `countryId`', function () {
     //     var countryId = 1;

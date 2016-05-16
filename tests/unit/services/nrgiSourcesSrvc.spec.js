@@ -20,7 +20,7 @@ describe('nrgiSourcesSrvc', function () {
         $httpBackend.expectGET('/api/sources/' + limit + '/' + skip).respond('');
         sourceServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('SOURCE UPDATE MISSING')
+    console.info('SOURCE SERVICE: UPDATE MISSING')
 
     afterEach(function() {
         $httpBackend.flush();
