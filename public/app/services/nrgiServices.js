@@ -8,7 +8,6 @@ angular.module('app')
         });
 
         return CommodityResource;
-
     })
     .factory('nrgiCompaniesSrvc', function($resource) {
         var CompanyResource = $resource('/api/companies/:limit/:skip/:_id', {_id: "@id", limit: "@limit", skip: "@skip"}, {
@@ -24,4 +23,20 @@ angular.module('app')
         });
 
         return CompanyResource;
+    })
+    .factory('nrgiConcessionsSrvc', function($resource) {
+        var ConcessionResource = $resource('/api/concessions/:limit/:skip/:_id', {_id: "@id", limit: "@limit", skip: "@skip"}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ConcessionResource;
+    })
+    .factory('nrgiContractsSrvc', function($resource) {
+        var ContractResource = $resource('/api/contracts/:limit/:skip/:_id', {_id: "@id", limit: "@limit", skip: "@skip"}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ContractResource;
     });
