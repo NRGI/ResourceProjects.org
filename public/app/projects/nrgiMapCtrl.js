@@ -3,9 +3,9 @@
 angular.module('app')
     .controller('nrgiMapCtrl', function (
         $scope,
-        nrgiProjectsSrvc
+        nrgiProjectsCoordinateSrvc
     ) {
-        nrgiProjectsSrvc.get(function (success) {
+        nrgiProjectsCoordinateSrvc.get(function (success) {
             $scope.project_count = success.count;
             $scope.projectMarkers = success.data;
         });

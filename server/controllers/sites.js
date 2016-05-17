@@ -92,7 +92,6 @@ exports.getSites = function(req, res) {
                         links.forEach(function (link) {
                             ++link_counter;
                             var entity = _.without(link.entities, 'site')[0];
-                            console.log(site.source_type)
                             if (!site.source_type.p || !site.source_type.c) {
                                 if(link.source!=null) {
                                     if (link.source.source_type_id.source_type_authority === 'authoritative') {
@@ -118,7 +117,7 @@ exports.getSites = function(req, res) {
                                         site.field_count += 1;
                                     }
                                     if (!_.contains(site.transfers_query, link.site)) {
-                                        site.transfers_query.push(link.site);
+                                        site.transfers_query.push(link.site._id);
                                     }
                                     if (link.site.site_commodity.length>0) {
                                         if (_.where(site.site_commodity, {_id:_.last(link.site.site_commodity).commodity._id}).length<1) {
@@ -134,7 +133,7 @@ exports.getSites = function(req, res) {
                                 case 'project':
                                     site.project_count += 1;
                                     if (!_.contains(site.transfers_query, link.project)) {
-                                        site.transfers_query.push(link.project);
+                                        site.transfers_query.push(link.project._id);
                                     }
                                     if (link.project.proj_commodity.length>0) {
                                         if (_.where(site.site_commodity, {_id:_.last(link.project.proj_commodity)._id}).length<1) {
@@ -310,7 +309,12 @@ exports.getSiteByID = function(req, res) {
                         }
                         switch (entity) {
                             case 'project':
-                                site.projects.push(link.project);
+                                site.projects.push({
+                                    _id: link.project._id,
+                                    proj_id: link.project.proj_id,
+                                    proj_name: link.project.proj_name
+                                });
+                                //site.projects.push(link.project);
                                 link.project.proj_coordinates.forEach(function (loc) {
                                     site.coordinates.push({
                                         'lat': loc.loc[0],
