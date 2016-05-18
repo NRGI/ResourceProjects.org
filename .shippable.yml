@@ -12,8 +12,7 @@ branches:
 before_script:
   - npm install --dev
   - npm install -g bower
-  - bower install
-  - bower install --dev
+  - bower install --allow-root
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
 
@@ -27,39 +26,6 @@ after_success:
   - sudo docker build -t nrgi/rp-org-frontend:$BRANCH.$BUILD_NUMBER .
   - sudo docker push nrgi/rp-org-frontend:$BRANCH
   - sudo docker push nrgi/rp-org-frontend:$BRANCH.$BUILD_NUMBER
-
-integrations:
-    hub:
-      - integrationName: nrgiDockerHub
-        type: docker
-
-language: node_js
-
-node_js:
-  - 0.10
-
-branches:
-  only:
-    - staging
-    - master
-
-before_script:
-  - npm install --dev
-  - npm install -g bower phantomjs
-  - bower install
-  - mkdir -p shippable/testresults
-  - mkdir -p shippable/codecoverage
-
-
-script:
-  - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run --reporters junit
-  - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run --reporters coverage
-
-after_success:
-  - sudo docker build -t nrgi/rgi-assessment-tool:$BRANCH .
-  - sudo docker build -t nrgi/rgi-assessment-tool:$BRANCH.$BUILD_NUMBER .
-  - sudo docker push nrgi/rgi-assessment-tool:$BRANCH
-  - sudo docker push nrgi/rgi-assessment-tool:$BRANCH.$BUILD_NUMBER
 
 integrations:
     hub:

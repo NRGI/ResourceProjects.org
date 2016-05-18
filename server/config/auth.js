@@ -16,7 +16,8 @@ exports.authenticate = function(req, res, next) {
 exports.requiresApiLogin = function(req, res, next) {
   if(!req.isAuthenticated()) {
     res.status(403);
-    res.end();
+    var err = new Error('Error');
+    res.send({reason: err.toString()});
   } else {
     next();
   }
@@ -24,11 +25,10 @@ exports.requiresApiLogin = function(req, res, next) {
 
 exports.requiresRole = function(role) {
   return function(req, res, next) {
-    console.log(req.user.role.indexOf(role));
-    console.log(role);
     if(!req.isAuthenticated() || req.user.role.indexOf(role) === -1) {
       res.status(403);
-      res.end();
+      var err = new Error('Error');
+      res.send({reason: err.toString()});
     } else {
       next();
     }

@@ -21,7 +21,7 @@ exports.getSourceTypes = function(req, res) {
 	});
 
 	function sourceTypeCount(callback) {
-		if(display==='true'){console.log(display)
+		if(display==='true'){
 			query={source_type_display:true}
 		}
 		SourceType.find(query).count().exec(function(err, sourceType_count) {
@@ -35,7 +35,6 @@ exports.getSourceTypes = function(req, res) {
 	function getSourceTypeSet(sourceType_count, callback) {
 
 		if(display==='true'){
-			console.log(display)
 			query={source_type_display:true}
 		}
 		SourceType.find(query)

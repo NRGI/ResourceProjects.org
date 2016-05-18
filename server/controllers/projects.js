@@ -337,8 +337,8 @@ exports.getProjectByID = function(req, res) {
         } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
             project.source_type.p = true;
         }
-        project.site_coordinates = {sites: [], fields: []};
-        project.sources = {};
+        //project.site_coordinates = {sites: [], fields: []};
+        //project.sources = {};
         Link.find({project: project._id})
             .populate('company contract concession site project')
             .deepPopulate('company_group source.source_type_id')
@@ -613,7 +613,7 @@ exports.getProjectsMap = function(req, res) {
     async.waterfall([
         projectCount,
         getProjectSet,
-        getProjectLinks,
+        //getProjectLinks,
         getProjectCoordinate
     ], function (err, result) {
         if (err) {
@@ -636,93 +636,98 @@ exports.getProjectsMap = function(req, res) {
         Project.find()
             .lean()
             .exec(function(err, projects) {
+                var projects_data = [];
                 if(projects.length>0) {
+                    project_len = projects.length;
+                    project_counter = 0;
                     //TODO clean up returned data if we see performance lags
-                    callback(null, project_count, projects);
+                    projects.forEach(function (project) {
+                        ++project_counter;
+                        projects_data.push({
+                            '_id': project._id,
+                            'proj_id': project.proj_id,
+                            'proj_name': project.proj_name,
+                            'proj_coordinates': project.proj_coordinates
+                        });
+                        if (project_counter == project_len) {
+                            callback(null, project_count, projects_data);
+                        }
+                    })
                 } else {
                     callback(null, project_count, []);
                 }
             });
     }
-    function getProjectLinks(project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0) {
-            projects.forEach(function (project) {
-                project.coordinates = [];
-                project.site_coordinates = {sites: [], fields: []};
-                project.transfers_query = [project._id];
-                Link.find({project: project._id, entities: 'site'})
-                    .populate('site')
-                    .exec(function (err, links) {
-                        ++project_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        if(link_len>0) {
-                            links.forEach(function (link) {
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'project')[0];
-                                switch (entity) {
-                                    case 'site':
-                                        if (!_.contains(project.transfers_query, link.site)) {
-                                            project.transfers_query.push(link.site);
-                                        }
-                                        if (link.site.field && link.site.site_coordinates.length > 0) {
-                                            link.site.site_coordinates.forEach(function (loc) {
-                                                project.site_coordinates.fields.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': "<a href='field/" + link.site._id + "'>" + link.site.site_name + "</a></br>" + link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'field',
-                                                    'id': link.site._id
-                                                });
-                                            });
-                                        } else if (!link.site.field && link.site.site_coordinates.length > 0) {
-                                            link.site.site_coordinates.forEach(function (loc) {
-                                                project.site_coordinates.sites.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': "<a href='site/" + link.site._id + "'>" + link.site.site_name + "</a></br>" + link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'site',
-                                                    'id': link.site._id
-                                                });
-                                            });
-                                        }
-                                        break;
-                                    default:
-                                        console.log(entity, 'skipped...');
-                                }
-                            });
-                        }
-                        if (project_counter == project_len && link_counter == link_len) {
-                            callback(null, project_count, projects);
-                        }
-                    });
-            });
-        } else{
-            callback(null, project_count, projects);
-        }
-    }
+    //function getProjectLinks(project_count, projects, callback) {
+    //    project_len = projects.length;
+    //    project_counter = 0;
+    //    if(project_len>0) {
+    //        projects.forEach(function (project) {
+    //            project.coordinates = [];
+    //            project.site_coordinates = {sites: [], fields: []};
+    //            project.transfers_query = [project._id];
+    //            Link.find({project: project._id, entities: 'site'})
+    //                .populate('site')
+    //                .exec(function (err, links) {
+    //                    ++project_counter;
+    //                    link_len = links.length;
+    //                    link_counter = 0;
+    //                    if(link_len>0) {
+    //                        links.forEach(function (link) {
+    //                            ++link_counter;
+    //                            var entity = _.without(link.entities, 'project')[0];
+    //                            switch (entity) {
+    //                                case 'site':
+    //                                    if (!_.contains(project.transfers_query, link.site)) {
+    //                                        project.transfers_query.push(link.site);
+    //                                    }
+    //                                    if (link.site.field && link.site.site_coordinates.length > 0) {
+    //                                        link.site.site_coordinates.forEach(function (loc) {
+    //                                            project.site_coordinates.fields.push({
+    //                                                'lat': loc.loc[0],
+    //                                                'lng': loc.loc[1],
+    //                                                'message': "<a href='field/" + link.site._id + "'>" + link.site.site_name + "</a></br>" + link.site.site_name,
+    //                                                'timestamp': loc.timestamp,
+    //                                                'type': 'field',
+    //                                                'id': link.site._id
+    //                                            });
+    //                                        });
+    //                                    } else if (!link.site.field && link.site.site_coordinates.length > 0) {
+    //                                        link.site.site_coordinates.forEach(function (loc) {
+    //                                            project.site_coordinates.sites.push({
+    //                                                'lat': loc.loc[0],
+    //                                                'lng': loc.loc[1],
+    //                                                'message': "<a href='site/" + link.site._id + "'>" + link.site.site_name + "</a></br>" + link.site.site_name,
+    //                                                'timestamp': loc.timestamp,
+    //                                                'type': 'site',
+    //                                                'id': link.site._id
+    //                                            });
+    //                                        });
+    //                                    }
+    //                                    break;
+    //                                default:
+    //                                    console.log(entity, 'skipped...');
+    //                            }
+    //                        });
+    //                    }
+    //                    if (project_counter == project_len && link_counter == link_len) {
+    //                        callback(null, project_count, projects);
+    //                    }
+    //                });
+    //        });
+    //    } else{
+    //        callback(null, project_count, projects);
+    //    }
+    //}
     function getProjectCoordinate(project_count, projects, callback) {
         project_counter = 0;
         project_len = projects.length;
         if (project_len>0) {
             _.each(projects, function(project) {
+                project.coordinates = [];
                 ++project_counter;
                 coord_counter = 0;
                 coord_len = project.proj_coordinates.length;
-                if (project.site_coordinates.sites.length>0) {
-                    project.site_coordinates.sites.forEach(function (site_loc) {
-                        project.coordinates.push(site_loc);
-                    })
-                }
-                if (project.site_coordinates.fields.length>0) {
-                    project.site_coordinates.fields.forEach(function (field_loc) {
-                        project.coordinates.push(field_loc);
-                    })
-                }
                 if(coord_len>0) {
                     _.each(project.proj_coordinates, function (loc) {
                         ++coord_counter;

@@ -105,7 +105,7 @@ exports.getCompanies = function(req, res) {
                                             }
                                         }
                                         if (!_.contains(company.transfers_query, link.project)) {
-                                            company.transfers_query.push(link.project);
+                                            company.transfers_query.push(link.project._id);
                                         }}
                                         break;
                                     case 'site':

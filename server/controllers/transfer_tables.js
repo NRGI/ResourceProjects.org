@@ -252,7 +252,6 @@ exports.getTransferTable = function(req, res){
                     transfers_len = transfers.length;
                     if (transfers_len > 0) {
                         transfers.forEach(function (transfer) {
-                            console.log(transfer)
                             if(transfer.project!=undefined){
                                 proj_site =  {name:transfer.project.proj_name,_id:transfer.project.proj_id,type:'project'}
                             }
