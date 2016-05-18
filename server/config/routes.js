@@ -44,11 +44,11 @@ module.exports	= function(app) {
 	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
 	app.get('/api/concessions/:id', concessions.getConcessionByID);
 	// POST
-	app.post('/api/concessions',  concessions.createConcession);
+	app.post('/api/concessions',auth.requiresApiLogin, auth.requiresRole('admin'),  concessions.createConcession);
 	// PUT
-	app.put('/api/concessions',  concessions.updateConcession);
+	app.put('/api/concessions', auth.requiresApiLogin, auth.requiresRole('admin'), concessions.updateConcession);
 	// DELETE
-	app.delete('/api/concessions/:id', concessions.deleteConcession);
+	app.delete('/api/concessions/:id',auth.requiresApiLogin, auth.requiresRole('admin'), concessions.deleteConcession);
 
 	/////////////////////////
 	///// PROJECTS CRUD ////////
@@ -57,11 +57,11 @@ module.exports	= function(app) {
 	app.get('/api/projects/:id', projects.getProjectByID);
 	app.get('/api/projects/', projects.getProjectsMap);
 	// POST
-	app.post('/api/projects',  projects.createProject);
+	app.post('/api/projects',auth.requiresApiLogin, auth.requiresRole('admin'),  projects.createProject);
 	// PUT
-	app.put('/api/projects',  projects.updateProject);
+	app.put('/api/projects', auth.requiresApiLogin, auth.requiresRole('admin'), projects.updateProject);
 	// DELETE
-	app.delete('/api/projects/:id', projects.deleteProject);
+	app.delete('/api/projects/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), projects.deleteProject);
 
 	/////////////////////////
 	///// COMPANIES CRUD ////
@@ -72,11 +72,11 @@ module.exports	= function(app) {
 	app.get('/api/companydata/:id', companies.getCompanyByID);
 	
     // POST
-	app.post('/api/companies',  companies.createCompany);
+	app.post('/api/companies',auth.requiresApiLogin, auth.requiresRole('admin'),  companies.createCompany);
 	// PUT
-	app.put('/api/companies',  companies.updateCompany);
+	app.put('/api/companies', auth.requiresApiLogin, auth.requiresRole('admin'), companies.updateCompany);
 	// DELETE
-	app.delete('/api/companies/:id', companies.deleteCompany);
+	app.delete('/api/companies/:id',auth.requiresApiLogin, auth.requiresRole('admin'), companies.deleteCompany);
 
 	/////////////////////////
 	///// COMPANYGROUPS CRUD ////////
@@ -85,11 +85,11 @@ module.exports	= function(app) {
 	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupID);
 	app.get('/api/companyGroupData/:id', companyGroups.getCompanyGroupByID);
 	// POST
-	app.post('/api/companyGroups',  companyGroups.createCompanyGroup);
+	app.post('/api/companyGroups',auth.requiresApiLogin, auth.requiresRole('admin'),  companyGroups.createCompanyGroup);
 	// PUT
-	app.put('/api/companyGroups',  companyGroups.updateCompanyGroup);
+	app.put('/api/companyGroups', auth.requiresApiLogin, auth.requiresRole('admin'), companyGroups.updateCompanyGroup);
 	// DELETE
-	app.delete('/api/companyGroups/:id', companyGroups.deleteCompanyGroup);
+	app.delete('/api/companyGroups/:id',auth.requiresApiLogin, auth.requiresRole('admin'), companyGroups.deleteCompanyGroup);
 
 	/////////////////////////
 	///// COMMODITIES ////////
@@ -97,11 +97,11 @@ module.exports	= function(app) {
 	app.get('/api/commodities/:limit/:skip', commodities.getCommodities);
 	app.get('/api/commodities/:id', commodities.getCommodityByID);
 	// POST
-	app.post('/api/commodities',  commodities.createCommodity);
+	app.post('/api/commodities', auth.requiresApiLogin, auth.requiresRole('admin'), commodities.createCommodity);
 	// PUT
-	app.put('/api/commodities',  commodities.updateCommodity);
+	app.put('/api/commodities',  auth.requiresApiLogin, auth.requiresRole('admin'),commodities.updateCommodity);
 	// DELETE
-	app.delete('/api/commodities/:id', commodities.deleteCommodity);
+	app.delete('/api/commodities/:id', auth.requiresApiLogin, auth.requiresRole('admin'),commodities.deleteCommodity);
 
 	/////////////////////////
 	///// COUNTRIES CRUD ////////
@@ -110,11 +110,11 @@ module.exports	= function(app) {
 	app.get('/api/countries/:id', countries.getCountryByID);
 	app.get('/api/countrycommodity/:id', countries.getAllCommodityCountryByID);
 	// POST
-	app.post('/api/countries',  countries.createCountry);
+	app.post('/api/countries', auth.requiresApiLogin, auth.requiresRole('admin'), countries.createCountry);
 	// PUT
-	app.put('/api/countries',  countries.updateCountry);
+	app.put('/api/countries', auth.requiresApiLogin, auth.requiresRole('admin'), countries.updateCountry);
 	// DELETE
-	app.delete('/api/countries/:id', countries.deleteCountry);
+	app.delete('/api/countries/:id', auth.requiresApiLogin, auth.requiresRole('admin'), countries.deleteCountry);
 
 	/////////////////////////
 	///// SOURCES CRUD ////////
@@ -123,11 +123,11 @@ module.exports	= function(app) {
 	app.get('/api/sources/:id', sources.getSourceByID);
 
 	// POST
-	app.post('/api/sources',  sources.createSource);
+	app.post('/api/sources', auth.requiresApiLogin, auth.requiresRole('admin'), sources.createSource);
 	// PUT
-	app.put('/api/sources',  sources.updateSource);
+	app.put('/api/sources', auth.requiresApiLogin, auth.requiresRole('admin'), sources.updateSource);
 	// DELETE
-	app.delete('/api/sources/:id', sources.deleteSource);
+	app.delete('/api/sources/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sources.deleteSource);
 
 	/////////////////////////
 	///// SOURCE TYPES CRUD ////////
@@ -136,11 +136,11 @@ module.exports	= function(app) {
 	app.get('/api/sourcetypes/:id', sourceTypes.getSourceTypeByID);
 
 	// POST
-	app.post('/api/sourcetypes',  sourceTypes.createSourceType);
+	app.post('/api/sourcetypes', auth.requiresApiLogin, auth.requiresRole('admin'),  sourceTypes.createSourceType);
 	// PUT
-	app.put('/api/sourcetypes',  sourceTypes.updateSourceType);
+	app.put('/api/sourcetypes', auth.requiresApiLogin, auth.requiresRole('admin'), sourceTypes.updateSourceType);
 	// DELETE
-	app.delete('/api/sourcetypes/:id', sourceTypes.deleteSourceType);
+	app.delete('/api/sourcetypes/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sourceTypes.deleteSourceType);
 
 
 	/////////////////////////
@@ -150,11 +150,11 @@ module.exports	= function(app) {
 	app.get('/api/sites/:id', sites.getSiteByID);
 	app.get('/api/sites/map/:field', sites.getSitesMap);
 	// POST
-	app.post('/api/sites',  sites.createSite);
+	app.post('/api/sites',auth.requiresApiLogin, auth.requiresRole('admin'),  sites.createSite);
 	// PUT
-	app.put('/api/sites',  sites.updateSite);
+	app.put('/api/sites',auth.requiresApiLogin, auth.requiresRole('admin'),  sites.updateSite);
 	// DELETE
-	app.delete('/api/sites/:id', sites.deleteSite);
+	app.delete('/api/sites/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sites.deleteSite);
 
 
 

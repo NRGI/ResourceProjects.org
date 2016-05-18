@@ -16,8 +16,8 @@ angular.module('app')
         // fix submit button functionality
         $scope.userCreate = function() {
             var new_user_data = {
-                first_name: $scope.fname,
-                last_name: $scope.lname,
+                first_name: $scope.first_name,
+                last_name: $scope.last_name,
                 username: $scope.username,
                 email: $scope.email,
                 password: $scope.password,
