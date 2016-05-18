@@ -1,11 +1,12 @@
-var Commodity 		= require('mongoose').model('Commodity'),
-    Link 	        = require('mongoose').model('Link'),
-    Project 	        = require('mongoose').model('Project'),
-    Site 	        = require('mongoose').model('Site'),
-    async           = require('async'),
-    _               = require("underscore"),
-    request         = require('request'),
-    encrypt 		= require('../utilities/encryption');
+var Commodity 		=   require('mongoose').model('Commodity'),
+    Link 	        =   require('mongoose').model('Link'),
+    Project 	    =   require('mongoose').model('Project'),
+    Site 	        =   require('mongoose').model('Site'),
+    async           =   require('async'),
+    _               =   require("underscore"),
+    request         =   require('request'),
+    encrypt 		=   require('../utilities/encryption');
+
 exports.getCommodities = function(req, res) {
     var commodity_len, link_len, commodity_counter, link_counter,
         limit = Number(req.params.limit),

@@ -10,7 +10,8 @@ angular.module('app', [
     'tableSort',
     'ngCsv',
     'ngSanitize',
-    'angularSpinner'
+    'angularSpinner',
+    'infinite-scroll'
 ]);
 
 angular.module('app')
