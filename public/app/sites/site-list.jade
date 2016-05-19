@@ -1,29 +1,16 @@
 .container
-    .page-header
-        .row
-            .col-md-4
-                h1 {{header}}
-                    = ' '
-                    small(ng-if="count") {{count}}
-            .col-md-5
-            .col-md-3
-                .btn-group(
-                role='group'
-                aria-label='...')
-                    button.btn.btn-secondary.pull-xs-right(type='button')
-                        a(href='/{{record_type}}/map') Map View
-
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    .row.top-padding-med.bottom-padding-med
+        .col-md-4
+            h1 {{header}}
+                = ' '
+                small(ng-if="count") {{count}}
+        .col-md-5
+        .col-md-3
+            .btn-group(
+            role='group'
+            aria-label='...')
+                button.btn.btn-secondary.pull-xs-right(type='button')
+                    a(href='/{{record_type}}/map') Map View
 
     table#sites.table.table-striped(ts-wrapper)
         thead
@@ -75,14 +62,4 @@
                 td.text-center.site_transfers {{site.transfer_count}}
                 td.text-center.site_productions {{site.production_count}}
 
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    div(ng-if='sites.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')
