@@ -7,7 +7,7 @@ angular.module('app')
         nrgiIdentitySrvc,
         nrgiProjectsSrvc
     ) {
-        $scope.limit = 50;
+        $scope.limit = 100;
         $scope.page = 0;
         $scope.count =0;
         $scope.show_count=0;
