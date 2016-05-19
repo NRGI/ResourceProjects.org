@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<testsuite name="PhantomJS 2.1.1 (Mac OS X 0.0.0)" package="" timestamp="2016-05-13T15:36:54" id="0" hostname="Laptop" tests="2" errors="1" failures="2" time="0">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/538.1"/>
+  </properties>
+  <testcase name="nrgiCommoditiesMethodSrvc &quot;before each&quot; hook for &quot;should create Commodity and return the response.&quot;" time="0" classname="PhantomJS_2_1_1_(Mac_OS_X_0_0_0).nrgiCommoditiesMethodSrvc">
+    <failure type="">Can't find variable: module
+/Users/cperry/Developer/GitRepos/rp-org-frontend/tests/unit/controllers/nrgiCommoditiesMethodSrvc.js:20:15
+</failure>
+  </testcase>
+  <testcase name="nrgiCommoditiesMethodSrvc &quot;after each&quot; hook for &quot;should create Commodity and return the response.&quot;" time="0" classname="PhantomJS_2_1_1_(Mac_OS_X_0_0_0).nrgiCommoditiesMethodSrvc">
+    <failure type="">undefined is not an object (evaluating 'httpBackend.verifyNoOutstandingExpectation')
+/Users/cperry/Developer/GitRepos/rp-org-frontend/tests/unit/controllers/nrgiCommoditiesMethodSrvc.js:29:20
+</failure>
+  </testcase>
+  <system-out>
+    <![CDATA[
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>
