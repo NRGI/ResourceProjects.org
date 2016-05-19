@@ -1,29 +1,16 @@
 .container
-    .page-header
-        .row
-            .col-md-4
-                h1 Projects
-                    = ' '
-                    small(ng-if="count") {{count}}
-            .col-md-5
-            .col-md-3
-                .btn-group(
-                role='group'
-                aria-label='...')
-                    button.btn.btn-secondary.pull-xs-right(type='button')
-                        a(href='/projects/map') Map View
-
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    .row.top-padding-med.bottom-padding-med
+        .col-md-4
+            h1 Projects
+                = ' '
+                small(ng-if="count") {{count}}
+        .col-md-5
+        .col-md-3
+            .btn-group(
+            role='group'
+            aria-label='...')
+                button.btn.btn-secondary.pull-xs-right(type='button')
+                    a(href='/projects/map') Map View
 
     table#projects.table.table-striped(
     about='http://resourceprojects.org/project'
@@ -76,15 +63,4 @@
                 td.text-center.proj_transfer_count {{project.production_count}}
                 //td.col-md-1.text-center.proj_associated_transfer_count {{project.site_transfers}}
 
-
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    div(ng-if='projects.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')
