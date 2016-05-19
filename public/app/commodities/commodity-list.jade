@@ -1,20 +1,7 @@
 .container
-    .page-header
-        .row
-            .col-md-4
-                h1 Commodities
-
-    //nrgi-list-nav(
-    //page="page"
-    //type="record_type"
-    //show="show_count"
-    //count="count"
-    //limit="limit"
-    //last="last"
-    //next="next"
-    //prev="prev"
-    //first="first"
-    //select="select")
+    .row.top-padding-med.bottom-padding-med
+        .col-md-4
+            h1 Commodities
 
     table#commodities.table.table-striped(ts-wrapper)
         thead
@@ -38,16 +25,4 @@
                 td.commodity_contracts {{commodity.contract}}
                 td.commodity_concessions {{commodity.concessions}}
 
-    div(ng-if='commodities.length>99' infinite-scroll='loadMore()' infinite-scroll-distance='1')
-
-    //nrgi-list-nav(
-    //page="page"
-    //type="record_type"
-    //show="show_count"
-    //count="count"
-    //limit="limit"
-    //last="last"
-    //next="next"
-    //prev="prev"
-    //first="first"
-    //select="select")
+    div(ng-if='commodities.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')
