@@ -38,7 +38,7 @@
                 td.commodity_contracts {{commodity.contract}}
                 td.commodity_concessions {{commodity.concessions}}
 
-    div(infinite-scroll='loadMore()' infinite-scroll-distance='50')
+    div(ng-if='commodities.length>99' infinite-scroll='loadMore()' infinite-scroll-distance='1')
 
     //nrgi-list-nav(
     //page="page"

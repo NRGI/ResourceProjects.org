@@ -6,7 +6,7 @@ angular.module('app')
         nrgiNotifier,
         nrgiCommoditiesSrvc
     ) {
-        var limit = 50,
+        var limit = 100,
             page = 0;
 
         $scope.count =0;
