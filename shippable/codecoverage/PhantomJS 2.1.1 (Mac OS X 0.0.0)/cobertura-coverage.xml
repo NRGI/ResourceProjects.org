@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="1757"  lines-covered="115"  line-rate="0.0655"  branches-valid="477"  branches-covered="0"  branch-rate="0"  timestamp="1463153814835" complexity="0" version="0.1">
+<coverage lines-valid="1804"  lines-covered="365"  line-rate="0.2023"  branches-valid="475"  branches-covered="5"  branch-rate="0.0105"  timestamp="1463668785075" complexity="0" version="0.1">
 <sources>
 	<source>/Users/cperry/Developer/GitRepos/rp-org-frontend</source>
 </sources>
@@ -1020,7 +1020,7 @@
 		</class>
 	</classes>
 	</package>
-	<package name="commodities"  line-rate="0.069"  branch-rate="0" >
+	<package name="commodities"  line-rate="0.1176"  branch-rate="1" >
 	<classes>
 		<class name="nrgiCommodityDetailCtrl.js"  filename="public/app/commodities/nrgiCommodityDetailCtrl.js"  line-rate="0.3333"  branch-rate="1" >
 		<methods>
@@ -1037,67 +1037,46 @@
 			<line number="14"  hits="0"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiCommodityListCtrl.js"  filename="public/app/commodities/nrgiCommodityListCtrl.js"  line-rate="0.0385"  branch-rate="0" >
+		<class name="nrgiCommodityListCtrl.js"  filename="public/app/commodities/nrgiCommodityListCtrl.js"  line-rate="0.07139999999999999"  branch-rate="1" >
 		<methods>
 			<method name="(anonymous_1)"  hits="0"  signature="()V" >
 				<lines><line number="4"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="14"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
 				<lines><line number="15"  hits="0" /></lines>
 			</method>
+			<method name="(anonymous_3)"  hits="0"  signature="()V" >
+				<lines><line number="23"  hits="0" /></lines>
+			</method>
 			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="24"  hits="0" /></lines>
+				<lines><line number="25"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="27"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="33"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="36"  hits="0" /></lines>
+				<lines><line number="28"  hits="0" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
+			<line number="9"  hits="0"  branch="false" />
 			<line number="12"  hits="0"  branch="false" />
 			<line number="13"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
 			<line number="15"  hits="0"  branch="false" />
 			<line number="16"  hits="0"  branch="false" />
 			<line number="17"  hits="0"  branch="false" />
 			<line number="18"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
 			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
 			<line number="25"  hits="0"  branch="false" />
+			<line number="26"  hits="0"  branch="false" />
 			<line number="27"  hits="0"  branch="false" />
 			<line number="28"  hits="0"  branch="false" />
-			<line number="30"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="34"  hits="0"  branch="false" />
-			<line number="36"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
-			<line number="38"  hits="0"  branch="false" />
-			<line number="39"  hits="0"  branch="false" />
-			<line number="41"  hits="0"  branch="false" />
+			<line number="29"  hits="0"  branch="false" />
 		</lines>
 		</class>
 	</classes>
 	</package>
-	<package name="common"  line-rate="0.1364"  branch-rate="0" >
+	<package name="common"  line-rate="0.8636"  branch-rate="0.6667000000000001" >
 	<classes>
-		<class name="nrgiFilter.js"  filename="public/app/common/nrgiFilter.js"  line-rate="0.0667"  branch-rate="0" >
+		<class name="nrgiFilter.js"  filename="public/app/common/nrgiFilter.js"  line-rate="0.8"  branch-rate="0.6667000000000001" >
 		<methods>
 			<method name="(anonymous_1)"  hits="0"  signature="()V" >
 				<lines><line number="4"  hits="0" /></lines>
@@ -1105,57 +1084,57 @@
 			<method name="(anonymous_2)"  hits="0"  signature="()V" >
 				<lines><line number="5"  hits="0" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="9"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="9"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="10"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="10"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="16"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="16"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="17"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="5"  signature="()V" >
+				<lines><line number="17"  hits="5" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
 			<line number="5"  hits="0"  branch="false" />
 			<line number="6"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="17"  hits="0"  branch="false" />
-			<line number="18"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="true"  condition-coverage="0% (0/4)" />
+			<line number="10"  hits="1"  branch="false" />
+			<line number="11"  hits="1"  branch="true"  condition-coverage="50% (1/2)" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="17"  hits="1"  branch="false" />
+			<line number="18"  hits="5"  branch="false" />
+			<line number="19"  hits="5"  branch="false" />
+			<line number="20"  hits="5"  branch="true"  condition-coverage="75% (3/4)" />
 			<line number="21"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="25"  hits="0"  branch="false" />
-			<line number="27"  hits="0"  branch="false" />
+			<line number="23"  hits="5"  branch="false" />
+			<line number="24"  hits="5"  branch="false" />
+			<line number="25"  hits="6"  branch="false" />
+			<line number="27"  hits="5"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiNotifier.js"  filename="public/app/common/nrgiNotifier.js"  line-rate="0.2857"  branch-rate="1" >
+		<class name="nrgiNotifier.js"  filename="public/app/common/nrgiNotifier.js"  line-rate="1"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="6"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="2"  signature="()V" >
+				<lines><line number="6"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="8"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="1"  signature="()V" >
+				<lines><line number="8"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="12"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="12"  hits="1" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
 			<line number="5"  hits="1"  branch="false" />
-			<line number="7"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
-			<line number="13"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
+			<line number="7"  hits="2"  branch="false" />
+			<line number="9"  hits="1"  branch="false" />
+			<line number="10"  hits="1"  branch="false" />
+			<line number="13"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
 		</lines>
 		</class>
 	</classes>
@@ -2952,7 +2931,7 @@
 		</class>
 	</classes>
 	</package>
-	<package name="services"  line-rate="0.17309999999999998"  branch-rate="0" >
+	<package name="services"  line-rate="0.41009999999999996"  branch-rate="0.0625" >
 	<classes>
 		<class name="nrgiAuthSrvc.js"  filename="public/app/services/nrgiAuthSrvc.js"  line-rate="0.0455"  branch-rate="0" >
 		<methods>
@@ -3021,15 +3000,15 @@
 				<lines><line number="4"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
+				<lines><line number="12"  hits="0" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
 			<line number="5"  hits="0"  branch="false" />
 			<line number="10"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="18"  hits="0"  branch="false" />
+			<line number="13"  hits="0"  branch="false" />
+			<line number="17"  hits="0"  branch="false" />
 		</lines>
 		</class>
 		<class name="nrgiConcessionsSrvc.js"  filename="public/app/services/nrgiConcessionsSrvc.js"  line-rate="0.3333"  branch-rate="1" >
@@ -3114,10 +3093,10 @@
 			<line number="18"  hits="0"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiIdentitySrvc.js"  filename="public/app/services/nrgiIdentitySrvc.js"  line-rate="0.125"  branch-rate="0" >
+		<class name="nrgiIdentitySrvc.js"  filename="public/app/services/nrgiIdentitySrvc.js"  line-rate="0.5"  branch-rate="0.25" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="4"  hits="4" /></lines>
 			</method>
 			<method name="(anonymous_2)"  hits="0"  signature="()V" >
 				<lines><line number="17"  hits="0" /></lines>
@@ -3128,25 +3107,30 @@
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
+			<line number="8"  hits="4"  branch="false" />
+			<line number="10"  hits="4"  branch="true"  condition-coverage="50% (1/2)" />
 			<line number="11"  hits="0"  branch="false" />
 			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
+			<line number="14"  hits="4"  branch="false" />
 			<line number="18"  hits="0"  branch="false" />
 			<line number="22"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
 		</lines>
 		</class>
-		<class name="nrgiMapSrvc.js"  filename="public/app/services/nrgiMapSrvc.js"  line-rate="0.3333"  branch-rate="1" >
+		<class name="nrgiMapSrvc.js"  filename="public/app/services/nrgiMapSrvc.js"  line-rate="0.2"  branch-rate="1" >
 		<methods>
 			<method name="(anonymous_1)"  hits="0"  signature="()V" >
 				<lines><line number="4"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="0"  signature="()V" >
+				<lines><line number="11"  hits="0" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
 			<line number="5"  hits="0"  branch="false" />
 			<line number="9"  hits="0"  branch="false" />
+			<line number="12"  hits="0"  branch="false" />
+			<line number="16"  hits="0"  branch="false" />
 		</lines>
 		</class>
 		<class name="nrgiProjectsSrvc.js"  filename="public/app/services/nrgiProjectsSrvc.js"  line-rate="0.3333"  branch-rate="1" >
@@ -3161,40 +3145,127 @@
 			<line number="10"  hits="0"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiSitesSrvc.js"  filename="public/app/services/nrgiSitesSrvc.js"  line-rate="0.3333"  branch-rate="1" >
+		<class name="nrgiServices.js"  filename="public/app/services/nrgiServices.js"  line-rate="0.7576"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="6"  signature="()V" >
+				<lines><line number="4"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="6"  signature="()V" >
+				<lines><line number="12"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="6"  signature="()V" >
+				<lines><line number="27"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="2"  signature="()V" >
+				<lines><line number="35"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_6)"  hits="6"  signature="()V" >
+				<lines><line number="43"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_7)"  hits="0"  signature="()V" >
+				<lines><line number="51"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="58"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="6"  signature="()V" >
+				<lines><line number="65"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="2"  signature="()V" >
+				<lines><line number="74"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_11)"  hits="6"  signature="()V" >
+				<lines><line number="81"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_12)"  hits="1"  signature="()V" >
+				<lines><line number="90"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_13)"  hits="6"  signature="()V" >
+				<lines><line number="98"  hits="6" /></lines>
+			</method>
+			<method name="(anonymous_14)"  hits="0"  signature="()V" >
+				<lines><line number="106"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_15)"  hits="0"  signature="()V" >
+				<lines><line number="114"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_16)"  hits="0"  signature="()V" >
+				<lines><line number="122"  hits="0" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="5"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
+			<line number="5"  hits="6"  branch="false" />
+			<line number="10"  hits="6"  branch="false" />
+			<line number="13"  hits="6"  branch="false" />
+			<line number="18"  hits="6"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="6"  branch="false" />
+			<line number="33"  hits="6"  branch="false" />
+			<line number="36"  hits="2"  branch="false" />
+			<line number="41"  hits="2"  branch="false" />
+			<line number="44"  hits="6"  branch="false" />
+			<line number="49"  hits="6"  branch="false" />
+			<line number="52"  hits="0"  branch="false" />
+			<line number="56"  hits="0"  branch="false" />
+			<line number="59"  hits="1"  branch="false" />
+			<line number="63"  hits="1"  branch="false" />
+			<line number="66"  hits="6"  branch="false" />
+			<line number="72"  hits="6"  branch="false" />
+			<line number="75"  hits="2"  branch="false" />
+			<line number="79"  hits="2"  branch="false" />
+			<line number="82"  hits="6"  branch="false" />
+			<line number="87"  hits="6"  branch="false" />
+			<line number="91"  hits="1"  branch="false" />
+			<line number="95"  hits="1"  branch="false" />
+			<line number="99"  hits="6"  branch="false" />
+			<line number="104"  hits="6"  branch="false" />
+			<line number="107"  hits="0"  branch="false" />
+			<line number="112"  hits="0"  branch="false" />
+			<line number="115"  hits="0"  branch="false" />
+			<line number="120"  hits="0"  branch="false" />
+			<line number="123"  hits="0"  branch="false" />
+			<line number="128"  hits="0"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiSourceTypesSrvc.js"  filename="public/app/services/nrgiSourceTypesSrvc.js"  line-rate="0.3333"  branch-rate="1" >
+		<class name="nrgiSitesSrvc.js"  filename="public/app/services/nrgiSitesSrvc.js"  line-rate="1"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="6"  signature="()V" >
+				<lines><line number="4"  hits="6" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="5"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
+			<line number="5"  hits="6"  branch="false" />
+			<line number="10"  hits="6"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiSourcesSrvc.js"  filename="public/app/services/nrgiSourcesSrvc.js"  line-rate="0.3333"  branch-rate="1" >
+		<class name="nrgiSourceTypesSrvc.js"  filename="public/app/services/nrgiSourceTypesSrvc.js"  line-rate="1"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="6"  signature="()V" >
+				<lines><line number="4"  hits="6" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="5"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
+			<line number="5"  hits="6"  branch="false" />
+			<line number="10"  hits="6"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiSourcesSrvc.js"  filename="public/app/services/nrgiSourcesSrvc.js"  line-rate="1"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="6"  signature="()V" >
+				<lines><line number="4"  hits="6" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="3"  hits="1"  branch="false" />
+			<line number="5"  hits="6"  branch="false" />
+			<line number="10"  hits="6"  branch="false" />
 		</lines>
 		</class>
 		<class name="nrgiTablesSrvc.js"  filename="public/app/services/nrgiTablesSrvc.js"  line-rate="0.0588"  branch-rate="1" >
@@ -3256,10 +3327,10 @@
 			<line number="7"  hits="0"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiUserSrvc.js"  filename="public/app/services/nrgiUserSrvc.js"  line-rate="0.11109999999999999"  branch-rate="0" >
+		<class name="nrgiUserSrvc.js"  filename="public/app/services/nrgiUserSrvc.js"  line-rate="0.6667000000000001"  branch-rate="0" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="4"  hits="4" /></lines>
 			</method>
 			<method name="(anonymous_2)"  hits="0"  signature="()V" >
 				<lines><line number="10"  hits="0" /></lines>
@@ -3273,48 +3344,48 @@
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="5"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
+			<line number="5"  hits="4"  branch="false" />
+			<line number="10"  hits="4"  branch="false" />
 			<line number="11"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
-			<line number="14"  hits="0"  branch="false" />
+			<line number="14"  hits="4"  branch="false" />
 			<line number="15"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
-			<line number="18"  hits="0"  branch="false" />
+			<line number="18"  hits="4"  branch="false" />
 			<line number="19"  hits="0"  branch="true"  condition-coverage="0% (0/2)" />
-			<line number="22"  hits="0"  branch="false" />
+			<line number="22"  hits="4"  branch="false" />
 		</lines>
 		</class>
 	</classes>
 	</package>
-	<package name="services.methods"  line-rate="0.0512"  branch-rate="1" >
+	<package name="services.methods"  line-rate="0.7482"  branch-rate="1" >
 	<classes>
-		<class name="nrgiCommoditiesMethodSrvc.js"  filename="public/app/services/methods/nrgiCommoditiesMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
+		<class name="nrgiCommoditiesMethodSrvc.js"  filename="public/app/services/methods/nrgiCommoditiesMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
+				<lines><line number="22"  hits="0" /></lines>
 			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_10)"  hits="0"  signature="()V" >
 				<lines><line number="34"  hits="0" /></lines>
@@ -3322,55 +3393,55 @@
 		</methods>
 		<lines>
 			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
 			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
 			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiCompaniesMethodSrvc.js"  filename="public/app/services/methods/nrgiCompaniesMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
+		<class name="nrgiCompaniesMethodSrvc.js"  filename="public/app/services/methods/nrgiCompaniesMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
+				<lines><line number="22"  hits="0" /></lines>
 			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_10)"  hits="0"  signature="()V" >
 				<lines><line number="34"  hits="0" /></lines>
@@ -3378,55 +3449,55 @@
 		</methods>
 		<lines>
 			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
 			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
 			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiConcessionsMethodSrvc.js"  filename="public/app/services/methods/nrgiConcessionsMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
+		<class name="nrgiConcessionsMethodSrvc.js"  filename="public/app/services/methods/nrgiConcessionsMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
+				<lines><line number="22"  hits="0" /></lines>
 			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_10)"  hits="0"  signature="()V" >
 				<lines><line number="34"  hits="0" /></lines>
@@ -3434,25 +3505,25 @@
 		</methods>
 		<lines>
 			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
 			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
 			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
 		</lines>
 		</class>
 		<class name="nrgiContractsMethodSrvc.js"  filename="public/app/services/methods/nrgiContractsMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
@@ -3511,34 +3582,34 @@
 			<line number="37"  hits="0"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiCountriesMethodSrvc.js"  filename="public/app/services/methods/nrgiCountriesMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
+		<class name="nrgiCountriesMethodSrvc.js"  filename="public/app/services/methods/nrgiCountriesMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="3"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="3"  hits="4" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="8"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="8"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="12"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="12"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="14"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="14"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="19"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="19"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="24"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="21"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="26"  hits="0" /></lines>
+				<lines><line number="23"  hits="0" /></lines>
 			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="31"  hits="0" /></lines>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="28"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="33"  hits="0" /></lines>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="33"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_10)"  hits="0"  signature="()V" >
 				<lines><line number="35"  hits="0" /></lines>
@@ -3546,90 +3617,90 @@
 		</methods>
 		<lines>
 			<line number="2"  hits="1"  branch="false" />
-			<line number="7"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="13"  hits="0"  branch="false" />
-			<line number="15"  hits="0"  branch="false" />
-			<line number="17"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
-			<line number="22"  hits="0"  branch="false" />
+			<line number="7"  hits="4"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="10"  hits="2"  branch="false" />
+			<line number="12"  hits="2"  branch="false" />
+			<line number="13"  hits="1"  branch="false" />
+			<line number="15"  hits="1"  branch="false" />
+			<line number="17"  hits="2"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="22"  hits="1"  branch="false" />
 			<line number="24"  hits="0"  branch="false" />
-			<line number="25"  hits="0"  branch="false" />
-			<line number="27"  hits="0"  branch="false" />
-			<line number="29"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="34"  hits="0"  branch="false" />
+			<line number="26"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="31"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="34"  hits="1"  branch="false" />
 			<line number="36"  hits="0"  branch="false" />
-			<line number="38"  hits="0"  branch="false" />
+			<line number="38"  hits="1"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiDatasetActionMethodSrvc.js"  filename="public/app/services/methods/nrgiDatasetActionMethodSrvc.js"  line-rate="0.125"  branch-rate="1" >
+		<class name="nrgiDatasetActionMethodSrvc.js"  filename="public/app/services/methods/nrgiDatasetActionMethodSrvc.js"  line-rate="1"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="2"  signature="()V" >
+				<lines><line number="4"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="10"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="10"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="14"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="14"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="16"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="16"  hits="1" /></lines>
 			</method>
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="15"  hits="0"  branch="false" />
-			<line number="17"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="2"  branch="false" />
+			<line number="14"  hits="2"  branch="false" />
+			<line number="15"  hits="1"  branch="false" />
+			<line number="17"  hits="1"  branch="false" />
+			<line number="19"  hits="2"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiDatasetMethodSrvc.js"  filename="public/app/services/methods/nrgiDatasetMethodSrvc.js"  line-rate="0.0385"  branch-rate="1" >
+		<class name="nrgiDatasetMethodSrvc.js"  filename="public/app/services/methods/nrgiDatasetMethodSrvc.js"  line-rate="0.6923"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="4"  hits="4" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="10"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="10"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="14"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="14"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="16"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="16"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="21"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="21"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="26"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="23"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="28"  hits="0" /></lines>
+				<lines><line number="25"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="33"  hits="0" /></lines>
+				<lines><line number="30"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="35"  hits="0" /></lines>
+				<lines><line number="34"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_10)"  hits="0"  signature="()V" >
-				<lines><line number="37"  hits="0" /></lines>
+				<lines><line number="36"  hits="0" /></lines>
 			</method>
-			<method name="(anonymous_11)"  hits="0"  signature="()V" >
-				<lines><line number="42"  hits="0" /></lines>
+			<method name="(anonymous_11)"  hits="1"  signature="()V" >
+				<lines><line number="41"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_12)"  hits="0"  signature="()V" >
-				<lines><line number="46"  hits="0" /></lines>
+			<method name="(anonymous_12)"  hits="1"  signature="()V" >
+				<lines><line number="46"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_13)"  hits="0"  signature="()V" >
 				<lines><line number="48"  hits="0" /></lines>
@@ -3637,341 +3708,404 @@
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="15"  hits="0"  branch="false" />
-			<line number="17"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="22"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
+			<line number="9"  hits="4"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="2"  branch="false" />
+			<line number="14"  hits="2"  branch="false" />
+			<line number="15"  hits="1"  branch="false" />
+			<line number="17"  hits="1"  branch="false" />
+			<line number="19"  hits="2"  branch="false" />
+			<line number="22"  hits="1"  branch="false" />
+			<line number="23"  hits="1"  branch="false" />
+			<line number="24"  hits="1"  branch="false" />
 			<line number="26"  hits="0"  branch="false" />
-			<line number="27"  hits="0"  branch="false" />
-			<line number="29"  hits="0"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
 			<line number="31"  hits="0"  branch="false" />
+			<line number="32"  hits="0"  branch="false" />
 			<line number="34"  hits="0"  branch="false" />
 			<line number="35"  hits="0"  branch="false" />
-			<line number="36"  hits="0"  branch="false" />
-			<line number="38"  hits="0"  branch="false" />
-			<line number="40"  hits="0"  branch="false" />
-			<line number="43"  hits="0"  branch="false" />
-			<line number="44"  hits="0"  branch="false" />
-			<line number="46"  hits="0"  branch="false" />
-			<line number="47"  hits="0"  branch="false" />
+			<line number="37"  hits="0"  branch="false" />
+			<line number="39"  hits="0"  branch="false" />
+			<line number="42"  hits="1"  branch="false" />
+			<line number="43"  hits="1"  branch="false" />
+			<line number="44"  hits="1"  branch="false" />
+			<line number="46"  hits="1"  branch="false" />
+			<line number="47"  hits="1"  branch="false" />
 			<line number="49"  hits="0"  branch="false" />
-			<line number="51"  hits="0"  branch="false" />
+			<line number="51"  hits="1"  branch="false" />
 		</lines>
 		</class>
-		<class name="nrgiGroupsMethodSrvc.js"  filename="public/app/services/methods/nrgiGroupsMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
+		<class name="nrgiGroupsMethodSrvc.js"  filename="public/app/services/methods/nrgiGroupsMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
 		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
 			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
 			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
 			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_10)"  hits="0"  signature="()V" >
-				<lines><line number="34"  hits="0" /></lines>
-			</method>
-		</methods>
-		<lines>
-			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
-		</lines>
-		</class>
-		<class name="nrgiProjectsMethodSrvc.js"  filename="public/app/services/methods/nrgiProjectsMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
-		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_10)"  hits="0"  signature="()V" >
-				<lines><line number="34"  hits="0" /></lines>
-			</method>
-		</methods>
-		<lines>
-			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
-		</lines>
-		</class>
-		<class name="nrgiSitesMethodSrvc.js"  filename="public/app/services/methods/nrgiSitesMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
-		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_10)"  hits="0"  signature="()V" >
-				<lines><line number="34"  hits="0" /></lines>
-			</method>
-		</methods>
-		<lines>
-			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
-		</lines>
-		</class>
-		<class name="nrgiSourceTypesMethodSrvc.js"  filename="public/app/services/methods/nrgiSourceTypesMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
-		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_10)"  hits="0"  signature="()V" >
-				<lines><line number="34"  hits="0" /></lines>
-			</method>
-		</methods>
-		<lines>
-			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
-		</lines>
-		</class>
-		<class name="nrgiSourcesMethodSrvc.js"  filename="public/app/services/methods/nrgiSourcesMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
-		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="2"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="7"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="13"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
-				<lines><line number="18"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="23"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="25"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_8)"  hits="0"  signature="()V" >
-				<lines><line number="30"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="32"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_10)"  hits="0"  signature="()V" >
-				<lines><line number="34"  hits="0" /></lines>
-			</method>
-		</methods>
-		<lines>
-			<line number="1"  hits="1"  branch="false" />
-			<line number="6"  hits="0"  branch="false" />
-			<line number="8"  hits="0"  branch="false" />
-			<line number="9"  hits="0"  branch="false" />
-			<line number="11"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="14"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="19"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="21"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="26"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="31"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="33"  hits="0"  branch="false" />
-			<line number="35"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
-		</lines>
-		</class>
-		<class name="nrgiUserMethodSrvc.js"  filename="public/app/services/methods/nrgiUserMethodSrvc.js"  line-rate="0.05"  branch-rate="1" >
-		<methods>
-			<method name="(anonymous_1)"  hits="0"  signature="()V" >
-				<lines><line number="4"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_2)"  hits="0"  signature="()V" >
-				<lines><line number="11"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_3)"  hits="0"  signature="()V" >
-				<lines><line number="15"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_4)"  hits="0"  signature="()V" >
-				<lines><line number="17"  hits="0" /></lines>
-			</method>
-			<method name="(anonymous_5)"  hits="0"  signature="()V" >
 				<lines><line number="22"  hits="0" /></lines>
 			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="0"  signature="()V" >
+				<lines><line number="34"  hits="0" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="1"  hits="1"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="23"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="35"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiMethodSrvc.js"  filename="public/app/services/methods/nrgiMethodSrvc.js"  line-rate="0.0417"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="0"  signature="()V" >
+				<lines><line number="2"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="0"  signature="()V" >
+				<lines><line number="7"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="0"  signature="()V" >
+				<lines><line number="19"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="0"  signature="()V" >
+				<lines><line number="23"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="0"  signature="()V" >
+				<lines><line number="25"  hits="0" /></lines>
+			</method>
 			<method name="(anonymous_6)"  hits="0"  signature="()V" >
-				<lines><line number="27"  hits="0" /></lines>
+				<lines><line number="30"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_7)"  hits="0"  signature="()V" >
-				<lines><line number="29"  hits="0" /></lines>
+				<lines><line number="32"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_8)"  hits="0"  signature="()V" >
 				<lines><line number="34"  hits="0" /></lines>
 			</method>
 			<method name="(anonymous_9)"  hits="0"  signature="()V" >
-				<lines><line number="36"  hits="0" /></lines>
+				<lines><line number="39"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="0"  signature="()V" >
+				<lines><line number="44"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_11)"  hits="0"  signature="()V" >
+				<lines><line number="46"  hits="0" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="1"  hits="1"  branch="false" />
+			<line number="7"  hits="0"  branch="false" />
+			<line number="8"  hits="0"  branch="false" />
+			<line number="9"  hits="0"  branch="false" />
+			<line number="12"  hits="0"  branch="false" />
+			<line number="18"  hits="0"  branch="false" />
+			<line number="20"  hits="0"  branch="false" />
+			<line number="21"  hits="0"  branch="false" />
+			<line number="23"  hits="0"  branch="false" />
+			<line number="24"  hits="0"  branch="false" />
+			<line number="26"  hits="0"  branch="false" />
+			<line number="28"  hits="0"  branch="false" />
+			<line number="31"  hits="0"  branch="false" />
+			<line number="32"  hits="0"  branch="false" />
+			<line number="33"  hits="0"  branch="false" />
+			<line number="35"  hits="0"  branch="false" />
+			<line number="37"  hits="0"  branch="false" />
+			<line number="40"  hits="0"  branch="false" />
+			<line number="41"  hits="0"  branch="false" />
+			<line number="42"  hits="0"  branch="false" />
+			<line number="44"  hits="0"  branch="false" />
+			<line number="45"  hits="0"  branch="false" />
+			<line number="47"  hits="0"  branch="false" />
+			<line number="49"  hits="0"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiProjectsMethodSrvc.js"  filename="public/app/services/methods/nrgiProjectsMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_7)"  hits="0"  signature="()V" >
+				<lines><line number="22"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="0"  signature="()V" >
+				<lines><line number="34"  hits="0" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="1"  hits="1"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="23"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="35"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiSitesMethodSrvc.js"  filename="public/app/services/methods/nrgiSitesMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_7)"  hits="0"  signature="()V" >
+				<lines><line number="22"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="0"  signature="()V" >
+				<lines><line number="34"  hits="0" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="1"  hits="1"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="23"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="35"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiSourceTypesMethodSrvc.js"  filename="public/app/services/methods/nrgiSourceTypesMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_7)"  hits="0"  signature="()V" >
+				<lines><line number="22"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="0"  signature="()V" >
+				<lines><line number="34"  hits="0" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="1"  hits="1"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="23"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="35"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiSourcesMethodSrvc.js"  filename="public/app/services/methods/nrgiSourcesMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="2"  hits="4" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="7"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="11"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="13"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="18"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="20"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_7)"  hits="0"  signature="()V" >
+				<lines><line number="22"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="27"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="32"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_10)"  hits="0"  signature="()V" >
+				<lines><line number="34"  hits="0" /></lines>
+			</method>
+		</methods>
+		<lines>
+			<line number="1"  hits="1"  branch="false" />
+			<line number="6"  hits="4"  branch="false" />
+			<line number="8"  hits="2"  branch="false" />
+			<line number="9"  hits="2"  branch="false" />
+			<line number="11"  hits="2"  branch="false" />
+			<line number="12"  hits="1"  branch="false" />
+			<line number="14"  hits="1"  branch="false" />
+			<line number="16"  hits="2"  branch="false" />
+			<line number="19"  hits="1"  branch="false" />
+			<line number="20"  hits="1"  branch="false" />
+			<line number="21"  hits="1"  branch="false" />
+			<line number="23"  hits="0"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
+			<line number="28"  hits="1"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="30"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="35"  hits="0"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
+		</lines>
+		</class>
+		<class name="nrgiUserMethodSrvc.js"  filename="public/app/services/methods/nrgiUserMethodSrvc.js"  line-rate="0.9"  branch-rate="1" >
+		<methods>
+			<method name="(anonymous_1)"  hits="4"  signature="()V" >
+				<lines><line number="4"  hits="4" /></lines>
+			</method>
+			<method name="(anonymous_2)"  hits="2"  signature="()V" >
+				<lines><line number="11"  hits="2" /></lines>
+			</method>
+			<method name="(anonymous_3)"  hits="1"  signature="()V" >
+				<lines><line number="15"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_4)"  hits="1"  signature="()V" >
+				<lines><line number="17"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_5)"  hits="1"  signature="()V" >
+				<lines><line number="22"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_6)"  hits="1"  signature="()V" >
+				<lines><line number="24"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_7)"  hits="0"  signature="()V" >
+				<lines><line number="26"  hits="0" /></lines>
+			</method>
+			<method name="(anonymous_8)"  hits="1"  signature="()V" >
+				<lines><line number="31"  hits="1" /></lines>
+			</method>
+			<method name="(anonymous_9)"  hits="1"  signature="()V" >
+				<lines><line number="36"  hits="1" /></lines>
 			</method>
 			<method name="(anonymous_10)"  hits="0"  signature="()V" >
 				<lines><line number="38"  hits="0" /></lines>
@@ -3979,25 +4113,25 @@
 		</methods>
 		<lines>
 			<line number="3"  hits="1"  branch="false" />
-			<line number="10"  hits="0"  branch="false" />
-			<line number="12"  hits="0"  branch="false" />
-			<line number="13"  hits="0"  branch="false" />
-			<line number="15"  hits="0"  branch="false" />
-			<line number="16"  hits="0"  branch="false" />
-			<line number="18"  hits="0"  branch="false" />
-			<line number="20"  hits="0"  branch="false" />
-			<line number="23"  hits="0"  branch="false" />
-			<line number="24"  hits="0"  branch="false" />
-			<line number="25"  hits="0"  branch="false" />
+			<line number="10"  hits="4"  branch="false" />
+			<line number="12"  hits="2"  branch="false" />
+			<line number="13"  hits="2"  branch="false" />
+			<line number="15"  hits="2"  branch="false" />
+			<line number="16"  hits="1"  branch="false" />
+			<line number="18"  hits="1"  branch="false" />
+			<line number="20"  hits="2"  branch="false" />
+			<line number="23"  hits="1"  branch="false" />
+			<line number="24"  hits="1"  branch="false" />
+			<line number="25"  hits="1"  branch="false" />
 			<line number="27"  hits="0"  branch="false" />
-			<line number="28"  hits="0"  branch="false" />
-			<line number="30"  hits="0"  branch="false" />
-			<line number="32"  hits="0"  branch="false" />
-			<line number="35"  hits="0"  branch="false" />
-			<line number="36"  hits="0"  branch="false" />
-			<line number="37"  hits="0"  branch="false" />
+			<line number="29"  hits="1"  branch="false" />
+			<line number="32"  hits="1"  branch="false" />
+			<line number="33"  hits="1"  branch="false" />
+			<line number="34"  hits="1"  branch="false" />
+			<line number="36"  hits="1"  branch="false" />
+			<line number="37"  hits="1"  branch="false" />
 			<line number="39"  hits="0"  branch="false" />
-			<line number="41"  hits="0"  branch="false" />
+			<line number="41"  hits="1"  branch="false" />
 		</lines>
 		</class>
 	</classes>
