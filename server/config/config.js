@@ -9,16 +9,23 @@ module.exports 	= {
         port: process.env.PORT || 3030
     },
     staging : {
-        baseUrl: 'http://dev.resourceprojects.org',
+        baseUrl: 'http://staging.resourceprojects.org',
         //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
         db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
     },
-    mesos_staging : {
-        baseUrl: 'http://resourceprojects.nrgi-sandbox.net',
+    production : {
+        baseUrl: 'http://resourceprojects.org',
         //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
-        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/admin?ssl=true',
+        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_prod?ssl=true',
+        rootPath: rootPath,
+        port: process.env.PORT || 80
+    },
+    ch_staging : {
+        baseUrl: 'http://ch_dev.resourceprojects.org',
+        //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
+        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_ch_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
     }

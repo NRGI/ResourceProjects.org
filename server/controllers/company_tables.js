@@ -52,7 +52,7 @@ exports.getCompanyTable = function(req, res){
                 .populate('company')
                 .deepPopulate('company_group')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -62,8 +62,10 @@ exports.getCompanyTable = function(req, res){
                                 _id: link.company._id,
                                 company_groups: []
                             });
-                            companies.companies = _.uniq(companies.companies, function (a) {
-                                return a._id;
+                            companies.companies = _.map(_.groupBy(companies.companies,function(doc){
+                                return doc._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             if (link_len == link_counter) {
                                 callback(null, companies);
@@ -71,7 +73,7 @@ exports.getCompanyTable = function(req, res){
 
                         })
                     } else {
-                        callback(err);
+                        callback(null, companies);
                     }
                 });
         } else{
@@ -113,21 +115,30 @@ exports.getCompanyTable = function(req, res){
                         .populate('company company_group')
                         .exec(function (err, links) {
                             ++companies_counter;
-                            link_len = links.length;
-                            link_counter = 0;
-                            _.each(links, function (link) {
-                                ++link_counter;
-                                companies.companies.push({
-                                    company_name: link.company.company_name,
-                                    _id: link.company._id,
-                                    company_groups: []
+                            if(links.length>0) {
+                                link_len = links.length;
+                                link_counter = 0;
+                                _.each(links, function (link) {
+                                    ++link_counter;
+                                    companies.companies.push({
+                                        company_name: link.company.company_name,
+                                        _id: link.company._id,
+                                        company_groups: []
+                                    });
+                                    companies.companies = _.map(_.groupBy(companies.companies, function (doc) {
+                                        return doc._id;
+                                    }), function (grouped) {
+                                        return grouped[0];
+                                    });
                                 });
-                                companies.companies = _.uniq(companies.companies, function (a) {
-                                    return a._id;
-                                });
-                            });
-                            if (link_len == link_counter && companies_counter == companies_len) {
-                                callback(null, companies);
+
+                                if (link_len == link_counter && companies_counter == companies_len) {
+                                    callback(null, companies);
+                                }
+                            } else {
+                                if(companies_counter == companies_len){
+                                    callback(null, companies);
+                                }
                             }
                         });
                 });

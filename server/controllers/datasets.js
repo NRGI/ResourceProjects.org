@@ -82,6 +82,8 @@ exports.getDatasetByID = function(req, res) {
         .populate('actions.started_by')
         .lean()
         .exec(function(err, dataset) {
+
+			console.log(dataset)
             if(dataset) {
                 res.send(dataset);
             } else {
@@ -133,6 +135,7 @@ exports.createAction = function(req, res, next) {
                             res.send();
                             console.log("Triggered, res sent\n");
                             googlesheets.processData(dmodel.source_url, function(status, report) {
+
                                 console.log("process finished");
                                 console.log("Status: " + status + "\n");
                                 console.log("Report: " + report + "\n");

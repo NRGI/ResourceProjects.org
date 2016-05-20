@@ -163,13 +163,9 @@ exports.getCountries = function(req, res) {
 };
 
 exports.getCountryByID = function(req, res) {
-    var concession_len, concession_counter, site_counter, site_len, project_counter, project_len;
 
     async.waterfall([
-        getCountry,
-        getProjects,
-        getSites,
-        getConcessions
+        getCountry
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -190,17 +186,27 @@ exports.getCountryByID = function(req, res) {
                 }
             });
     }
-    function getProjects(country, callback) {
-        country.proj_coordinates = [];
-        country.projects = [];
-        country.location = [];
+};
+
+exports.getAllCommodityCountryByID = function(req, res) {
+    var country={}, concession_len, concession_counter, site_counter, site_len, project_counter, project_len;
+
+    async.waterfall([
+        getProjects,
+        getSites,
+        getConcessions
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(result)
+        }
+    });
+
+    function getProjects(callback) {
         country.commodities = [];
-        country.sources = {};
-        country.transfers_query = [country._id];
-        country.site_coordinates = {sites: [], fields: []};
-        Project.find({'proj_country.country': country._id})
+        Project.find({'proj_country.country': req.params.id})
             .populate('proj_country.country')
-            .populate('proj_aliases', ' _id alias')
             .populate('proj_commodity.commodity')
             .exec(function (err, project) {
                 project_len = project.length;
@@ -208,16 +214,6 @@ exports.getCountryByID = function(req, res) {
                 if (project_len>0) {
                     _.each(project, function (proj) {
                         ++project_counter;
-                        proj.proj_coordinates.forEach(function (loc) {
-                            country.proj_coordinates.push({
-                                'lat': loc.loc[0],
-                                'lng': loc.loc[1],
-                                'message': project.proj_name,
-                                'timestamp': loc.timestamp,
-                                'type': 'project',
-                                'id': project.proj_id
-                            });
-                        });
                         if (proj.proj_commodity.length>0) {
                             if (_.where(country.commodities, {_id: _.last(proj.proj_commodity).commodity._id}).length<1) {
                                 country.commodities.push({
@@ -238,8 +234,7 @@ exports.getCountryByID = function(req, res) {
             });
     }
     function getSites(country, callback) {
-        country.sites = [];
-        Site.find({'site_country.country': country._id})
+        Site.find({'site_country.country': req.params.id})
             .populate('site_commodity.commodity')
             .exec(function (err, sites) {
                 site_len = sites.length;
@@ -247,29 +242,6 @@ exports.getCountryByID = function(req, res) {
                 if (site_len>0) {
                     _.each(sites, function (site) {
                         ++site_counter;
-                        if (site.field && site.site_coordinates.length>0) {
-                            site.site_coordinates.forEach(function (loc) {
-                                country.proj_coordinates.push({
-                                    'lat': loc.loc[0],
-                                    'lng': loc.loc[1],
-                                    'message': site.site_name,
-                                    'timestamp': loc.timestamp,
-                                    'type': 'field',
-                                    'id': site._id
-                                });
-                            });
-                        } else if (!site.field && site.site_coordinates.length>0) {
-                            site.site_coordinates.forEach(function (loc) {
-                                country.proj_coordinates.push({
-                                    'lat': loc.loc[0],
-                                    'lng': loc.loc[1],
-                                    'message': site.site_name,
-                                    'timestamp': loc.timestamp,
-                                    'type': 'site',
-                                    'id': site._id
-                                });
-                            });
-                        }
                         if (site.site_commodity.length>0) {
                             if (_.where(country.commodities, {_id: _.last(site.site_commodity).commodity._id}).length<1) {
                                 country.commodities.push({
@@ -280,7 +252,6 @@ exports.getCountryByID = function(req, res) {
                                 });
                             }
                         }
-
                         if(site_counter==site_len){
                             callback(null, country);
                         }

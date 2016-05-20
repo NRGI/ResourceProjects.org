@@ -6,11 +6,12 @@ angular
             restrict: 'EA',
             controller: 'nrgiLeafletCtrl',
             scope: {
-                data: '=',
                 project:'=',
                 map:'=',
                 site:'=',
-                polygon:'='
+                data:'=',
+                id:'=',
+                type:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-leaflet'
         };

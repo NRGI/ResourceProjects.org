@@ -1,72 +1,70 @@
 .container.top-padding-med
-    .well
-        form.form-horizontal(name='update_company_form')
+    .card
+        form(name='update_company_form')
             fieldset
-                legend Company Information
-                .form-group
-                    label.col-md-2.control-label(form="name") Company Name
-                    .col-md-10
-                        input.form-control(
-                        name="company_name"
-                        type="text"
-                        placeholder="Company name"
-                        ng-model="company.company_name"
-                        required)
-                .form-group
-                    label.col-md-2.control-label(form="company_website") Website
-                    .col-md-10
-                        input.form-control(
-                        name="company_website"
-                        type="text"
-                        placeholder="Website"
-                        ng-model="company.company_website.string"
-                        )
-                .form-group
-                    label.col-md-2.control-label(form="open_corporates_id") Open Corporates ID
-                    .col-md-10
-                        input.form-control(
-                        name="open_corporates_id"
-                        type="text"
-                        placeholder="Open Corporates ID"
-                        ng-model="company.open_corporates_id"
-                        )
-                .form-group
-                    label.col-md-2.control-label(form="companies_house_id") Companies House ID
-                    .col-md-10
-                        input.form-control(
-                        name="companies_house_id"
-                        type="text"
-                        placeholder="Companies House ID"
-                        ng-model="company.companies_house_id"
-                        )
-                //.form-group
-                //    label.col-md-2.control-label(form="country_of_incorporation") Country Of Incorporation
-                //    .col-md-10
-                //        select.form-control(
-                //        ng-model="company.country_of_incorporation.country"
-                //        ng-options="item._id as item.name for item in country.data"
-                //        )
-                //.form-group
-                //    label.col-md-2.control-label(form="countries_of_operation") Country Of Operation
-                //    .col-md-10
-                //        select.form-control(
-                //        ng-model="company.countries_of_operation.country"
-                //        ng-options="item._id as item.name for item in country.data"
-                //        )
-                .form-group
-                    label.col-md-2.control-label(form="description") Description
-                    .col-md-10
-                        textarea.form-control(
-                        name="description"
-                        type="text"
-                        placeholder="Description"
-                        ng-model="company.description"
-                        )
-                .form-group
-                    .col-md-10.col-md-offset-2
-                        .pull-right
-                            button.btn.btn-primary(ng-click="companyUpdate()", ng-disabled="") Submit
-                            | &nbsp;
-                            button.btn.btn-danger(ng-click="companyDelete()", ng-disabled="") Delete
-                            | &nbsp;
-                            a.btn.btn-default(href="/admin/company-admin") Cancel
+                .col-xs-12
+                    legend Company Information
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="company_name") Company Name
+                        .col-md-10
+                            input.form-control(
+                            id="company_name"
+                            name="company_name"
+                            type="text"
+                            placeholder="Company name"
+                            ng-model="company.company_name"
+                            required)
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="company_website") Website
+                        .col-md-10
+                            input.form-control(
+                            id="company_website"
+                            name="company_website"
+                            type="text"
+                            placeholder="Website"
+                            ng-model="company.company_website.string"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="open_corporates_id") Open Corporates ID
+                        .col-md-10
+                            input.form-control(
+                            id="open_corporates_id"
+                            name="open_corporates_id"
+                            type="text"
+                            placeholder="Open Corporates ID"
+                            ng-model="company.open_corporates_id"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="companies_house_id") Companies House ID
+                        .col-md-10
+                            input.form-control(
+                            id="companies_house_id"
+                            name="companies_house_id"
+                            type="text"
+                            placeholder="Companies House ID"
+                            ng-model="company.companies_house_id"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.form-control-label(for="description") Description
+                        .col-md-10
+                            textarea.form-control(
+                            id="description"
+                            name="description"
+                            type="text"
+                            placeholder="Description"
+                            ng-model="company.description"
+                            )
+                .form-group.row
+                    .col-xs-12
+                        .col-md-10.col-md-offset-2
+                            .pull-xs-right
+                                button.btn.btn-primary(ng-click="companyUpdate()", ng-disabled="") Submit
+                                | &nbsp;
+                                button.btn.btn-danger(ng-click="companyDelete()", ng-disabled="") Delete
+                                | &nbsp;
+                                a.btn.btn-secondary(href="/admin/company-admin") Cancel

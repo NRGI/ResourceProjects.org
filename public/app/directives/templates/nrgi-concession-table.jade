@@ -1,17 +1,41 @@
-a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#concessions")
-    h2 Concessions
-#concessions.panel-collapse.collapse
-    table.table.table-striped.concessions(ts-wrapper ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getConcessions(id,name)'
+data-target="#concessions")
+    h4.text-justify Concessions
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
+//    h2 Concessions
+#concessions.panel-collapse.collapse.in
+    table.load_table.table.table-striped.concessions(
+    ts-wrapper
+    ng-class="concessions.length >= 8 ? 'header-fixed' : ''")#concessions-info
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='concession_name') Name
-                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='concession_country.name') Country
-                th.tablesort-sortable-th(ng-if="type==true" ts-criteria='concession_type.string') Commodity Type
-                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='concession_commodities[concession_commodities.length-1].commodity.commodity_name') Commodity
-                th.tablesort-sortable-th(ng-if="status==true" ts-criteria='count|parseInt') Status
-                th.tablesort-sortable-th(ng-if="projects==true" ts-criteria='projects|parseInt') No. Projects
+                th.tablesort-sortable-th(
+                ng-if="country==true"
+                ts-criteria='concession_country.name') Country
+                th.tablesort-sortable-th(
+                ng-if="type==true"
+                ts-criteria='concession_type.string') Commodity Type
+                th.tablesort-sortable-th(
+                ng-if="commodity==true"
+                ts-criteria='concession_commodities[concession_commodities.length-1].commodity.commodity_name') Commodity
+                th.tablesort-sortable-th(
+                ng-if="status==true"
+                ts-criteria='count|parseInt') Status
+                th.tablesort-sortable-th(
+                ng-if="projects==true"
+                ts-criteria='projects|parseInt') No. Projects
         tbody
-            tr(ng-repeat="concession in concessions | unique: '_id'" ts-repeat)
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-concession")
+            tr(
+            ng-repeat="concession in concessions | unique: '_id'"
+            ts-repeat ng-class="expression")
                 td.concession_name
                     a(href='/concession/{{concession._id}}')
                         span(ng-bind-html="concession.concession_name|sanitize")
@@ -38,4 +62,8 @@ a(data-toggle="collapse" ng-click='getData(id,name)' data-target="#concessions")
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_concessions" csv-header="getHeaderConcessions()" filename="companies.csv") Concessions CSV
+                a(
+                href=""
+                ng-csv="csv_concessions"
+                csv-header="getHeaderConcessions()"
+                filename="companies.csv") Concessions CSV

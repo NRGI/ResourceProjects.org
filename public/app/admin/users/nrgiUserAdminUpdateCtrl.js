@@ -15,19 +15,19 @@ angular.module('app')
             if($scope.password && $scope.password.length > 0) {
                 if($scope.password === $scope.password_rep) {
                     new_user_data.password = $scope.password;
-                    rgiUserMethodSrvc.updateUser(new_user_data).then(function() {
-                        rgiNotifier.notify('User account has been updated');
+                    nrgiUserMethodSrvc.updateUser(new_user_data).then(function() {
+                        nrgiNotifier.notify('User account has been updated');
                     }, function(reason) {
-                        rgiNotifier.error(reason);
+                        nrgiNotifier.error(reason);
                     });
                 }else{
-                    rgiNotifier.error('Passwords must match!')
+                    nrgiNotifier.error('Passwords must match!')
                 }
             } else {
-                rgiUserMethodSrvc.updateUser(new_user_data).then(function() {
-                    rgiNotifier.notify('User account has been updated');
+                nrgiUserMethodSrvc.updateUser(new_user_data).then(function() {
+                    nrgiNotifier.notify('User account has been updated');
                 }, function(reason) {
-                    rgiNotifier.error(reason);
+                    nrgiNotifier.error(reason);
                 });
             };
         };

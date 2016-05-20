@@ -1,19 +1,44 @@
-a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
-    h2 Contracts
-#contracts.panel-collapse.collapse
-    table.table.table-striped.projects(ts-wrapper ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getContracts(id,type)'
+data-target="#contracts")
+    h4.text-justify Contracts
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getContracts(id,type)' data-target="#contracts")
+//    h2 Contracts
+#contracts.panel-collapse.collapse.in
+    table.load_table.table.table-striped.projects(
+    ts-wrapper
+    ng-class="contracts.length >= 8 ? 'header-fixed' : ''")#contract-info
         thead
             tr
-                th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='contract_name') Name
-                th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='_id') RC-ID
-                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='contract_country.code') Country
-                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='contract_commodity.toString()') Commodity
-                th.tablesort-sortable-th(ng-if="companies!=true" ts-criteria='_id') RC-ID
-                th.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies') Companies
+                th.tablesort-sortable-th(
+                ng-if="companies!=true"
+                ts-criteria='contract_name') Name
+                th.tablesort-sortable-th(
+                ng-if="companies==true"
+                ts-criteria='_id') RC-ID
+                th.tablesort-sortable-th(
+                ng-if="country==true"
+                ts-criteria='contract_country.code') Country
+                th.tablesort-sortable-th(
+                ng-if="commodity==true"
+                ts-criteria='contract_commodity.toString()') Commodity
+                th.tablesort-sortable-th(
+                ng-if="companies!=true"
+                ts-criteria='_id') RC-ID
+                th.tablesort-sortable-th(
+                ng-if="companies==true"
+                ts-criteria='companies') Companies
         tbody
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-contract")
             tr(
             ng-repeat="contract in contracts | unique: '_id'"
-            ts-repeat)
+            ts-repeat
+            ng-class="expression")
                 td.contract_name(ng-if="companies!=true")
                     a(href='/contract/{{contract.contract_id}}') {{contract.contract_name}}
                 td.contract_rc_id(ng-if="companies==true")
@@ -22,7 +47,9 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
                     a(href='/country/{{contract.contract_country.code}}')
                         span(ng-bind-html="contract.contract_country.name|sanitize")
                 td.contract_commodity_name(ng-if="commodity==true")
-                    text(ng-if="contract.commodity.length>0",ng-repeat='commodity in contract.commodity')
+                    text(
+                    ng-if="contract.commodity.length>0"
+                    ng-repeat='commodity in contract.commodity')
                         a(href='/commodity/{{commodity.commodity_id}}')
                             span(ng-bind="commodity.commodity_name|sanitize")
                         | {{$last ? '' : ', '}}
@@ -30,7 +57,9 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
                             span(ng-bind="contract.contract_commodity.toString()")
 
                 td.contract_rc_id(ng-if="companies!=true")
-                    a(target="_blank"  href='http://www.resourcecontracts.org/contract/{{contract.contract_id}}') {{contract.contract_id}}
+                    a(
+                    target="_blank"
+                    href='http://www.resourcecontracts.org/contract/{{contract.contract_id}}') {{contract.contract_id}}
                 td.contract_companies(ng-if="companies==true") {{contract.companies}}
     div(ng-if="contracts.length>0")
         .download
@@ -38,4 +67,8 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#contracts")
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_contracts" csv-header="getHeaderContracts()" filename="contracts.csv") Contracts CSV
+                a(
+                href=""
+                ng-csv="csv_contracts"
+                csv-header="getHeaderContracts()"
+                filename="contracts.csv") Contracts CSV

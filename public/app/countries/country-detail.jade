@@ -4,10 +4,10 @@
             span(ng-bind-html="country.name|sanitize")
             =' '
             small Country
-    .row(ng-if="country.proj_coordinates.length>0")
-        .col-md-12
-            nrgi-leaflet(data='country.proj_coordinates')
     .row
+        .col-md-12
+            nrgi-leaflet(id='country._id' type='"country"')
+    .row.top-padding-med
         .col-md-6
             .info-box
                 h2 Country Info
@@ -45,7 +45,7 @@
             commoditytype="true"
             type="false"
             commodity="true"
-            companies="false"
+            company="true"
             status="true")
     .row.top-padding-lg
         .col-md-6

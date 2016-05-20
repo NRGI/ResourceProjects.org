@@ -24,6 +24,7 @@ exports.getProductionTable = function(req, res){
     if(type=='project') {  queries={project:req.params.id};projects.production_query = [req.params.id];}
     if(type=='site') {  queries={site:req.params.id};projects.production_query = [req.params.id];}
     if(type=='commodity') {  queries={commodity:req.params.id};projects.production_query = [req.params.id];}
+    if(type=='source_type') {  queries={source_type_id:req.params.id};}
     if(type=='group') { queries={company_group: req.params.id, entities: "company"};projects.production_query = [req.params.id];}
     var models = [
         {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
@@ -39,6 +40,7 @@ exports.getProductionTable = function(req, res){
         getGroupCompany,
         getGroupLinks,
         getCountryLinks,
+        getSource,
         getProduction
     ], function (err, result) {
         if (err) {
@@ -48,11 +50,11 @@ exports.getProductionTable = function(req, res){
         }
     });
     function getLinks(callback) {
-        if(type!='group'&&type!='country') {
+        if(type!='group'&&type!='country' && type!='source_type') {
             Link.find(queries)
                 .populate('site project concession company')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -106,7 +108,7 @@ exports.getProductionTable = function(req, res){
             var companies =[];
             Link.find(queries)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -115,8 +117,10 @@ exports.getProductionTable = function(req, res){
                                 companies.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                companies = _.uniq(companies, function (a) {
-                                    return a._id;
+                                companies = _.map(_.groupBy(companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, companies);
                             }
@@ -211,8 +215,24 @@ exports.getProductionTable = function(req, res){
             callback(null, projects);
         }
     }
+    function getSource(projects,callback) {
+        if(type=='source_type') {
+            Source.find(queries).exec(function(err,sources){
+                if(sources.length>0){
+                    _.each(sources, function(source) {
+                        projects.production_query.push(source._id);
+                    });
+                    callback(null, projects);
+                }else {
+                    callback(null, projects);
+                }
+            })
+        }else {
+            callback(null, projects);
+        }
+    }
     function getProduction(projects, callback) {
-        var productions = [];var query='';
+        var productions = [];var query='';var proj_site={};
         projects.production = [];
         if(type=='concession'){ query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
         if(type=='company') { query={$or: [{project: {$in: projects.production_query}},{site: {$in: projects.production_query}},{concession: {$in: projects.production_query}}]}}
@@ -221,13 +241,25 @@ exports.getProductionTable = function(req, res){
         if(type=='project'||type=='site') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
         if(type=='group') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{company:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
+        if(type=='source_type') { query = {$or: [{source:{$in: projects.production_query}}]}}
         Production.find(query)
-            .populate('production_commodity')
+            .populate('production_commodity project site')
             .exec(function (err, production) {
                 production_counter = 0;
                 production_len = production.length;
                 if (production_len > 0) {
                     production.forEach(function (prod) {
+                        if(prod.project!=undefined){
+                            proj_site =  {name:prod.project.proj_name,_id:prod.project.proj_id,type:'project'}
+                        }
+                        if(prod.site!=undefined){
+                            if(prod.site.field){
+                                proj_site =  {name:prod.site.site_name,_id:prod.site._id,type:'field'}
+                            }
+                            if(!prod.site.field){
+                                proj_site =  {name:prod.site.site_name,_id:prod.site._id,type:'site'}
+                            }
+                        }
                         ++production_counter;
                         if (!productions.hasOwnProperty(prod._id)) {
                             productions.push({
@@ -242,13 +274,15 @@ exports.getProductionTable = function(req, res){
                                 },
                                 production_price: prod.production_price,
                                 production_price_unit: prod.production_price_unit,
-                                production_level: prod.production_level
-                                // proj_site:{name:project.proj_name,_id:project.proj_id,type:'project'}
+                                production_level: prod.production_level,
+                                proj_site: proj_site
                             });
                         }
                         if (production_counter === production_len) {
-                            productions= _.uniq(productions, function (a) {
-                                return a._id;
+                            productions = _.map(_.groupBy(productions,function(doc){
+                                return doc._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             projects.production = productions;
                             callback(null, projects);

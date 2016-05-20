@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('app')
-    .filter("sanitize", ['$sce', function($sce) {
+    .filter('sanitize', ['$sce', function($sce) {
         return function(htmlCode){
             return $sce.trustAsHtml(htmlCode);
         }
@@ -26,10 +26,4 @@ angular.module('app')
             }
             return num;
         };
-    })
-
-'use strict';
-
-angular.module('app')
-
-;
+    });

@@ -48,22 +48,24 @@ exports.getContractTable = function(req, res){
                 .populate('contract commodity country')
                 .deepPopulate('site.site_country.country site.site_commodity.commodity')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
                             company.contracts_link.push({_id: link.contract.contract_id});
                             if (link_len == link_counter) {
-                                company.contracts_link = _.uniq(company.contracts_link, function (a) {
-                                    return a._id;
+                                company.contracts_link = _.map(_.groupBy(company.contracts_link,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, company);
                             }
 
                         })
                     } else {
-                        callback(err);
+                        callback(null, company);
                     }
                 });
         } else {
@@ -108,7 +110,7 @@ exports.getContractTable = function(req, res){
                         commodity = commodities;
                         callback(null, commodity);
                     } else {
-                        callback(err);
+                        callback(null, company);
                     }
                 });
         } else {
@@ -118,36 +120,48 @@ exports.getContractTable = function(req, res){
     function getCommodityContractsApi(commodity, callback) {
         if (type == 'commodity'||type == 'country') {
             var contract_query='';
+            var getContract=false;
             if(type == 'commodity'){
-                contract_query = 'recource=' + commodity[0].commodity_name;
+                if(commodity.length>0) {
+                    contract_query = 'recource=' + commodity[0].commodity_name;
+                    getContract=true;
+                }
             }
             if(type == 'country'){
                 contract_query = 'country=' + req.params.id;
+                getContract=true;
             }
             company.contracts = [];
-            request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
-                var body = JSON.parse(body);
-                var contract_counter = 0;
-                var contract_len = body.results.length;
-                _.each(body.results, function (contract) {
-                    ++contract_counter;
-                    company.contracts.push({
-                        _id: contract.open_contracting_id,
-                        id: '',
-                        contract_name: contract.name,
-                        contract_country: {
-                            code: contract.country_code,
-                            name: []
-                        },
-                        contract_commodity: contract.resource,
-                        companies: 0
-                    });
-                    if (contract_counter == contract_len) {
+            if(getContract==true) {
+                request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
+                    var body = JSON.parse(body);
+                    var contract_counter = 0;
+                    var contract_len = body.results.length;
+                    if(contract_len>0) {
+                        _.each(body.results, function (contract) {
+                            ++contract_counter;
+                            company.contracts.push({
+                                _id: contract.open_contracting_id,
+                                id: '',
+                                contract_name: contract.name,
+                                contract_country: {
+                                    code: contract.country_code,
+                                    name: []
+                                },
+                                contract_commodity: contract.resource,
+                                companies: 0
+                            });
+                            if (contract_counter == contract_len) {
+                                callback(null, company);
+                            }
+                        });
+                    }else {
                         callback(null, company);
                     }
                 });
-
-            });
+            }else {
+                callback(null, company);
+            }
         } else {
             callback(null, company);
         }
@@ -220,8 +234,10 @@ exports.getContractTable = function(req, res){
                             .exec(function (err, companies) {
                                 contract_counter++;
                                 if(companies.length>0) {
-                                    companies = _.uniq(companies, function (a) {
-                                        return a._id;
+                                    companies = _.map(_.groupBy(companies,function(doc){
+                                        return doc._id;
+                                    }),function(grouped){
+                                        return grouped[0];
                                     });
                                     contract.companies = companies.length;
                                 }
@@ -269,6 +285,10 @@ exports.getContractTable = function(req, res){
                                     });
                             }
                         })
+                    } else{
+                        if (contract_counter == contract_len) {
+                            callback(null, company);
+                        }
                     }
                 })
             } else {
@@ -292,8 +312,10 @@ exports.getContractTable = function(req, res){
                                 companies.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                companies = _.uniq(companies, function (a) {
-                                    return a._id;
+                                companies = _.map(_.groupBy(companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, companies);
                             }
@@ -326,15 +348,16 @@ exports.getContractTable = function(req, res){
                                         ++link_counter;
                                         contract.push(link.contract);
                                         if (link_len == link_counter && companies_counter == companies_len) {
-                                            contract = _.uniq(contract, function (a) {
-                                                return a._id;
+                                            contract = _.map(_.groupBy(contract,function(doc){
+                                                return doc._id;
+                                            }),function(grouped){
+                                                return grouped[0];
                                             });
                                             callback(null, contract);
                                         }
 
                                     })
                                 } else {
-                                    company ={};
                                     callback(null, company);
                                 }
                             });
@@ -366,7 +389,7 @@ exports.getContractTable = function(req, res){
                         });
 
                         if (contract_counter == contract_len) {
-                            callback(null, contracts);
+                            callback(null, company);
                         }
                     });
                 });

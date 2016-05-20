@@ -21,13 +21,17 @@
                         tr
                             td.project-label.part-of Access source:
                             td
-                                a(ng-href='https://{{source.source_url}}', target='_blank') Link
+                                a(
+                                ng-href='https://{{source.source_url}}'
+                                target='_blank') Link
                                 =' '
                                 | (Direct link to data in HTML report)
                         tr
                             td.project-label.part-of Access archive:
                             td
-                                a(href='https://{{source.source_archive_url}}', target='_blank') Link
+                                a(
+                                href='https://{{source.source_archive_url}}'
+                                target='_blank') Link
                                 =' '
                                 | (Google sheet)
                         tr

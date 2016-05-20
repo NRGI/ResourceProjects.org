@@ -1,83 +1,101 @@
 .container.top-padding-med
-	.well
-		form.form-horizontal(name='create_user_form')
+	.card
+		form(name='create_user_form')
 			fieldset
-				legend New User Information
-				.form-group
-					label.col-md-2.control-label(form="first_name") First Name
-					.col-md-10
-						input.form-control(
-						name="first_name"
-						type="text"
-						placeholder="First Name"
-						ng-model="first_name"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="last_name") Last Name
-					.col-md-10
-						input.form-control(
-						name="last_name"
-						type="text"
-						placeholder="Last Name"
-						ng-model="last_name"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="username") Username
-					.col-md-10
-						input.form-control(
-						name="username"
-						type="text"
-						placeholder="Username"
-						ng-model="username"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="email") Email
-					.col-md-10
-						input.form-control(
-						name="email"
-						type="email"
-						placeholder="Email"
-						ng-model="email"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="password") Password
-					.col-md-10
-						input.form-control(
-						name="password"
-						type="password"
-						placeholder="Password"
-						ng-model="password"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="roles") Roles
-					.col-md-10
-						select.form-control(
-						ng-model="role_select"
-						ng-options="item.value as item.text for item in role_options"
-						required)				
-				.form-group
-					label.col-md-2.control-label(form="address") Address
-					.col-md-10
-						input.form-control(
-						name="address"
-						type="text"
-						placeholder="Address"
-						ng-model="address"
-						required)
-				.form-group
-					label.col-md-2.control-label(form="language") Language
-					.col-md-10
-						input.form-control(
-						name="language"
-						type="text"
-						placeholder="Language"
-						ng-model="language"
-						required)
-				.form-group
-					.col-md-10.col-md-offset-2
-						.pull-right
-							button.btn.btn-primary(
-							ng-click="userCreate()"
-							ng-disabled="createUserForm.$invalid") Submit
-							| &nbsp;
-							a.btn.btn-default(href="/") Cancel
+				.col-xs-12
+					legend New User Information
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="first_name") First Name
+						.col-md-10
+							input.form-control(
+							id="first_name"
+							name="first_name"
+							type="text"
+							placeholder="First Name"
+							ng-model="first_name"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="last_name") Last Name
+						.col-md-10
+							input.form-control(
+							id="last_name"
+							name="last_name"
+							type="text"
+							placeholder="Last Name"
+							ng-model="last_name"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="username") Username
+						.col-md-10
+							input.form-control(
+							id="username"
+							name="username"
+							type="text"
+							placeholder="Username"
+							ng-model="username"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="email") Email
+						.col-md-10
+							input.form-control(
+							id="email"
+							name="email"
+							type="email"
+							placeholder="Email"
+							ng-model="email"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="password") Password
+						.col-md-10
+							input.form-control(
+							id="password"
+							name="password"
+							type="password"
+							placeholder="Password"
+							ng-model="password"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="roles") Roles
+						.col-md-10
+							select.form-control(
+							id="roles"
+							ng-model="role_select"
+							ng-options="item.value as item.text for item in role_options"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="address") Address
+						.col-md-10
+							input.form-control(
+							id="address"
+							name="address"
+							type="text"
+							placeholder="Address"
+							ng-model="address"
+							required)
+				.form-group.row
+					.col-xs-12
+						label.col-md-2.form-control-label(for="language") Language
+						.col-md-10
+							input.form-control(
+							id="language"
+							name="language"
+							type="text"
+							placeholder="Language"
+							ng-model="language"
+							required)
+				.form-group.row
+					.col-xs-12
+						.col-md-10.col-md-offset-2
+							.pull-xs-right
+								button.btn.btn-primary(
+								ng-click="userCreate()"
+								ng-disabled="createUserForm.$invalid") Submit
+								| &nbsp;
+								a.btn.btn-secondary(href="/") Cancel

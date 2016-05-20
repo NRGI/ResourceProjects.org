@@ -4,10 +4,10 @@
             span(ng-bind-html="company.company_name|sanitize")
             =' '
             small Company
-    .row(ng-if="company.proj_coordinates.length>0")
-        .col-md-12
-            nrgi-leaflet(data='company.proj_coordinates')
     .row
+        .col-md-12
+            nrgi-leaflet(type='"company"' id='company._id')
+    .row.top-padding-med
         .col-md-6
             .info-box
                 h2 Company Info
@@ -19,7 +19,9 @@
                         tr(ng-if="company.company_website")
                             td.detail_label.small Website:
                             td.company_website
-                                a(target="_blank" href='{{company.company_website.string }}') {{company.company_website.string}}
+                                a(
+                                target="_blank"
+                                href='{{company.company_website.string }}') {{company.company_website.string}}
                         tr(ng-if="company.company_aliases.length>0")
                             td.detail_label.small Aliases:
                             td.company_aliases
@@ -43,18 +45,22 @@
                         tr(ng-if="company.company_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.company_commodities
-                                span(ng-repeat="commodity in company.company_commodity")
+                                span(ng-repeat="commodity in company.company_commodity | unique: 'commodity_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if='company.open_corporates_id')
                             td.detail_label.small Open Corporates ID:
                             td.company_open_corporates_id
-                                a(target="_blank" href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
+                                a(
+                                target="_blank"
+                                href='https://opencorporates.com/companies/{{company.open_corporates_id}}') {{company.open_corporates_id}}
                         tr(ng-if='company.companies_house_id')
                             td.detail_label.small Companies House ID:
                             td.company_companies_house_id
-                                a(target="_blank" href='https://beta.companieshouse.gov.uk/company/{{company.companies_house_id}}') {{company.companies_house_id}}
+                                a(
+                                target="_blank"
+                                href='https://beta.companieshouse.gov.uk/company/{{company.companies_house_id}}') {{company.companies_house_id}}
 
 
         .col-md-6

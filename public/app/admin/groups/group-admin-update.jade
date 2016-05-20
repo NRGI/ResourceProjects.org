@@ -1,22 +1,26 @@
 .container.top-padding-med
-    .well
-        form.form-horizontal
+    .card
+        form
             fieldset
-                legend Company Group Information
-                .form-group
-                    label.col-md-2.control-label(form="proj_name") Name
-                    .col-md-10
-                        input.form-control(
-                        name="company_group_name"
-                        type="text"
-                        placeholder="Name"
-                        ng-model="group.company_group_name"
-                        required)
-                .form-group
-                    .col-md-10.col-md-offset-2
-                        .pull-right
-                            button.btn.btn-primary(ng-click="groupUpdate()", ng-disabled="") Submit
-                            | &nbsp;
-                            button.btn.btn-danger(ng-click="groupDelete()", ng-disabled="") Delete
-                            | &nbsp;
-                            a.btn.btn-default(href="/admin/group-admin") Cancel
+                .col-xs-12
+                    legend Company Group Information
+                .form-group.row
+                    .col-xs-12
+                        label.col-md-2.control-label(for="company_group_name") Name
+                        .col-md-10
+                            input.form-control(
+                            id="company_group_name"
+                            name="company_group_name"
+                            type="text"
+                            placeholder="Name"
+                            ng-model="group.company_group_name"
+                            required)
+                .form-group.row
+                    .col-xs-12
+                        .col-md-10.col-md-offset-2
+                            .pull-xs-right
+                                button.btn.btn-primary(ng-click="groupUpdate()", ng-disabled="") Submit
+                                | &nbsp;
+                                button.btn.btn-danger(ng-click="groupDelete()", ng-disabled="") Delete
+                                | &nbsp;
+                                a.btn.btn-secondary(href="/admin/group-admin") Cancel

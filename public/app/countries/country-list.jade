@@ -1,32 +1,25 @@
 .container
-    .page-header
-        h1 Countries
-            = ' '
-            small(ng-if="count") {{count}}
+    .row.top-padding-med.bottom-padding-med
+        .col-md-4
+            h1 Countries
+                = ' '
+                small(ng-if="count") {{count}}
 
-    //nrgi-list-nav(
-    //page="page"
-    //type="record_type"
-    //show="show_count"
-    //count="count"
-    //limit="limit"
-    //last="last"
-    //next="next"
-    //prev="prev"
-    //first="first"
-    //select="select")
-
-    table.table.table-striped(about='http://resourceprojects.org/country' ts-wrapper)
+    table#countries.table.table-striped(
+    about='http://resourceprojects.org/country'
+    ts-wrapper)
         thead
             tr
-                th.col-md-2(ts-criteria='name') Country
-                th.text-center.col-md-2(ts-criteria='project_count|parseInt') Projects
-                th.text-center.col-md-2(ts-criteria='site_count|parseInt') Sites
-                th.text-center.col-md-2(ts-criteria='field_count|parseInt') Fields
-                th.text-center.col-md-2(ts-criteria='concession_count|parseInt') Concessions
-                th.text-center.col-md-2(ts-criteria='transfer_count|parseInt') Payments
+                th(ts-criteria='name') Country
+                th.text-center(ts-criteria='project_count|parseInt') Projects
+                th.text-center(ts-criteria='site_count|parseInt') Sites
+                th.text-center(ts-criteria='field_count|parseInt') Fields
+                th.text-center(ts-criteria='concession_count|parseInt') Concessions
+                th.text-center(ts-criteria='transfer_count|parseInt') Payments
         tbody
-            tr(ng-repeat="country in countries | unique: 'iso2'" ts-repeat)
+            tr(
+            ng-repeat="country in countries | unique: 'iso2'"
+            ts-repeat)
                 td.country_name: a(href='country/{{ country.iso2 }}') {{country.name | isoCountry}}
                 td.text-center.country_projects {{country.project_count}}
                 td.text-center.country_sites {{country.site_count}}
@@ -34,14 +27,3 @@
                 td.text-center.country_concessions {{country.concession_count}}
                 td.text-center.country_transfers {{country.transfer_count}}
                 td.text-center.country_productions {{country.production_count}}
-    //nrgi-list-nav(
-    //page="page"
-    //type="record_type"
-    //show="show_count"
-    //count="count"
-    //limit="limit"
-    //last="last"
-    //next="next"
-    //prev="prev"
-    //first="first"
-    //select="select")

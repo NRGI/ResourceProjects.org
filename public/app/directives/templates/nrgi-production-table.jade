@@ -1,21 +1,35 @@
-a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#productions")
-    h2 Production Stats
-#productions.panel-collapse.collapse
-    table.table.table-striped.projects(ts-wrapper ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getProduction(id,type)'
+data-target="#productions")
+    h4.text-justify Production Stats
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getProduction(id,type)' data-target="#productions")
+//    h2 Production Stats
+#productions.panel-collapse.collapse.in
+    table.load_table.table.table-striped.projects(
+    ts-wrapper
+    ng-class="production.length >= 8 ? 'header-fixed' : ''")#transfer-info
         thead
             tr
-                th.col-md-1.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
-                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_volume') Volume
-                th.col-md-1.tablesort-sortable-th(ts-criteria='production_unit') Unit
-                th.col-md-1.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
-                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
-                th.col-md-1.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
-                th.col-md-1.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
-                th.col-md-1.tablesort-sortable-th(ng-if="projectlink==true" ts-criteria='production_links.name') Projects and Sites
+                th.tablesort-sortable-th(ts-criteria='production_year|parseInt') Year
+                th.text-right.tablesort-sortable-th(ts-criteria='production_volume') Volume
+                th.tablesort-sortable-th(ts-criteria='production_unit') Unit
+                th.tablesort-sortable-th(ts-criteria='production_commodity.commodity_name') Commodity
+                th.text-right.tablesort-sortable-th(ts-criteria='production_price|parseInt') Price
+                th.text-right.tablesort-sortable-th(ts-criteria='production_price_unit') Price unit
+                th.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
+                th.tablesort-sortable-th(
+                ng-if="projectlink==true"
+                ts-criteria='production_links.name') Projects and Sites
         tbody
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-production")
             tr(
             ng-repeat="prod in production"
-            ts-repeat)
+            ts-repeat ng-class="expression")
                 td.production_year {{prod.production_year}}
                 td.text-right.production_volume  {{prod.production_volume | number}}
                 td.production_unit {{prod.production_unit}}
@@ -29,14 +43,19 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#productions")
                     text(ng-if="prod.production_price") {{prod.production_price_unit}}
                     em(ng-if="!prod.production_price") ..
                 td.text-center.production_level {{prod.production_level}}
-                td.project_links(ng-if="projectlink===true"): span(ng-repeat="link in prod.production_links | unique: '_id'")
-                    a(href="{{link.type}}/{{link.route}}")
-                        span(ng-bind-html="link.name|sanitize")
-                    | {{$last ? '' : ', '}}
+                td.project_links(ng-if="projectlink===true")
+                    //: span(ng-repeat="link in prod.production_links | unique: '_id'")
+                    a(href="{{prod.proj_site.type}}/{{prod.proj_site._id}}")
+                        span(ng-bind-html="prod.proj_site.name|sanitize")
+                    //| {{$last ? '' : ', '}}
     div(ng-if="production.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_production" csv-header="getHeaderProduction()" filename="productions.csv") Production Stats CSV
+                a(
+                href=""
+                ng-csv="csv_production"
+                csv-header="getHeaderProduction()"
+                filename="productions.csv") Production Stats CSV

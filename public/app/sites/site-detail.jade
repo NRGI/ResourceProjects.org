@@ -7,8 +7,10 @@
             small(ng-if='!site.field') Site
     .row(ng-if="site.coordinates.length>0")
         .col-md-12
-            nrgi-leaflet(data='site.coordinates' site='true')
-    .row
+            nrgi-leaflet(
+            data='site.coordinates'
+            site='true')
+    .row.top-padding-med
         .col-md-6
             .info-box
                 h2(ng-if='site.field') Field Info
@@ -99,7 +101,9 @@
                                             th.tablesort-sortable-th(ts-criteria='lng') Lng
                                             th.tablesort-sortable-th(ts-criteria='lng') Type
                                             th.location-th
-                                        tr(ng-repeat='location in site.coordinates',ts-repeat)
+                                        tr(
+                                        ng-repeat='location in site.coordinates'
+                                        ts-repeat)
                                             td.location_name
                                                 | {{location.message}}
                                             td.location_lat

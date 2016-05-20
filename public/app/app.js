@@ -9,7 +9,9 @@ angular.module('app', [
     'ngRoute',
     'tableSort',
     'ngCsv',
-    'ngSanitize'
+    'ngSanitize',
+    'angularSpinner',
+    'infinite-scroll'
 ]);
 
 angular.module('app')
@@ -282,6 +284,29 @@ angular.module('app')
                 templateUrl: '/partials/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
+            .when('/source_types', {
+                templateUrl: '/partials/sourceTypes/sourceType-list',
+                controller: 'nrgiSourceTypeListCtrl'
+            })
+            .when('/source_type/:id', {
+                templateUrl: '/partials/sourceTypes/sourceType-detail',
+                controller: 'nrgiSourceTypeDetailCtrl'
+            })
+            .when('/admin/sourceType-admin', {
+                templateUrl: '/partials/admin/sourceTypes/sourceType-admin',
+                controller: 'nrgiSourceTypeAdminCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/create-sourceType', {
+                templateUrl: '/partials/admin/sourceTypes/create-sourceType',
+                controller: 'nrgiSourceTypeAdminCreateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/sourceType-admin/:id', {
+                templateUrl: '/partials/admin/sourceTypes/sourceType-admin-update',
+                controller: 'nrgiSourceTypeAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             //.when('/admin/site-admin', {
             //    templateUrl: '/partials/admin/sites/site-admin',
             //    controller: 'nrgiSiteAdminCtrl',
@@ -298,13 +323,13 @@ angular.module('app')
             //    resolve: routeRoleChecks.supervisor
             //})
             .when('/glossary', {
-                templateUrl: '/partials/common/glossary'
+                templateUrl: '/partials/main/glossary'
             })
             .when('/contribute', {
-                templateUrl: '/partials/common/contribute'
+                templateUrl: '/partials/main/contribute'
             })
             .when('/about', {
-                templateUrl: '/partials/common/about'
+                templateUrl: '/partials/main/about'
             })
             //
             ////Transfers and related facts
@@ -312,18 +337,18 @@ angular.module('app')
             //    templateUrl: '/partials/common/receipt'
             //})
             //.when('/production/:id_country/:id', {
-            //    templateUrl: '/partials/common/production'
+            //    templateUrl: '/partials/main/production'
             //})
             //.when('/governmentreceipt/:id_country/:id', {
-            //    templateUrl: '/partials/common/governmentreceipt'
+            //    templateUrl: '/partials/main/governmentreceipt'
             //})
             //
             ////Other
             //.when('/model', {
-            //    templateUrl: '/partials/common/dataModel'
+            //    templateUrl: '/partials/main/dataModel'
             //})
             //.when('/namedGraphs', {
-            //    templateUrl: '/partials/common/namedGraphs'
+            //    templateUrl: '/partials/main/namedGraphs'
             //})
             //.when('/classes', {
             //    templateUrl: '/partials/main/classes'

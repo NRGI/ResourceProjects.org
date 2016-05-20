@@ -16,8 +16,11 @@
 
     .row(ng-if="project.coordinates.length>0")
         .col-md-12
-            nrgi-leaflet(data='project.coordinates' project='true' site='true')
-    .row
+            nrgi-leaflet(
+            data='project.coordinates'
+            project='true'
+            site='true')
+    .row.top-padding-med
         .col-md-6
             .info-box
                 h2 Project Info
@@ -107,7 +110,9 @@
                                             th.tablesort-sortable-th(ts-criteria='lng') Lng
                                             th.tablesort-sortable-th(ts-criteria='type') Type
                                             th.location-th
-                                        tr(ng-repeat='location in project.coordinates',ts-repeat)
+                                        tr(
+                                        ng-repeat='location in project.coordinates'
+                                        ts-repeat)
                                             td.location_name
                                                 text {{location.message}}
                                             td.location_lat
@@ -128,11 +133,13 @@
                             td.project-label.our-id Desctiption:
                             td.project-description
                                 span(ng-bind-html="project.description|sanitize")
-            nrgi-company-table(
-            id="project._id"
-            type="'project'"
-            stake="false"
-            group="true")
+            .row
+                .col-md-12
+                    nrgi-company-table(
+                    id="project._id"
+                    type="'project'"
+                    stake="false"
+                    group="true")
     .row.top-padding-lg
         .col-md-12
             nrgi-production-table(

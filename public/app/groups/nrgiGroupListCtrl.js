@@ -3,37 +3,35 @@
 angular.module('app')
     .controller('nrgiGroupListCtrl', function (
         $scope,
+        $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiGroupsSrvc
     ) {
-        $scope.limit = 50;$scope.page = 0;$scope.count =0;$scope.show_count=0;
-        var loadCompanyGroups = function(limit,page){
-            nrgiGroupsSrvc.query({skip: page, limit: limit}, function (response) {
-                $scope.count = response.count;$scope.limit = limit;$scope.page = page;
-                $scope.groups=response.data;
-                $scope.show_count = response.data.length+$scope.page;
-            });
-        };
-        loadCompanyGroups($scope.limit,$scope.page);
-        $scope.select = function(changeLimit){
-            loadCompanyGroups(changeLimit,0);
-        };
-        $scope.next = function(page,count){
-            loadCompanyGroups($scope.limit,count);
-        };
-        $scope.prev = function(page){
-            loadCompanyGroups($scope.limit,page-$scope.limit);
-        };
-        $scope.first = function(){
-            loadCompanyGroups($scope.limit,0);
-        };
-        $scope.last = function(page){
-            if($scope.count%$scope.limit!=0){
-                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
-                loadCompanyGroups($scope.limit,page);
-            }else {
-                loadCompanyGroups($scope.limit,page-$scope.limit);
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0,
+            _ = $rootScope._;
+
+        $scope.count =0;
+        $scope.busy = false;
+
+        nrgiGroupsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.groups = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiGroupsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                    $scope.groups = _.union($scope.groups, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
             }
-        }
+        };
     });

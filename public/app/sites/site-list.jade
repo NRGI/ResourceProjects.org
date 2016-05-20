@@ -1,43 +1,34 @@
 .container
-    .page-header
-        .row
-            .col-md-4
-                h1 {{header}}
-                    = ' '
-                    small(ng-if="count") {{count}}
-            .col-md-5
-            .col-md-3
-                .btn-group(role='group', aria-label='...')
-                    button.btn.btn-default.pull-right(type='button')
-                        a(href='/{{record_type}}/map') Map View
-
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    .row.top-padding-med.bottom-padding-med
+        .col-md-4
+            h1 {{header}}
+                = ' '
+                small(ng-if="count") {{count}}
+        .col-md-5
+        .col-md-3
+            .btn-group(
+            role='group'
+            aria-label='...')
+                button.btn.btn-secondary.pull-xs-right(type='button')
+                    a(href='/{{record_type}}/map') Map View
 
     table#sites.table.table-striped(ts-wrapper)
         thead
             tr
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_name') Name
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_type[0].string') Commodity Type
-                th.col-md-1.tablesort-sortable-th(ts-criteria='site_commodity[0].commodity_name') Commodity
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="company_count|parseInt")  Companies
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="project_count|parseInt")  Projects
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="concession_count|parseInt")  Concessions
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="transfer_count|parseInt")  Payments
-                th.text-center.col-md-1.tablesort-sortable-th(ts-criteria="production_count|parseInt")  Production
+                th.tablesort-sortable-th(ts-criteria='site_name') Name
+                th.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(ts-criteria='site_type[0].string') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='site_commodity[0].commodity_name') Commodity
+                th.text-center.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
+                th.text-center.tablesort-sortable-th(ts-criteria="company_count|parseInt")  Companies
+                th.text-center.tablesort-sortable-th(ts-criteria="project_count|parseInt")  Projects
+                th.text-center.tablesort-sortable-th(ts-criteria="concession_count|parseInt")  Concessions
+                th.text-center.tablesort-sortable-th(ts-criteria="transfer_count|parseInt")  Payments
+                th.text-center.tablesort-sortable-th(ts-criteria="production_count|parseInt")  Production
         tbody
-            tr(ng-repeat="site in sites | unique: '_id'",ts-repeat)
+            tr(
+            ng-repeat="site in sites | unique: '_id'"
+            ts-repeat)
                 td.site_name
                     a(href='{{route}}/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")
@@ -59,7 +50,9 @@
                 td.text-center(ng-if="companies==true") {{project.companies}}
                 td.site_status
                     em(ng-if="site.site_status.length<1") ..
-                    text(ng-if="site.site_status.length>0" ng-repeat="status in site.site_status")
+                    text(
+                    ng-if="site.site_status.length>0"
+                    ng-repeat="status in site.site_status")
                         text(ng-if="$last")
                             | {{status.string | ucfirst}}
                             text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
@@ -69,14 +62,4 @@
                 td.text-center.site_transfers {{site.transfer_count}}
                 td.text-center.site_productions {{site.production_count}}
 
-    nrgi-list-nav(
-    page="page"
-    type="record_type"
-    show="show_count"
-    count="count"
-    limit="limit"
-    last="last"
-    next="next"
-    prev="prev"
-    first="first"
-    select="select")
+    div(ng-if='sites.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')

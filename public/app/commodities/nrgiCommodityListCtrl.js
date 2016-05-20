@@ -3,42 +3,34 @@
 angular.module('app')
     .controller('nrgiCommodityListCtrl', function (
         $scope,
-        nrgiAuthSrvc,
-        nrgiIdentitySrvc,
+        $rootScope,
+        nrgiNotifier,
         nrgiCommoditiesSrvc
     ) {
-        $scope.limit = 50;
-        $scope.page = 0;
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0,
+            _ = $rootScope._;
+
         $scope.count =0;
-        $scope.show_count=0;
-        var loadCommodities = function(limit,page){
-            nrgiCommoditiesSrvc.query({skip: page, limit: limit,record_type:$scope.record_type}, function (response) {
-                $scope.count = response.count;
-                $scope.limit = limit;
-                $scope.page = page;
-                $scope.commodities=response.data;
-                $scope.show_count = response.data.length+$scope.page;
-            });
-        };
-        loadCommodities($scope.limit,$scope.page);
-        $scope.select = function(changeLimit){
-            loadCommodities(changeLimit,0);
-        };
-        $scope.next = function(page,count){
-            loadCommodities($scope.limit,count);
-        };
-        $scope.prev = function(page){
-            loadCommodities($scope.limit,page-$scope.limit);
-        };
-        $scope.first = function(){
-            loadCommodities($scope.limit,0);
-        };
-        $scope.last = function(page){
-            if($scope.count%$scope.limit!=0){
-                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
-                loadCommodities($scope.limit,page);
-            }else {
-                loadCommodities($scope.limit,page-$scope.limit);
+        $scope.busy = false;
+
+        nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
+            $scope.count = response.count;
+            $scope.commodities = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
+                    $scope.commodities = _.union($scope.commodities, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
             }
         };
     });

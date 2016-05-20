@@ -46,7 +46,7 @@ exports.getSiteFieldTable = function(req, res){
                 .populate('site commodity country')
                 .deepPopulate('site.site_country.country site.site_commodity.commodity')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -61,19 +61,20 @@ exports.getSiteFieldTable = function(req, res){
                             });
 
                             if (link_len == link_counter) {
-                                site.sites = _.uniq(site.sites, function (a) {
-                                    return a._id;
+                                site.sites = _.map(_.groupBy(site.sites,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, site);
                             }
 
                         })
                     } else {
-                        callback(err);
+                        callback(null, site);
                     }
                 });
         } else {
-            site.sites=[];
             callback(null, site);
         }
     }
@@ -98,8 +99,10 @@ exports.getSiteFieldTable = function(req, res){
                                 companies:0
                             });
                             if (site_counter === site_len) {
-                                site.sites = _.uniq(site.sites, function (a) {
-                                    return a._id;
+                                site.sites = _.map(_.groupBy(site.sites,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, site);
                             }
@@ -134,8 +137,10 @@ exports.getSiteFieldTable = function(req, res){
                                 companies:0
                             });
                             if (link_len == link_counter) {
-                                site.sites = _.uniq(site.sites, function (a) {
-                                    return a._id;
+                                site.sites = _.map(_.groupBy(site.sites,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, site);
                             }
@@ -149,7 +154,7 @@ exports.getSiteFieldTable = function(req, res){
         }
     }
     function getCompanyCount(sites, callback) {
-        if (type == 'commodity') {
+        if (type == 'commodity'||type=='country') {
             site_len = sites.sites.length;
             site_counter = 0;
             if (site_len > 0) {
@@ -177,12 +182,12 @@ exports.getSiteFieldTable = function(req, res){
             callback(null, sites);
         }
     }
-    function getGroupLinkedCompanies(sites,callback) {
+    function getGroupLinkedCompanies(site,callback) {
         var company =[];
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -191,14 +196,16 @@ exports.getSiteFieldTable = function(req, res){
                                 company.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                company = _.uniq(company, function (a) {
-                                    return a._id;
+                                company = _.map(_.groupBy(company,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, company);
                             }
                         })
                     } else {
-                        callback(err);
+                        callback(null, site);
                     }
                 });
         } else{
@@ -218,7 +225,7 @@ exports.getSiteFieldTable = function(req, res){
                         .deepPopulate('site.site_country.country site.site_commodity.commodity')
                         .exec(function (err, links) {
                             ++companies_counter;
-                            if (links) {
+                            if (links.length>0) {
                                 link_len = links.length;
                                 link_counter = 0;
                                 _.each(links, function (link) {
@@ -233,15 +240,17 @@ exports.getSiteFieldTable = function(req, res){
                                     });
 
                                     if (link_len == link_counter && companies_counter == companies_len) {
-                                        site.sites = _.uniq(site.sites, function (a) {
-                                            return a._id;
+                                        site.sites = _.map(_.groupBy(site.sites,function(doc){
+                                            return doc._id;
+                                        }),function(grouped){
+                                            return grouped[0];
                                         });
                                         callback(null, site);
                                     }
 
                                 })
                             } else {
-                                callback(err);
+                                callback(null, site);
                             }
                         });
                     }

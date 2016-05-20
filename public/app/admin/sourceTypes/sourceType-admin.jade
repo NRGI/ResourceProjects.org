@@ -1,0 +1,27 @@
+.container.top-padding-med
+	.card
+		.col-xs-12
+			legend Source Types
+			.pull-xs-right
+				.btn-group
+					button.btn.btn-secondary.pull-xs-right(type='button')
+						a(href='/admin/create-sourceType') Create new source type
+		table.table
+			thead
+				tr
+					th Source type name
+					th Source type id
+					th Source type authority
+					th Source type display
+					th
+			tbody
+				tr(ng-repeat="sourceType in sourceTypes | unique: '_id'")
+					td.source_name
+						span(ng-bind-html="sourceType.source_type_name|sanitize")
+					td.source_type {{sourceType.source_type_id}}
+					td.source_date {{sourceType.source_type_authority}}
+					td.source_date
+						span(ng-if='sourceType.source_type_display') Display
+						span(ng-if='!sourceType.source_type_display') No Display
+					td
+						a.btn.center-block.btn-secondary(href="/admin/sourceType-admin/{{sourceType._id}}") Edit

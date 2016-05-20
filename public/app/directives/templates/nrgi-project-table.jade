@@ -1,19 +1,43 @@
-a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#projects")
-    h2 Projects
-#projects.panel-collapse.collapse
-    table.table.table-striped.projects(ts-wrapper ng-class="projects.length >= 8 ? 'header-fixed' : ''" width="100%" height="100%")
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getProjects(id,type)'
+data-target="#projects")
+    h4.text-justify Projects
+//a(data-toggle="collapse" ng-click='openClose=!openClose;getProjects(id,type)' data-target="#projects")
+//    h2 Projects
+#projects.panel-collapse.collapse.in
+    table.load_table.table.table-striped.projects(
+    ts-wrapper
+    ng-class="projects.length >= 8 ? 'header-fixed' : ''"
+    width="100%"
+    height="100%")
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='proj_name') Name
-                th.tablesort-sortable-th(ng-if="country==true" ts-criteria='proj_country[proj_country.length - 1].country.name') Country
-                th.tablesort-sortable-th(ng-if="commoditytype==true" ts-criteria='proj_type[proj_type.length - 1].string') Commodity Type
-                th.tablesort-sortable-th(ng-if="commodity==true" ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_name') Commodity
-                th.tablesort-sortable-th(ng-if="status==true" ts-criteria='proj_status[proj_status.length - 1].string') Status
-                th.text-center.tablesort-sortable-th(ng-if="companies==true" ts-criteria='companies|parseInt') Companies
+                th.tablesort-sortable-th(
+                ng-if="country==true"
+                ts-criteria='proj_country[proj_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(
+                ng-if="commoditytype==true"
+                ts-criteria='proj_type[proj_type.length - 1].string') Commodity Type
+                th.tablesort-sortable-th(
+                ng-if="commodity==true"
+                ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_name') Commodity
+                th.tablesort-sortable-th(
+                ng-if="status==true"
+                ts-criteria='proj_status[proj_status.length - 1].string') Status
+                th.text-center.tablesort-sortable-th(
+                ng-if="companies==true"
+                ts-criteria='companies|parseInt') Companies
         tbody
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-project")
             tr(
             ng-repeat="project in projects | unique: '_id'"
-            ts-repeat)
+            ts-repeat ng-class="expression")
                 td.proj_id
                     a(href='project/{{project.proj_id}}')
                         span(ng-bind-html="project.proj_name|sanitize")
@@ -33,7 +57,9 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#projects")
                     | {{$last ? '' : ', '}}
                 td.proj_status(ng-if="status==true")
                     em(ng-if="project.proj_status.length<1") ..
-                    text(ng-if="project.proj_status.length>0" ng-repeat="status in project.proj_status")
+                    text(
+                    ng-if="project.proj_status.length>0"
+                    ng-repeat="status in project.proj_status")
                         text(ng-if="$last")
                             | {{status.string | ucfirst}}
                             text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
@@ -44,4 +70,8 @@ a(data-toggle="collapse" ng-click='getData(id,type)' data-target="#projects")
             span
                 |  Download:
                 =' '
-                a(href="" ng-csv="csv_project" csv-header="getHeaderProjects()" filename="projects.csv") Projects CSV
+                a(
+                href=""
+                ng-csv="csv_project"
+                csv-header="getHeaderProjects()"
+                filename="projects.csv") Projects CSV

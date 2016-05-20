@@ -230,11 +230,8 @@ exports.getContractByID = function(req, res) {
         }
     }
     function getContractLinks(contract, callback) {
-        contract.projects = [];
         contract.concessions = [];
-        contract.sites = [];
         contract.location=[];
-        contract.site_coordinates = {sites: [], fields: []};
         Link.find({contract: contract._id})
             .populate('company')
             .populate('site')
@@ -248,15 +245,6 @@ exports.getContractByID = function(req, res) {
                         var entity = _.without(link.entities, 'contract')[0];
                         switch (entity) {
                             case 'site':
-                                contract.sites.push({
-                                    _id: link.site._id,
-                                    field: link.site.field,
-                                    site_name: link.site.site_name,
-                                    site_country:link.site.site_country,
-                                    site_commodity:link.site.site_commodity,
-                                    site_type:link.site.site_type,
-                                    site_status:link.site.site_status
-                                });
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
                                         contract.location.push({

@@ -7,9 +7,10 @@ angular.module('app')
         nrgiIdentitySrvc,
         nrgiSourcesSrvc
     ) {
-        $scope.limit = 50;$scope.page = 0;$scope.count =0;
+        $scope.limit = 50;
+        $scope.page = 0;
+        $scope.count =0;
         $scope.show_count=0;
-        $scope.controller='nrgiSourcesCtrl';
         var loadSources = function(limit,page){
             nrgiSourcesSrvc.query({skip: page, limit: limit}, function (response) {
                 $scope.count = response.count;

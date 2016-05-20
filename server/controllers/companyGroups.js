@@ -91,8 +91,10 @@ exports.getCompanyGroups = function(req, res) {
                     Link.find({entities: 'project',$or: [group.companies]})
                         .populate('project')
                         .exec(function (err, proj_count) {
-                            proj_count = _.uniq(proj_count, function (a) {
-                                return a.project._id;
+                            proj_count = _.map(_.groupBy(proj_count,function(doc){
+                                return doc.project._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             ++companyGroup_counter;
                             group.project_count = proj_count.length;
@@ -113,43 +115,51 @@ exports.getCompanyGroups = function(req, res) {
     }
 };
 
-exports.getCompanyGroupByID = function(req, res) {
-    var link_counter, link_len, company_counter, company_len;
+exports.getCompanyGroupID = function(req, res) {
 
     async.waterfall([
-        getCompanyGroup,
-        getCompanyGroupLinks,
-        getCompanyLinks
+        getCompanyGroup
     ], function (err, result) {
         if (err) {
             res.send(err);
-        } else{
+        } else {
             res.send(result);
         }
     });
 
     function getCompanyGroup(callback) {
-        CompanyGroup.findOne({_id:req.params.id})
+        CompanyGroup.findOne({_id: req.params.id})
             .populate('company_group_aliases', '_id alias')
-            .populate('company','_id company_name')
+            .populate('company', '_id company_name')
             .lean()
-            .exec(function(err, companyGroup) {
-                if(companyGroup) {
+            .exec(function (err, companyGroup) {
+                if (companyGroup) {
                     callback(null, companyGroup);
                 } else {
-                    callback(err);
+                    callback(null, companyGroup);
                 }
             });
     }
-    function getCompanyGroupLinks(companyGroup, callback) {
+}
+exports.getCompanyGroupByID = function(req, res) {
+    var companyGroup={}, link_counter, link_len, company_counter, company_len;
+
+    async.waterfall([
+        getCompanyGroupLinks,
+        getCompanyLinks
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(result);
+        }
+    });
+    function getCompanyGroupLinks(callback) {
         companyGroup.companies = [];
         companyGroup.commodities = [];
-        companyGroup.proj_coordinates=[];
-        Link.find({company_group: companyGroup._id})
+        Link.find({company_group: req.params.id})
             .populate('company','_id company_name')
             .populate('commodity')
-            .populate('contract')
-            .deepPopulate('source.source_type_id')
             .exec(function(err, links) {
                 link_len = links.length;
                 if(link_len>0) {
@@ -207,29 +217,6 @@ exports.getCompanyGroupByID = function(req, res) {
                                 var entity = _.without(link.entities, 'company')[0];
                                 switch (entity) {
                                     case 'site':
-                                        if (link.site.field && link.site.site_coordinates.length>0) {
-                                            link.site.site_coordinates.forEach(function (loc) {
-                                                companyGroup.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'field',
-                                                    'id': link.site._id
-                                                });
-                                            });
-                                        } else if (!link.site.field && link.site.site_coordinates.length>0) {
-                                            link.site.site_coordinates.forEach(function (loc) {
-                                                companyGroup.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'site',
-                                                    'id': link.site._id
-                                                });
-                                            });
-                                        }
                                         if (link.site.site_commodity.length>0) {
                                             if (_.where(companyGroup.commodities, {_id:_.last(link.site.site_commodity)._id}).length<1) {
                                                 companyGroup.commodities.push({
@@ -242,16 +229,6 @@ exports.getCompanyGroupByID = function(req, res) {
                                         }
                                         break;
                                     case 'project':
-                                        link.project.proj_coordinates.forEach(function (loc) {
-                                            companyGroup.proj_coordinates.push({
-                                                'lat': loc.loc[0],
-                                                'lng': loc.loc[1],
-                                                'message': link.project.proj_name,
-                                                'timestamp': loc.timestamp,
-                                                'type': 'project',
-                                                'id': link.project.proj_id
-                                            });
-                                        });
                                         if (link.project.proj_commodity.length>0) {
                                             if (_.where(companyGroup.commodities, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                                 companyGroup.commodities.push({

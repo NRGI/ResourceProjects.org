@@ -4,10 +4,10 @@
             span(ng-bind-html="group.company_group_name|sanitize")
             =' '
             small Group of Companies
-    .row(ng-if="company.proj_coordinates.length>0")
-        .col-md-12
-            nrgi-leaflet(data='group.location')
     .row
+        .col-md-12
+            nrgi-leaflet(type="'group'" id='group._id')
+    .row.top-padding-med
         .col-md-6
             .info-box
                 h2 Company Group Info
@@ -31,7 +31,7 @@
                         tr
                             td.detail_label.small Commodities:
                             td.commodities
-                                text(ng-repeat="commodity in group.commodities | unique: '_id'")
+                                text(ng-repeat="commodity in group.commodities | unique: 'commodity_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}

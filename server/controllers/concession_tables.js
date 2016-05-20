@@ -43,7 +43,7 @@ exports.getConcessionTable = function(req, res){
                 .populate('concession commodity country')
                 .deepPopulate('concession.concession_commodity.commodity concession.concession_country.country ')
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -56,15 +56,17 @@ exports.getConcessionTable = function(req, res){
                                 concession_status: link.concession.concession_status
                             });
                             if (link_len == link_counter) {
-                                company.concessions = _.uniq(company.concessions, function (a) {
-                                    return a._id;
+                                company.concessions = _.map(_.groupBy(company.concessions,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, company);
                             }
 
                         })
                     } else {
-                        callback(err);
+                        callback(null, company);
                     }
                 });
         } else{
@@ -92,8 +94,10 @@ exports.getConcessionTable = function(req, res){
                                 projects: 0
                             });
                             if (concession_len == concession_counter) {
-                                company.concessions = _.uniq(company.concessions, function (a) {
-                                    return a._id;
+                                company.concessions = _.map(_.groupBy(company.concessions,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, company);
                             }
@@ -150,8 +154,10 @@ exports.getConcessionTable = function(req, res){
                         .populate('project')
                         .exec(function (err, links) {
                             concession_counter++;
-                            links = _.uniq(links, function (a) {
-                                return a.project._id;
+                            links = _.map(_.groupBy(links,function(doc){
+                                return doc.project._id;
+                            }),function(grouped){
+                                return grouped[0];
                             });
                             concession.projects = links.length;
                             if (concession_len == concession_counter) {
@@ -172,7 +178,7 @@ exports.getConcessionTable = function(req, res){
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links) {
+                    if (links.length>0) {
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
@@ -181,8 +187,10 @@ exports.getConcessionTable = function(req, res){
                                 companies.push({_id: link.company});
                             }
                             if (link_len == link_counter) {
-                                companies = _.uniq(companies, function (a) {
-                                    return a._id;
+                                companies = _.map(_.groupBy(companies,function(doc){
+                                    return doc._id;
+                                }),function(grouped){
+                                    return grouped[0];
                                 });
                                 callback(null, companies);
                             }
@@ -224,8 +232,10 @@ exports.getConcessionTable = function(req, res){
                                             concession_status: link.concession.concession_status
                                         });
                                         if (link_len == link_counter) {
-                                            company.concessions = _.uniq(company.concessions, function (a) {
-                                                return a._id;
+                                            company.concessions = _.map(_.groupBy(company.concessions,function(doc){
+                                                return doc._id;
+                                            }),function(grouped){
+                                                return grouped[0];
                                             });
                                             callback(null, company);
                                         }

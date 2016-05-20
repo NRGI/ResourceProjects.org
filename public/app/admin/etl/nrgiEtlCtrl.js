@@ -32,12 +32,17 @@ angular.module('app')
         $scope.startAction = function(action, dataset_id) {
             var name = null;
 
-            switch (action) {
-                case "import":
-                    name = "Import from Google Sheets";
-                    break;
-                case "cleaned":
-                    name = "Mark as cleaned";
+            if (dataset_id == "56737e170e8cc07115211ee4") { //See server/models/Datasets.js
+                name = "Import from Companies House API";
+            }
+            else {
+                switch (action) {
+                    case "import":
+                        name = "Import from Google Sheets";
+                        break;
+                    case "cleaned":
+                        name = "Mark as cleaned";
+                }
             }
 
             if (name == null) {

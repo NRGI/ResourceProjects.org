@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 require('mongoose-html-2').loadType(mongoose);
 
 var companyGroupSchema, CompanyGroup,
+    deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     ObjectId        = mongoose.Schema.Types.ObjectId,
     HTML            = mongoose.Types.Html,
@@ -27,7 +28,7 @@ companyGroupSchema = new Schema({
         ref: 'Alias'}],
     company_group_record_established: {
         type: ObjectId,
-        ref: 'Sources'},
+        ref: 'Source'},
     description: htmlSettings,
     open_corporates_group_ID: String
 });
@@ -40,6 +41,7 @@ companyGroupSchema = new Schema({
 //};
 
 CompanyGroup = mongoose.model('CompanyGroup', companyGroupSchema);
+companyGroupSchema.plugin(deepPopulate);
 
 function createDefaultCompanyGroups() {
     CompanyGroup.find({}).count().exec(function(err, company_groups_count) {
