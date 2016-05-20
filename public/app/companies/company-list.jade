@@ -38,4 +38,4 @@
                         td.text-center.company_fields {{company.field_count}}
                         td.text-center.company_transfers {{company.transfer_count}}
 
-    div(ng-if='companies.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')
+    div(ng-if='companies.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
