@@ -20,7 +20,13 @@ describe('nrgiGroupsSrvc', function () {
         $httpBackend.expectGET('/api/companyGroups/' + limit + '/' + skip).respond('');
         companyGroupServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('COMPANY GROUP SERVICE: UPDATE MISSING')
+    it('requests company update group data for a given `companyGroupId`', function () {
+        var companyGroupId = 1;
+        var data = {};
+        $httpBackend.expectPUT('/api/companyGroups/' + companyGroupId,data).respond('');
+        companyGroupServiceInstance.$update({_id: companyGroupId});
+    });
+    //console.info('COMPANY GROUP SERVICE: UPDATE MISSING')
 
     afterEach(function() {
         $httpBackend.flush();

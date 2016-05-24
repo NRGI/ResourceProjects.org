@@ -19,8 +19,18 @@ describe('nrgiDatasetSrvc', function () {
         $httpBackend.expectGET('/api/datasets').respond('');
         datasetServiceInstance.$get({});
     });
-    console.info('DATASET SERVICE: UPDATE MISSING');
-    console.info('DATASET SERVICE: SAVE MISSING');
+    it('requests country update data for a given `datasetId`', function () {
+        var datasetId = 1;
+        $httpBackend.expectPUT('/api/datasets/' + datasetId).respond('');
+        datasetServiceInstance.$update({_id: datasetId});
+    });
+    it('requests country save data', function () {
+        $httpBackend.expectPOST('/api/datasets').respond('');
+        datasetServiceInstance.$save({});
+    });
+
+    //console.info('DATASET SERVICE: UPDATE MISSING');
+    //console.info('DATASET SERVICE: SAVE MISSING');
 
     afterEach(function() {
         $httpBackend.flush();

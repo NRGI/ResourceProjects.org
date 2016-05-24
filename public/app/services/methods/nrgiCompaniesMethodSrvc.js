@@ -19,9 +19,9 @@ angular.module('app')
                 var dfd = $q.defer();
                 new_company_data.$update().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             },
             deleteCompany: function(company_deletion) {
@@ -31,9 +31,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

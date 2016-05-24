@@ -22,18 +22,18 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             },
             updateContract: function(new_contract_data) {
                 var dfd = $q.defer();
                 new_contract_data.$update().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

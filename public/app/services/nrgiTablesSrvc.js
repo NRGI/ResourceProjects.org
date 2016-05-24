@@ -2,66 +2,58 @@
 
 angular.module('app')
     .factory('nrgiTablesSrvc', function($resource) {
-    var ProjectResource = $resource('/api/company_table/:type/:_id', {_id: "@id",type:"@type"}, {
-        query:  {method:'GET', isArray: false},
-        update: {method: 'PUT', isArray: false}
+    var CompanyTableResource = $resource('/api/company_table/:type/:_id', {_id: "@id",type:"@type"}, {
+        query:  {method:'GET', isArray: false}
     });
 
-    return ProjectResource;
+    return CompanyTableResource;
     })
     .factory('nrgiProjectTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/project_table/:type/:_id', {_id: "@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var ProjectTableResource = $resource('/api/project_table/:type/:_id', {_id: "@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return ProjectTableResource;
     })
     .factory('nrgiProdTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/prod_table/:type/:_id', {_id:"@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var ProdTableResource = $resource('/api/prod_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return ProdTableResource;
     })
     .factory('nrgiTransferTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/transfer_table/:type/:_id', {_id:"@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var TransferTableResource = $resource('/api/transfer_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return TransferTableResource;
     })
     .factory('nrgiSourceTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/source_table/:type/:_id', {_id:"@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var SourceTableResource = $resource('/api/source_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return SourceTableResource;
     })
     .factory('nrgiSiteFieldTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/site_table/:type/:_id', {_id:"@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var SiteFieldTableResource = $resource('/api/site_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return SiteFieldTableResource;
     })
     .factory('nrgiContractTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/contract_table/:type/:_id', {_id:"@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var ContractTableResource = $resource('/api/contract_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return ContractTableResource;
     })
     .factory('nrgiConcessionTablesSrvc', function($resource) {
-        var ProjectResource = $resource('/api/concession_table/:type/:_id', {_id:"@id",type:"@type"}, {
-            query:  {method:'GET', isArray: false},
-            update: {method: 'PUT', isArray: false}
+        var ConcessionTableResource = $resource('/api/concession_table/:type/:_id', {_id:"@id",type:"@type"}, {
+            query:  {method:'GET', isArray: false}
         });
 
-        return ProjectResource;
+        return ConcessionTableResource;
     })

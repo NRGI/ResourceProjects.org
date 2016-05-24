@@ -20,7 +20,12 @@ describe('nrgiConcessionsSrvc', function () {
         $httpBackend.expectGET('/api/concessions/' + limit + '/' + skip).respond('');
         concessionServiceInstance.$get({limit: limit, skip: skip});
     });
-    console.info('CONCESSION SERVICE: UPDATE MISSING')
+    it('requests concession update data for a given `concessionId`', function () {
+        var concessionId = 1;
+        $httpBackend.expectPUT('/api/concessions/' + concessionId).respond('');
+        concessionServiceInstance.$update({_id: concessionId});
+    });
+    //console.info('CONCESSION SERVICE: UPDATE MISSING')
 
     afterEach(function() {
         $httpBackend.flush();

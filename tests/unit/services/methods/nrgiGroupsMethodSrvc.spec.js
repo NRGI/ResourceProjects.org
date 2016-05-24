@@ -95,34 +95,34 @@ describe('nrgiGroupsMethodSrvc', function () {
             $qDeferSpy.called.should.be.equal(true);
         });
 
-        console.log('COMPANY GROUP METHOD SERVICE: MISSING NEGATIVE UPDATE CASE')
+        //console.log('COMPANY GROUP METHOD SERVICE: MISSING NEGATIVE UPDATE CASE')
 
-        // it('rejects the deferred in negative case', function () {
-        //     expectedPromise = 'NEGATIVE';
-        //     var REASON = 'REASON';
-        //
-        //     $qDeferSpy = sinon.spy();
-        //     $qDeferStub = sinon.stub($q, 'defer', function() {
-        //         return {
-        //             reject: $qDeferSpy,
-        //             promise: expectedPromise
-        //         };
-        //     });
-        //
-        //     nrgiGroupsMethodSrvc.updateGroup({
-        //         $update: function() {
-        //             return {
-        //                 then: function(uselessCallbackPositive, callbackNegative) {
-        //                     callbackNegative({
-        //                         data: {reason: REASON}
-        //                     });
-        //                 }
-        //             };
-        //         }
-        //     }).should.be.equal(expectedPromise);
-        //
-        //     $qDeferSpy.should.have.been.calledWith(REASON);
-        // });
+        it('rejects the deferred in negative case', function () {
+             expectedPromise = 'NEGATIVE';
+             var REASON = 'REASON';
+
+             $qDeferSpy = sinon.spy();
+             $qDeferStub = sinon.stub($q, 'defer', function() {
+                 return {
+                     reject: $qDeferSpy,
+                     promise: expectedPromise
+                 };
+             });
+
+             nrgiGroupsMethodSrvc.updateGroup({
+                 $update: function() {
+                     return {
+                         then: function(uselessCallbackPositive, callbackNegative) {
+                             callbackNegative({
+                                 data: {reason: REASON}
+                             });
+                         }
+                     };
+                 }
+             }).should.be.equal(expectedPromise);
+
+             $qDeferSpy.should.have.been.calledWith(REASON);
+        });
     });
 
     describe('#deleteCompanyGroup', function () {
@@ -151,33 +151,33 @@ describe('nrgiGroupsMethodSrvc', function () {
             $qDeferSpy.called.should.be.equal(true);
         });
 
-        console.log('COMPANY GROUP METHOD SERVICE: MISSING NEGATIVE DELETE CASE')
+        //console.log('COMPANY GROUP METHOD SERVICE: MISSING NEGATIVE DELETE CASE')
 
-        // it('resolves the deferred in negative case', function () {
-        //     expectedPromise = 'NEGATIVE';
-        //     var REJECT_RESPONSE = {
-        //         data: {reason: 'REJECT_INSERTION'}
-        //     };
-        //
-        //     rgiCommoditySrvcStub = sinon.stub(nrgiCommoditiesSrvc.prototype, '$delete', function() {
-        //         return {
-        //             then: function(callbackPositive, callbackNegative) {
-        //                 callbackNegative(REJECT_RESPONSE);
-        //             }
-        //         };
-        //     });
-        //
-        //     $qDeferSpy = sinon.spy();
-        //     $qDeferStub = sinon.stub($q, 'defer', function() {
-        //         return {
-        //             reject: $qDeferSpy,
-        //             promise: expectedPromise
-        //         };
-        //     });
-        //
-        //     nrgiGroupsMethodSrvc.deleteGroup([expectedPromise]).should.be.equal(expectedPromise);
-        //     $qDeferSpy.should.have.been.calledWith(REJECT_RESPONSE.data.reason);
-        // });
+        it('resolves the deferred in negative case', function () {
+             expectedPromise = 'NEGATIVE';
+             var REJECT_RESPONSE = {
+                 data: {reason: 'REJECT_INSERTION'}
+             };
+
+            nrgiCompanyGroupSrvcStub = sinon.stub(nrgiGroupsSrvc.prototype, '$delete', function() {
+                 return {
+                     then: function(callbackPositive, callbackNegative) {
+                         callbackNegative(REJECT_RESPONSE);
+                     }
+                 };
+             });
+
+             $qDeferSpy = sinon.spy();
+             $qDeferStub = sinon.stub($q, 'defer', function() {
+                 return {
+                     reject: $qDeferSpy,
+                     promise: expectedPromise
+                 };
+             });
+
+             nrgiGroupsMethodSrvc.deleteGroup([expectedPromise]).should.be.equal(expectedPromise);
+             $qDeferSpy.should.have.been.calledWith(REJECT_RESPONSE.data.reason);
+        });
 
         afterEach(function () {
             $qDeferStub.restore();
