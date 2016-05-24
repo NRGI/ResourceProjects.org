@@ -24,5 +24,4 @@ RUN     node -v
 
 EXPOSE  80
 
-CMD     ["node", "/src/server.js"]
-#CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
+CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
