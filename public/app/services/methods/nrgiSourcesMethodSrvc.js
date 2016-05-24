@@ -19,9 +19,9 @@ angular.module('app')
                 var dfd = $q.defer();
                 new_source_data.$update().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             },
             deleteSource: function(source_deletion) {
@@ -31,9 +31,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

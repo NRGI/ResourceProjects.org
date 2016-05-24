@@ -22,9 +22,9 @@ angular.module('app')
                 var dfd = $q.defer();
                 new_dataset_data.$update().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             },
             createAction: function(new_action_data) {
@@ -45,9 +45,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

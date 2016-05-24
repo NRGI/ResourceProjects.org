@@ -20,7 +20,7 @@
 	ts-wrapper)
 		thead
 			tr
-				th.tablesort-sortable-th(ts-criteria='source_name') Source
+				th.tablesort-sortable-th(ts-criteria='source_type_name') Source
 		tbody
 			tr(
 			ng-repeat="type in sourceTypes | unique: '_id'"

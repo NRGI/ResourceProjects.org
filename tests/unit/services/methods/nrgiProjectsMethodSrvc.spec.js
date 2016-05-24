@@ -71,6 +71,8 @@ describe('nrgiProjectsMethodSrvc', function () {
     });
 
     describe('#updateProjects', function () {
+        var nrgiProjectSrvcStub;
+
         it('resolves the deferred in positive case', function () {
             expectedPromise = 'POSITIVE';
 
@@ -95,34 +97,34 @@ describe('nrgiProjectsMethodSrvc', function () {
             $qDeferSpy.called.should.be.equal(true);
         });
 
-        console.log('PROJECTS METHOD SERVICE: MISSING NEGATIVE UPDATE CASE')
+        //console.log('PROJECTS METHOD SERVICE: MISSING NEGATIVE UPDATE CASE')
 
-        // it('rejects the deferred in negative case', function () {
-        //     expectedPromise = 'NEGATIVE';
-        //     var REASON = 'REASON';
-        //
-        //     $qDeferSpy = sinon.spy();
-        //     $qDeferStub = sinon.stub($q, 'defer', function() {
-        //         return {
-        //             reject: $qDeferSpy,
-        //             promise: expectedPromise
-        //         };
-        //     });
-        //
-        //     nrgiProjectSrvcStub.updateProject({
-        //         $update: function() {
-        //             return {
-        //                 then: function(uselessCallbackPositive, callbackNegative) {
-        //                     callbackNegative({
-        //                         data: {reason: REASON}
-        //                     });
-        //                 }
-        //             };
-        //         }
-        //     }).should.be.equal(expectedPromise);
-        //
-        //     $qDeferSpy.should.have.been.calledWith(REASON);
-        // });
+        it('rejects the deferred in negative case', function () {
+             expectedPromise = 'NEGATIVE';
+             var REASON = 'REASON';
+
+             $qDeferSpy = sinon.spy();
+             $qDeferStub = sinon.stub($q, 'defer', function() {
+                 return {
+                     reject: $qDeferSpy,
+                     promise: expectedPromise
+                 };
+             });
+
+             nrgiProjectsMethodSrvc.updateProject({
+                 $update: function() {
+                     return {
+                         then: function(uselessCallbackPositive, callbackNegative) {
+                             callbackNegative({
+                                 data: {reason: REASON}
+                             });
+                         }
+                     };
+                 }
+             }).should.be.equal(expectedPromise);
+
+             $qDeferSpy.should.have.been.calledWith(REASON);
+        });
     });
 
     describe('#deleteProjects', function () {
@@ -151,33 +153,33 @@ describe('nrgiProjectsMethodSrvc', function () {
             $qDeferSpy.called.should.be.equal(true);
         });
 
-        console.log('PROJECTS METHOD SERVICE: MISSING NEGATIVE DELETE CASE')
+        //console.log('PROJECTS METHOD SERVICE: MISSING NEGATIVE DELETE CASE')
 
-        // it('resolves the deferred in negative case', function () {
-        //     expectedPromise = 'NEGATIVE';
-        //     var REJECT_RESPONSE = {
-        //         data: {reason: 'REJECT_INSERTION'}
-        //     };
-        //
-        //     nrgiProjectSrvcStub = sinon.stub(nrgiCommoditiesSrvc.prototype, '$delete', function() {
-        //         return {
-        //             then: function(callbackPositive, callbackNegative) {
-        //                 callbackNegative(REJECT_RESPONSE);
-        //             }
-        //         };
-        //     });
-        //
-        //     $qDeferSpy = sinon.spy();
-        //     $qDeferStub = sinon.stub($q, 'defer', function() {
-        //         return {
-        //             reject: $qDeferSpy,
-        //             promise: expectedPromise
-        //         };
-        //     });
-        //
-        //     nrgiProjectsMethodSrvc.deleteProject([expectedPromise]).should.be.equal(expectedPromise);
-        //     $qDeferSpy.should.have.been.calledWith(REJECT_RESPONSE.data.reason);
-        // });
+        it('resolves the deferred in negative case', function () {
+             expectedPromise = 'NEGATIVE';
+             var REJECT_RESPONSE = {
+                 data: {reason: 'REJECT_INSERTION'}
+             };
+
+             nrgiProjectSrvcStub = sinon.stub(nrgiProjectsSrvc.prototype, '$delete', function() {
+                 return {
+                     then: function(callbackPositive, callbackNegative) {
+                         callbackNegative(REJECT_RESPONSE);
+                     }
+                 };
+             });
+
+             $qDeferSpy = sinon.spy();
+             $qDeferStub = sinon.stub($q, 'defer', function() {
+                 return {
+                     reject: $qDeferSpy,
+                     promise: expectedPromise
+                 };
+             });
+
+             nrgiProjectsMethodSrvc.deleteProject([expectedPromise]).should.be.equal(expectedPromise);
+             $qDeferSpy.should.have.been.calledWith(REJECT_RESPONSE.data.reason);
+        });
 
         afterEach(function () {
             $qDeferStub.restore();

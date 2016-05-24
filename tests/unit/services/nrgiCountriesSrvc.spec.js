@@ -20,7 +20,11 @@ describe('nrgiCountriesSrvc', function () {
         $httpBackend.expectGET('/api/countries/' + limit + '/' + skip).respond('');
         countryServiceInstance.$get({limit: limit, skip: skip});
     });
-
+    it('requests country update data for a given `countryId`', function () {
+        var countryId = 1;
+        $httpBackend.expectPUT('/api/countries/' + countryId).respond('');
+        countryServiceInstance.$update({_id: countryId});
+    });
     afterEach(function() {
         $httpBackend.flush();
     });
