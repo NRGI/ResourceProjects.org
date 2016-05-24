@@ -30,9 +30,3 @@ RUN     npm -v
 EXPOSE  80
 
 CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
-
-
-
-
-
-
