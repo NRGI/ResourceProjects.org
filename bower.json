@@ -29,7 +29,9 @@
     "plotlyjs": "plotly#^1.4.1",
     "angular-google-analytics": "^1.1.7",
     "angular-spinner": "^0.8.1",
-    "angular-tether": "~0.2.2"
+    "angular-tether": "~0.2.2",
+    "angular-plotly": "~0.1.2",
+    "ngInfiniteScroll": "~1.2.1"
   },
   "moduleType": [
     "node"

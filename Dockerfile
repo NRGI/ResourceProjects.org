@@ -1,16 +1,20 @@
 FROM	centos:centos7
-MAINTAINER Chris Perry, byndcivilization@gmail.com
+MAINTAINER Chris Perry, cperry@resourcegovernance.org
 
 # Enable EPEL for Node.js
 RUN     rpm -Uvh https://rpm.nodesource.com/pub_4.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm
 
-# Install Node.js, npm, git and bower
-RUN     yum update -y
-RUN     yum install -y nodejs \
-                        npm \
-                        git
+# Upgrade system
+RUN     yum -y clean all
+RUN     yum -y distro-sync
+RUN     yum -y update
+RUN     yum -y upgrade
 
-RUN		npm install -g bower
+# Install Node.js, npm, and git
+RUN     yum install -y git nodejs npm
+
+# Install dependancies
+RUN		npm install -g bower forever
 
 # Build src
 ADD     package.json /tmp/package.json
@@ -21,8 +25,8 @@ COPY	. /src
 RUN		cd /src && bower install --allow-root
 
 RUN     node -v
+RUN     npm -v
 
 EXPOSE  80
 
-CMD     ["node", "/src/server.js"]
-#CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]
+CMD     ["/src/node_modules/forever/bin/forever","/src/server.js"]

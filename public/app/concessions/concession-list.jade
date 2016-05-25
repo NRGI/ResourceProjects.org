@@ -52,4 +52,4 @@
                 td.text-center.concession_payments {{concession.transfer_count}}
                 td.text-center.concession_production {{concession.production_count}}
 
-    div(ng-if='concessions.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')
+    div(ng-if='concessions.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
