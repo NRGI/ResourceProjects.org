@@ -9,13 +9,13 @@ describe('nrgiCountryCommoditiesSrvc', function () {
         $httpBackend = _$httpBackend_;
         countryCommodityServiceInstance = new nrgiCountryCommoditiesSrvc();
     }));
-    console.error('COUNTRY COMMODITY SERVICE: NO TEST')
+    //console.error('COUNTRY COMMODITY SERVICE: NO TEST')
 
-    // it('requests country data for a given `countryId`', function () {
-    //     var countryId = 1;
-    //     $httpBackend.expectGET('/api/countrycommodity/' + countryId).respond('');
-    //     countryCommodityServiceInstance.$get({_id: countryId});
-    // });
+    it('requests country data for a given `countryId`', function () {
+         var countryId = 1;
+         $httpBackend.expectGET('/api/countrycommodity/' + countryId).respond('');
+         countryCommodityServiceInstance.$get({_id: countryId});
+    });
 
     afterEach(function() {
         $httpBackend.flush();
