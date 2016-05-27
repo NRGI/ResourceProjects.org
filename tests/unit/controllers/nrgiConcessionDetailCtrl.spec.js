@@ -2,10 +2,8 @@ describe("Unit: Testing Controllers", function() {
 
     beforeEach(module('app'));
 
-    var scope,
-        controllerService,
-        httpMock,
-        ID = '56a2b8236e585b7316655794',
+    var ID = '56a2b8236e585b7316655794',
+        expectedID = {_id:'56a2b8236e585b7316655794'},
         data = {
             "_id": "56a2b8236e585b7316655794",
             "concession_name": "Block A",
@@ -280,27 +278,43 @@ describe("Unit: Testing Controllers", function() {
                 "type": "field",
                 "id": "56eb117c0007bf5b2a3e4b76"
             }]
-        }
+        },
+        concessionSrvc,
+        scope,
+        ConcessionStub,
+        controller,
+        ctrl;
 
-    beforeEach(inject(function ($rootScope, $controller, $httpBackend) {
-        scope = $rootScope.$new();
-        controllerService = $controller;
-        httpMock = $httpBackend;
+    beforeEach(inject(function ($controller, nrgiConcessionsSrvc, $rootScope) {
+        scope = $rootScope.$new;
+        controller = $controller;
+        concessionSrvc = nrgiConcessionsSrvc;
     }));
 
-    it("should get '56a2b8236e585b7316655794' from '/api/concessions'", function () {
+    it('requests concession data for a given `Id`', function () {
+        var concessionQueryStub;
 
-        httpMock.expectGET('/api/concessions/' + ID).respond(data);
+        concessionQueryStub = sinon.spy(function (id, callback) {
+            callback(data);
+        });
 
-        ctrl = controllerService('nrgiConcessionDetailCtrl', {
+        ConcessionStub = sinon.stub(concessionSrvc, 'get', concessionQueryStub);
+
+        ctrl = controller('nrgiConcessionDetailCtrl', {
             $scope: scope,
-            $routeParams:{
+            $routeParams: {
                 id: ID
             }
         });
 
-        httpMock.flush();
+        concessionQueryStub.called.should.be.equal(true);
 
-        expect(scope.concession._id).toEqual(ID);
+        sinon.assert.calledWith(concessionQueryStub, expectedID);
+
+        scope.concession.should.be.equal(data);
+
+    });
+    afterEach(function () {
+        ConcessionStub.restore();
     });
 });

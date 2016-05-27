@@ -2,10 +2,8 @@ describe("Unit: Testing Controllers", function() {
 
     beforeEach(module('app'));
 
-    var scope,
-        controllerService,
-        httpMock,
-        ID = 'ocds-591adf-PH9670211788RC',
+    var ID = 'ocds-591adf-PH9670211788RC',
+        expectedID = {_id:'ocds-591adf-PH9670211788RC'},
         data = {
             "_id": "56a2eb4345d114c30439ec22",
             "contract_id": "ocds-591adf-PH9670211788RC",
@@ -426,27 +424,43 @@ describe("Unit: Testing Controllers", function() {
                 "id": "56eb117c0007bf5b2a3e4b76"
             }],
             "site_coordinates": {"sites": [], "fields": []}
-        }
+        },
+        contractSrvc,
+        scope,
+        ContractStub,
+        controller,
+        ctrl;
 
-    beforeEach(inject(function ($rootScope, $controller, $httpBackend) {
-        scope = $rootScope.$new();
-        controllerService = $controller;
-        httpMock = $httpBackend;
+    beforeEach(inject(function ($controller, nrgiContractsSrvc, $rootScope) {
+        scope = $rootScope.$new;
+        controller = $controller;
+        contractSrvc = nrgiContractsSrvc;
     }));
 
-    it("should get 'ocds-591adf-PH9670211788RC' from '/api/contract'", function () {
+    it('requests contract data for a given `Id`', function () {
+        var contractQueryStub;
 
-        httpMock.expectGET('/api/contracts/' + ID).respond(data);
+        contractQueryStub = sinon.spy(function (id, callback) {
+            callback(data);
+        });
 
-        ctrl = controllerService('nrgiContractDetailCtrl', {
+        ContractStub = sinon.stub(contractSrvc, 'get', contractQueryStub);
+
+        ctrl = controller('nrgiContractDetailCtrl', {
             $scope: scope,
-            $routeParams:{
+            $routeParams: {
                 id: ID
             }
         });
 
-        httpMock.flush();
+        contractQueryStub.called.should.be.equal(true);
 
-        expect(scope.contract.contract_id).toEqual(ID);
+        sinon.assert.calledWith(contractQueryStub, expectedID);
+
+        scope.contract.should.be.equal(data);
+
+    });
+    afterEach(function () {
+        ContractStub.restore();
     });
 });

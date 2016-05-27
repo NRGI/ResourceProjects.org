@@ -1,11 +1,16 @@
-describe("Unit: Testing Controllers", function() {
+'use strict';
+
+describe('Unit: Testing Controllers', function() {
 
     beforeEach(module('app'));
 
-    var scope,
-        controllerService,
-        httpMock,
+    var SiteStub,
+        sitesSrvc,
+        scope,
+        controller,
+        ctrl,
         ID = '56eb117c0007bf5b2a3e4b71',
+        expectedID = {_id: ID},
         data = {
             "_id": "56eb117c0007bf5b2a3e4b71",
             "site_name": "Test site 1",
@@ -138,25 +143,36 @@ describe("Unit: Testing Controllers", function() {
             "source_type": {"p": true, "c": true}
         };
 
-    beforeEach(inject(function ($rootScope, $controller, $httpBackend) {
-        scope = $rootScope.$new();
-        controllerService = $controller;
-        httpMock = $httpBackend;
+    beforeEach(inject(function ($controller, nrgiSitesSrvc, $rootScope) {
+        scope = $rootScope.$new;
+        controller = $controller;
+        sitesSrvc = nrgiSitesSrvc;
     }));
 
-    it("should get '56eb117c0007bf5b2a3e4b71' from '/api/sites'", function () {
+    it('requests site data for a given `Id`', function () {
+        var siteDetailQuerySpy;
 
-        httpMock.expectGET('/api/sites/' + ID).respond(data);
+        siteDetailQuerySpy = sinon.spy(function (id, callback) {
+            callback(data);
+        });
 
-        ctrl = controllerService('nrgiSiteDetailCtrl', {
+        SiteStub = sinon.stub(sitesSrvc, 'get', siteDetailQuerySpy);
+
+        ctrl = controller('nrgiSiteDetailCtrl', {
             $scope: scope,
-            $routeParams:{
+            $routeParams: {
                 id: ID
             }
         });
 
-        httpMock.flush();
+        siteDetailQuerySpy.called.should.be.equal(true);
 
-        expect(scope.site._id).toEqual(ID);
+        sinon.assert.calledWith(siteDetailQuerySpy, expectedID);
+
+        scope.site.should.be.equal(data);
+
+    });
+    afterEach(function () {
+        SiteStub.restore();
     });
 });

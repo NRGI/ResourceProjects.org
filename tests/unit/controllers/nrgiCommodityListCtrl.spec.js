@@ -29,7 +29,7 @@ describe('nrgiCommodityListCtrl', function () {
                 "contract": 77
             },
         ];
-    
+
     // beforeEach(inject(
     //     function ($rootScope, _nrgiCommoditiesSrvc_) {
     //         nrgiCommoditiesSrvc = _nrgiCommoditiesSrvc_;

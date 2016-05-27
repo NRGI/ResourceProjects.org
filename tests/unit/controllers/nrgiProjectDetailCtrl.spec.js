@@ -1,11 +1,16 @@
-describe("Unit: Testing Controllers", function() {
+'use strict';
+
+describe('Unit: Testing Controllers', function() {
 
     beforeEach(module('app'));
 
-    var scope,
-        controllerService,
-        httpMock,
+    var ProjectStub,
+        projectsSrvc,
+        scope,
+        controller,
+        ctrl,
         ID = 'ad-jufi-yqceeo',
+        expectedID = {_id: ID},
         data = {
             "_id": "56a930f41b5482a31231ef42",
             "proj_id": "ad-jufi-yqceeo",
@@ -109,25 +114,36 @@ describe("Unit: Testing Controllers", function() {
             }]
         };
 
-    beforeEach(inject(function ($rootScope, $controller, $httpBackend) {
-        scope = $rootScope.$new();
-        controllerService = $controller;
-        httpMock = $httpBackend;
+    beforeEach(inject(function ($controller, nrgiProjectsSrvc, $rootScope) {
+        scope = $rootScope.$new;
+        controller = $controller;
+        projectsSrvc = nrgiProjectsSrvc;
     }));
 
-    it("should get 'ad-jufi-yqceeo' from '/api/projects'", function () {
+    it('requests project data for a given `Id`', function () {
+        var projectDetailQuerySpy;
 
-        httpMock.expectGET('/api/projects/' + ID).respond(data);
+        projectDetailQuerySpy = sinon.spy(function (id, callback) {
+            callback(data);
+        });
 
-        ctrl = controllerService('nrgiProjectDetailCtrl', {
+        ProjectStub = sinon.stub(projectsSrvc, 'get', projectDetailQuerySpy);
+
+        ctrl = controller('nrgiProjectDetailCtrl', {
             $scope: scope,
-            $routeParams:{
+            $routeParams: {
                 id: ID
             }
         });
 
-        httpMock.flush();
+        projectDetailQuerySpy.called.should.be.equal(true);
 
-        expect(scope.project.proj_id).toEqual(ID);
+        sinon.assert.calledWith(projectDetailQuerySpy, expectedID);
+
+        scope.project.should.be.equal(data);
+
+    });
+    afterEach(function () {
+        ProjectStub.restore();
     });
 });
