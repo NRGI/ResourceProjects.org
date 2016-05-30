@@ -9,13 +9,11 @@ angular.module('app')
     ) {
         var limit = 50,
             currentPage = 0,
-            totalPages = 0,
-            _ = $rootScope._;
+            totalPages = 0;
 
         $scope.count =0;
         $scope.busy = false;
-
-        nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
+        nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.commodities = response.data;
             totalPages = Math.ceil(response.count / limit);
@@ -26,7 +24,7 @@ angular.module('app')
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
-                nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
+                nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
                     $scope.commodities = _.union($scope.commodities, response.data);
                     currentPage = currentPage + 1;
                     $scope.busy = false;

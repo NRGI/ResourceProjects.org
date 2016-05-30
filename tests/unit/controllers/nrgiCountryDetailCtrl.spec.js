@@ -90,13 +90,6 @@ describe("Unit: Testing Controllers", function() {
         sinon.assert.calledWith(countryDataQueryStub, expectedDataID);
         expect(countryDataQueryStub).to.have.returned(data)
     });
-    it("requests country data for a given `Id`",function(){
-        scope.$digest();
-
-        countryDataQueryStub.called.should.be.equal(true);
-        sinon.assert.calledWith(countryDataQueryStub, expectedDataID);
-        expect(countryDataQueryStub).to.have.returned(data)
-    })
 
     afterEach(function () {
         countryQueryStub.restore();

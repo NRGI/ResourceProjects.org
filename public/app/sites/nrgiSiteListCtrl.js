@@ -11,8 +11,8 @@ angular.module('app')
     ) {
         var limit = 50,
             currentPage = 0,
-            totalPages = 0,
-            _ = $rootScope._;
+            totalPages = 0;
+            //_ = $rootScope._;
 
         $scope.count =0;
         $scope.field = false;

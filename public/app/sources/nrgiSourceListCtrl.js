@@ -5,41 +5,33 @@ angular.module('app')
         $scope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiSourcesSrvc
+        nrgiSourcesSrvc,
+        $rootScope
     ) {
-        $scope.limit = 50;
-        $scope.page = 0;
-        $scope.count =0;
-        $scope.show_count=0;
-        var loadSources = function(limit,page){
-            nrgiSourcesSrvc.query({skip: page, limit: limit}, function (response) {
-                $scope.count = response.count;
-                $scope.limit = limit;
-                $scope.page = page;
-                $scope.sources=response.data;
-                $scope.show_count = response.data.length+$scope.page;
-            });
-        };
-        loadSources($scope.limit,$scope.page);
-        $scope.select = function(changeLimit){
-            loadSources(changeLimit,0);
-        };
-        $scope.next = function(page,count){
-            loadSources($scope.limit,count);
-        };
-        $scope.prev = function(page){
-            loadSources($scope.limit,page-$scope.limit);
-        };
-        $scope.first = function(){
-            loadSources($scope.limit,0);
-        };
-        $scope.last = function(page){
-            if($scope.count%$scope.limit!=0){
-                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
-                loadSources($scope.limit,page);
-            }else {
-                loadSources($scope.limit,page-$scope.limit);
-            }
-        }
-    });
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0;
 
+        $scope.count =0;
+        $scope.field = false;
+        $scope.busy = false;
+
+        nrgiSourcesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.sources = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiSourcesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                    $scope.sources = _.union($scope.sources, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
+            }
+        };
+    });

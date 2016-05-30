@@ -10,8 +10,7 @@ angular.module('app')
     ) {
         var limit = 50,
             currentPage = 0,
-            totalPages = 0,
-            _ = $rootScope._;
+            totalPages = 0;
 
         $scope.count =0;
         $scope.busy = false;
