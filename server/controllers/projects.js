@@ -337,7 +337,7 @@ exports.getProjectByID = function(req, res) {
         } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
             project.source_type.p = true;
         }
-        //project.site_coordinates = {sites: [], fields: []};
+        project.site_coordinates = {sites: [], fields: []};
         //project.sources = {};
         Link.find({project: project._id})
             .populate('company contract concession site project')

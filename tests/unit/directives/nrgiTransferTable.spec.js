@@ -39,19 +39,22 @@ describe("TransferTable Directive", function() {
             }]
         },
         ID = "57156908a6565c01006341f8",
+        element,
         expectedParams = {_id: 'id',type: 'type'};
     beforeEach(module('app'));
 
     beforeEach(inject(function($templateCache,_$compile_,_$rootScope_,$controller, nrgiTransferTablesSrvc,_usSpinnerService_) {
         usSpinnerService = _usSpinnerService_;
-        template = $templateCache.get('/partials/directives/templates/nrgi-transfer-table');
-        $templateCache.put('/partials/directives/templates/nrgi-transfer-table',template);
-
         $compile = _$compile_;
         $rootScope = _$rootScope_;
-
         scope = $rootScope.$new();
-        scope.id  = ID;
+        $templateCache.get('/partials/directives/templates/nrgi-transfer-table');
+
+        template = '<nrgi-transfer-table id="\'57156908a6565c01006341f8\'" type="type" project= "project" projectlink= "projectlink"></nrgi-transfer-table>';
+        element = $compile(template)(scope);
+
+        scope.id=ID;
+
         ctrl = $controller('nrgiTransferTableCtrl', {
             $scope:  scope
         });
@@ -63,8 +66,6 @@ describe("TransferTable Directive", function() {
 
         transferQueryStub = sinon.stub(nrgiTransferTablesSrvc, 'get', transferDetailQuerySpy);
 
-
-
     }));
 
 
@@ -74,11 +75,11 @@ describe("TransferTable Directive", function() {
         sinon.assert.calledWith(transferQueryStub, expectedParams);
         scope.transfers.should.be.equal(result.transfers);
 
-        var formElement = angular.element('<nrgi-transfer-table type="\'company\'" id="company._id" project="false" projectlink="true"></nrgi-transfer-table>');
-        var element = $compile(formElement)($rootScope);
+        scope.$digest();
+
         var isolateScope = element.find('table');
         isolateScope.should.be.defined;
-
     })
 
 });
+

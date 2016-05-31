@@ -17,6 +17,7 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
+            'public/vendor/jquery/dist/jquery.js',
             'public/vendor/angular/angular.js',
             'public/vendor/angular-route/angular-route.js',
             'public/vendor/angular-mocks/angular-mocks.js',
@@ -25,9 +26,8 @@ module.exports = function (config) {
             'public/vendor/toastr/toastr.js',
             // 'node_modules/jade/jade.js',
             'node_modules/underscore/underscore.js',
-            // 'public/vendor/jquery/dist/jquery.js',
             // 'public/vendor/angular-google-analytics/dist/angular-google-analytics.js',
-            // 'public/vendor/angular-filter/dist/angular-filter.js',
+            'public/vendor/angular-filter/dist/angular-filter.js',
             'public/vendor/iso-3166-country-codes-angular/dist/iso-3166-country-codes-angular.min.js',
             // 'public/vendor/angular-leaflet-directive/dist/angular-leaflet-directive.js',
             // 'public/vendor/leaflet/dist/leaflet.js',
