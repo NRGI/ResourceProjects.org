@@ -44,6 +44,10 @@ angular.module('app')
                 controller: 'nrgiMainCtrl'
             })
             // Admin Routes
+            .when('/login', {
+                templateUrl: '/partials/account/login',
+                controller: 'nrgiLoginCtrl'
+            })
             .when('/admin/etl/datasets', {
                 templateUrl: '/partials/admin/etl/datasets',
                 controller: 'nrgiEtlCtrl'/*,
@@ -379,10 +383,10 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiNotifier
     ) {
-        nrgiAuthSrvc.authenticateUser('jcust', 'admin')
-            .then(function(success) {
-
-            });
+        // nrgiAuthSrvc.authenticateUser('jcust', 'admin')
+        //     .then(function(success) {
+        //
+        //     });
         $rootScope._ = _;
         $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
             document.body.scrollTop = document.documentElement.scrollTop = 0;
