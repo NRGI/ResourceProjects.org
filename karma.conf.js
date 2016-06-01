@@ -42,7 +42,8 @@ module.exports = function (config) {
             'tests/unit/common/**/*.spec.js',
             'tests/unit/controllers/**/*.spec.js',
             'tests/unit/directives/**/*.spec.js',
-            'tests/unit/services/**/*.spec.js'
+            'tests/unit/services/**/*.spec.js',
+            'tests/unit/admin/**/*.spec.js'
             // 'tests/unit/**/*.spec.js'
         ],
 
