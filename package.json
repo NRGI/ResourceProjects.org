@@ -1,5 +1,5 @@
 {
-  "name": "resource-projects-frontend",
+  "name": "ResourceProjects.org",
   "version": "0.0.1",
   "description": "Fronted for the resourceprojcects.org frontend",
   "main": "server.js",
@@ -9,19 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NRGI/rp-org-frontend.git"
+    "url": "https://github.com/NRGI/ResourceProjects.org.git"
   },
   "author": "Chris Perry",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NRGI/rp-org-frontend/issues"
+    "url": "https://github.com/NRGI/ResourceProjects.org/issues"
   },
-  "homepage": "https://github.com/NRGI/rp-org-frontend",
+  "homepage": "https://github.com/NRGI/ResourceProjects.org",
   "dependencies": {
     "async": "^1.5.2",
     "aws-sdk": "^2.1.24",
     "body-parser": "^1.9.2",
     "bootstrap": "^3.3.1",
+    "connect-mongo": "~1.2.0",
     "cookie-parser": "^1.3.3",
     "countrycodes": "0.0.5",
     "csv": "1.1.0",

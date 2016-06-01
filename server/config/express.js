@@ -1,15 +1,41 @@
 'use strict';
-var express 		= require('express'),
-    // walk            = require('walk'),
-    stylus 			= require('stylus'),
-    logger 			= require('morgan'),
-    bodyParser 		= require('body-parser'),
-    cookieParser 	= require('cookie-parser'),
-    session 		= require('express-session'),
-    passport 		= require('passport'),
-    SESSION_SECRET	= "whatever you want";
+var assert              = require('assert'),
+    bodyParser 		    = require('body-parser'),
+    cookieParser 	    = require('cookie-parser'),
+    express 		    = require('express'),
+    fs                  = require('fs'),
+    logger 			    = require('morgan'),
+    mongoose 		    = require('mongoose'),
+    passport 		    = require('passport'),
+    session 		    = require('express-session'),
+    MongoStore          = require('connect-mongo')(session),
+    stylus 			    = require('stylus'),
+    linkModel           = require('../models/Links'),
+    aliasModel          = require('../models/Aliases'),
+    commodityModel      = require('../models/Commodities'),
+    companyGroupModel   = require('../models/CompanyGroups'),
+    countryModel        = require('../models/Countries'),
+    sourceModel 	    = require('../models/Sources'),
+    userModel 		    = require('../models/Users'),
+    actionModel 		= require('../models/Actions'),
+    datasetModel 		= require('../models/Datasets'),
+    duplicateModel 		= require('../models/Duplicates'),
+    companyModel        = require('../models/Companies'),
+    concessionModel 	= require('../models/Concessions'),
+    contractModel 	    = require('../models/Contracts'),
+    projectModel        = require('../models/Projects'),
+    sourceTypeModel     = require('../models/SourceTypes'),
+    siteModel           = require('../models/Sites'),
+    transferModel       = require('../models/Transfers'),
+    productionModel     = require('../models/Production'),
+    model_load          = ['Facts'],
+    SESSION_SECRET  	= "whatever you want";
 
-module.exports = function(app, config) {
+model_load.forEach(function(model_name) {
+    require('../models/' + model_name);
+});
+
+module.exports = function(app, config, user, pass, env) {
 	// function for use by stylus middleware
 	function compile(str, path) {
 		return stylus(str).set('filename', path);
@@ -17,17 +43,69 @@ module.exports = function(app, config) {
 	// set up view engine
 	app.set('views', config.rootPath + '/server/views');
 	app.set('view engine', 'jade');
-	// set up logger
+
+    // set up logger
 	app.use(logger('dev'));
-	// authentication cofigs
+
+    // authentication cofigs
 	app.use(cookieParser());
     app.use(bodyParser.urlencoded({
         extended: true,
         limit: '50mb'
     }));
     app.use(bodyParser.json({limit: '50mb'}));
+
+    //Mongoose connection
+    if (env === 'local') {
+        mongoose.connect(config.db);
+    } else {
+        var ca = [fs.readFileSync(__dirname + "/certs/servercert.crt")];
+        var options = {
+            mongos: {
+                ssl: true,
+                sslValidate: true,
+                sslCA: ca
+            }
+        };
+        mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
+    }
+    var db = mongoose.connection;
+
+    db.on('error', console.error.bind(console, 'connection error...'));
+    db.once('open', function callback() {
+        console.log('Resource Projects db opened');
+        console.log('\n========================');
+        console.log('mongoose version: %s', mongoose.version);
+        console.log('========================\n\n');
+    });
+    // import default data
+    actionModel.createDefaultActions();
+    aliasModel.getInitAliasCount();
+    commodityModel.createDefaultCommodities();
+    companyModel.getInitCompanyCount();
+    companyGroupModel.getInitCompanyGroupsCount();
+    concessionModel.getInitConcessionCount();
+    contractModel.getInitContractCount();
+    countryModel.createDefaultCountries();
+    datasetModel.createDefaultDatasets();
+    duplicateModel.getInitDuplicateCount();
+    linkModel.getInitLinkCount();
+    productionModel.getInitProductionCount();
+    projectModel.getInitProjectCount();
+    siteModel.getInitSiteCount();
+    sourceModel.getInitSourceCount();
+    sourceTypeModel.createDefaultSourceTypes();
+    transferModel.getInitTransferCount();
+    userModel.createDefaultUsers();
+    
+    //Connection session
     app.use(session({
         secret: SESSION_SECRET,
+        store: new MongoStore({
+            mongooseConnection: db,
+            autoRemove: 'native',
+            touchAfter: 120}),
+        touchAfter: 120,
         resave: true,
         saveUninitialized: true
     }));
