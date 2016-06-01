@@ -70,7 +70,7 @@
     "karma-mocha": "^1.0.1",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-safari-launcher": "^1.0.0",
-    "karma-shared": "^0.1.0",
+    "karma-shared": "file:node_modules/karma-shared",
     "load-grunt-tasks": "^3.5.0",
     "mocha": "^2.4.5",
     "phantomjs-prebuilt": ">=1.9",
