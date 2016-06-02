@@ -1,8 +1,8 @@
-footer
+footer(ng-controller="nrgiMainCtrl")
     .container
         .strapline
             .row.top-padding-med
-                .col-md-8
+                .col-md-7
                     h4.block-title ResourceProjects.org
                     p.
                         This site is a prototype, site links and contents are subject to change. No warranty of the accuracy or completeness of data is provided, and users should always check against original sources before making decisions based upon the data presented here.
@@ -20,12 +20,10 @@ footer
                             src='../assets/nrgi-logo.png'
                             width='185'
                             alt='Natural Resource Governance Institute Logo')
-                    //.row
-                    //    a.navbar-brand(href="http://resourcecontracts.org")
-                    //        | Resource
-                    //        span.beta Beta
-                    //        span Contracts
-                    //    //a(href='http://www.resourcecontracts.org/') ResourceContracts.org
+                    .row.top-padding-med
+                        a(href="/login") Admin login
+                        //a(href="/login" ng-if="!current_user.isAuthenticated()") Admin login
+                        //a(href="/profile" ng-if="current_user.isAuthenticated()") Profile
             .row.top-padding-med.bottom-padding-lg
                 .text-center
                     p &copy; 2016 Natural Resource Governance Institute

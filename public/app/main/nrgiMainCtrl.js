@@ -6,9 +6,5 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc
     ) {
-        // bring in current user data to customize front page
-        if(nrgiIdentitySrvc=='') {
-            $scope.fullName = nrgiIdentitySrvc.currentUser.firstName + " " + nrgiIdentitySrvc.currentUser.lastName;
-            $scope.roles = nrgiIdentitySrvc.currentUser.roles;
-        }
+        $scope.current_user = nrgiIdentitySrvc.currentUser;
     });
