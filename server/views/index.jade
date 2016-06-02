@@ -1,52 +1,8 @@
 extend ../includes/layout
 block main-content
-    .navbar.navbar-fixed-top.navbar-inner
-        .container-fluid
-            a.btn.btn-navbar(
-            data-toggle='collapse'
-            data-target='.nav-collapse')
-                span.icon-bar
-                span.icon-bar
-                span.icon-bar
-            .col-md-3
-                a.brand(href='/')
-                    img(
-                    src='../assets/rp-logo-2.png'
-                    width='185'
-                    alt='Natural Resource Governance Institute Logo')
-            .col-md-9
-                .nav-collapse
-                    div(ng-include="'/partials/account/navbar'")
+    section.header
+        div(ng-include="'/partials/main/navbar'")
     section.content
         div(ng-view)
-    footer
-        .container
-            .strapline
-                .row.top-padding-med
-                    .col-md-8
-                        h4.block-title ResourceProjects.org
-                        p.
-                            This site is a prototype, site links and contents are subject to change. No warranty of the accuracy or completeness of data is provided, and users should always check against original sources before making decisions based upon the data presented here.
-                        p
-                            | Unless otherwise stated, all data on the the site is available as open data under
-                            a(href="http://creativecommons.org/licenses/by-sa/4.0/")  Creative Commons License CC-BY-SA
-                            | .
-                        p Errors and omissions can be reported to:
-                            a(href='mailto:dmihalyi@resourcegovernance.org')  dmihalyi@resourcegovernance.org
-                    .col-md-1
-                    .col-md-3
-                        .row.top-padding-med
-                            a.brand(href='http://resourcegovernance.org')
-                                img(
-                                src='../assets/nrgi-logo.png'
-                                width='185'
-                                alt='Natural Resource Governance Institute Logo')
-                        //.row
-                        //    a.navbar-brand(href="http://resourcecontracts.org")
-                        //        | Resource
-                        //        span.beta Beta
-                        //        span Contracts
-                        //    //a(href='http://www.resourcecontracts.org/') ResourceContracts.org
-                .row.top-padding-med.bottom-padding-lg
-                    .text-center
-                        p &copy; 2016 Natural Resource Governance Institute
+    section.footer
+        div(ng-include="'/partials/main/footer'")

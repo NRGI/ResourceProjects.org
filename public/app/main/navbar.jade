@@ -1,0 +1,173 @@
+.navbar.navbar-fixed-top.navbar-inner(ng-controller="nrgiNavBarCtrl")
+    .container-fluid
+        a.btn.btn-navbar(
+        data-toggle='collapse'
+        data-target='.nav-collapse')
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        .col-md-3
+            a.brand(href='/')
+                img(
+                src='../assets/rp-logo-2.png'
+                width='185'
+                alt='Natural Resource Governance Institute Logo')
+        .col-md-9
+            .nav-collapse
+                //div(ng-include="'/partials/account/navbar'")
+                .navbar-right(ng-controller="nrgiNavBarCtrl")
+                    .col-md-7
+                        ul.nav.list-inline.left-padding-lg
+                            li.nav-item
+                                a.nav-link(href='/projects') Projects
+                            //li
+                            //    a.dropdown-toggle(data-toggle="dropdown") Projects
+                            //        b.caret
+                            //    ul.dropdown-menu
+                            //        li
+                            //            a(href='/projects') Projects
+                            //li
+                            //    a(href='/projects') Payments
+                            li.nav-item
+                                a.nav-link(href='/projects/map') Map
+                            li.nav-item
+                                a.nav-link.dropdown-toggle(data-toggle="dropdown") Other Data
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/sites').dropdown-item Sites
+                                    li
+                                        a(href='/fields').dropdown-item Fields
+                                    li
+                                        a(href='/concessions').dropdown-item Concessions
+                                    li
+                                        a(href='/companies').dropdown-item Companies
+                                    li
+                                        a(href='/groups').dropdown-item Company Groups
+                                    li
+                                        a(href='/contracts').dropdown-item Contracts
+                                    li
+                                        a(href='/countries').dropdown-item Countries
+                                    li
+                                        a(href='/source_types').dropdown-item Source types
+                                    //li
+                                    //    a(href='/commodities').dropdown-item Commodities
+                            li.nav-item
+                                a.nav-link.dropdown-toggle(data-toggle="dropdown") About
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/about').dropdown-item About
+                                    //li
+                                    //    a(href='/sources').dropdown-item Sources
+                                    li
+                                        a(href='/glossary').dropdown-item Glossary
+                            li.nav-item(ng-hide="!identity.isAuthenticated()")
+                                a.nav-link.dropdown-toggle(data-toggle="dropdown") Admin
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/admin/etl/datasets').dropdown-item Manage Data Imports
+                                    //li
+                                    //    a(href='/admin/create-source').dropdown-item Create Source
+                                    //li
+                                    //    a(href='/admin/create-project').dropdown-item Create Project
+                                    //li
+                                    //    a(href='/admin/create-country').dropdown-item Create Country
+                                    //li
+                                    //    a(href='/admin/create-concession').dropdown-item Create Concession
+                                    //li
+                                    //    a(href='/admin/create-commodity').dropdown-item Create Commodity
+                                    //li
+                                    //    a(href='/admin/create-company').dropdown-item Create Company
+                                    //li
+                                    //    a(href='/admin/create-group').dropdown-item Create Group
+
+                    .col-md-5
+                        form.navbar-search.pull-right(action='')
+                            input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
+                            a.glyphicon.text-primary.glyphicon-log-out.left-padding-med(
+                            ng-hide="!identity.isAuthenticated()"
+                            href=""
+                            ng-click="signout()"
+                            title="Logout")
+
+
+
+
+//.navbar-right(ng-controller="nrgiNavBarCtrl")
+//    .col-md-7
+//        ul.nav.list-inline.left-padding-lg
+//            li.nav-item
+//                a.nav-link(href='/projects') Projects
+//            //li
+//            //    a.dropdown-toggle(data-toggle="dropdown") Projects
+//            //        b.caret
+//            //    ul.dropdown-menu
+//            //        li
+//            //            a(href='/projects') Projects
+//            //li
+//            //    a(href='/projects') Payments
+//            li.nav-item
+//                a.nav-link(href='/projects/map') Map
+//            li.nav-item
+//                a.nav-link.dropdown-toggle(data-toggle="dropdown") Other Data
+//                    b.caret
+//                ul.dropdown-menu
+//                    li
+//                        a(href='/sites').dropdown-item Sites
+//                    li
+//                        a(href='/fields').dropdown-item Fields
+//                    li
+//                        a(href='/concessions').dropdown-item Concessions
+//                    li
+//                        a(href='/companies').dropdown-item Companies
+//                    li
+//                        a(href='/groups').dropdown-item Company Groups
+//                    li
+//                        a(href='/contracts').dropdown-item Contracts
+//                    li
+//                        a(href='/countries').dropdown-item Countries
+//                    li
+//                        a(href='/source_types').dropdown-item Source types
+//                    //li
+//                    //    a(href='/commodities').dropdown-item Commodities
+//            li.nav-item
+//                a.nav-link.dropdown-toggle(data-toggle="dropdown") About
+//                    b.caret
+//                ul.dropdown-menu
+//                    li
+//                        a(href='/about').dropdown-item About
+//                    //li
+//                    //    a(href='/sources').dropdown-item Sources
+//                    li
+//                        a(href='/glossary').dropdown-item Glossary
+//            li.nav-item(ng-hide="!identity.isAuthenticated()")
+//                a.nav-link.dropdown-toggle(data-toggle="dropdown") Admin
+//                    b.caret
+//                ul.dropdown-menu
+//                    li
+//                        a(href='/admin/etl/datasets').dropdown-item Manage Data Imports
+//                    //li
+//                    //    a(href='/admin/create-source').dropdown-item Create Source
+//                    //li
+//                    //    a(href='/admin/create-project').dropdown-item Create Project
+//                    //li
+//                    //    a(href='/admin/create-country').dropdown-item Create Country
+//                    //li
+//                    //    a(href='/admin/create-concession').dropdown-item Create Concession
+//                    //li
+//                    //    a(href='/admin/create-commodity').dropdown-item Create Commodity
+//                    //li
+//                    //    a(href='/admin/create-company').dropdown-item Create Company
+//                    //li
+//                    //    a(href='/admin/create-group').dropdown-item Create Group
+//
+//    .col-md-5
+//        form.navbar-search.pull-right(action='')
+//            input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
+//            a.glyphicon.text-primary.glyphicon-log-out.left-padding-med(
+//            ng-hide="!identity.isAuthenticated()"
+//            href=""
+//            ng-click="signout()"
+//            title="Logout")
