@@ -58,7 +58,7 @@ angular.module('app')
                 resolve: routeRoleChecks.supervisor -- TODO */
             })
             .when('/admin/reconcile', {
-                templateUrl: '/partials/admin/reconcile/reconcile',
+                templateUrl: '/partials/admin/etl/reconcile',
                 controller: 'nrgiReconcileCtrl'/*,
                  resolve: routeRoleChecks.supervisor -- TODO */
             })
