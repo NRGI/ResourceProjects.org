@@ -27,7 +27,7 @@
                 th Action History
                 th Available Actions
         tbody
-            tr(ng-repeat="dataset in datasets | filter:search_text | orderBy:sort_order" ts-repeat)
+            tr(ng-repeat="dataset in datasets | filter:search_text" ts-repeat)
                 td {{dataset.name}}
                 td
                     a(
