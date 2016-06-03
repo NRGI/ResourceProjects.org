@@ -15,7 +15,7 @@
                     placeholder="Filter")
 
 
-    table#datasets.table(ts-wrapper)
+    table#users.table(ts-wrapper)
         thead
             tr
                 th.tablesort-sortable-th(ts-criteria='first_name') First Name
@@ -38,25 +38,3 @@
                         text {{role}}
                 td
                     a.btn.center-block.btn-primary-outline(href="/admin/user-admin/{{user._id}}") Edit
-
-
-
-
-//        table.table
-//            thead
-//                tr
-//                    th Name
-//                    th Username
-//                    th Roles
-//                    th
-//            tbody
-//                tr(ng-repeat="user in users | filter:search_text | orderBy:sort_order")
-//                    td
-//                        a(href="mailto:{{user.email}}") {{user.first_name}} {{user.last_name}}
-//                    td {{user.username}}
-//                    td
-//                        p(ng-repeat="role in user.roles")
-//                            text {{role}}
-//
-//
-//        a.btn.block.btn-secondary(href="/admin/create-user") Create New User

@@ -8,10 +8,7 @@ angular.module('app')
         nrgiUserMethodSrvc
     ) {
         $scope.role_options = [
-            {value:'admin',text:'Administrator'},
-            {value:'supervisor',text:'Supervisor'},
-            {value:'researcher',text:'Researcher'},
-            {value:'reviewer',text:'Reviewer'}
+            {value:'admin',text:'Administrator'}
         ]
         // fix submit button functionality
         $scope.userCreate = function() {
