@@ -1,74 +1,76 @@
-.container.top-padding-med
-    .card
-        .col-xs-12
-            legend Dataset Import Management
-        .pull-xs-right
+.container
+    .row.top-padding-med.bottom-padding-med
+        .col-md-6
+            h1 Dataset Import Management
+
+    .row.bottom-padding-lg
+        div.col-md-5
+            a.btn.block.btn-primary-outline(href="/admin/etl/datasets/new") Create New Import
+            | &nbsp;
+            a.btn.block.btn-primary-outline(
+            target="_new"
+            href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Create New Dataset
+        div.col-md-4
+        div.col-md-3
             form.form-inline
                 .form-group
                     input.form-control(
                     ng-model="search_text"
                     placeholder="Filter")
-                .form-group.margin-left-med
-                    select.form-control(
-                    ng-model="sort_order"
-                    ng-options="item.value as item.text for item in sort_options")
-        table.table
-            thead
-                tr
-                    th Name
-                    th(style={"width": "30%", "word-wrap": "break-word"}) Source
-                    th Action History
-                    th Available Actions
-            tbody
-                tr(ng-repeat="dataset in datasets | filter:search_text | orderBy:sort_order")
-                    td
-                        text {{dataset.name}}
-                    td(style={"width": "25%", "word-wrap": "break-word"})
+
+    table#datasets.table(ts-wrapper)
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='name') Name
+                //th(style={"width": "30%", "word-wrap": "break-word"}) Source
+                th Source
+                th Action History
+                th Available Actions
+        tbody
+            tr(ng-repeat="dataset in datasets | filter:search_text | orderBy:sort_order" ts-repeat)
+                td {{dataset.name}}
+                td
+                    a(
+                    href="{{dataset.source_url}}"
+                    target="_blank").wrap-content {{dataset.source_url}}
+                td
+                    p(ng-repeat="action in dataset.actions")
+                        text {{action.name}} &nbsp;
                         a(
-                        href="{{dataset.source_url}}"
-                        target="_blank").wrap-content {{dataset.source_url}}
-                    td(style={"width": "30%"})
-                        p(ng-repeat="action in dataset.actions")
-                            text {{action.name}} &nbsp;
-                            a(
-                            ng-if="action.status == 'Success'"
-                            class=["label", "label-success"]
-                            data-toggle="tooltip"
-                            title="Click to read full report"
-                            href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}"
-                            target="_new") Success
-                            span(
-                            ng-if="action.status == 'Started'"
-                            class=["label", "label-warning"]) Running
-                            a(
-                            ng-if="action.status == 'Failed'"
-                            class=["label", "label-danger"]
-                            data-toggle="tooltip"
-                            title="Click to read full report"
-                            href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}"
-                            target="_new") Failed
-                    td
-                        .row
-                            span(ng-if="!dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-secondary(ng-click="startAction('import', dataset._id)") Import
-                            span(ng-if="dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-secondary.disabled() Import
-                        .row
-                            span(ng-if="dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-secondary.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
-                            span(ng-if="!dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-secondary.disabled() Unload (not implemented yet)
-                        .row
-                            span(ng-if="dataset.hasDuplicates")
-                                a.btn.center-block.btn-secondary(href="/admin/reconcile") Reconcile
-                            span(ng-if="!dataset.hasDuplicates")
-                                a.btn.center-block.btn-secondary.disabled() Reconcile
-                        .row
-                            span(ng-if="dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-secondary(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
-                            span(ng-if="!dataset.status.isReadyForChecked")
-                                a.btn.center-block.btn-secondary.disabled() Mark as cleaned
-        a.btn.block.btn-secondary(href="/admin/etl/datasets/new") Create New Import
-        a.btn.block.btn-secondary(
-        target="_new"
-        href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Open Template (create new dataset)
+                        ng-if="action.status == 'Success'"
+                        class=["label", "label-success"]
+                        data-toggle="tooltip"
+                        title="Click to read full report"
+                        href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}"
+                        target="_new") Success
+                        span(
+                        ng-if="action.status == 'Started'"
+                        class=["label", "label-warning"]) Running
+                        a(
+                        ng-if="action.status == 'Failed'"
+                        class=["label", "label-danger"]
+                        data-toggle="tooltip"
+                        title="Click to read full report"
+                        href="{{'/admin/etl/datasets/' + dataset._id + '/actions/' + action._id + '/report'}}"
+                        target="_new") Failed
+                td
+                    .row
+                        span(ng-if="!dataset.status.isReadyForChecked")
+                            a.btn.center-block.btn-primary-outline(ng-click="startAction('import', dataset._id)") Import
+                        span(ng-if="dataset.status.isReadyForChecked")
+                            a.btn.center-block.btn-secondary.disabled() Import
+                    .row
+                        span(ng-if="dataset.status.isReadyForChecked")
+                            a.btn.center-block.btn-secondary.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
+                        span(ng-if="!dataset.status.isReadyForChecked")
+                            a.btn.center-block.btn-secondary.disabled() Unload (not implemented yet)
+                    .row
+                        span(ng-if="dataset.hasDuplicates")
+                            a.btn.center-block.btn-primary-outline(href="/admin/reconcile") Reconcile
+                        span(ng-if="!dataset.hasDuplicates")
+                            a.btn.center-block.btn-secondary.disabled() Reconcile
+                    .row
+                        span(ng-if="dataset.status.isReadyForChecked")
+                            a.btn.center-block.btn-primary-outline(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
+                        span(ng-if="!dataset.status.isReadyForChecked")
+                            a.btn.center-block.btn-secondary.disabled() Mark as cleaned

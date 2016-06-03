@@ -79,21 +79,6 @@ angular.module('app')
                 resolve: routeRoleChecks.supervisor
             })
             // Entity Management
-            .when('/admin/source-admin', {
-                templateUrl: '/partials/admin/sources/source-admin',
-                controller: 'nrgiSourceAdminCtrl',
-                resolve: routeRoleChecks.supervisor
-            })
-            .when('/admin/create-source', {
-                templateUrl: '/partials/admin/sources/create-source',
-                controller: 'nrgiSourceAdminCreateCtrl',
-                resolve: routeRoleChecks.supervisor
-            })
-            .when('/admin/source-admin/:id', {
-                templateUrl: '/partials/admin/sources/source-admin-update',
-                controller: 'nrgiSourceAdminUpdateCtrl',
-                resolve: routeRoleChecks.supervisor
-            })
             .when('/admin/sourceType-admin', {
                 templateUrl: '/partials/admin/sourceTypes/sourceType-admin',
                 controller: 'nrgiSourceTypeAdminCtrl',
@@ -215,6 +200,21 @@ angular.module('app')
             //    controller: 'nrgiSiteAdminUpdateCtrl',
             //    resolve: routeRoleChecks.supervisor
             //})
+            // .when('/admin/source-admin', {
+            //     templateUrl: '/partials/admin/sources/source-admin',
+            //     controller: 'nrgiSourceAdminCtrl',
+            //     resolve: routeRoleChecks.supervisor
+            // })
+            // .when('/admin/create-source', {
+            //     templateUrl: '/partials/admin/sources/create-source',
+            //     controller: 'nrgiSourceAdminCreateCtrl',
+            //     resolve: routeRoleChecks.supervisor
+            // })
+            // .when('/admin/source-admin/:id', {
+            //     templateUrl: '/partials/admin/sources/source-admin-update',
+            //     controller: 'nrgiSourceAdminUpdateCtrl',
+            //     resolve: routeRoleChecks.supervisor
+            // })
             //////////////////////////
             ////User Account Routes///
             //////////////////////////
