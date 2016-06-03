@@ -1,31 +1,33 @@
 .container.top-padding-med
-	.card
-		.col-xs-12
-			legend RP users
-		.pull-xs-right
-			form.form-inline
-				.form-group
-					input.form-control(
-					ng-model="search_text"
-					placeholder="Filter")
-				.form-group.margin-left-med
-					select.form-control(
-					ng-model="sort_order"
-					ng-options="item.value as item.text for item in sort_options")
-		table.table
-			thead
-				tr
-					th Name
-					th Username
-					th Roles
-					th 
-			tbody
-				tr(ng-repeat="user in users | filter:search_text | orderBy:sort_order")
-					td
-						a(href="mailto:{{user.email}}") {{user.first_name}} {{user.last_name}}
-					td {{user.username}}
-					td 
-						p(ng-repeat="role in user.roles")
-							text {{role}}
-					td
-						a.btn.center-block.btn-secondary(href="/admin/user-admin/{{user._id}}") Edit
+    .card
+        .col-xs-12
+            legend RP users
+        .pull-xs-right
+            form.form-inline
+                .form-group
+                    input.form-control(
+                    ng-model="search_text"
+                    placeholder="Filter")
+                .form-group.margin-left-med
+                    select.form-control(
+                    ng-model="sort_order"
+                    ng-options="item.value as item.text for item in sort_options")
+        table.table
+            thead
+                tr
+                    th Name
+                    th Username
+                    th Roles
+                    th
+            tbody
+                tr(ng-repeat="user in users | filter:search_text | orderBy:sort_order")
+                    td
+                        a(href="mailto:{{user.email}}") {{user.first_name}} {{user.last_name}}
+                    td {{user.username}}
+                    td
+                        p(ng-repeat="role in user.roles")
+                            text {{role}}
+                    td
+                        a.btn.center-block.btn-secondary(href="/admin/user-admin/{{user._id}}") Edit
+
+        a.btn.block.btn-secondary(href="/admin/create-user") Create New User
