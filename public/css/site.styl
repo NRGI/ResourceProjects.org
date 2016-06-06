@@ -2,9 +2,16 @@
 @import "variables"
 
 @import "modules/layout"
-
-.mapsicon
-  height 100px
+@import "modules/general"
+@import "modules/navbar"
+@import "modules/misc"
+//@import "modules/leaflet"
+//@import "modules/loading-spinner"
+//@import "modules/tables"
+//@import "modules/landing-page.styl"
+////@import "modules/upload"
+////@import "modules/modals"
+//@import url('http://fonts.googleapis.com/css?family=Open+Sans');
 
 .filter-form
   padding-top 20px
@@ -12,29 +19,6 @@
 
 .table-responsive
   overflow-x auto
-
-.left-padding-lg
-  padding-left 50px
-.top-padding-lg
-  padding-top 50px
-.right-padding-lg
-  padding-right 50px
-.bottom-padding-lg
-  padding-bottom 50px
-
-.left-padding-med
-  padding-left 20px
-.top-padding-med
-  padding-top 20px
-.right-padding-med
-  padding-right 20px
-.bottom-padding-med
-  padding-bottom 20px
-
-.margin-left-med
-  margin-left 10px
-.margin-bottom-med
-  margin-bottom 10px
 
 #toast-container
   top 70px
@@ -104,86 +88,12 @@ input.upload
 .ngdialog.ui-draggable
   overflow visible
 
-h1, h2, h3, th
-  color rgb(85,114,136) !important
-
-.navbar .nav
-  position relative
-  left 0
-  display block
-  float left
-  margin 0 10px 0 0
-.navbar .brand
-  display block
-  float left
-  padding 8px 8px 12px
-  margin-left -20px
-  font-size 20px
-  font-weight 200
-  line-height 1
-  color #999
-
-.navbar-inner
-  min-height 40px
-  padding-right 20px
-  padding-left 20px
-  background-color #fff
-  background-image none
-  background-repeat none
-  -webkit-border-radius 4px
-  -moz-border-radius 4px
-  border-radius 4px
-  -webkit-box-shadow none
-  -moz-box-shadow none
-  box-shadow none
-.nav-item
-  position relative
-  display inline-block !important
-
-.navbar .nav-link
-  float none
-  padding 9px 5px 11px
-  line-height 19px
-  color rgb(85,114,136)
-  text-decoration none
-  text-shadow none
-  font-size 1.2em
-
-.navbar-fixed-top
-  /*border-top 25px solid #B0D6F2!important;*/
-  /*border-bottom 1px rgb(85,114,136) solid;*/
-  border-bottom 1px solid #EEEFE8 !important
-  z-index: 99999
-.navbar-search .search-query
-  padding 4px 9px
-  font-size 13px
-  font-weight normal
-  line-height 1
-  border 1px solid #151515
-  -webkit-box-shadow inset 0 1px 2px rgba(0,0,0,0.1),0 1px 0 rgba(255,255,255,0.15)
-  -moz-box-shadow inset 0 1px 2px rgba(0,0,0,0.1),0 1px 0 rgba(255,255,255,0.15)
-  box-shadow inset 0 1px 2px rgba(0,0,0,0.1),0 1px 0 rgba(255,255,255,0.15)
-  -webkit-transition none
-  -moz-transition none
-  -ms-transition none
-  -o-transition none
-  transition none
-.navbar-search
-  position relative
-  float left
-  margin-top 6px
-  margin-bottom 0
-
 .page-header
   padding-bottom 9px
   margin 20px 0 20px !important
   border-bottom 1px solid #eee
-.navbar .nav-link:hover
-  color:rgb(255,111,76)
-  text-decoration none
-  background-color #fff !important
-.navbar .nav-link
-  background-color #fff !important
+
+
 .page-header .btn-group
   margin-top 20px
 .dropdown
@@ -419,28 +329,7 @@ li .glyphicon[disabled]
     transform scale(1.0)
     -webkit-transform scale(1.0)
 
-//.navbar-brand span
-//  display block
-//  color rgba(64, 64, 64, 0.7)
-//
-//.navbar-brand, .navbar-brand:hover
-//  font-size 19px
-//  font-family Open-Sans-Bold
-//  color #F37356
-//  text-transform uppercase
-//  padding 16px 20px 12px 0
-//  height auto
-//  position relative
-//
-//.navbar-brand .beta, .sidebar-brand .beta
-//  position absolute;
-//  font-size 12px;
-//  right -4px;
-//  top 13px;
-//  color #404040;
-//  color rgba(0, 0, 0, 0.5);
-//  text-transform none;
-//  font-family Open-Sans-Regular
+
 .load_table .showIfLast td:after
   content: "" !important;
 .load_table .showLast td:after
@@ -471,7 +360,15 @@ li .glyphicon[disabled]
   content '\2014 \00A0'
 .dropdown-menu
   font-size 14px!important
-
+.card
+  min-height 20px
+  padding 19px
+  margin-bottom 20px
+  background-color #f5f5f5!important
+  border 1px solid #e3e3e3
+  border-radius 4px
+  -webkit-box-shadow inset 0 1px 1px rgba(0,0,0,.05)
+  box-shadow inset 0 1px 1px rgba(0,0,0,.05)
 .text-center
   text-align center
 .form-control, .btn
