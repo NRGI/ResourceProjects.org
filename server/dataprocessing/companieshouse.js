@@ -835,7 +835,7 @@ function makeNewCompany (newData) {
 	};
 
 	if (newData.reportDetails.companyNumber !== "") {
-		company.open_corporates_id = newData.reportDetails.companyNumber;
+		company.open_corporates_id = "gb/" + newData.reportDetails.companyNumber;
 	}
 
 	company.country_of_incorporation = [{country: countries['GBR']._id}]; // Only have UK companies
