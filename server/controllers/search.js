@@ -5,6 +5,7 @@ var async           = require('async'),
 
 exports.searchText = function(req, res) {
 	var models =[];
+	var type='';
 	models = [
 		{name:'Project',field:'proj_name'},
 		{name:'Source',field:'source_name'},
@@ -12,7 +13,8 @@ exports.searchText = function(req, res) {
 		{name:'Company',field:'company_name'},
 		{name:'CompanyGroup',field:'company_group_name'},
 		{name:'Concession',field:'concession_name'},
-		{name:'Country',field:'name'}
+		{name:'Country',field:'name'},
+		{name:'Site',field:'site_name'}
 	];
 	var models_len,models_counter=0,counter=0,result=[];
 	async.waterfall([
@@ -31,8 +33,16 @@ exports.searchText = function(req, res) {
 				models_counter++;
 				_.each(responce, function(re) {
 					counter++;
+					if(model.name=='Site'&&re.field==true){
+						type = 'field'
+					}else if(model.name=='Site'&&re.field!=true){
+						type = 'site'
+					}
+					else{
+						type = model.name.toLowerCase()
+					}
 					result[counter-1]={name:re[$field],
-						type:model.name.toLowerCase(),
+						type:type,
 						_id: re.id,
 						iso2:re.iso2,
 						commodity_id: re.commodity_id

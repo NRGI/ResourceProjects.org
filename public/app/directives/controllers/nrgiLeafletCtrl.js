@@ -37,14 +37,12 @@ angular
             }
         });
         $scope.$watch('id', function(value) {
-            console.log(value)
             if(value!=undefined) {
                 $scope.getCoordinate(value, $scope.type);
             }
         })
         $scope.$watch('data', function(value) {
             if(value!=undefined) {
-                console.log(value)
                 $scope.alldata = value;
 
                 if (value.polygon != undefined) {
