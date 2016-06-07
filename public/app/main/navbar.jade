@@ -10,13 +10,12 @@
             a.brand(href='/')
                 img(
                 src='../assets/rp-logo-2.png'
-                width='185'
                 alt='Natural Resource Governance Institute Logo')
         .col-md-10
             .nav-collapse
                 .navbar-right(ng-controller="nrgiNavBarCtrl")
                     .col-md-7
-                        ul.nav.list-inline.left-padding-lg
+                        ul.topnav.nav.list-inline.left-padding-lg
                             li.nav-item
                                 a.nav-link(href='/projects') Projects
                             li.nav-item
@@ -82,11 +81,11 @@
                                     //li
                                     //    a(href='/admin/create-group').dropdown-item Create Group
 
-                    .col-md-2
-                    .col-md-3
+                    .col-md-1
+                    .col-md-4
                         form.navbar-search.pull-right(action='')
                             input.typeahead.search-query.span2(type='text' data-provide='typeahead' placeholder='Search')
-                            a.glyphicon.text-primary.glyphicon-log-out.left-padding-med(
+                            a.glyphicon.text-primary.glyphicon-log-out.navlogout(
                             ng-hide="!identity.isAuthenticated()"
                             href=""
                             ng-click="signout()"

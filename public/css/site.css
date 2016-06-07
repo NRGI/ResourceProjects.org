@@ -178,6 +178,7 @@ li .glyphicon[disabled] {
   text-transform: uppercase;
   padding: 16px 20px 12px 0;
   height: auto;
+  width: 1000px;
   position: relative;
 }
 .navbar-brand .beta,
@@ -214,6 +215,9 @@ li .glyphicon[disabled] {
   line-height: 1;
   color: #999;
 }
+.navbar .brand img {
+  width: 12vw;
+}
 .navbar-inner {
   min-height: 40px;
   padding-right: 20px;
@@ -234,12 +238,12 @@ li .glyphicon[disabled] {
 }
 .navbar .nav-link {
   float: none;
-  padding: 9px 5px 11px;
+  padding: 10px 0.3vw;
   line-height: 19px;
   color: #557288;
   text-decoration: none;
   text-shadow: none;
-  font-size: 1.2em;
+  font-size: 0.9vw;
 }
 .navbar .nav-link:hover {
   color: #ff6f4c;
@@ -269,11 +273,14 @@ li .glyphicon[disabled] {
   transition: none;
 }
 .navbar-search {
-  padding-right: 5px;
   position: relative;
   float: left;
   margin-top: 6px;
   margin-bottom: 0;
+}
+.navlogout {
+  padding-left: 0.5vw;
+  font-size: 1.3vw;
 }
 .typeahead>li>a {
   word-wrap: break-word;
