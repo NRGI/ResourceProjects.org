@@ -15,6 +15,15 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
+            updateGroup: function(new_group_data) {
+                var dfd = $q.defer();
+                new_group_data.$update().then(function() {
+                    dfd.resolve();
+                }, function(response) {
+                    dfd.reject(response.data.reason);
+                });
+                return dfd.promise;
+            },
             deleteGroup: function(group_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiGroupsSrvc();
@@ -22,18 +31,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
-                return dfd.promise;
-            },
-            updateGroup: function(new_group_data) {
-                var dfd = $q.defer();
-                new_group_data.$update().then(function() {
-                    dfd.resolve();
-                }), function(response) {
-                    dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

@@ -3,47 +3,36 @@
 angular.module('app')
     .controller('nrgiContractListCtrl', function (
         $scope,
-        ISO3166,
+        $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         $sce,
         nrgiContractsSrvc
     ) {
-        $scope.limit = 50;
-        $scope.page = 0;
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0;
+            //_ = $rootScope._;
+
         $scope.count =0;
-        $scope.show_count=0;
+        $scope.busy = false;
 
-        var loadContracts = function(limit,page){
-            nrgiContractsSrvc.query({skip: page, limit: limit}, function (success) {
-                $scope.count = success.count;
-                $scope.limit = limit;
-                $scope.page = page;
-                $scope.contracts = success.data;
-                $scope.show_count = success.data.length+$scope.page;
-                $scope.record_type = 'contracts';
-            });
-        };
+        nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.contracts = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
 
-        loadContracts($scope.limit,$scope.page);
-        $scope.select = function(changeLimit){
-            loadContracts(changeLimit,0);
-        };
-        $scope.next = function(page,count){
-            loadContracts($scope.limit,count);
-        };
-        $scope.prev = function(page){
-            loadContracts($scope.limit,page-$scope.limit);
-        };
-        $scope.first = function(){
-            loadContracts($scope.limit,0);
-        };
-        $scope.last = function(page){
-            if($scope.count%$scope.limit!=0){
-                page = parseInt($scope.count/$scope.limit)*$scope.limit;
-                loadContracts($scope.limit,page);
-            }else {
-                loadContracts($scope.limit,page-$scope.limit);
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                    $scope.contracts = _.union($scope.contracts, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
             }
-        }
+        };
     });

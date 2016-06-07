@@ -8,3 +8,10 @@ angular.module('app')
 
         return CountriesResource;
     })
+    .factory('nrgiProjectsCoordinateSrvc', function($resource) {
+        var CountriesResource = $resource('/api/projects/', {}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return CountriesResource;
+    })

@@ -1,10 +1,11 @@
 .container
-    .page-header
-        h1 Countries
-            = ' '
-            small(ng-if="count") {{count}}
+    .row.top-padding-med.bottom-padding-med
+        .col-md-4
+            h1 Countries
+                = ' '
+                small(ng-if="count") {{count}}
 
-    table.table.table-striped(
+    table#countries.table.table-striped(
     about='http://resourceprojects.org/country'
     ts-wrapper)
         thead
@@ -26,3 +27,5 @@
                 td.text-center.country_concessions {{country.concession_count}}
                 td.text-center.country_transfers {{country.transfer_count}}
                 td.text-center.country_productions {{country.production_count}}
+
+    div(ng-if='countries.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')

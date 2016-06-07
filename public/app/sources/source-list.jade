@@ -1,24 +1,14 @@
 .container
 	.page-header
 		h1 Sources
+			= ' '
+			small(ng-if="count") {{count}}
 
 	p This website is built up through user contributions, transforming company reports and filings into accessible open data. Find out
 		=' '
 		a(href='/contribute') how you can contribute here
 		='.'
 	p The site currently incorporates {{count}} sources
-
-	nrgi-list-nav(
-	page="page"
-	type="record_type"
-	show="show_count"
-	count="count"
-	limit="limit"
-	last="last"
-	next="next"
-	prev="prev"
-	first="first"
-	select="select")
 
 	table.table.table-striped(
 	about='http://resourceprojects.org/source'
@@ -40,14 +30,4 @@
 				td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
 				td.source_projects {{source.projects}}
 
-	nrgi-list-nav(
-	page="page"
-	type="record_type"
-	show="show_count"
-	count="count"
-	limit="limit"
-	last="last"
-	next="next"
-	prev="prev"
-	first="first"
-	select="select")
+	div(ng-if='sources.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')

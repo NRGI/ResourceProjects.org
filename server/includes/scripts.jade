@@ -33,6 +33,7 @@ script(type='text/javascript').
     ga('create', 'UA-59246536-4', 'resourceprojects.org');
     ga('send', 'pageview');
 script(type="text/javascript", src="/vendor/angular-google-analytics/dist/angular-google-analytics.min.js")
+script(type="text/javascript", src="/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js")
 
 //script(type='text/javascript').
 //    $(document).ready(function(){
@@ -96,17 +97,10 @@ script(type="text/javascript", src="/app/commodities/nrgiCommodityDetailCtrl.js"
 //sites
 script(type="text/javascript", src="/app/sites/nrgiSiteListCtrl.js")
 script(type="text/javascript", src="/app/sites/nrgiSiteDetailCtrl.js")
-
-script(type="text/javascript", src="/app/projects/nrgiMapCtrl.js")
 script(type="text/javascript", src="/app/sites/nrgiMapSiteCtrl.js")
+script(type="text/javascript", src="/app/projects/nrgiMapCtrl.js")
 script(type="text/javascript", src="/app/sourceTypes/nrgiSourceTypeDetailCtrl.js")
 script(type="text/javascript", src="/app/sourceTypes/nrgiSourceTypeListCtrl.js")
-
-//script(type="text/javascript", src="/app/contracts/nrgiContractListCtrl.js")
-////script(type="text/javascript", src="/app/contracts/nrgiContractCtrl.js")
-//script(type="text/javascript", src="/app/concessions/nrgiConcessionListCtrl.js")
-////script(type="text/javascript", src="/app/concessions/nrgiConcessionCtrl.js")
-//script(type="text/javascript", src="/app/services/nrgiRCAPISrvc.js")
 
 
 //- DIRECTIVES
@@ -142,47 +136,26 @@ script(type="text/javascript", src="/app/directives/controllers/nrgiLeafletCtrl.
 
 
 //- SERVICES
+script(type="text/javascript", src="/app/services/nrgiServices.js")
 script(type="text/javascript", src="/app/services/nrgiAuthSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiCompaniesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiGroupsSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiCountriesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiSourcesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiContractsSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiCommoditiesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiCompaniesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiConcessionsSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiContractsSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiCountriesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiDatasetSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiDatasetActionSrvc.js")
-//script(type="text/javascript", src="/app/services/nrgiEtlSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiGroupsSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiIdentitySrvc.js")
-script(type="text/javascript", src="/app/services/nrgiProjectsSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiSourcesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiUserSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiUserListSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiSitesSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiTablesSrvc.js")
-script(type="text/javascript", src="/app/services/nrgiSourceTypesSrvc.js")
+script(type="text/javascript", src="/app/services/nrgiUserSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiMapSrvc.js")
+
 //- METHODS
 script(type="text/javascript", src="/app/services/methods/nrgiCommoditiesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiCompaniesMethodSrvc.js")
-script(type="text/javascript", src="/app/services/methods/nrgiGroupsMethodSrvc.js")
-script(type="text/javascript", src="/app/services/methods/nrgiSourcesMethodSrvc.js")
-script(type="text/javascript", src="/app/services/methods/nrgiProjectsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiConcessionsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiCountriesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiDatasetActionMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiDatasetMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiGroupsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiProjectsMethodSrvc.js")
-script(type="text/javascript", src="/app/services/methods/nrgiSourcesMethodSrvc.js")
-script(type="text/javascript", src="/app/services/methods/nrgiUserMethodSrvc.js")
-script(type="text/javascript", src="/app/services/methods/nrgiCommoditiesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiSitesMethodSrvc.js")
+script(type="text/javascript", src="/app/services/methods/nrgiSourcesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiSourceTypesMethodSrvc.js")
+script(type="text/javascript", src="/app/services/methods/nrgiUserMethodSrvc.js")
 
 //- ACCT CTRLS
 script(type="text/javascript", src="/app/account/nrgiNavBarLoginCtrl.js")

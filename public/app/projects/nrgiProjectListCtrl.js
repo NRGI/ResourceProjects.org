@@ -3,47 +3,35 @@
 angular.module('app')
     .controller('nrgiProjectListCtrl', function (
         $scope,
+        $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiProjectsSrvc
     ) {
-        $scope.limit = 50;
-        $scope.page = 0;
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0;
+
         $scope.count =0;
-        $scope.show_count=0;
+        $scope.busy = false;
 
-        var loadProjects = function(limit,page){
-            nrgiProjectsSrvc.query({skip: page, limit: limit}, function (success) {
-                $scope.count = success.count;
-                $scope.limit = limit;
-                $scope.page = page;
-                $scope.projects=success.data;
-                $scope.show_count = success.data.length+$scope.page;
-                $scope.record_type = 'projects';
-            });
-        };
+        nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.projects = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
 
-        loadProjects($scope.limit,$scope.page);
-
-        $scope.select = function(changeLimit){
-            loadProjects(changeLimit,0);
-        };
-        $scope.next = function(page,count){
-            loadProjects($scope.limit,count);
-        };
-        $scope.prev = function(page){
-            loadProjects($scope.limit,page-$scope.limit);
-        };
-        $scope.first = function(){
-            loadProjects($scope.limit,0);
-        };
-        $scope.last = function(page){
-            if($scope.count%$scope.limit!=0){
-                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
-                loadProjects($scope.limit,page);
-            }else {
-                loadProjects($scope.limit,page-$scope.limit);
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
+                    $scope.projects = _.union($scope.projects, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
             }
-        }
+        };
     });
 

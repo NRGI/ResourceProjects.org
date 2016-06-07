@@ -16,6 +16,15 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
+            updateCountry: function(new_country_data) {
+                var dfd = $q.defer();
+                new_country_data.$update().then(function() {
+                    dfd.resolve();
+                }, function(response) {
+                    dfd.reject(response.data.reason);
+                });
+                return dfd.promise;
+            },
             deleteCountry: function(country_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiCountriesSrvc();
@@ -23,18 +32,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
-                return dfd.promise;
-            },
-            updateCountry: function(new_country_data) {
-                var dfd = $q.defer();
-                new_country_data.$update().then(function() {
-                    dfd.resolve();
-                }), function(response) {
-                    dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

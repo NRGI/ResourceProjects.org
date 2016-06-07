@@ -15,6 +15,15 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
+            updateCommodity: function(new_commodity_data) {
+                var dfd = $q.defer();
+                new_commodity_data.$update().then(function() {
+                    dfd.resolve();
+                }, function(response) {
+                    dfd.reject(response.data.reason);
+                });
+                return dfd.promise;
+            },
             deleteCommodity: function(commodity_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiCommoditiesSrvc();
@@ -22,18 +31,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
-                return dfd.promise;
-            },
-            updateCommodity: function(new_commodity_data) {
-                var dfd = $q.defer();
-                new_commodity_data.$update().then(function() {
-                    dfd.resolve();
-                }), function(response) {
-                    dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

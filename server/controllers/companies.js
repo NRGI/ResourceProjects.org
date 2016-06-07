@@ -105,7 +105,7 @@ exports.getCompanies = function(req, res) {
                                             }
                                         }
                                         if (!_.contains(company.transfers_query, link.project)) {
-                                            company.transfers_query.push(link.project);
+                                            company.transfers_query.push(link.project._id);
                                         }}
                                         break;
                                     case 'site':
@@ -200,6 +200,7 @@ exports.getCompanyID = function(req, res) {
             });
     }
 };
+
 exports.getCompanyByID = function(req, res) {
     var company={},link_counter, link_len;
 
@@ -285,6 +286,7 @@ exports.getCompanyByID = function(req, res) {
             });
     }
 }
+
 exports.createCompany = function(req, res, next) {
     var companyData = req.body;
     Company.create(companyData, function(err, company) {

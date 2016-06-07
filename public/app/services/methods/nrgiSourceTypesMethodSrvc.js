@@ -15,6 +15,15 @@ angular.module('app')
                 });
                 return dfd.promise;
             },
+            updateSourceType: function(new_sourceType_data) {
+                var dfd = $q.defer();
+                new_sourceType_data.$update().then(function() {
+                    dfd.resolve();
+                }, function(response) {
+                    dfd.reject(response.data.reason);
+                });
+                return dfd.promise;
+            },
             deleteSourceType: function(sourceType_deletion) {
                 var dfd = $q.defer();
                 var delete_ID = new nrgiSourceTypesSrvc();
@@ -22,18 +31,9 @@ angular.module('app')
 
                 delete_ID.$delete().then(function() {
                     dfd.resolve();
-                }), function(response) {
+                }, function(response) {
                     dfd.reject(response.data.reason);
-                };
-                return dfd.promise;
-            },
-            updateSourceType: function(new_sourceType_data) {
-                var dfd = $q.defer();
-                new_sourceType_data.$update().then(function() {
-                    dfd.resolve();
-                }), function(response) {
-                    dfd.reject(response.data.reason);
-                };
+                });
                 return dfd.promise;
             }
         }

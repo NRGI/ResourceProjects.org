@@ -3,16 +3,21 @@
 angular.module('app')
     .controller('nrgiSiteListCtrl', function (
         $scope,
+        $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiSitesSrvc,
         $location
     ) {
-        $scope.field = false;
-        $scope.limit = 50;
-        $scope.page = 0;
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0;
+            //_ = $rootScope._;
+
         $scope.count =0;
-        $scope.show_count=0;
+        $scope.field = false;
+        $scope.busy = false;
+
         if ($location.path()=='/sites') {
             $scope.field =false;
             $scope.record_type = 'sites';
@@ -24,36 +29,23 @@ angular.module('app')
             $scope.record_type = 'fields';
             $scope.header = 'Fields';
         }
-        var loadSites = function(limit,page){
-            nrgiSitesSrvc.query({skip: page, limit: limit,field: $scope.field}, function (success) {
-                $scope.count = success.count;
-                $scope.limit = limit;
-                $scope.page = page;
-                $scope.sites=success.data;
-                $scope.show_count = success.data.length+$scope.page;
-            });
-        };
 
-        loadSites($scope.limit,$scope.page);
+        nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
+            $scope.count = response.count;
+            $scope.sites = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
 
-        $scope.select = function(changeLimit){
-            loadSites(changeLimit,0);
-        };
-        $scope.next = function(page,count){
-            loadSites($scope.limit,count);
-        };
-        $scope.prev = function(page){
-            loadSites($scope.limit,page-$scope.limit);
-        };
-        $scope.first = function(){
-            loadSites($scope.limit,0);
-        };
-        $scope.last = function(page){
-            if($scope.count%$scope.limit!=0){
-                page =  parseInt($scope.count/$scope.limit)*$scope.limit;
-                loadSites($scope.limit,page);
-            }else {
-                loadSites($scope.limit,page-$scope.limit);
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
+                    $scope.sites = _.union($scope.sites, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
             }
-        }
+        };
     });
