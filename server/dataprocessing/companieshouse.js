@@ -25,10 +25,10 @@ API_KEY = process.env.CHAPIKEY;
 years = _.range(2014, 2016);
 
 //source type is always 'UK Mandatory payment disclosure'
-sourceTypeId = '56e8736944442a3824141429';
+var sourceTypeId = '56e8736944442a3824141429';
 
 //Data needed for inter-entity reference
-var source, company, projects, countries;
+var source, company, projects, countries, currency;
 
 exports.importData = function(action_id, finalcallback) {
 
@@ -74,6 +74,8 @@ exports.importData = function(action_id, finalcallback) {
 
 								// get all reports for this year and handle them one after another
 								async.eachSeries(res.body, function (chReportData, icallback) {
+										//Set currency for this report
+										currency = chReportData.reportDetails.currency;
 										loadChReport(chReportData, year, reporter, action_id, icallback);
 									},
 
@@ -814,7 +816,7 @@ function makeNewSource(company, year, version) {
 
 	var source = {
 		source_name: 'Companies House Extractives Disclosure of ' + company + ' for ' + year + ', Version ' + version,
-		source_type_id: '56e873691d1d2a3824141429',
+		source_type_id: sourceTypeId,
 		source_url: 'https://extractives.companieshouse.gov.uk',
 		source_notes: 'Source for Companies House Extractive API Import',
 		source_date: Date.now(),
@@ -833,7 +835,7 @@ function makeNewCompany (newData) {
 	};
 
 	if (newData.reportDetails.companyNumber !== "") {
-		company.open_corporates_id = newData.reportDetails.companyNumber;
+		company.open_corporates_id = "gb/" + newData.reportDetails.companyNumber;
 	}
 
 	company.country_of_incorporation = [{country: countries['GBR']._id}]; // Only have UK companies
@@ -882,7 +884,8 @@ function makeNewTransfer(paymentData, transfer_audit_type, transfer_level, year,
 		country: country_id,
 		transfer_audit_type: transfer_audit_type,
 		// TODO: transfer_year == report year?
-		// transfer_year: year,
+		transfer_year: year,
+		transfer_unit: currency,
 		transfer_level: transfer_level,
 		transfer_type: paymentData.paymentType,
 		transfer_note: paymentData.notes,
