@@ -25,7 +25,7 @@ API_KEY = process.env.CHAPIKEY;
 years = _.range(2014, 2016);
 
 //source type is always 'UK Mandatory payment disclosure'
-sourceTypeId = '56e8736944442a3824141429';
+var sourceTypeId = '56e8736944442a3824141429';
 
 //Data needed for inter-entity reference
 var source, company, projects, countries, currency;
@@ -816,7 +816,7 @@ function makeNewSource(company, year, version) {
 
 	var source = {
 		source_name: 'Companies House Extractives Disclosure of ' + company + ' for ' + year + ', Version ' + version,
-		source_type_id: '56e873691d1d2a3824141429',
+		source_type_id: sourceTypeId,
 		source_url: 'https://extractives.companieshouse.gov.uk',
 		source_notes: 'Source for Companies House Extractive API Import',
 		source_date: Date.now(),
