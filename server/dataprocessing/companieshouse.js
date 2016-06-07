@@ -28,7 +28,7 @@ years = _.range(2014, 2016);
 sourceTypeId = '56e8736944442a3824141429';
 
 //Data needed for inter-entity reference
-var source, company, projects, countries;
+var source, company, projects, countries, currency;
 
 exports.importData = function(action_id, finalcallback) {
 
@@ -74,7 +74,8 @@ exports.importData = function(action_id, finalcallback) {
 
 								// get all reports for this year and handle them one after another
 								async.eachSeries(res.body, function (chReportData, icallback) {
-
+										//Set currency for this report
+										currency = chReportData.reportDetails.currency;
 										loadChReport(chReportData, year, reporter, action_id, icallback);
 
 									},
@@ -865,7 +866,8 @@ function makeNewTransfer(paymentData, transfer_audit_type, transfer_level, year,
 		country: country_id,
 		transfer_audit_type: transfer_audit_type,
 		// TODO: transfer_year == report year?
-		// transfer_year: year,
+		transfer_year: year,
+		transfer_unit: currency,
 		transfer_level: transfer_level,
 		transfer_type: paymentData.paymentType,
 		transfer_audit_type: transfer_audit_type,
