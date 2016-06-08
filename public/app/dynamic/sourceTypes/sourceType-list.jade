@@ -1,20 +1,20 @@
 .container
-	.page-header
-		h1 Source Types
-			= ' '
-			small(ng-if="count") {{count}}
+    .row.bottom-padding-med
+        .col-md-4
+            h1.pagetitle Disclosures
+                = ' '
+                small(ng-if="count") {{count}}
+    table.table.table-striped(
+    ts-wrapper)
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='source_type_name') Source
+        tbody
+            tr(
+            ng-repeat="type in sourceTypes | unique: '_id'"
+            ts-repeat)
+                td.source_type_name
+                    a(href='source_type/{{ type._id }}')
+                        span(ng-bind-html="type.source_type_name|sanitize")
 
-	table.table.table-striped(
-	ts-wrapper)
-		thead
-			tr
-				th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-		tbody
-			tr(
-			ng-repeat="type in sourceTypes | unique: '_id'"
-			ts-repeat)
-				td.source_type_name
-					a(href='source_type/{{ type._id }}')
-						span(ng-bind-html="type.source_type_name|sanitize")
-
-	div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')

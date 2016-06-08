@@ -113,6 +113,9 @@ a {
   padding-top: 20px;
   padding-bottom: 20px;
 }
+.pagetitle {
+  padding-top: 5vh;
+}
 .dropdown {
   text-align: center;
 }
@@ -238,7 +241,7 @@ li .glyphicon[disabled] {
 }
 .navbar .nav-link {
   float: none;
-  padding: 10px 0.3vw;
+  padding: 10px 0.35vw;
   line-height: 19px;
   color: #557288;
   text-decoration: none;
