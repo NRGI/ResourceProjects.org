@@ -72,9 +72,10 @@ angular
             if ($scope.alldata.length > 0)
                 var len = $scope.alldata.length;
             var counter = 0;
-            var lat = 0;
-            var lng = 0;
+            var lat = [];
+            var lng = [];
             angular.forEach(response, function (data) {
+                console.log(data)
                 counter++;
                 if ($scope.project == true && data.type == 'project') {
                     $scope.location.push({lat: data.lat, lng: data.lng, message: data.message});
@@ -115,14 +116,22 @@ angular
                         });
                     }
                 }
-                lat = +data.lat;
-                lng = +data.lng;
+                lat.push(data.lat);
+                lng.push(data.lng);
                 if (len == counter && $scope.map == true) {
                     $scope.data_loading = false;
-                    $scope.center = {lat: 0, lng: 0, zoom: 1};
+                    $scope.center = {
+                        lat: lat.reduce(function(pv, cv) { return pv + parseInt(cv); }, 0) / lat.length,
+                        lng: lng.reduce(function(pv, cv) { return pv + parseInt(cv); }, 0) / lng.length,
+                        zoom: 2
+                    };
                 }
                 if (len == counter && $scope.map != true && $scope.alldata.length > 1) {
-                    $scope.center = {lat: 0, lng: lng, zoom: 0};
+                    $scope.center = {
+                        lat: lat.reduce(function(pv, cv) { return pv + parseInt(cv); }, 0) / lat.length,
+                        lng: lng.reduce(function(pv, cv) { return pv + parseInt(cv); }, 0) / lng.length,
+                        zoom: 4
+                    };
                 }
                 if (len == counter && $scope.map != true && $scope.alldata.length == 1) {
                     $scope.center = {lat: data.lat, lng: data.lng, zoom: 3};
