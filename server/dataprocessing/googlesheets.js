@@ -205,8 +205,13 @@ var makeNewCompany = function(newRow) {
 var makeNewProject = function(newRow) {
     var project = {
         proj_name: newRow[1],
-        proj_established_source: sources[newRow[0].toLowerCase()]._id
+        proj_established_source: sources[newRow[0].toLowerCase()]._id,
+        proj_country: [{country: countries[newRow[5]]._id, source: sources[newRow[0].toLowerCase()]._id}]
     };
+    if (newRow[3] != "") project.proj_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow[6] != "") project.proj_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow[9] != "") project.proj_commodity = [{commodity: commodities[newRow[9]]._id, source: sources[newRow[0].toLowerCase()]._id}];
+
     return project;
 }
 
