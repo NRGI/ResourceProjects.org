@@ -1,20 +1,23 @@
 .container
-    .row.bottom-padding-med
-        .col-md-4
-            h1.pagetitle Disclosures
-                = ' '
-                small(ng-if="count") {{count}}
-    table.table.table-striped(
-    ts-wrapper)
-        thead
-            tr
-                th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-        tbody
-            tr(
-            ng-repeat="type in sourceTypes | unique: '_id'"
-            ts-repeat)
-                td.source_type_name
-                    a(href='source_type/{{ type._id }}')
-                        span(ng-bind-html="type.source_type_name|sanitize")
+    .row.pagetitle
+        h1 Disclosures & Context
+    .row.top-padding-med
+        table.table.table-striped(
+        ts-wrapper)
+            thead
+                tr
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source
+                    th Type
+                    th Projects
+                    th Countries
+            tbody
+                tr(
+                ng-repeat="type in sourceTypes | unique: '_id'"
+                ts-repeat)
+                    td.source_type_name
+                        a(href='source_type/{{ type._id }}')
+                            span(ng-bind-html="type.source_type_name|sanitize")
+                    td.source_type_type {{type.source_type_authority|ucfirst}}
+                    td {{type.project_count}}
 
-    div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+        div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='20')

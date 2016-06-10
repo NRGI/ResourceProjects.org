@@ -16,7 +16,7 @@ angular.module('app')
         $scope.field = false;
         $scope.busy = false;
 
-        nrgiSourceTypesSrvc.query({skip: currentPage*limit, limit: limit, display: true}, function (response) {
+        nrgiSourceTypesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.sourceTypes = response.data;
             totalPages = Math.ceil(response.count / limit);
@@ -27,7 +27,7 @@ angular.module('app')
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
-                nrgiSourceTypesSrvc.query({skip: currentPage*limit, limit: limit, display: true}, function (response) {
+                nrgiSourceTypesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
                     $scope.sourceTypes = _.union($scope.sourceTypes, response.data);
                     currentPage = currentPage + 1;
                     $scope.busy = false;

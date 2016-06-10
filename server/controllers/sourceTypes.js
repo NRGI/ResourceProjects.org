@@ -1,5 +1,6 @@
 var SourceType 		= require('mongoose').model('SourceType'),
     Source   		= require('mongoose').model('Source'),
+    Project   		= require('mongoose').model('Project'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request'),
@@ -7,26 +8,21 @@ var SourceType 		= require('mongoose').model('SourceType'),
 exports.getSourceTypes = function(req, res) {
     var limit = Number(req.params.limit),
         skip = Number(req.params.skip),
-        display = req.params.display,
-        query ={};
+        projects = [];
 
     async.waterfall([
         sourceTypeCount,
         getSourceTypeSet,
-        getSourceSet
+        getSourceSet,
+        getProjectCount
     ], function (err, result) {
         if (err) {
             res.send(err);
-        } else{
-            res.send(result)
         }
     });
 
     function sourceTypeCount(callback) {
-        if(display==='true'){
-            query={source_type_display:true}
-        }
-        SourceType.find(query).count().exec(function(err, source_type_count) {
+        SourceType.find({}).count().exec(function(err, source_type_count) {
             if(source_type_count) {
                 callback(null, source_type_count);
             } else {
@@ -35,11 +31,7 @@ exports.getSourceTypes = function(req, res) {
         });
     }
     function getSourceTypeSet(source_type_count, callback) {
-
-        if(display==='true'){
-            query={source_type_display:true}
-        }
-        SourceType.find(query)
+        SourceType.find({})
             .sort({
                 source_type_name: 'asc'
             })
@@ -56,32 +48,75 @@ exports.getSourceTypes = function(req, res) {
     }
     function getSourceSet(source_type_count, source_types, callback) {
         if(source_types.length > 0) {
-            source_types.forEach(function(source_type) {
+            source_type_len = source_types.length;
+            source_type_counter = 0;
+            _.each(source_types, function(source_type) {
                 source_type.sources = [];
                 Source.find({source_type_id: source_type._id})
                     .lean()
                     .exec(function(err, sources) {
-                        sources.forEach(function(source) {
+                        ++source_type_counter;
+                        source_len = sources.length;
+                        source_counter = 0;
+                        _.each(sources, function(source) {
                             source_type.sources.push(source._id);
+                            ++source_counter;
                         });
-                        // if(sourceTypes.length>0) {
-                        //     callback(null, sourceType_count, source_types);
-                        // } else {
-                        //     callback(err);
-                        // }
+                        if(source_type_len == source_type_counter && source_len == source_counter) {
+                            callback(null, source_type_count, source_types);
+                        }
                     });
             });
-            // query={}
         }
-
-        callback({data:source_types, count:source_type_count});
     }
-    // function getProjectCount(source_type_count, source_types, callback) {
-    //     if(source_types.length > 0) {
-    //         source_types.forEach()
-    //     }
-    //
-    //     callback({data:source_types, count:source_type_count});
+
+    function getProjectCount(source_type_count, source_types, callback) {
+        if(source_types.length > 0) {
+            source_type_len = source_types.length;
+            source_type_counter = 0;
+            _.each(source_types, function (source_type) {
+                source_type.project_count = 0;
+                if (source_type.sources.length > 0) {
+                    ++source_type_counter;
+                    source_type.sources = _.uniq(source_type.sources);
+                    _.each(source_type.sources, function (source) {
+                        Project.find({proj_established_source: source})
+                            // .select("_id")
+                            .exec(function (projects) {
+                                // console.log(source);
+                                console.log(projects);
+                            });
+                    });
+                }
+            });
+        }
+        
+        
+        res.send({data:source_types, count:source_type_count});
+
+    }
+    // function getSourceLinks(source_count, sources, callback) {
+    //     source_len = sources.length;
+    //     source_counter = 0;
+    //     sources.forEach(function (c) {
+    //         Link.find({source: c._id})
+    //             .populate('project')
+    //             .exec(function(err, links) {
+    //                 ++source_counter;
+    //                 link_len = links.length;
+    //                 link_counter = 0;
+    //                 c.projects = 0;
+    //                 links.forEach(function(link) {
+    //                     ++link_counter;
+    //                     if(link.entities.indexOf('project')===0){
+    //                         c.projects += 1;
+    //                     }
+    //                 });
+    //                 if(source_counter == source_len && link_counter == link_len) {
+    //                     res.send({data:sources, count:source_count});
+    //                 }
+    //             });
+    //     });
     // }
 //    get #projects
 //    get #countries
