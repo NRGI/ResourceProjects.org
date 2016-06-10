@@ -345,6 +345,8 @@ var makeNewProduction = function(newRow) {
         source: sources[newRow[0].toLowerCase()]._id
     }
     if (newRow[3] != "") {
+        //TODO deal with different levels of production
+        production.production_level = "project"
         production.project = projects[newRow[3].toLowerCase()]._id;
     }
     if (newRow[4] != "") {
