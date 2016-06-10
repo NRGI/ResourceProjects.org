@@ -116,6 +116,9 @@ a {
 .pagetitle {
   padding-top: 5vh;
 }
+.pagetitle {
+  padding-top: 3vh;
+}
 .dropdown {
   text-align: center;
 }
