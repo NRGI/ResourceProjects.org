@@ -1,5 +1,5 @@
 .container
-    .pagetitle
+    .row.pagetitle
         .col-md-4
             h1 Projects
                 = ' '
@@ -12,55 +12,56 @@
                 button.btn.btn-secondary.pull-xs-right(type='button')
                     a(href='/projects/map') Map View
 
-    table#projects.table.table-striped(
-    about='http://resourceprojects.org/project'
-    ts-wrapper)
-        thead
-            tr
-                th.tablesort-sortable-th(ts-criteria='proj_name') Name
-                th.tablesort-sortable-th(ts-criteria='verified') Verified Project
-                th.tablesort-sortable-th(ts-criteria='proj_country[proj_country.length - 1].country.name') Country
-                th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_type') Type
-                th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length-1].commodity.commodity_name') Commodity
-                th.tablesort-sortable-th(ts-criteria='proj_status[proj_status.length-1].string') Status
-                th.text-center.tablesort-sortable-th(ts-criteria="company_count | parseInt")  Companies
-                th.text-center.tablesort-sortable-th(ts-criteria="transfer_count | parseInt")  Payments
-                th.text-center.tablesort-sortable-th(ts-criteria="production_count | parseInt")  Production
-                //th.col-md-1.text-center.tablesort-sortable-th(ts-criteria="site_transfers|parseInt")  Associated Payments
-        tbody
-            tr(
-            ng-repeat="project in projects | unique: '_id'"
-            ts-repeat)
-                td.proj_name
-                    a(href='project/{{project.proj_id}}')
-                        span(ng-bind-html="project.proj_name|sanitize")
-                td.proj_verified
-                    i.glyphicon.glyphicon-check.text-success(ng-if="project.verified==='verified'")
-                    i.glyphicon.glyphicon-ban-circle.text-danger(ng-if="project.verified==='none'")
-                    text(ng-class="{'text-success': project.verified==='verified', 'text-warning': project.verified==='payment' || project.verified==='context', 'text-danger': project.verified==='none'}")  {{project.verified | ucfirst}}
-                td.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
-                    a(href='/country/{{country.country.iso2}}')
-                        span(ng-bind-html="country.country.name|sanitize")
-                    | {{$last ? '' : ', '}}
-                td.proj_commodity_type
-                    text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_type'")
-                        | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
+    .row.top-padding-med
+        table#projects.table.table-striped(
+        about='http://resourceprojects.org/project'
+        ts-wrapper)
+            thead
+                tr
+                    th.tablesort-sortable-th(ts-criteria='proj_name') Name
+                    th.tablesort-sortable-th(ts-criteria='verified') Verified Project
+                    th.tablesort-sortable-th(ts-criteria='proj_country[proj_country.length - 1].country.name') Country
+                    th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_type') Type
+                    th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length-1].commodity.commodity_name') Commodity
+                    th.tablesort-sortable-th(ts-criteria='proj_status[proj_status.length-1].string') Status
+                    th.text-center.tablesort-sortable-th(ts-criteria="company_count | parseInt")  Companies
+                    th.text-center.tablesort-sortable-th(ts-criteria="transfer_count | parseInt")  Payments
+                    th.text-center.tablesort-sortable-th(ts-criteria="production_count | parseInt")  Production
+                    //th.col-md-1.text-center.tablesort-sortable-th(ts-criteria="site_transfers|parseInt")  Associated Payments
+            tbody
+                tr(
+                ng-repeat="project in projects | unique: '_id'"
+                ts-repeat)
+                    td.proj_name
+                        a(href='project/{{project.proj_id}}')
+                            span(ng-bind-html="project.proj_name|sanitize")
+                    td.proj_verified
+                        i.glyphicon.glyphicon-check.text-success(ng-if="project.verified==='verified'")
+                        i.glyphicon.glyphicon-ban-circle.text-danger(ng-if="project.verified==='none'")
+                        text(ng-class="{'text-success': project.verified==='verified', 'text-warning': project.verified==='payment' || project.verified==='context', 'text-danger': project.verified==='none'}")  {{project.verified | ucfirst}}
+                    td.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
+                        a(href='/country/{{country.country.iso2}}')
+                            span(ng-bind-html="country.country.name|sanitize")
                         | {{$last ? '' : ', '}}
-                td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
-                    a(href='commodity/{{commodity.commodity.commodity_id}}')
-                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
-                    | {{$last ? '' : ', '}}
-                td.proj_status
-                    em(ng-if="project.proj_status.length<1") ..
-                    text(
-                    ng-if="project.proj_status.length>0"
-                    ng-repeat="status in project.proj_status")
-                        text(ng-if="$last")
-                            | {{status.string | ucfirst}}
-                            text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.text-center.proj_company_count {{project.company_count}}
-                td.text-center.proj_transfer_count {{project.transfer_count}}
-                td.text-center.proj_transfer_count {{project.production_count}}
-                //td.col-md-1.text-center.proj_associated_transfer_count {{project.site_transfers}}
+                    td.proj_commodity_type
+                        text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_type'")
+                            | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
+                            | {{$last ? '' : ', '}}
+                    td.proj_commodity: text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                        a(href='commodity/{{commodity.commodity.commodity_id}}')
+                            span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                        | {{$last ? '' : ', '}}
+                    td.proj_status
+                        em(ng-if="project.proj_status.length<1") ..
+                        text(
+                        ng-if="project.proj_status.length>0"
+                        ng-repeat="status in project.proj_status")
+                            text(ng-if="$last")
+                                | {{status.string | ucfirst}}
+                                text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                    td.text-center.proj_company_count {{project.company_count}}
+                    td.text-center.proj_transfer_count {{project.transfer_count}}
+                    td.text-center.proj_transfer_count {{project.production_count}}
+                    //td.col-md-1.text-center.proj_associated_transfer_count {{project.site_transfers}}
 
-    div(ng-if='projects.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+        div(ng-if='projects.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='20')
