@@ -363,11 +363,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			if (projectName.indexOf(" ") > -1) {
 				var spacePos = projectName.indexOf(" ");
-				projDoc.proj_id = projectName.toLowerCase().slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+				projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
 
 			}
 			else {
-				projDoc.proj_id = projectName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+				projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
 			}
 
 			if (!doc_id) doc_id = new ObjectId();
@@ -717,11 +717,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			if (projName.indexOf(" ") > -1) {
 				var spacePos = projName.indexOf(" ");
-				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+				update.proj_id = iso2country + '-' + projName.toLowerCase().replace("/","").slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
 
 			}
 			else {
-				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+				update.proj_id = iso2country + '-' + projName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
 			}
 
 			// Enforce only one country per project...
