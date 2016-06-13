@@ -16,11 +16,19 @@ angular.module('app')
         $scope.count =0;
         $scope.busy = false;
 
+        $scope.csv_countries = [];
+        var fields = ['name', 'project_count', 'site_count', 'field_count', 'concession_count', 'transfer_count'];
+        var header_countries = ['Country', 'Projects', 'Sites', 'Fields', 'Concessions', 'Payments'];
+        $scope.getHeaderCountries = function () {
+            return header_countries
+        };
+
         nrgiCountriesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.countries = response.data;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
+            $scope.createDownloadList($scope.countries);
         });
 
         $scope.loadMore = function() {
@@ -31,12 +39,22 @@ angular.module('app')
                     $scope.countries = _.union($scope.countries, response.data);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
+                    $scope.createDownloadList($scope.countries);
                 });
             }
         };
+        $scope.createDownloadList = function (countries) {
+            angular.forEach(countries, function (country, key) {
+                $scope.csv_countries[key] = [];
+                angular.forEach(fields, function (field) {
+                    $scope.csv_countries[key].push(country[field])
+                })
+            });
+        };
     });
 
-    //    var loadCountries = function(limit,page){
+
+//    var loadCountries = function(limit,page){
     //        nrgiCountriesSrvc.query({skip: page, limit: limit}, function(success) {
     //            $scope.count = success.count;
     //            $scope.limit = limit;
