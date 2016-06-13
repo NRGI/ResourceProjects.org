@@ -2,7 +2,7 @@ describe("Unit: Testing Controllers", function() {
 
     beforeEach(module('app'));
 
-    var expectedParams = {limit:50, skip:0, display: true},
+    var expectedParams = {limit:50, skip:0},
         scope,
         sourceTypesData = {
             "count": 2,

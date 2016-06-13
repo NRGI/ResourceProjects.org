@@ -15,15 +15,15 @@ describe('nrgiSourceTypesSrvc', function () {
         $httpBackend.expectGET('/api/sourcetypes/' + sourceTypeId).respond('');
         sourceTypeServiceInstance.$get({_id: sourceTypeId});
     });
-    it('requests source type all data list with a skip, display and limit var', function () {
+    it('requests source type all data list with a skip and limit var', function () {
         var limit = 10, skip = 1, display = true;
-        $httpBackend.expectGET('/api/sourcetypes/' + limit + '/' + skip + '/' + display).respond('');
-        sourceTypeServiceInstance.$get({limit: limit, skip: skip, display: display});
+        $httpBackend.expectGET('/api/sourcetypes/' + limit + '/' + skip).respond('');
+        sourceTypeServiceInstance.$get({limit: limit, skip: skip});
     });
-    it('requests source type data list with a skip, display and limit var', function () {
+    it('requests source type data list with a skip and limit var', function () {
         var limit = 10, skip = 1, display = false;
-        $httpBackend.expectGET('/api/sourcetypes/' + limit + '/' + skip + '/' + display).respond('');
-        sourceTypeServiceInstance.$get({limit: limit, skip: skip, display: display});
+        $httpBackend.expectGET('/api/sourcetypes/' + limit + '/' + skip).respond('');
+        sourceTypeServiceInstance.$get({limit: limit, skip: skip});
     });
     it('requests source type update data for a given `sourceTypeId`', function () {
         var sourceTypeId = 1;
