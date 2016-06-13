@@ -8,13 +8,16 @@ var SourceType 		= require('mongoose').model('SourceType'),
 exports.getSourceTypes = function(req, res) {
     var limit = Number(req.params.limit),
         skip = Number(req.params.skip),
-        projects = [];
+        project_list = {},
+        country_list = {},
+        source_list = {};
 
     async.waterfall([
         sourceTypeCount,
         getSourceTypeSet,
         getSourceSet,
-        getProjectCount
+        getProjectCount,
+        getLinkSet
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -51,73 +54,90 @@ exports.getSourceTypes = function(req, res) {
             source_type_len = source_types.length;
             source_type_counter = 0;
             _.each(source_types, function(source_type) {
-                source_type.sources = [];
                 Source.find({source_type_id: source_type._id})
                     .lean()
                     .exec(function(err, sources) {
                         ++source_type_counter;
                         source_len = sources.length;
                         source_counter = 0;
+                        source_list[source_type._id] = [];
+                        project_list[source_type._id] = [];
                         _.each(sources, function(source) {
-                            source_type.sources.push(source._id);
+                            source_list[source_type._id].push(source._id);
                             ++source_counter;
                         });
                         if(source_type_len == source_type_counter && source_len == source_counter) {
-                            callback(null, source_type_count, source_types);
+                            callback(null, source_type_count, source_types, source_list, project_list, country_list);
                         }
                     });
             });
         }
     }
 
-    function getProjectCount(source_type_count, source_types, callback) {
-        if(source_types.length > 0) {
-            source_type_len = source_types.length;
-            source_type_counter = 0;
-            _.each(source_types, function (source_type) {
-                source_type.project_count = 0;
-                if (source_type.sources.length > 0) {
-                    ++source_type_counter;
-                    source_type.sources = _.uniq(source_type.sources);
-                    _.each(source_type.sources, function (source) {
-                        Project.find({proj_established_source: source})
-                            // .select("_id")
-                            .exec(function (projects) {
-                                // console.log(source);
-                                console.log(projects);
-                            });
-                    });
-                }
-            });
-        }
-        
-        
-        res.send({data:source_types, count:source_type_count});
-
+    function getProjectCount(source_type_count, source_types, source_list, project_list, country_list, callback) {
+        source_len = Object.keys(source_list).length;
+        source_counter = 0;
+        Object.keys(source_list).forEach(function(key) {
+            Project.find({proj_established_source: source_list[key]})
+                .select("_id proj_country.country")
+                .exec(function(err, projects) {
+                    ++source_counter;
+                    if(projects) {
+                        proj_len = projects.length;
+                        proj_counter = 0;
+                        _.each(projects, function (proj) {
+                            ++proj_counter;
+                            project_list[key].push(proj._id);
+                            // console.log();
+                            // console.log(proj.proj_country);
+                            if(proj.proj_country) {
+                                country_list[key] = _.pluck(proj.proj_country, "country");
+                                // country_list[key].push(_.pluck(proj.proj_country, "country"));
+                            }
+                        });
+                    } else {
+                        proj_len = 0;
+                        proj_counter = 0;
+                    }
+                    if(source_type_len == source_type_counter && source_len == source_counter) {
+                        callback(null, source_type_count, source_types, source_list, project_list, country_list);
+                        // res.send({data:source_types, count:source_type_count});
+                    }
+                });
+        });
     }
-    // function getSourceLinks(source_count, sources, callback) {
-    //     source_len = sources.length;
-    //     source_counter = 0;
-    //     sources.forEach(function (c) {
-    //         Link.find({source: c._id})
-    //             .populate('project')
-    //             .exec(function(err, links) {
-    //                 ++source_counter;
-    //                 link_len = links.length;
-    //                 link_counter = 0;
-    //                 c.projects = 0;
-    //                 links.forEach(function(link) {
-    //                     ++link_counter;
-    //                     if(link.entities.indexOf('project')===0){
-    //                         c.projects += 1;
-    //                     }
-    //                 });
-    //                 if(source_counter == source_len && link_counter == link_len) {
-    //                     res.send({data:sources, count:source_count});
-    //                 }
-    //             });
-    //     });
-    // }
+    function getLinkSet(source_type_count, source_types, source_list, project_list, country_list, callback) {
+        console.log(country_list);
+        callback(null, source_type_count, source_types, source_list, project_list, country_list);
+        // source_len = Object.keys(source_list).length;
+        // source_counter = 0;
+        // Object.keys(source_list).forEach(function(key) {
+        //     Link.find({proj_established_source: source_list[key]})
+        //         .select("_id")
+        //         .exec(function(err, projects) {
+        //             ++source_counter;
+        //             if(projects) {
+        //                 proj_len = projects.length;
+        //                 proj_counter = 0;
+        //                 _.each(projects, function (proj) {
+        //                     ++proj_counter;
+        //                     project_list[key].push(proj._id);
+        //                 });
+        //             } else {
+        //                 proj_len = 0;
+        //                 proj_counter = 0;
+        //             }
+        //             if(source_type_len == source_type_counter && source_len == source_counter) {
+        //                 callback(null, source_type_count, source_types, source_list, project_list);
+        //                 // res.send({data:source_types, count:source_type_count});
+        //             }
+        //         });
+        // });
+    }
+    function getFinalCounts (source_type_count, source_types, source_list, project_list, country_list, callback) {
+        // source_type.sources = _.uniq(source_type.sources);
+        res.send({data:source_types, count:source_type_count});
+    }
 //    get #projects
 //    get #countries
 };
