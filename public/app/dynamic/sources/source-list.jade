@@ -31,3 +31,13 @@
 				td.source_projects {{source.projects}}
 
 	div(ng-if='sources.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+	div(ng-if="sources.length>0")
+		.download
+			span.glyphicon.glyphicon-download(aria-hidden="true")
+			span  Download:
+			=' '
+			a(
+			href=""
+			ng-csv="csv_sources"
+			csv-header="getHeaderSources()"
+			filename="allSources.csv") Sources CSV

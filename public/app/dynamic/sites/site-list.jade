@@ -44,10 +44,10 @@
                     a(href='commodity/{{commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.site_status(ng-if="status==true"): text(ng-repeat="status in project.proj_status")
-                    text(ng-if="$last") {{status.string | ucfirst}}
-                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.text-center(ng-if="companies==true") {{project.companies}}
+                //td.site_status(ng-if="status==true"): text(ng-repeat="status in project.proj_status")
+                //    text(ng-if="$last") {{status.string | ucfirst}}
+                //    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                //td.text-center(ng-if="companies==true") {{project.companies}}
                 td.site_status
                     em(ng-if="site.site_status.length<1") ..
                     text(
@@ -63,3 +63,21 @@
                 td.text-center.site_productions {{site.production_count}}
 
     div(ng-if='sites.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    div(ng-if="sites.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+            =' '
+            a(
+            ng-if="header=='Sites'"
+            href=""
+            ng-csv="csv_file"
+            csv-header="getHeader()"
+            filename="allSites.csv") Sites CSV
+            a(
+            ng-if="header=='Fields'"
+            href=""
+            ng-csv="csv_file"
+            csv-header="getHeader()"
+            filename="allFields.csv") Fields CSV
+

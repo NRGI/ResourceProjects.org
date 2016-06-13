@@ -34,3 +34,14 @@
                 //td.company_payments {{group.payments}}
 
     div(ng-if='groups.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='0')
+    div(ng-if="groups.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+            =' '
+            a(
+            href=""
+            ng-csv="csv_groups"
+            csv-header="getHeaderGroups()"
+            filename="allGroups.csv") Company Groups CSV
+
