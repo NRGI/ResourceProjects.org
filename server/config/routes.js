@@ -75,21 +75,21 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/projects/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), projects.deleteProject);
 
-	/////////////////////////////
-	///// TRANSFERS CRUD ////////
-	/////////////////////////////
-	app.get('/api/transfers/:limit/:skip', transfers.getTransfers);
-	// app.get('/api/transfers/:id', transfers.getPaymentByID);
+	////////////////////////////
+	///// PAYMENTS CRUD ////////
+	////////////////////////////
+	app.get('/api/payments/:limit/:skip', payments.getPayments);
+	app.get('/api/payments/:id', payments.getPaymentByID);
 	// // POST
-	// app.post('/api/transfers',auth.requiresApiLogin, auth.requiresRole('admin'),  transfers.createProject);
+	// app.post('/api/payments',auth.requiresApiLogin, auth.requiresRole('admin'),  payments.createProject);
 	// // PUT
-	// app.put('/api/transfers', auth.requiresApiLogin, auth.requiresRole('admin'), transfers.updateProject);
+	// app.put('/api/payments', auth.requiresApiLogin, auth.requiresRole('admin'), payments.updateProject);
 	// // DELETE
-	// app.delete('/api/transfers/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), transfers.deleteProject);
+	// app.delete('/api/payments/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), payments.deleteProject);
 
-	//////////////////////
-	/// COMPANIES CRUD ///
-	//////////////////////
+	/////////////////////////
+	///// COMPANIES CRUD ////
+	/////////////////////////
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyID);
