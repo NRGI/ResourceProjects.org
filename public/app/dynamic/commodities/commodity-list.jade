@@ -24,3 +24,13 @@
                 td.commodity_concessions {{commodity.concessions}}
 
     div(ng-if='commodities.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    div(ng-if="commodities.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+            =' '
+            a(
+            href=""
+            ng-csv="csv_commodities"
+            csv-header="getHeaderCommodities()"
+            filename="allCommoditiesList.csv") Commodities CSV

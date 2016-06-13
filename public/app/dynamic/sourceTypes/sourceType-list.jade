@@ -20,4 +20,14 @@
                     td.source_type_type {{type.source_type_authority|ucfirst}}
                     td {{type.project_count}}
 
-        div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='20')
+    div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    div(ng-if="sourceTypes.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+            =' '
+            a(
+            href=""
+            ng-csv="csv_source_types"
+            csv-header="getHeaderSourceTypes()"
+            filename="allSourceTypes.csv") Source Types CSV

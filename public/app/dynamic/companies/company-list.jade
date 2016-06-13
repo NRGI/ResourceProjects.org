@@ -39,3 +39,13 @@
                         td.text-center.company_transfers {{company.transfer_count}}
 
     div(ng-if='companies.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    div(ng-if="companies.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden="true")
+            span  Download:
+            =' '
+            a(
+            href=""
+            ng-csv="csv_companies"
+            csv-header="getHeaderCompanies()"
+            filename="allCompanies.csv") Companies CSV
