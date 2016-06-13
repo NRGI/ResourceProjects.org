@@ -228,13 +228,13 @@ angular.module('app')
                 resolve: routeRoleChecks.supervisor
             })
             //Entity Routes
-            .when('/contracts', {
-                templateUrl: '/partials/dynamic/contracts/contract-list',
-                controller: 'nrgiContractListCtrl'
+            .when('/companies', {
+                templateUrl: '/partials/dynamic/companies/company-list',
+                controller: 'nrgiCompanyListCtrl'
             })
-            .when('/contract/:id', {
-                templateUrl: '/partials/dynamic/contracts/contract-detail',
-                controller: 'nrgiContractDetailCtrl'
+            .when('/company/:id', {
+                templateUrl: '/partials/dynamic/companies/company-detail',
+                controller: 'nrgiCompanyDetailCtrl'
             })
             .when('/concessions', {
                 templateUrl: '/partials/dynamic/concessions/concession-list',
@@ -247,37 +247,13 @@ angular.module('app')
             //.when('/concessions/map', {
             //    templateUrl: '/partials/projects/map'
             //})
-            .when('/projects', {
-                templateUrl: '/partials/dynamic/projects/project-list',
-                controller: 'nrgiProjectListCtrl'
+            .when('/contracts', {
+                templateUrl: '/partials/dynamic/contracts/contract-list',
+                controller: 'nrgiContractListCtrl'
             })
-            .when('/project/:id', {
-                templateUrl: '/partials/dynamic/projects/project-detail',
-                controller: 'nrgiProjectDetailCtrl'
-            })
-            .when('/projects/map', {
-                templateUrl: '/partials/dynamic/projects/map',
-                controller: 'nrgiMapCtrl'
-            })
-            .when('/companies', {
-                templateUrl: '/partials/dynamic/companies/company-list',
-                controller: 'nrgiCompanyListCtrl'
-            })
-            .when('/company/:id', {
-                templateUrl: '/partials/dynamic/companies/company-detail',
-                controller: 'nrgiCompanyDetailCtrl'
-            })
-            .when('/sites', {
-                templateUrl: '/partials/dynamic/sites/site-list',
-                controller: 'nrgiSiteListCtrl'
-            })
-            .when('/site/:id', {
-                templateUrl: '/partials/dynamic/sites/site-detail',
-                controller: 'nrgiSiteDetailCtrl'
-            })
-            .when('/sites/map', {
-                templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
-                controller: 'nrgiMapSiteCtrl'
+            .when('/contract/:id', {
+                templateUrl: '/partials/dynamic/contracts/contract-detail',
+                controller: 'nrgiContractDetailCtrl'
             })
             .when('/fields', {
                 templateUrl: '/partials/dynamic/sites/site-list',
@@ -291,17 +267,37 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
+            .when('/payments', {
+                templateUrl: '/partials/dynamic/payments/payment-list',
+                controller: 'nrgiPaymentListCtrl'
+            })
+            .when('/projects', {
+                templateUrl: '/partials/dynamic/projects/project-list',
+                controller: 'nrgiProjectListCtrl'
+            })
+            .when('/project/:id', {
+                templateUrl: '/partials/dynamic/projects/project-detail',
+                controller: 'nrgiProjectDetailCtrl'
+            })
+            .when('/projects/map', {
+                templateUrl: '/partials/dynamic/projects/map',
+                controller: 'nrgiMapCtrl'
+            })
+            .when('/sites', {
+                templateUrl: '/partials/dynamic/sites/site-list',
+                controller: 'nrgiSiteListCtrl'
+            })
+            .when('/site/:id', {
+                templateUrl: '/partials/dynamic/sites/site-detail',
+                controller: 'nrgiSiteDetailCtrl'
+            })
+            .when('/sites/map', {
+                templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
+                controller: 'nrgiMapSiteCtrl'
+            })
             /////////////////////
             ////Helper groups////
             /////////////////////
-            .when('/countries', {
-                templateUrl: '/partials/dynamic/countries/country-list',
-                controller: 'nrgiCountryListCtrl'
-            })
-            .when('/country/:id', {
-                templateUrl: '/partials/dynamic/countries/country-detail',
-                controller: 'nrgiCountryDetailCtrl'
-            })
             .when('/commodities', {
                 templateUrl: '/partials/dynamic/commodities/commodity-list',
                 controller: 'nrgiCommodityListCtrl'
@@ -309,6 +305,14 @@ angular.module('app')
             .when('/commodity/:id', {
                 templateUrl: '/partials/dynamic/commodities/commodity-detail',
                 controller: 'nrgiCommodityDetailCtrl'
+            })
+            .when('/countries', {
+                templateUrl: '/partials/dynamic/countries/country-list',
+                controller: 'nrgiCountryListCtrl'
+            })
+            .when('/country/:id', {
+                templateUrl: '/partials/dynamic/countries/country-detail',
+                controller: 'nrgiCountryDetailCtrl'
             })
             .when('/groups', {
                 templateUrl: '/partials/dynamic/groups/group-list',
