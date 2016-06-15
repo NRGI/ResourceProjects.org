@@ -26,26 +26,6 @@ angular.module('app')
             return header_contracts
         };
 
-        nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.contracts = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.contracts);
-        });
-
-        $scope.loadMore = function() {
-            if ($scope.busy) return;
-            $scope.busy = true;
-            if(currentPage < totalPages) {
-                nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.contracts = _.union($scope.contracts, response.data);
-                    currentPage = currentPage + 1;
-                    $scope.busy = false;
-                    $scope.createDownloadList($scope.contracts);
-                });
-            }
-        };
         $scope.createDownloadList = function (contracts) {
             angular.forEach(contracts, function (contract, key) {
                 $scope.csv_contracts[key] = [];
@@ -145,5 +125,26 @@ angular.module('app')
                     }
                 })
             });
+        };
+
+        nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.contracts = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+            $scope.createDownloadList($scope.contracts);
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                    $scope.contracts = _.union($scope.contracts, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                    $scope.createDownloadList($scope.contracts);
+                });
+            }
         };
     });

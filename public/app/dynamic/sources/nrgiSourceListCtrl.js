@@ -23,6 +23,21 @@ angular.module('app')
             return header_projects
         };
 
+        $scope.createDownloadList = function (sources) {
+            angular.forEach(sources, function (source, key) {
+                $scope.csv_sources[key] = [];
+                angular.forEach(fields, function (field) {
+                    if (field == 'source_date') {
+                        source[field] = $filter('date')(source[field],'yyyy-MM-dd');
+                        $scope.csv_sources[key].push(source[field])
+                    }
+                    if (field != 'source_date') {
+                        $scope.csv_sources[key].push(source[field])
+                    }
+                })
+            });
+        };
+
         nrgiSourcesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.sources = response.data;
@@ -42,19 +57,5 @@ angular.module('app')
                     $scope.createDownloadList($scope.sources);
                 });
             }
-        };
-        $scope.createDownloadList = function (sources) {
-            angular.forEach(sources, function (source, key) {
-                $scope.csv_sources[key] = [];
-                angular.forEach(fields, function (field) {
-                    if (field == 'source_date') {
-                        source[field] = $filter('date')(source[field],'yyyy-MM-dd');
-                        $scope.csv_sources[key].push(source[field])
-                    }
-                    if (field != 'source_date') {
-                        $scope.csv_sources[key].push(source[field])
-                    }
-                })
-            });
         };
     });

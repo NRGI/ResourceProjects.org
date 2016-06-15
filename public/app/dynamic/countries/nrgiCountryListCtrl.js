@@ -23,6 +23,15 @@ angular.module('app')
             return header_countries
         };
 
+        $scope.createDownloadList = function (countries) {
+            angular.forEach(countries, function (country, key) {
+                $scope.csv_countries[key] = [];
+                angular.forEach(fields, function (field) {
+                    $scope.csv_countries[key].push(country[field])
+                })
+            });
+        };
+
         nrgiCountriesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.countries = response.data;
@@ -43,14 +52,7 @@ angular.module('app')
                 });
             }
         };
-        $scope.createDownloadList = function (countries) {
-            angular.forEach(countries, function (country, key) {
-                $scope.csv_countries[key] = [];
-                angular.forEach(fields, function (field) {
-                    $scope.csv_countries[key].push(country[field])
-                })
-            });
-        };
+
     });
 
 

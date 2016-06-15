@@ -4,8 +4,8 @@
             span(ng-bind-html="contract.rc_info.contract_name|sanitize")
             =' '
             small Contract
-    .row(ng-if="contract.location.length>0")
-        .col-md-6
+    .row
+        .col-md-6(ng-if="contract.location.length>0")
             nrgi-leaflet(
             data='contract.location'
             polygon='contract.polygon')
@@ -29,6 +29,12 @@
                                 text(ng-repeat="commodity in contract.commodity | unique: '_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
+                                    | {{$last ? '' : ', '}}
+                        tr(ng-if="contract.commodity.length>0")
+                            td.detail_label.small Commodity type:
+                            td.commodities
+                                text(ng-repeat="commodity in contract.commodity | unique: '_id'")
+                                    | {{commodity.commodity_type | ucfirst | addSpaces}}
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="contract.concessions.length>0")
                             td.detail_label.small Concessions:

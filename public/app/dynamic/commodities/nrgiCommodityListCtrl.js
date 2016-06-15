@@ -17,8 +17,19 @@ angular.module('app')
         $scope.getHeaderCommodities = function () {
             return header_commodities
         };
+
         $scope.count =0;
         $scope.busy = false;
+
+        $scope.createDownloadList = function (commodities) {
+            angular.forEach(commodities, function (commodity, key) {
+                $scope.csv_commodities[key] = [];
+                angular.forEach(fields, function (field) {
+                    $scope.csv_commodities[key].push(commodity[field])
+                })
+            });
+        };
+
         nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.commodities = response.data;
@@ -38,14 +49,6 @@ angular.module('app')
                     $scope.createDownloadList($scope.commodities);
                 });
             }
-        };
-        $scope.createDownloadList = function (commodities) {
-            angular.forEach(commodities, function (commodity, key) {
-                $scope.csv_commodities[key] = [];
-                angular.forEach(fields, function (field) {
-                    $scope.csv_commodities[key].push(commodity[field])
-                })
-            });
         };
     });
 

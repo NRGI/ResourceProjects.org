@@ -27,27 +27,6 @@ angular.module('app')
             return header_concessions
         };
 
-        nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.concessions = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.concessions);
-        });
-
-        $scope.loadMore = function() {
-            if ($scope.busy) return;
-            $scope.busy = true;
-            if(currentPage < totalPages) {
-                nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.concessions = _.union($scope.concessions, response.data);
-                    currentPage = currentPage + 1;
-                    $scope.busy = false;
-                    $scope.createDownloadList($scope.concessions);
-                });
-            }
-        };
-
         $scope.createDownloadList = function (concessions) {
             angular.forEach(concessions, function (concession, key) {
                 $scope.csv_concessions[key] = [];
@@ -57,7 +36,7 @@ angular.module('app')
                             str = '';
                             angular.forEach(concession[field], function (country, i) {
                                 country_name = '';
-                                if (country != undefined) {
+                                if (country != undefined&&country.country!=undefined) {
                                     country_name = country.country.name.toString();
                                     country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                                 }
@@ -144,5 +123,26 @@ angular.module('app')
                     }
                 })
             });
+        };
+
+        nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.concessions = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+            $scope.createDownloadList($scope.concessions);
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                    $scope.concessions = _.union($scope.concessions, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                    $scope.createDownloadList($scope.concessions);
+                });
+            }
         };
     });
