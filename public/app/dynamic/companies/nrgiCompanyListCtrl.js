@@ -24,26 +24,7 @@ angular.module('app')
         $scope.getHeaderCompanies = function () {
             return header_companies
         };
-        nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.companies = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.companies);
-        });
 
-        $scope.loadMore = function() {
-            if ($scope.busy) return;
-            $scope.busy = true;
-            if(currentPage < totalPages) {
-                nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.companies = _.union($scope.companies, response.data);
-                    currentPage = currentPage + 1;
-                    $scope.busy = false;
-                    $scope.createDownloadList($scope.companies);
-                });
-            }
-        };
         $scope.createDownloadList = function (companies) {
             angular.forEach(companies, function (company, key) {
                 $scope.csv_companies[key] = [];
@@ -73,6 +54,27 @@ angular.module('app')
                     }
                 })
             });
+        };
+
+        nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.companies = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+            $scope.createDownloadList($scope.companies);
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                    $scope.companies = _.union($scope.companies, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                    $scope.createDownloadList($scope.companies);
+                });
+            }
         };
     });
 

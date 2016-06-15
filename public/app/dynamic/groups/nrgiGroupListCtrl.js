@@ -22,6 +22,15 @@ angular.module('app')
             return header_groups
         };
 
+        $scope.createDownloadList = function (groups) {
+            angular.forEach(groups, function (group, key) {
+                $scope.csv_groups[key] = [];
+                angular.forEach(fields, function (field) {
+                    $scope.csv_groups[key].push(group[field])
+                })
+            });
+        };
+
         nrgiGroupsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.groups = response.data;
@@ -41,13 +50,5 @@ angular.module('app')
                     $scope.createDownloadList($scope.groups);
                 });
             }
-        };
-        $scope.createDownloadList = function (groups) {
-            angular.forEach(groups, function (group, key) {
-                $scope.csv_groups[key] = [];
-                angular.forEach(fields, function (field) {
-                    $scope.csv_groups[key].push(group[field])
-                })
-            });
         };
     });

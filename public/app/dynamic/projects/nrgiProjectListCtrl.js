@@ -24,33 +24,17 @@ angular.module('app')
             return header_projects
         };
 
-        nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.projects = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.projects);
-        });
-
-        $scope.loadMore = function() {
-            if ($scope.busy) return;
-            $scope.busy = true;
-            if(currentPage < totalPages) {
-                nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
-                    $scope.projects = _.union($scope.projects, response.data);
-                    currentPage = currentPage + 1;
-                    $scope.busy = false;
-                    $scope.createDownloadList($scope.projects);
-                });
-            }
-        };
         $scope.createDownloadList = function (projects) {
             angular.forEach(projects, function (project, key) {
                 $scope.csv_projects[key] = [];
                 angular.forEach(fields, function (field) {
                     if(field == 'verified'){
-                        project[field] = project[field].charAt(0).toUpperCase() + project[field].substr(1);
-                        $scope.csv_projects[key].push(project[field])
+                        if(project[field]!=undefined) {
+                            project[field] = project[field].charAt(0).toUpperCase() + project[field].substr(1);
+                            $scope.csv_projects[key].push(project[field])
+                        }else{
+                            $scope.csv_projects[key].push('')
+                        }
                     }
                     if (field == 'proj_country') {
                         if(project[field]!=undefined&&project[field].length > 0) {
@@ -144,6 +128,27 @@ angular.module('app')
                     }
                 })
             });
+        };
+
+        nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.projects = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+            $scope.createDownloadList($scope.projects);
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
+                    $scope.projects = _.union($scope.projects, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                    $scope.createDownloadList($scope.projects);
+                });
+            }
         };
     });
 

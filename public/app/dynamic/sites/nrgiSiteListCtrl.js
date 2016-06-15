@@ -39,27 +39,6 @@ angular.module('app')
             return header_projects
         };
 
-        nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
-            $scope.count = response.count;
-            $scope.sites = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.sites);
-        });
-
-        $scope.loadMore = function() {
-            if ($scope.busy) return;
-            $scope.busy = true;
-            if(currentPage < totalPages) {
-                nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
-                    $scope.sites = _.union($scope.sites, response.data);
-                    currentPage = currentPage + 1;
-                    $scope.busy = false;
-                    $scope.createDownloadList($scope.sites);
-                });
-            }
-        };
-
         $scope.createDownloadList = function (sites) {
             angular.forEach(sites, function (site, key) {
                 $scope.csv_file[key] = [];
@@ -156,5 +135,26 @@ angular.module('app')
                     }
                 })
             });
+        };
+
+        nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
+            $scope.count = response.count;
+            $scope.sites = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+            $scope.createDownloadList($scope.sites);
+        });
+
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
+                    $scope.sites = _.union($scope.sites, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                    $scope.createDownloadList($scope.sites);
+                });
+            }
         };
     });

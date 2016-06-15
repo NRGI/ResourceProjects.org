@@ -21,7 +21,9 @@ var auth 				= require('./auth'),
 	site_tables 		= require('../controllers/site_tables'),
 	company_tables 		= require('../controllers/company_tables'),
 	map 				= require('../controllers/map'),
-	sourceTypes 		= require('../controllers/sourceTypes');
+	sourceTypes 		= require('../controllers/sourceTypes'),
+	summaryStats 		= require('../controllers/summaryStats'),
+	lastAdded 			= require('../controllers/lastAdded');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -219,6 +221,12 @@ module.exports	= function(app) {
 	app.get('/api/concession_table/:type/:id', concession_tables.getConcessionTable);
 
 	app.get('/api/coordinate/:type/:id', map.getCoordinateCountryByID);
+
+	//SUMMARY STATS
+	app.get('/api/summary_stats', summaryStats.getSummaryStats);
+
+	//LAST ADDED PROJECTS AND SOURCES
+	app.get('/api/last_added', lastAdded.getLastAdded);
 
 	app.post('/login', auth.authenticate);
 

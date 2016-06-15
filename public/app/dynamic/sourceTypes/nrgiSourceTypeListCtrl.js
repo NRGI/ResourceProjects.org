@@ -23,6 +23,15 @@ angular.module('app')
             return header_projects
         };
 
+        $scope.createDownloadList = function (sourceTypes) {
+            angular.forEach(sourceTypes, function (source_type, key) {
+                $scope.csv_source_types[key] = [];
+                angular.forEach(fields, function (field) {
+                    $scope.csv_source_types[key].push(source_type[field])
+                })
+            });
+        };
+
         nrgiSourceTypesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.sourceTypes = response.data;
@@ -42,13 +51,5 @@ angular.module('app')
                     $scope.createDownloadList($scope.sourceTypes);
                 });
             }
-        };
-        $scope.createDownloadList = function (sourceTypes) {
-            angular.forEach(sourceTypes, function (source_type, key) {
-                $scope.csv_source_types[key] = [];
-                angular.forEach(fields, function (field) {
-                    $scope.csv_source_types[key].push(source_type[field])
-                })
-            });
         };
     });

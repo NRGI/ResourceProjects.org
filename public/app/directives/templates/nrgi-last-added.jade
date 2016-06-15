@@ -1,0 +1,34 @@
+div
+    h2 Latest 10 additons Projects and Sources
+    .row.pagetitle
+        .col-lg-6
+            button.btn.btn-primary-outline.btn-block
+                h4.text-justify Projects
+            table.load_table.table.table-striped.projects(ts-wrapper)
+                thead
+                    tr
+                        th.tablesort-sortable-th(
+                        ts-criteria='proj_name') Name
+
+                tbody
+                    tr(
+                    ng-repeat="project in projects | unique: '_id'"
+                    ts-repeat
+                    ng-class="expression")
+                        td.contract_name
+                            a(href='/project/{{project.proj_id}}') {{project.proj_name}}
+        .col-lg-6
+            button.btn.btn-primary-outline.btn-block
+                h4.text-justify Sources
+            table.load_table.table.table-striped.sources(ts-wrapper)
+                thead
+                    tr
+                        th.tablesort-sortable-th(
+                        ts-criteria='source_name') Name
+                tbody
+                    tr(
+                    ng-repeat="source in sources | unique: '_id'"
+                    ts-repeat
+                    ng-class="expression")
+                        td.source_name
+                            a(href='/source/{{source._id}}') {{source.source_name}}
