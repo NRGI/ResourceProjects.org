@@ -2,7 +2,7 @@ describe("Unit: Testing Controllers", function() {
 
     beforeEach(module('app'));
 
-    var expectedParams = {limit:50, skip:0},
+    var expectedParams = {limit:300, skip:0},
         scope,
         countriesData = {
             "count": 2,
@@ -53,7 +53,7 @@ describe("Unit: Testing Controllers", function() {
         sinon.assert.calledWith(countryQueryStub, expectedParams);
         scope.countries.should.be.equal(countriesData.data);
 
-        scope.loadMore();
+        // scope.loadMore();
         countryQueryStub.called.should.be.equal(true);
     });
 
