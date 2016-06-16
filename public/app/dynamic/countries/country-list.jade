@@ -28,7 +28,7 @@
                 td.text-center.country_transfers {{country.transfer_count}}
                 //td.text-center.country_productions {{country.production_count}}
 
-    div(ng-if='countries.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    //div(ng-if='countries.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='20')
     div(ng-if="countries.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden="true")
