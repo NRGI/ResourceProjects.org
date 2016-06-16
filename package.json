@@ -51,6 +51,7 @@
     "fuse.js": "^2.2.0 "
   },
   "devDependencies": {
+    "angular-nvd3": "^1.0.7",
     "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-contrib-jade": "^1.0.0",

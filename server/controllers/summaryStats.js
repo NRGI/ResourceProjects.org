@@ -93,3 +93,39 @@ exports.getSummaryStats = function(req, res) {
         });
     }
 };
+exports.getSumOfPayments = function(req, res) {
+    var transfers_len, transfer_counter,usd,bbl,gbp;
+    async.waterfall([
+        getPayments
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(result);
+        }
+    });
+    function getPayments(callback) {
+        transfer_counter = 0;usd=0;bbl=0;gbp=0;
+        Transfer.find({})
+            .exec(function (err, transfers) {
+                transfers_len = transfers.length;
+                if(transfers_len>0) {
+                    transfers.forEach(function (transfer) {
+                        ++transfer_counter;
+                        if(transfer.transfer_unit=="USD"){
+                            usd+=transfer.transfer_value;
+                        }
+                        if(transfer.transfer_unit=="BBL"){
+                            bbl+=transfer.transfer_value;
+                        }
+                        if(transfer.transfer_unit=="GBP"){
+                            gbp+=transfer.transfer_value;
+                        }
+                        if(transfer_counter == transfers_len){
+                            callback(null, {usd:usd,gbp:gbp,bbl:bbl})
+                        }
+                    });
+                }
+            });
+    }
+};

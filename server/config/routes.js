@@ -23,7 +23,8 @@ var auth 				= require('./auth'),
 	map 				= require('../controllers/map'),
 	sourceTypes 		= require('../controllers/sourceTypes'),
 	summaryStats 		= require('../controllers/summaryStats'),
-	lastAdded 			= require('../controllers/lastAdded');
+	lastAdded 			= require('../controllers/lastAdded'),
+	sunburst 			= require('../controllers/sunburst');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -225,8 +226,13 @@ module.exports	= function(app) {
 	//SUMMARY STATS
 	app.get('/api/summary_stats', summaryStats.getSummaryStats);
 
+	app.get('/api/sum_of_payments', summaryStats.getSumOfPayments);
+
 	//LAST ADDED PROJECTS AND SOURCES
 	app.get('/api/last_added', lastAdded.getLastAdded);
+
+	//Payments
+	app.get('/api/payments', sunburst.getPayments);
 
 	app.post('/login', auth.authenticate);
 

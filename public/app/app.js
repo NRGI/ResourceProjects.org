@@ -11,7 +11,8 @@ angular.module('app', [
     'ngCsv',
     'ngSanitize',
     'angularSpinner',
-    'infinite-scroll'
+    'infinite-scroll',
+    'nvd3'
 ]);
 
 angular.module('app')

@@ -17,7 +17,8 @@ exports.getSourceTypes = function(req, res) {
         getSourceTypeSet,
         getSourceSet,
         getProjectCount,
-        getLinkSet
+        getLinkSet,
+        getFinalCounts
     ], function (err, result) {
         if (err) {
             res.send(err);
