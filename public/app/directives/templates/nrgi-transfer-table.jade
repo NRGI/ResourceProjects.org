@@ -17,7 +17,7 @@ data-target="#transfers")
                 th.tablesort-sortable-th(ts-criteria='transfer_year|parseInt') Year
                 th.tablesort-sortable-th(
                 ng-if="project==true"
-                ts-criteria='project.project_name') Project
+                ts-criteria='project.project_name') Project / Site
                 th.tablesort-sortable-th(ts-criteria='company.company_name') Paid by
                 th.tablesort-sortable-th(
                 ng-if="project!=true"
@@ -39,12 +39,12 @@ data-target="#transfers")
             ng-repeat="transfer in transfers"
             ts-repeat ng-class="expression")
                 td.transfer_year {{transfer.transfer_year}}
-                //td.transfer_company(ng-if="project==true"): a(href="project/{{transfer.project._id}}")
-                //    span(ng-bind-html="transfer.project.proj_name|sanitize")
+                td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.proj_site._id}}")
+                    span(ng-bind-html="transfer.proj_site.name|sanitize")
                 td.transfer_company: a(href="company/{{transfer.company._id}}")
                     span(ng-bind-html="transfer.company.company_name|sanitize")
-                td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.transfer_company._id}}")
-                    span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
+                //td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.transfer_company._id}}")
+                //    span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
                 td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.country.iso2}}")
                     span(ng-bind-html="transfer.country.name|sanitize")
                 td.transfer_type {{transfer.transfer_type}}
