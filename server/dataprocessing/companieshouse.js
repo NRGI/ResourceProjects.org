@@ -49,6 +49,8 @@ exports.importData = function(action_id, finalcallback) {
 	// loop all years in the given range and call the Companies House Extractives API for each of these years
 	var processYears = function() {
 		async.eachSeries(years, function (year, fcallback) {
+		  
+		  projects = {};
 
 				reporter.add('Processing year ' + year);
 
@@ -342,9 +344,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	// So far, only projects from the "project totals" of each report are used
 	function loadProjects(report, callback) {
 		
-
-		projects = {};
-
 		var updateOrCreateProject = function (projDoc, projectName, callback) {
 			var doc_id = null;
 			var newProj = true;
@@ -383,7 +382,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 					report.add('Added or updated project ' + projectName + ' to the DB.\n');
 					projects[projectName] = model;
-
+							
 					Project.find({}, function (err, cresult) {
 
 						if (err) {
@@ -610,7 +609,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	function loadTransfers(report, callback) {
 
 		// Handle transfers from government payments
-		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, forcallback) {
+		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, fcallback) {
 
 			var transfer_audit_type = "company_payment";
 			var transfer_level = "country";
@@ -631,7 +630,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			if (!country_id) { // If not 3 letters or if not found
 				report.add('Invalid country code. Aborting.\n');
-				return ccallback(true);
+				return fallback(true);
 			}
 
 			var query = {
@@ -650,7 +649,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			}
 			else {
 				report.add('Company data could not be retrieved. Aborting.\n');
-				return forcallback(null);
+				return fcallback(null);
 			}
 
 			Transfer.findOne(
@@ -658,11 +657,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				function(err, doc) {
 					if (err) {
 						report.add('Encountered an error (' + err + ') while querying the DB. Aborting.\n');
-						return forcallback(err);
+						return fcallback(err);
 					}
 					else if (doc) {
 						report.add('Transfer for government ' + transfer_gov_entity + ' already exists in the DB, not adding\n');
-						return forcallback(null);
+						return fcallback(null);
 					}
 					else {
 
@@ -670,18 +669,18 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						var newTransfer = makeNewTransfer(governmentPaymentsEntry, transfer_audit_type, "country", year, country_id);
 						if (!newTransfer) {
 							report.add('Invalid or missing data for new transfer. Aborting.\n');
-							return forcallback(null);
+							return fcallback(null);
 						}
 						Transfer.create(
 							newTransfer,
 							function(err, model) {
 								if (err) {
 									report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-									return forcallback(err);
+									return fcallback(err);
 								}
 								else {
 									report.add('Added transfer for government ' + transfer_gov_entity + '\n');
-									forcallback(null);
+									fcallback(null);
 								}
 							}
 						);
@@ -700,12 +699,15 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 		// Handle transfers from project payments
 		async.eachSeries(chData.projectPayments.projectPayment, function (projectPaymentEntry, forcallback) {
-
+		    
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
 			if (!projects[projectPaymentEntry.projectName]) {
-				report.add('Invalid or missing project data. Aborting.\n');
-				return forcallback(null);
+
+        report.add('Invalid or missing project data. Aborting.\n');
+        return forcallback(err);
+
 			}
+			
 
 			// Add in country information for the project
 			var update = {};
@@ -730,6 +732,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			Project.update({proj_name: projectPaymentEntry.projectName}, update, {}, function(err, numAffected) {
 				if (err) console.log(err);
 			});
+			
+			
+
 
 			var transfer_audit_type = "company_payment";
 			var transfer_type = projectPaymentEntry.paymentType;
@@ -779,8 +784,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						// create a new transfer entry in the DB if it does not exist yet
 						var newTransfer = makeNewTransfer(projectPaymentEntry, transfer_audit_type, "project", year, country);
 						if (!newTransfer) {
+						  
 							report.add('Invalid or missing data for new transfer. Aborting.\n');
-							return forcallback(null);
+							return forcallback(err);
 						}
 						Transfer.create(
 							newTransfer,
@@ -897,7 +903,7 @@ function makeNewTransfer(paymentData, transfer_audit_type, transfer_level, year,
 	}
 
 	else return false; // error
-
+	
 	if (transfer_level == "project") {
 		if (projects[paymentData.projectName]) {
 			transfer.project = projects[paymentData.projectName]._id;
