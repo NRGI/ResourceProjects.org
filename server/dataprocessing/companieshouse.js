@@ -272,7 +272,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				else {
 					Company.findOne(
 						{
-							company_name: chData.reportDetails.companyName		// TODO: also check aliases?
+						  company_name : new RegExp(chData.reportDetails.companyName, "i")  // TODO: also check aliases?
 						},
 						function(err, doc) {
 							if (err) {
