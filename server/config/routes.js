@@ -76,8 +76,8 @@ module.exports	= function(app) {
 	////////////////////////////
 	///// PAYMENTS CRUD ////////
 	////////////////////////////
-	app.get('/api/payments/:limit/:skip', payments.getPayments);
-	app.get('/api/payments/:id', payments.getPaymentByID);
+	// app.get('/api/payments/:limit/:skip', payments.getPayments);
+	// app.get('/api/payments/:id', payments.getPaymentByID);
 	// // POST
 	// app.post('/api/payments',auth.requiresApiLogin, auth.requiresRole('admin'),  payments.createProject);
 	// // PUT
