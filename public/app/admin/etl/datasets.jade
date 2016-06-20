@@ -55,9 +55,9 @@
                         target="_new") Failed
                 td
                     .row
-                        span(ng-if="!dataset.status.isReadyForChecked")
+                        span(ng-if="!dataset.status.isReadyForChecked && dataset.actions[dataset.actions.length-1].status!=='Started'")
                             a.btn.center-block.btn-primary-outline(ng-click="startAction('import', dataset._id)") Import
-                        span(ng-if="dataset.status.isReadyForChecked")
+                        span(ng-if="dataset.status.isReadyForChecked || dataset.actions[dataset.actions.length-1].status==='Started'")
                             a.btn.center-block.btn-secondary.disabled() Import
                     .row
                         span(ng-if="dataset.status.isReadyForChecked")
