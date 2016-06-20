@@ -12,7 +12,7 @@ angular
         var fields = [];
         var country_name = '';
         var company_name = '';
-        usSpinnerService.spin('spinner-payments');
+        usSpinnerService.spin('spinner-transfers');
         $scope.$watch('id', function(value) {
             if(value!=undefined){
                 $scope.loading = false;
@@ -33,7 +33,7 @@ angular
                                 $scope.expression = 'showLast';
                             }
                             $scope.transfers=success.transfers;
-                            usSpinnerService.stop('spinner-payments');
+                            usSpinnerService.stop('spinner-transfers');
                             var headers = [
                                 {name: 'Year', status: true, field: 'transfer_year'},
                                 {name: 'Project', status: $scope.project, field: 'company'},
@@ -86,7 +86,7 @@ angular
                                 })
                             });
                         }, function(error){
-                            usSpinnerService.stop('spinner-payments');
+                            usSpinnerService.stop('spinner-transfers');
                         })
                     }
                 }
