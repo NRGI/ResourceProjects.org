@@ -279,10 +279,6 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
-            .when('/payments', {
-                templateUrl: '/partials/dynamic/payments/payment-list',
-                controller: 'nrgiPaymentListCtrl'
-            })
             .when('/projects', {
                 templateUrl: '/partials/dynamic/projects/project-list',
                 controller: 'nrgiProjectListCtrl'
@@ -306,6 +302,10 @@ angular.module('app')
             .when('/sites/map', {
                 templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
+            })
+            .when('/transfers', {
+                templateUrl: '/partials/dynamic/transfers/transfer-list',
+                controller: 'nrgiTransferListCtrl'
             })
             /////////////////////
             ////Helper groups////
