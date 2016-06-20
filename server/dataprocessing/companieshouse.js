@@ -516,7 +516,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
             // Projects - check against id and name
 			Project.findOne(
 				{
-					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project payments?
+					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project transfers?
 				},
 				function(err, projDoc) {
 					if (err) {
@@ -606,11 +606,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 
 	// checks if the transfer entries of this report already exist in the DB, creates new ones otherwise.
-	// This is done separately for government payments (transfer level "country") and project payments (transfer level "project")
+	// This is done separately for government transfers (transfer level "country") and project transfers (transfer level "project")
 	// So far, only single transfers are handled. Transfer totals are not yet calculated or validated
 	function loadTransfers(report, projects, company, currency, callback) {	  	 
 
-		// Handle transfers from government payments
+		// Handle transfers from government transfers
 		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, fcallback) {
 
 			var transfer_audit_type = "company_payment";
@@ -699,7 +699,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 		});
 
-		// Handle transfers from project payments
+		// Handle transfers from project transfers
 		async.eachSeries(chData.projectPayments.projectPayment, function (projectPaymentEntry, forcallback) {
 
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.

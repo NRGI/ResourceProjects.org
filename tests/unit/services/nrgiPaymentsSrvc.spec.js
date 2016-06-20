@@ -12,17 +12,17 @@ describe('nrgiPaymentsSrvc', function () {
 
     it('requests payment data for a given `paymentId`', function () {
         var paymentId = 1;
-        $httpBackend.expectGET('/api/payments/' + paymentId).respond('');
+        $httpBackend.expectGET('/api/transfers/' + paymentId).respond('');
         paymentServiceInstance.$get({_id: paymentId});
     });
     it('requests payment data list with a skip and limit var', function () {
         var limit = 10, skip = 1;
-        $httpBackend.expectGET('/api/payments/' + limit + '/' + skip).respond('');
+        $httpBackend.expectGET('/api/transfers/' + limit + '/' + skip).respond('');
         paymentServiceInstance.$get({limit: limit, skip: skip});
     });
     it('requests payment update data for a given `paymentId`', function () {
         var paymentId = 1;
-        $httpBackend.expectPUT('/api/payments/' + paymentId).respond('');
+        $httpBackend.expectPUT('/api/transfers/' + paymentId).respond('');
         paymentServiceInstance.$update({_id: paymentId});
     });
 

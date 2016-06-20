@@ -18,7 +18,7 @@ angular.module('app')
 
     })
     .factory('nrgiPaymentsSrvc', function($resource) {
-        var PaymentsResource = $resource('/api/payments', {}, {
+        var PaymentsResource = $resource('/api/transfers', {}, {
             query:  {method:'GET', isArray: false}
         });
 
