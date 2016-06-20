@@ -362,11 +362,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			if (projectName.indexOf(" ") > -1) {
 				var spacePos = projectName.indexOf(" ");
-				projDoc.proj_id = projectName.toLowerCase().slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
-
+				projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
 			}
 			else {
-				projDoc.proj_id = projectName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+                projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
 			}
 
 			if (!doc_id) doc_id = new ObjectId();
