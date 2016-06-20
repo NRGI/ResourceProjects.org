@@ -59,7 +59,7 @@ module.exports	= function(app) {
 	app.put('/api/concessions', auth.requiresApiLogin, auth.requiresRole('admin'), concessions.updateConcession);
 	// DELETE
 	app.delete('/api/concessions/:id',auth.requiresApiLogin, auth.requiresRole('admin'), concessions.deleteConcession);
-	
+
 	/////////////////////
 	/// PROJECTS CRUD ///
 	/////////////////////
@@ -75,21 +75,21 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/projects/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), projects.deleteProject);
 
-	////////////////////////////
-	///// PAYMENTS CRUD ////////
-	////////////////////////////
-	// app.get('/api/payments/:limit/:skip', payments.getPayments);
-	// app.get('/api/payments/:id', payments.getPaymentByID);
+	/////////////////////////////
+	///// TRANSFERS CRUD ////////
+	/////////////////////////////
+	app.get('/api/transfers/:limit/:skip', transfers.getTransfers);
+	// app.get('/api/transfers/:id', transfers.getPaymentByID);
 	// // POST
-	// app.post('/api/payments',auth.requiresApiLogin, auth.requiresRole('admin'),  payments.createProject);
+	// app.post('/api/transfers',auth.requiresApiLogin, auth.requiresRole('admin'),  transfers.createProject);
 	// // PUT
-	// app.put('/api/payments', auth.requiresApiLogin, auth.requiresRole('admin'), payments.updateProject);
+	// app.put('/api/transfers', auth.requiresApiLogin, auth.requiresRole('admin'), transfers.updateProject);
 	// // DELETE
-	// app.delete('/api/payments/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), payments.deleteProject);
+	// app.delete('/api/transfers/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), transfers.deleteProject);
 
-	/////////////////////////
-	///// COMPANIES CRUD ////
-	/////////////////////////
+	//////////////////////
+	/// COMPANIES CRUD ///
+	//////////////////////
 	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyID);
