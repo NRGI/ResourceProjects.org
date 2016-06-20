@@ -24,7 +24,8 @@ var auth 				= require('./auth'),
 	sourceTypes 		= require('../controllers/sourceTypes'),
 	summaryStats 		= require('../controllers/summaryStats'),
 	lastAdded 			= require('../controllers/lastAdded'),
-	sunburst 			= require('../controllers/sunburst');
+	sunburst 			= require('../controllers/sunburst'),
+	content 			= require('../controllers/content');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -233,6 +234,14 @@ module.exports	= function(app) {
 
 	//Payments
 	app.get('/api/payments', sunburst.getPayments);
+
+	//ABOUT PAGE CONTENT
+	app.get('/api/about', content.getAboutPage);
+	app.put('/api/about', auth.requiresApiLogin, auth.requiresRole('admin'), content.updateAboutPage);
+
+	//GLOSSARY PAGE CONTENT
+	app.get('/api/glossary', content.getGlossaryPage);
+	app.put('/api/glossary', auth.requiresApiLogin, auth.requiresRole('admin'), content.updateAboutPage);
 
 	app.post('/login', auth.authenticate);
 

@@ -12,7 +12,8 @@ angular.module('app', [
     'ngSanitize',
     'angularSpinner',
     'infinite-scroll',
-    'nvd3'
+    'nvd3',
+    'textAngular'
 ]);
 
 angular.module('app')
@@ -93,6 +94,16 @@ angular.module('app')
             .when('/admin/sourceType-admin/:id', {
                 templateUrl: '/partials/admin/sourceTypes/sourceType-admin-update',
                 controller: 'nrgiSourceTypeAdminUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/edit-about-page', {
+                templateUrl: '/partials/admin/cms/aboutPage/edit-about-page',
+                controller: 'nrgiAboutPageUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
+            .when('/admin/edit-glossary-page', {
+                templateUrl: '/partials/admin/cms/glossaryPage/edit-glossary-page',
+                controller: 'nrgiGlossaryPageUpdateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
             // // Unused
