@@ -28,7 +28,7 @@ years = _.range(2014, 2016);
 var sourceTypeId = '56e8736944442a3824141429';
 
 //Data needed for inter-entity reference
-var source, company, projects, countries, currency;
+var countries;
 
 exports.importData = function(action_id, finalcallback) {
 
@@ -49,9 +49,7 @@ exports.importData = function(action_id, finalcallback) {
 	// loop all years in the given range and call the Companies House Extractives API for each of these years
 	var processYears = function() {
 		async.eachSeries(years, function (year, fcallback) {
-		  
-		  projects = {};
-
+		  		 
 				reporter.add('Processing year ' + year);
 
 				// Call Companies House Extractives API
@@ -76,8 +74,7 @@ exports.importData = function(action_id, finalcallback) {
 
 								// get all reports for this year and handle them one after another
 								async.eachSeries(res.body, function (chReportData, icallback) {
-										//Set currency for this report
-										currency = chReportData.reportDetails.currency;
+										//Set currency for this report										
 										loadChReport(chReportData, year, reporter, action_id, icallback);
 									},
 
@@ -158,51 +155,50 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	function loadSource(report, callback) {
 
 		var version = chData.reportDetails.version;
-		var company = chData.reportDetails.companyName;
+		var source_company = chData.reportDetails.companyName;
+		var currency = chData.reportDetails.currency;
 
 		Source.findOne(
 			{source_url: 'https://extractives.companieshouse.gov.uk',
 
 				// Source name identifies the new source and is used for this combination of year, report version and company
-				source_name: 'Companies House Extractives Disclosure of ' + company + ' for ' + year + ', Version ' + version},
+				source_name: 'Companies House Extractives Disclosure of ' + source_company + ' for ' + year + ', Version ' + version},
 			null, // return everything
 			function(err, doc) {
 				if (err) {
 					report.add('Encountered an error while querying the DB: ' + err + '. Aborting.\n');
-					return callback(err, report);
+					return callback(err, report, null, null);
 				}
 				else if (doc) {
 					report.add('Source already exists in the DB (url and name match), not adding\n');
 					source = doc;
-					return callback("source exists",report);
+					return callback("source exists",report, source, currency);
 				}
 				else {
 
 					report.add('Source not found in the DB, creating\n');
-					var newSource = makeNewSource(company, year, version);
+					var newSource = makeNewSource(source_company, year, version);
 					Source.create(
 						newSource,
 						(function(err, model) {
 							if (err) {
 								report.add('Encountered an error while creating a source in the DB: ' + err + '. Aborting.\n');
-								return callback(err, report);
+								return callback(err, report, null, null);
 							}
 							source = model;
-							return callback(null,report);
+							return callback(null,report, source, currency);
 						})
 					);
 				}
-			}
-		);
-		source = {};
+			});
 	}
 
 
 	// checks if the company of this report already exists in the DB, creates a new one otherwise and then checks for potential duplicates
-	function loadCompany(report, callback) {
+	function loadCompany(report, source, currency, callback) {
 
 
-		function handleCompanyDuplicates(companiesList, companyName, company_id) {
+		function handleCompanyDuplicates(companiesList, companyName, company_id, company, currency) {
 
 			// use fuse for fuzzy search in nested search results
 
@@ -215,7 +211,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			if (!searchResult || searchResult == []) {
 				report.add('Found no matching companies in DB for company ' + companyName + ' and thus, no potential duplicate\n');
-				return callback(null, report);
+				return callback(null, report, source, company, currency);
 			}
 			else {
 
@@ -239,10 +235,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 							function(err, dmodel) {
 								if (err) {
 									report.add('Encountered an error while creating a duplicate: ' + err + '. Aborting.\n');
-									return callback(err,report);
+									return callback(err,report,source, company, currency);
 								}
 								report.add('Created duplicate entry for company ' + companyName + ' in the DB.\n');
-								return callback(null, report);
+								return callback(null, report,source, company, currency);
 
 							}
 						);
@@ -262,12 +258,13 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			function(err, doc) {
 				if (err) {
 					report.add('Encountered an error (' + err + ') while querying the DB for companies. Aborting.\n');
-					return callback(err,report);
+					return callback(err,report, null);
 				}
 				else if (doc) {
 					company = doc;
+					//projects[company._id] = {}
 					report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (CH ID match), not adding.\n');
-					return callback(null,report);
+					return callback(null,report, source, company, currency);
 				}
 				else {
 					Company.findOne(
@@ -277,16 +274,17 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						function(err, doc) {
 							if (err) {
 								report.add('Encountered an error (' + err + ') while querying the DB for companies. Aborting.\n');
-								return callback(err,report);
+								return callback(err,report, null, null);
 							}
 							else if (doc) {
 
 								// company with this exact name is found. use this and create no duplicate.
 								company = doc;
+								//projects[company._id] = {}
 
 								// TODO: add aliases in comment if aliases are considered
 								report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-								return callback(null,report);
+								return callback(null,report, source, company, currency);
 							}
 							else {
 
@@ -297,17 +295,18 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 								var newCompany = makeNewCompany(chData);
 								if (!newCompany) {
 									report.add('Invalid data in data: ' + chData + '. Aborting.\n');
-									return callback("Invalid data in data",report);
+									return callback("Invalid data in data",report, company, currency);
 								}
 								Company.create(
 									newCompany.obj,
 									function(err, cmodel) {
 										if (err) {
 											report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-											return callback(err,report);
+											return callback(err,report, null, null, null);
 										}
 										report.add('Added company ' + chData.reportDetails.companyName + ' to the DB.\n');
 										company = cmodel;
+										//projects[company._id] = {}
 
 										// retrieve a list of all companies in the DB. it is used for checking the project names in the current report for potential duplicates / similar entries.
 										// This could potentially be optimized by fuzzy search on the DB instead.
@@ -315,12 +314,12 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 											if (err) {
 												report.add('Got an error: ' + err + ' while finding all companies.\n');
-												return callback(err,report);
+												return callback(err,report, source, company, currency);
 											}
 											else {
 
 												// check for potential duplicates now - this function does the callback
-												handleCompanyDuplicates(cresult, chData.reportDetails.companyName, company._id);
+												handleCompanyDuplicates(cresult, chData.reportDetails.companyName, company._id, company, currency);
 												//callback(null,report);
 
 											}
@@ -342,15 +341,17 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 	// checks if the project entries of this report already exist in the DB, creates new ones otherwise and then checks for potential duplicates
 	// So far, only projects from the "project totals" of each report are used
-	function loadProjects(report, callback) {
+	function loadProjects(report, source, company, currency, callback) {
+	  
+	  var projects = {};
 		
-		var updateOrCreateProject = function (projDoc, projectName, callback) {
+		var updateOrCreateProject = function (projDoc, projectName, ucallback) {
 			var doc_id = null;
 			var newProj = true;
 
 			if (!projDoc) {
 				report.add('Project ' + projectName + ' not found, creating.\n');
-				projDoc = makeNewProject(projectName);
+				projDoc = makeNewProject(projectName, source);
 			}
 			else {
 				newProj = false;
@@ -377,7 +378,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				function(err, model) {
 					if (err) {
 						report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-						return callback(err);
+						return ucallback(err);
 					}
 
 					report.add('Added or updated project ' + projectName + ' to the DB.\n');
@@ -387,14 +388,14 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 						if (err) {
 							report.add('Got an error: ' + err + ' while finding all projects.\n');
-							return callback(err);
+							return ucallback(err);
 						}
 						else if (!cresult || cresult.length === 0) {
-							return callback(null, project_id, projectName, null, newProj);
+							return ucallback(null, project_id, projectName, null, newProj);
 						}
 						else {
 
-							return callback(null, model._id, projectName, cresult, newProj);
+							return ucallback(null, model._id, projectName, cresult, newProj);
 						}
 					});
 
@@ -403,7 +404,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			);
 		};
 
-		var createLink = function(project_id, projectName, projectsList, newProj, callback) {
+		var createLink = function(project_id, projectName, projectsList, newProj, lcallback) {
 
 			Link.findOne(
 				{
@@ -414,11 +415,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				function(err, doc) {
 					if (err) {
 						report.add('Encountered an error (' + err + ') while querying the DB. Aborting.\n');
-						return callback(err);
+						return lcallback(err);
 					}
 					else if (doc) {
 						report.add('Company is already linked with project ' + projectName + ', not adding\n');
-						return callback(null, projectsList, projectName, project_id, newProj);
+						return lcallback(null, projectsList, projectName, project_id, newProj);
 					}
 					else {
 						var newCompanyLink = {
@@ -432,10 +433,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 							function(err, model) {
 								if (err) {
 									report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-									return callback(err);
+									return lcallback(err);
 								}
 								report.add('Linked company with project in the DB.\n');
-								return callback(null, projectsList, projectName, project_id, newProj);
+								return lcallback(null, projectsList, projectName, project_id, newProj);
 							}
 						);
 					}
@@ -443,11 +444,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			);
 		};
 
-		var handleProjectDuplicates = function (projectsList, projectName, project_id, newProj, callback) {
+		var handleProjectDuplicates = function (projectsList, projectName, project_id, newProj, dcallback) {
 
 			if (!projectsList || _.isEmpty(projectsList)) {
 				report.add('Found no projects, thus no potential duplicates\n');
-				return callback(null);
+				return dcallback(null);
 			}
 
 			// TODO fuzzy search handling (fix match index problem)
@@ -468,7 +469,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			if (!searchResult || _.isEmpty(searchResult)) {
 				report.add('Found no matching projects in DB for project ' + projectName + ' and thus, no potential duplicate\n');
-				return callback(null);
+				return dcallback(null);
 			}
 			else {
 
@@ -499,9 +500,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						);
 					}
 					if( err ) {
-						return callback(err);
+						return dcallback(err);
 					} else {
-						return callback(null);
+						return dcallback(null);
 					}
 				});
 
@@ -510,8 +511,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 		};
 
         var counter = 0;
+        
 		async.eachSeries(chData.projectTotals.projectTotal, function (projectTotalEntry, forcallback) {
             // Projects - check against id and name
+		  		  		 
 			Project.findOne(
 				{
 					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project payments?
@@ -595,9 +598,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			);
 		}, function (err) {
 			if (err) {
-				return callback(err, report);
+				return callback(err, report, projects, company, currency);
 			}
-			return callback(null, report);
+			return callback(null, report, projects, company, currency);
 		});
 	}
 
@@ -606,7 +609,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	// checks if the transfer entries of this report already exist in the DB, creates new ones otherwise.
 	// This is done separately for government payments (transfer level "country") and project payments (transfer level "project")
 	// So far, only single transfers are handled. Transfer totals are not yet calculated or validated
-	function loadTransfers(report, callback) {
+	function loadTransfers(report, projects, company, currency, callback) {	  	 
 
 		// Handle transfers from government payments
 		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, fcallback) {
@@ -666,7 +669,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					else {
 
 						// create a new transfer entry in the DB if it does not exist yet
-						var newTransfer = makeNewTransfer(governmentPaymentsEntry, transfer_audit_type, "country", year, country_id);
+						var newTransfer = makeNewTransfer(governmentPaymentsEntry, projects, company, currency, transfer_audit_type, "country", year, country_id);
 						if (!newTransfer) {
 							report.add('Invalid or missing data for new transfer. Aborting.\n');
 							return fcallback(null);
@@ -704,7 +707,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			if (!projects[projectPaymentEntry.projectName]) {
 
         report.add('Invalid or missing project data. Aborting.\n');
-        return forcallback(err);
+        return forcallback(null);
 
 			}
 			
@@ -782,7 +785,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					}
 					else {
 						// create a new transfer entry in the DB if it does not exist yet
-						var newTransfer = makeNewTransfer(projectPaymentEntry, transfer_audit_type, "project", year, country);
+						var newTransfer = makeNewTransfer(projectPaymentEntry, projects, company, currency, transfer_audit_type, "project", year, country);
 						if (!newTransfer) {
 						  
 							report.add('Invalid or missing data for new transfer. Aborting.\n');
@@ -872,7 +875,7 @@ function makeNewDuplicate(original_id, duplicate_id, action_id, entity, notes) {
 	return duplicate;
 }
 
-function makeNewProject(projectName) {
+function makeNewProject(projectName, source) {
 
 	var project = {
 		proj_name: projectName,
@@ -883,7 +886,7 @@ function makeNewProject(projectName) {
 }
 
 
-function makeNewTransfer(paymentData, transfer_audit_type, transfer_level, year, country_id) {
+function makeNewTransfer(paymentData, projects, company, currency, transfer_audit_type, transfer_level, year, country_id) {
 
 	var transfer = {
 		source: source._id,
