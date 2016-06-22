@@ -16,7 +16,6 @@ var glossaryPageSchema, GlossaryPage,
                 'nl', 'li', 'b', 'i','u', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div',
                 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre','img','pre','strike'],
             allowedAttributes: {
-
                 '*': [ 'href', 'align', 'alt', 'center', 'bgcolor','style' ],
                 a: [ 'href', 'name', 'target' ],
                 img: [ 'src','class']

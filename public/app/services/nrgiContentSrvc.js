@@ -17,3 +17,11 @@ angular.module('app')
 
         return ContentResource;
     })
+    .factory('nrgiLandingPageContentSrvc', function($resource) {
+        var ContentResource = $resource('/api/landing', {}, {
+            query:  {method:'GET', isArray: false},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return ContentResource;
+    })

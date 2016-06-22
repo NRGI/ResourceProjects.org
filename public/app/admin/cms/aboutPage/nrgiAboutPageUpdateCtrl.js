@@ -13,7 +13,7 @@ angular.module('app')
         $scope.aboutPageUpdate = function (content) {
             nrgiContentMethodSrvc.updateContentPage(content).then(function() {
                 nrgiNotifier.notify('About page has been updated');
-                //$location.path('/about');
+                $location.path('/about');
             }, function(reason) {
                 nrgiNotifier.error(reason);
             });

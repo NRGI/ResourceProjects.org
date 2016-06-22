@@ -30,6 +30,7 @@ var assert              = require('assert'),
     productionModel     = require('../models/Production'),
     aboutPageModel     = require('../models/AboutPage'),
     glossaryPage     = require('../models/GlossaryPage'),
+    landingPage     = require('../models/LandingPage'),
     model_load          = ['Facts'],
     SESSION_SECRET  	= "whatever you want";
 
@@ -98,6 +99,7 @@ module.exports = function(app, config, user, pass, env) {
     sourceModel.getInitSourceCount();
     sourceTypeModel.createDefaultSourceTypes();
     glossaryPage.createDefaultGlossaryPage();
+    landingPage.createDefaultLandingPage();
     aboutPageModel.createDefaultAboutPage();
     transferModel.getInitTransferCount();
     userModel.createDefaultUsers();

@@ -106,6 +106,11 @@ angular.module('app')
                 controller: 'nrgiGlossaryPageUpdateCtrl',
                 resolve: routeRoleChecks.supervisor
             })
+            .when('/admin/edit-landing-page', {
+                templateUrl: '/partials/admin/cms/landingPage/edit-landing-page',
+                controller: 'nrgiLandingPageUpdateCtrl',
+                resolve: routeRoleChecks.supervisor
+            })
             // // Unused
             // .when('/admin/commodity-admin', {
             //     templateUrl: '/partials/admin/commodities/commodity-admin',
@@ -355,13 +360,15 @@ angular.module('app')
             ////Other////
             /////////////
             .when('/glossary', {
-                templateUrl: '/partials/static/glossary'
+                templateUrl: '/partials/static/glossary/glossary',
+                controller: 'nrgiGlossaryCtrl'
             })
             .when('/contribute', {
                 templateUrl: '/partials/static/contribute'
             })
             .when('/about', {
-                templateUrl: '/partials/static/about'
+                templateUrl: '/partials/static/about/about',
+                controller: 'nrgiAboutCtrl'
             })
             //.when('/model', {
             //    templateUrl: '/partials/main/dataModel'

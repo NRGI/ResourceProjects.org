@@ -1,0 +1,13 @@
+.container.top-padding-med
+    .col-xs-12
+        legend Edit Landing page
+    .clearfix
+    .form-group.row
+        text-angular(ng-model='content.landing_text' required)
+    .form-group.row
+        .col-xs-12
+            .col-md-10.col-md-offset-2
+                .pull-xs-right
+                    button.btn.btn-primary(ng-click="aboutPageUpdate(content)", ng-disabled="") Submit
+                    | &nbsp;
+                    a.btn.btn-secondary(href="/about") Cancel

@@ -241,7 +241,11 @@ module.exports	= function(app) {
 
 	//GLOSSARY PAGE CONTENT
 	app.get('/api/glossary', content.getGlossaryPage);
-	app.put('/api/glossary', auth.requiresApiLogin, auth.requiresRole('admin'), content.updateAboutPage);
+	app.put('/api/glossary', auth.requiresApiLogin, auth.requiresRole('admin'), content.getGlossaryPage);
+
+	//GLOSSARY PAGE CONTENT
+	app.get('/api/landing', content.getLandingPage);
+	app.put('/api/landing', auth.requiresApiLogin, auth.requiresRole('admin'), content.getLandingPage);
 
 	app.post('/login', auth.authenticate);
 

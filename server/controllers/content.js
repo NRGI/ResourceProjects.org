@@ -1,5 +1,6 @@
 var AboutPage	 	= require('mongoose').model('AboutPage'),
     GlossaryPage	= require('mongoose').model('GlossaryPage'),
+    LandingPage 	= require('mongoose').model('LandingPage'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -75,6 +76,47 @@ exports.updateGlossaryPage = function(req, res) {
             return res.send({ reason: err.toString() });
         }
         content.glossary_text = glossaryPageUpdates.glossary_text;
+
+        content.save(function(err) {
+            if(err) {
+                err = new Error('Error');
+                return res.send({reason: err.toString()});
+            } else{
+                res.send(content);
+            }
+        })
+    });
+};
+exports.getLandingPage = function(req, res) {
+    async.waterfall([
+        getContent
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(result);
+        }
+    });
+    function getContent(callback) {
+        LandingPage.find({_id:'57639b9e2b50bbd70c2ff251'})
+            .exec(function (err, content) {
+                if(content.length>0){
+                    callback(null, content[0])
+                } else{
+                    callback(null, content)
+                }
+            });
+    }
+};
+exports.updateGlossaryPage = function(req, res) {
+    var landingPageUpdates = req.body;
+    LandingPage.findOne({_id:req.body._id}).exec(function(err, content) {
+        if(err) {
+            err = new Error('Error');
+            res.status(400);
+            return res.send({ reason: err.toString() });
+        }
+        content.landing_text = landingPageUpdates.landing_text;
 
         content.save(function(err) {
             if(err) {
