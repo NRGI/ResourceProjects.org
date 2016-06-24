@@ -69,7 +69,8 @@ exports.getContracts = function(req, res) {
                         contract_name: body.name,
                         contract_country: body.country,
                         contract_commodity: body.resource,
-                        contract_type: body.contract_type
+                        contract_type: body.contract_type,
+                        open_contracting_id: body.open_contracting_id
                     });
                     if(body.resource!=undefined){
                         var commodity =body.resource;
@@ -191,7 +192,8 @@ exports.getContractByID = function(req, res) {
                 contract_name: body.name,
                 contract_country: body.country,
                 contract_commodity: body.resource,
-                contract_type: body.contract_type
+                contract_type: body.contract_type,
+                open_contracting_id: body.open_contracting_id
             };
             if (body.resource != undefined) {
                 var commodity = body.resource;

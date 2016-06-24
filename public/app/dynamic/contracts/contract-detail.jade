@@ -15,9 +15,15 @@
                 h2 Contract Info
                 table#contract-info
                     tbody
-                        tr
+                        tr(ng-if="!contract.rc_info.open_contracting_id")
                             td.detail_label.small Resource Contracts ID:
                             td.contract_id {{contract.contract_id}}
+                        tr(ng-if="contract.rc_info.open_contracting_id")
+                            td.detail_label.small Resource Contracts ID:
+                            td.contract_id
+                                a(href='http://www.resourcecontracts.org/contract/{{contract.rc_info.open_contracting_id}}/view'
+                                target='blank')
+                                    span(ng-bind-html="contract.rc_info.open_contracting_id")
                         tr(ng-if="contract.rc_info.contract_country")
                             td.detail_label.small Country:
                             td.contract_country
