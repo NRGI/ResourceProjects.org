@@ -21,7 +21,6 @@ angular.module('app')
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
         });
-
         // $scope.loadMore = function() {
         //     if ($scope.busy) return;
         //     $scope.busy = true;
