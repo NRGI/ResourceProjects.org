@@ -19,6 +19,7 @@ exports.getProjects = function(req, res) {
         getProjectLinks,
         getTransfersCount,
         getProductionCount,
+        getCompanyGroup,
         getVerified
     ], function (err, result) {
         if (err) {
@@ -71,10 +72,11 @@ exports.getProjects = function(req, res) {
                 } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
                     project.source_type.p = true;
                 }}
+                project.companies = [];
                 Link.find({project: project._id})
                     // .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company')
-                    .deepPopulate('source.source_type_id site.site_commodity.commodity concession.concession_commodity.commodity')
+                    .deepPopulate('company_group source.source_type_id site.site_commodity.commodity concession.concession_commodity.commodity')
                     .exec(function (err, links) {
                         ++project_counter;
                         link_len = links.length;
@@ -101,13 +103,17 @@ exports.getProjects = function(req, res) {
                             }
                             switch (entity) {
                                 case 'company':
-                                    company.push(link.company);
+                                    company.push({
+                                        _id: link.company._id,
+                                        company_name: link.company.company_name
+                                    });
                                     company = _.map(_.groupBy(company,function(doc){
                                         return doc._id;
                                     }),function(grouped){
                                         return grouped[0];
                                     });
                                     project.company_count =company.length;
+                                    project.companies = company;
                                     break;
                                 case 'contract':
                                     project.contract_count += 1;
@@ -269,6 +275,75 @@ exports.getProjects = function(req, res) {
             }
         });
     }
+    function getCompanyGroup(project_count, projects, callback) {
+        var company_groups =[];
+        project_len = projects.length;
+        project_counter = 0;
+        if(project_len>0){
+            _.each(projects, function(project) {
+                var companies_len = project.companies.length;
+                var companies_counter = 0;
+                if (companies_len > 0) {
+                    project.companies.forEach(function (company) {
+                        company.company_groups=[];
+                        Link.find({company: company._id, entities: 'company_group'})
+                            .populate('company_group', '_id company_group_name')
+                            .deepPopulate('source.source_type_id')
+                            .exec(function (err, links) {
+                                ++companies_counter;
+                                link_len = links.length;
+                                link_counter = 0;
+                                if (link_len > 0) {
+                                    links.forEach(function (link) {
+                                        ++link_counter;
+                                        if(companies_counter==1&&link_counter==1){
+                                            company_groups =[];
+                                            ++project_counter;
+                                        }
+                                        var entity = _.without(link.entities, 'company')[0];
+                                        switch (entity) {
+                                            case 'company_group':
+                                                company_groups.push({
+                                                    _id: link.company_group._id,
+                                                    company_group_name: link.company_group.company_group_name
+                                                });
+                                                if(companies_counter==companies_len&&link_counter==link_len) {
+                                                    company_groups = _.map(_.groupBy(company_groups, function (doc) {
+                                                        return doc._id;
+                                                    }), function (grouped) {
+                                                        return grouped[0];
+                                                    });
+                                                    company.company_groups = company_groups;
+                                                }
+                                                break;
+                                            default:
+                                                console.log('link doesn\'t specify a company_group but rather a ${entity}');
+                                        }
+                                        if (companies_counter == companies_len && link_counter == link_len && project_counter == project_len) {
+                                            callback(null, project_count, projects);
+                                        }
+                                    });
+                                }else{
+                                    if (project_counter == project_len) {
+                                        callback(null, project_count, projects);
+                                    }
+                                    if(companies_counter==1){
+                                        ++project_counter;
+                                    }
+                                }
+                            });
+                    });
+                }else{
+                    ++project_counter;
+                    if (project_counter == project_len) {
+                        callback(null, project_count, projects);
+                    }
+                }
+            });
+        }else {
+            callback(null, project_count, projects);
+        }
+    }
     function getVerified (project_count, projects, callback) {
         project_len = projects.length;
         project_counter = 0;
@@ -298,8 +373,8 @@ exports.getProjectByID = function(req, res) {
         getProjectLinks,
         //getTransfers,
         //getProduction,
-        getProjectCoordinate
-        //getCompanyGroup
+        getProjectCoordinate,
+        getCompanyGroup
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -323,7 +398,7 @@ exports.getProjectByID = function(req, res) {
             });
     }
     function getProjectLinks(project, callback) {
-        //project.companies = [];
+        project.companies = [];
         //project.projects = [];
         project.concessions = [];
         project.contracts = [];
@@ -410,15 +485,14 @@ exports.getProjectByID = function(req, res) {
                             //         }
                             //     }
                             //     break;
-                            //case 'company':
-                            //    if (!project.companies.hasOwnProperty(link.company._id)) {
-                            //        project.transfers_query.push(link.company._id);
-                            //        project.companies.push({
-                            //            _id: link.company._id,
-                            //            company_name: link.company.company_name
-                            //        });
-                            //    }
-                            //    break;
+                            case 'company':
+                                if (!project.companies.hasOwnProperty(link.company._id)) {
+                                    project.companies.push({
+                                        _id: link.company._id,
+                                        company_name: link.company.company_name
+                                    });
+                                }
+                                break;
                             case 'concession':
                                 //project.transfers_query.push(link.concession._id);
                                 project.concessions.push({
@@ -560,52 +634,48 @@ exports.getProjectByID = function(req, res) {
             callback(null, project);
         }
     }
-    //function getCompanyGroup(project, callback) {
-    //    companies_len = project.companies.length;
-    //    companies_counter = 0;
-    //    if (companies_len > 0) {
-    //        project.companies.forEach(function (company) {
-    //            Link.find({company: company._id, entities: 'company_group'})
-    //                .populate('company_group', '_id company_group_name')
-    //                .deepPopulate('source.source_type_id')
-    //                .exec(function (err, links) {
-    //                    ++companies_counter;
-    //                    link_len = links.length;
-    //                    link_counter = 0;
-    //                    company.company_groups = [];
-    //                    if (link_len > 0) {
-    //                        links.forEach(function (link) {
-    //                            if (!project.sources[link.source._id]) {
-    //                                //TODO clean up returned data if performance lags
-    //                                project.sources[link.source._id] = link.source;
-    //                            }
-    //                            ++link_counter;
-    //                            var entity = _.without(link.entities, 'company')[0];
-    //                            switch (entity) {
-    //                                case 'company_group':
-    //                                    if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-    //                                        company.company_groups.push({
-    //                                            _id: link.company_group._id,
-    //                                            company_group_name: link.company_group.company_group_name
-    //                                        });
-    //                                    }
-    //                                    break;
-    //                                default:
-    //                                    console.log('link doesn\'t specify a company_group but rather a ${entity}');
-    //                            }
-    //                            if (companies_counter == companies_len && link_counter == link_len) {
-    //                                callback(null, project);
-    //                            }
-    //                        });
-    //                    } else if (companies_counter == companies_len) {
-    //                        callback(null, project);
-    //                    }
-    //                });
-    //        });
-    //    } else {
-    //        callback(null, project);
-    //    }
-    //}
+    function getCompanyGroup(project, callback) {
+        companies_len = project.companies.length;
+        companies_counter = 0;
+        if (companies_len > 0) {
+            project.companies.forEach(function (company) {
+                Link.find({company: company._id, entities: 'company_group'})
+                    .populate('company_group', '_id company_group_name')
+                    .deepPopulate('source.source_type_id')
+                    .exec(function (err, links) {
+                        ++companies_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        company.company_groups = [];
+                        if (link_len > 0) {
+                            links.forEach(function (link) {
+                                ++link_counter;
+                                var entity = _.without(link.entities, 'company')[0];
+                                switch (entity) {
+                                    case 'company_group':
+                                        if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
+                                            company.company_groups.push({
+                                                _id: link.company_group._id,
+                                                company_group_name: link.company_group.company_group_name
+                                            });
+                                        }
+                                        break;
+                                    default:
+                                        console.log('link doesn\'t specify a company_group but rather a ${entity}');
+                                }
+                                if (companies_counter == companies_len && link_counter == link_len) {
+                                    callback(null, project);
+                                }
+                            });
+                        } else if (companies_counter == companies_len) {
+                            callback(null, project);
+                        }
+                    });
+            });
+        } else {
+            callback(null, project);
+        }
+    }
 };
 
 exports.getProjectsMap = function(req, res) {
