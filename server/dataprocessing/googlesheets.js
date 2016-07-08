@@ -40,18 +40,22 @@ exports.processData = function(link, callback) {
         json: true
     }, function (error, response, body) {
         if (!error && response.statusCode === 200) {
-            var numSheets = body.feed.entry.length;
+            //create num of sheets without . in name
+            var numSheets = 0;
+            for (var i=0; i<body.feed.entry.length; i++) {
+                if (body.feed.entry[i].title.$t.indexOf(".") != -1) numSheets++;
+            }
             var mainTitle = body.feed.title.$t;
             var numProcessed = 0;
             for (var i=0; i<body.feed.entry.length; i++) {
                 for (var j=0; j<body.feed.entry[i].link.length; j++) {
-                    if (body.feed.entry[i].link[j].type == "text/csv") {
+                    if ((body.feed.entry[i].link[j].type == "text/csv") && (body.feed.entry[i].title.$t.indexOf(".") != -1)) {
                         report += `Getting data from sheet "${body.feed.entry[i].title.$t}"...\n`;
                         request({
                             url: body.feed.entry[i].link[j].href
                         }, (function (i, error, response, sbody) {
                             if (error) {
-                                report += `${body.feed.entry[i].title.$t}: Could not retrieve sheet\n`;
+                                report += `${body.feed.entry[i].title.$t}: Could not retrieve sheet`;
                                 callback("Failed", report);
                                 return;
                             }
@@ -68,7 +72,7 @@ exports.processData = function(link, callback) {
                                 item.link = response.request.uri.href;
                                 item.data = rowdata;
                                 report += `${item.title}: Stored ${rowdata.length} rows\n`;
-                                sheets[item.title] = item;
+                                sheets[item.title.split(".").shift()] = item;
                                 numProcessed++;
                                 if (numProcessed == numSheets) {
                                     var reporter = {
@@ -724,17 +728,17 @@ function parseData(sheets, report, finalcallback) {
             );
         };
         sources = new Object;
-        parseEntity(result, '2. Source List', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);
+        parseEntity(result, '2', 3, 0, sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);
     }
 
     function parseCompanyGroups(result, callback) {
         company_groups = new Object;
-        parseEntity(result, '6. Companies and Groups', 3, 0, company_groups, processCompanyRow, "CompanyGroup", 7, CompanyGroup, "company_group_name", makeNewCompanyGroup, callback);
+        parseEntity(result, '6', 3, 0, company_groups, processCompanyRow, "CompanyGroup", 7, CompanyGroup, "company_group_name", makeNewCompanyGroup, callback);
     }
 
     function parseCompanies(result, callback) {
         companies = new Object;
-        parseEntity(result, '6. Companies and Groups', 3, 0, companies, processCompanyRow, "Company", 3, Company, "company_name", makeNewCompany, callback);
+        parseEntity(result, '6', 3, 0, companies, processCompanyRow, "Company", 3, Company, "company_name", makeNewCompany, callback);
     }
 
     function createSiteProjectLink (siteId, projectId, sourceId, report, lcallback) {
@@ -928,7 +932,7 @@ function parseData(sheets, report, finalcallback) {
             );
         };
         projects = new Object;
-        parseEntity(result, '5. Project location, status, commodity', 3, 0, projects, processProjectRow, "Project", 1, Project, "proj_name", makeNewProject, callback);
+        parseEntity(result, '5', 3, 0, projects, processProjectRow, "Project", 1, Project, "proj_name", makeNewProject, callback);
     }
 
     function parseConcessionsAndContracts(result, callback) {
@@ -1443,7 +1447,7 @@ function parseData(sheets, report, finalcallback) {
             );
         }
         contracts = new Object;
-        parseEntity(result, '7. Contracts, concessions and companies', 4, 0, null, processCandCRow, null, null, null, null, null, callback);
+        parseEntity(result, '7', 4, 0, null, processCandCRow, null, null, null, null, null, callback);
     }
 
     function parseProduction(result, callback) {
@@ -1499,7 +1503,7 @@ function parseData(sheets, report, finalcallback) {
                 }
             );
         };
-        parseEntity(result, '8. Production', 3, 0, null, processProductionRow, null, null, null, null, null, callback);
+        parseEntity(result, '8', 3, 0, null, processProductionRow, null, null, null, null, null, callback);
     }
 
     function parseTransfers(result, callback) {
@@ -1587,7 +1591,7 @@ function parseData(sheets, report, finalcallback) {
                 }
             );
         };
-        parseEntity(result, '10. Payments and receipts', 3, 0, null, processTransferRow, null, null, null, null, null, callback);
+        parseEntity(result, '10', 3, 0, null, processTransferRow, null, null, null, null, null, callback);
     }
 
     function parseReserves(result, callback) {
