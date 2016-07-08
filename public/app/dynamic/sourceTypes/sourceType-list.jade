@@ -5,9 +5,15 @@
     .row
         nrgi-sunburst
     .row.top-padding-med
-        table.table.table-striped(
+        table.table.table-striped.table-fixed-header(
         ts-wrapper)
-            thead
+            thead.header
+                tr
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source
+                    th Type
+                    th Projects
+                    th Countries
+            thead.header-copy.header.hide
                 tr
                     th.tablesort-sortable-th(ts-criteria='source_type_name') Source
                     th Type

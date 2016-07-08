@@ -10,8 +10,17 @@
         //        button.btn.btn-default.pull-right(type='button')
         //            a(href='/companies') View Companies
 
-    table#company_groups.table.table-striped(ts-wrapper)
-        thead
+    table#company_groups.table.table-striped.table-fixed-header(ts-wrapper)
+        thead.header
+            tr
+                th.tablesort-sortable-th(ts-criteria='company_group_name') Company Group
+                th.text-center.tablesort-sortable-th(ts-criteria='company_count|parseInt') Companies
+                th.text-center.tablesort-sortable-th(ts-criteria='project_count|parseInt') Projects
+                //th.tablesort-sortable-th(ts-criteria='sites|parseInt') No. Sites
+                //th.tablesort-sortable-th(ts-criteria='fields|parseInt') No. Fields
+                //th.tablesort-sortable-th(ts-criteria='concessions|parseInt') No. Concessions
+                //th.tablesort-sortable-th(ts-criteria='payments|parseInt') No. Payment Records
+        thead.header-copy.header.hide
             tr
                 th.tablesort-sortable-th(ts-criteria='company_group_name') Company Group
                 th.text-center.tablesort-sortable-th(ts-criteria='company_count|parseInt') Companies

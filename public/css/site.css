@@ -492,6 +492,19 @@ td.project-label {
     top: 21%;
   }
 }
+table .table-header-fixed {
+  position: fixed;
+  top: 100px;
+  z-index: 1020;
+}
+.hide {
+  display: none !important;
+}
+.table-header-fixed {
+  height: auto !important;
+  background-color: #fff;
+  margin-bottom: 90px !important;
+}
 @-moz-keyframes sk-bounce {
   0%, 100% {
     transform: scale(0);
