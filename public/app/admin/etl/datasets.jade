@@ -55,10 +55,10 @@
                         target="_new") Failed
                 td
                     .row
-                        span(ng-if="!dataset.status.isReadyForChecked && dataset.actions[dataset.actions.length-1].status!=='Started'")
-                            a.btn.center-block.btn-primary-outline(ng-click="startAction('import', dataset._id)") Import
-                        span(ng-if="dataset.status.isReadyForChecked || dataset.actions[dataset.actions.length-1].status==='Started'")
-                            a.btn.center-block.btn-secondary.disabled() Import
+                        //TEMP TILL CLEAN WORKFLOW span(ng-if="!dataset.status.isReadyForChecked && dataset.actions[dataset.actions.length-1].status!=='Started'")
+                        a.btn.center-block.btn-primary-outline(ng-click="startAction('import', dataset._id)") Import
+                        //TEMP TILL CLEAN WORKFLOW span(ng-if="dataset.status.isReadyForChecked || dataset.actions[dataset.actions.length-1].status==='Started'")
+                        //TEMP TILL CLEAN WORKFLOW     a.btn.center-block.btn-secondary.disabled() Import
                     .row
                         span(ng-if="dataset.status.isReadyForChecked")
                             a.btn.center-block.btn-secondary.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
