@@ -75,7 +75,7 @@ angular
                                     }
                                     if (field == 'proj_site') {
                                         name = '';
-                                        if (transfer[field] != undefined) {
+                                        if (transfer[field] != undefined && transfer[field].name !=undefined) {
                                             var name = transfer[field].name.toString();
                                         }
                                         $scope.csv_transfers[key].push(name)

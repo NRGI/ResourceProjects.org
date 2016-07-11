@@ -157,10 +157,7 @@ exports.getCompanies = function(req, res) {
         company_len = companies.length;
         company_counter = 0;
         _.each(companies, function(company) {
-            Transfer.find({$or: [
-                    {project:{$in: company.transfers_query}},
-                    {site:{$in: company.transfers_query}},
-                    {concession:{$in: company.transfers_query}}]})
+            Transfer.find({company:{$in: company.transfers_query}})
                 .count()
                 .exec(function (err, transfer_count) {
                     ++company_counter;

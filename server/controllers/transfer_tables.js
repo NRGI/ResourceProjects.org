@@ -239,7 +239,7 @@ exports.getTransferTable = function(req, res){
         var query = '';var proj_site={};
         projects.transfers = [];
         if (type == 'concession') { query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
-        if (type == 'company') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
+        if (type == 'company') {query = {company: {$in: projects.transfers_query}}}
         if (type == 'contract') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
         if (type == 'commodity') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
         if (type == 'project' || type == 'site') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
@@ -247,9 +247,11 @@ exports.getTransferTable = function(req, res){
         if (type=='country') { query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{country:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
         if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
+            console.log(query)
             Transfer.find(query)
                 .populate('company country project site')
                 .exec(function (err, transfers) {
+                    console.log(transfers)
                     transfers_counter = 0;
                     transfers_len = transfers.length;
                     if (transfers_len > 0) {
