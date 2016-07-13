@@ -15,7 +15,7 @@ angular
         };
 
         nrgiPaymentsSrvc.get(function (success) {
-        $scope.sunburst = success.data;
+            $scope.sunburst = success.data;
         }, function(error) {
 
         });
