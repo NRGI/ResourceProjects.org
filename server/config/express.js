@@ -83,7 +83,7 @@ module.exports = function(app, config, user, pass, env) {
     });
     // import default data
     actionModel.createDefaultActions();
-    aliasModel.getInitAliasCount();
+    //aliasModel.getInitAliasCount(); //Aliases moved to nested document
     commodityModel.createDefaultCommodities();
     companyModel.getInitCompanyCount();
     companyGroupModel.getInitCompanyGroupsCount();

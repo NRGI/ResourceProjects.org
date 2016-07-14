@@ -11,6 +11,7 @@ var projectSchema, Project,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
+    alias           = require("./Aliases"),
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
@@ -35,9 +36,7 @@ projectSchema = new Schema({
     //TODO add regex validator
     proj_id: String,
     proj_name: String,
-    proj_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}],
+    proj_aliases: [alias],
     proj_established_source: source,
     proj_country: [fact],
     proj_commodity: [fact],

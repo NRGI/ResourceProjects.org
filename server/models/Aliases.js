@@ -4,7 +4,7 @@
 'use strict';
 var mongoose = require('mongoose');
 
-var aliasSchema, Alias,
+var aliasSchema,
     Schema   = mongoose.Schema,
     ObjectId = mongoose.Schema.Types.ObjectId,
     model_enu  = {
@@ -26,8 +26,7 @@ aliasSchema = new Schema({
         ref: 'Sources'}
 });
 
-Alias = mongoose.model('Alias', aliasSchema);
-
+/*
 function createDefaultAliases() {
     Alias.find({}).count().exec(function(err, alias_count) {
         if(alias_count === 0) {
@@ -84,3 +83,6 @@ function getInitAliasCount() {
 
 exports.getInitAliasCount = getInitAliasCount;
 exports.createDefaultAliases = createDefaultAliases;
+*/
+
+module.exports = aliasSchema;

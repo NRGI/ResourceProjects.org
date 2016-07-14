@@ -11,6 +11,7 @@ var siteSchema, Site,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
+    alias           = require("./Aliases"),
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
@@ -35,9 +36,7 @@ siteSchema = new Schema({
     field: {
         type: Boolean,
         default: true}, //In unclear cases -> field
-    site_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}],
+    site_aliases: [alias],
     site_established_source: source,
     site_address: [fact],
     site_country: [fact],
