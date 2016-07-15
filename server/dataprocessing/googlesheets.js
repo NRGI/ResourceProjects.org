@@ -196,13 +196,13 @@ var makeNewCompany = function(newRow) {
 
 var makeNewProject = function(newRow) {
     var project = {
-        proj_name: newRow[1],
-        proj_established_source: sources[newRow[0].toLowerCase()]._id,
-        proj_country: [{country: countries[newRow[5]]._id, source: sources[newRow[0].toLowerCase()]._id}]
+        proj_name: newRow['#project'],
+        proj_established_source: sources[newRow['#source'].toLowerCase()]._id,
+        proj_country: [{country: countries[newRow['#project+site+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]
     };
-    if (newRow[3] != "") project.proj_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
-    if (newRow[6] != "") project.proj_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow[0].toLowerCase()]._id}];
-    if (newRow[9] != "") project.proj_commodity = [{commodity: commodities[newRow[9]]._id, source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow['#project+site+address'] !== "") project.proj_address = [{string: newRow['#project+site+address'], source: sources[newRow['#source'].toLowerCase()]._id}];
+    if (newRow['#project+site+lat'] !== "") project.proj_coordinates = [{loc: [parseFloat(newRow['#project+site+lat']), parseFloat(newRow['#project+site+long'])], source: sources[newRow['#source'].toLowerCase()]._id}];
+    if (newRow['#commodity'] !== "") project.proj_commodity = [{commodity: commodities[newRow['#commodity']]._id, source: sources[newRow['#source'].toLowerCase()]._id}];
 
     return project;
 }
@@ -214,15 +214,15 @@ var updateProjectFacts = function(doc, row, report)
     //In general should be allowing duplicates unless coming from same source
     var fact;
     //Update status and commodity
-    if (row[9] != "") {
+    if (row['#commodity'] !== "") {
         var notfound = true;
         if (doc.proj_commodity) {
             for (fact of doc.proj_commodity) {
-                //No need to check if commodity exists as commodities are taken from here
+                //No need to check if commodity exists as the doc either comes from DB or has already had commodity added from DB list in makeNewProject
                 //TODO: In general, do we want to store multiple sources for the same truth? [from GS]
-                if (commodities[row[9]]._id == fact.commodity._id) {
+                if (commodities[row['#commodity']]._id == fact.commodity._id) { //TODO type check
                     notfound = false;
-                    report.add(`Project commodity ${row[9]} already exists in project, not adding\n`);
+                    report.add(`Project commodity ${row['#commodity']} already exists in project, not adding\n`);
                     break;
                 }
             }
@@ -231,19 +231,19 @@ var updateProjectFacts = function(doc, row, report)
         if (notfound) { //Commodity must be here, as based on this sheet
             //Don't push but add, existing values will not be removed
             //console.log(row[9]);
-            doc.proj_commodity = [{commodity: commodities[row[9]]._id, source: sources[row[0].toLowerCase()]._id}];
-            report.add(`Project commodity ${row[9]} added to project\n`);
+            doc.proj_commodity = [{commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id}];
+            report.add(`Project commodity ${row['#commodity']} added to project\n`);
         }
     }
     else if (doc.proj_commodity) delete doc.proj_commodity; //Don't push
 
-    if (row[10] != "") {
+    if (row['#status+statusType'] != "") {
         var notfound = true;
         if (doc.proj_status) {
             for (fact of doc.proj_status) {
-                if (row[10] == fact.string) {
+                if (row['#status+statusType'] == fact.string) {
                     notfound = false;
-                    report.add(`Project status ${row[10]} already exists in project, not adding\n`);
+                    report.add(`Project status ${row['#status+statusType']} already exists in project, not adding\n`);
                     break;
                 }
             }
@@ -252,26 +252,26 @@ var updateProjectFacts = function(doc, row, report)
         if (notfound) {
             //Don't push but add, existing values will not be removed
             var status;
-            if (row[10].indexOf('/') != -1) {
-                status = row[10].split('/')[1]; //Workaround to cope with "construction/development"
+            if (row['#status+statusType'].indexOf('/') != -1) {
+                status = row['#status+statusType'].split('/')[1]; //Workaround to cope with "construction/development"
             }
-            else status = row[10];
+            else status = row['#status+statusType'];
             status = status.toLowerCase().replace(/ /g, '_');
-            doc.proj_status = [{string: status, timestamp: parseGsDate(row[11]), source: sources[row[0].toLowerCase()]._id}];
-            report.add(`Project status ${row[10]} added to project\n`);
+            doc.proj_status = [{string: status, timestamp: parseGsDate(row['#status+trueAt']), source: sources[row['#source'].toLowerCase()]._id}];
+            report.add(`Project status ${row['#status+statusType']} added to project\n`);
         }
     }
     else if (doc.proj_status) delete doc.proj_status; //Don't push
 
     //TODO... projects with mulitple countries, really?
     //TODO: This can probably be simplified with $addToSet!
-    if (row[5] != "") {
+    if (row['#project+site+country+identifier'] !== "") {
         var notfound = true;
         if (doc.proj_country) { //TODO: project without a country???
             for (fact of doc.proj_country) {
-                if (countries[row[5]]._id == fact.country._id) {
+                if (countries[row['#project+site+country+identifier']]._id == fact.country._id) {
                     notfound = false;
-                    report.add(`Project country ${row[5]} already exists in project, not adding\n`);
+                    report.add(`Project country ${row['#project+site+country+identifier']} already exists in project, not adding\n`);
                     break;
                 }
             }
@@ -279,26 +279,24 @@ var updateProjectFacts = function(doc, row, report)
         else doc.proj_country = [];
         if (notfound) {
             //Don't push but add, existing values will not be removed
-            doc.proj_country = [{country: countries[row[5]]._id, source: sources[row[0].toLowerCase()]._id}];
-            report.add(`Project country ${row[5]} added to project\n`);
+            doc.proj_country = [{country: countries[row['#project+site+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}];
+            report.add(`Project country ${row['#project+site+country+identifier']} added to project\n`);
         }
     }
     else if (doc.proj_country) delete doc.proj_country; //Don't push
 
-
-
     return doc;
-}
+};
 
 var makeNewSite = function(newRow, projDoc) {
     var site = {
-        site_name: newRow[2],
-        site_established_source: sources[newRow[0].toLowerCase()]._id,
-        site_country: [{country: countries[newRow[5]]._id, source: sources[newRow[0].toLowerCase()]._id}] //TODO: How in the world can there multiple versions of country
+        site_name: newRow['#project+site'],
+        site_established_source: sources[newRow['#source'].toLowerCase()]._id,
+        site_country: [{country: countries[newRow['#project+site+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}] //TODO: How in the world can there multiple versions of country
     }
-    if (newRow[3] != "") site.site_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
-    if (newRow[6] != "") site.site_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow[0].toLowerCase()]._id}];
-    if (newRow[9] != "") site.site_commodity = [{commodity: commodities[newRow[9]]._id, source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow['#project+site+address'] !== "") site.site_address = [{string: newRow[3], source: sources[newRow[0].toLowerCase()]._id}];
+    if (newRow['#project+site+lat'] !== "") site.site_coordinates = [{loc: [parseFloat(newRow[6]), parseFloat(newRow[7])], source: sources[newRow['#source'].toLowerCase()]._id}];
+    if (newRow['#commodity'] !== "") site.site_commodity = [{commodity: commodities[newRow['#commodity']]._id, source: sources[newRow['#source'].toLowerCase()]._id}];
     else { //Inherit
         if (projDoc.proj_commodity) {
             site.site_commodity = projDoc.proj_commodity;
@@ -316,18 +314,18 @@ var makeNewSite = function(newRow, projDoc) {
     //site_operated_by: [fact],
     //site_company_share: [fact],
 
-    if (newRow[10] != "") {
+    if (newRow['#status+statusType'] !== "") {
         var status;
-        if (newRow[10].indexOf('/') != -1) {
-            status = newRow[10].split('/')[1]; //Workaround to cope with "construction/development"
+        if (newRow['#status+statusType'].indexOf('/') != -1) {
+            status = newRow['#status+statusType'].split('/')[1]; //Workaround to cope with "construction/development"
         }
-        else status = newRow[10];
+        else status = newRow['#status+statusType'];
         status = status.toLowerCase().replace(/ /g, '_');
-        site.site_status = [{string: status, timestamp: parseGsDate(newRow[11]), source: sources[newRow[0].toLowerCase()]._id}];
+        site.site_status = [{string: status, timestamp: parseGsDate(newRow['#status+trueAt']), source: sources[newRow['#source'].toLowerCase()]._id}];
     }
 
     return site;
-}
+};
 
 var makeNewProduction = function(newRow) {
     var production = {
@@ -412,11 +410,13 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
         companiesReport.add(entityName + ": name cannot be empty. Aborting.\n");
         return callback(`Failed: ${companiesReport.report}`);
     }
+    var prefix = "company";
+    if (entityName === "CompanyGroup") prefix = "company_group";
     //Check against name and aliases
     var queryEntry1 = {};
     queryEntry1[modelKey] = row[rowIndex];
     var queryEntry2 = {};
-    queryEntry2[modelKey+'_aliases.alias'] = {$elemMatch: {alias: row[rowIndex]}}; //TODO: Test with data!
+    queryEntry2[prefix+'_aliases.alias'] = row[rowIndex];
 
     model.findOne(
         {$or: [
@@ -467,7 +467,9 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                 destObj[row[rowIndex].toLowerCase()] = doc;
                 //Also index by aliases
                 var alias;
-                for (alias of doc[modelKey+'_aliases']) {
+                console.log(prefix+'_aliases');
+                
+                for (alias of doc[prefix+'_aliases']) {
                     destObj[alias.alias.toLowerCase()] = doc;
                 }
                 companiesReport.add(`${entityName} ${row[rowIndex]} already exists in the DB (name or alias match), not adding. Checking for link creation need.\n`);
@@ -514,12 +516,11 @@ function parseData(sheets, report, finalcallback) {
             parseCommodities,
             parseCompanyGroups,
             parseCompanies,
-            /*parseProjects,
-            parseConcessionsAndContracts,
+            parseProjects,
+            /*parseConcessionsAndContracts,
             parseProduction,
             parseTransfers,*/
             parseReserves
-            //links throughout!//
         ], function (err, report) {
             if (err) {
                 console.log("PARSE: Got an error\n");
@@ -722,7 +723,6 @@ function parseData(sheets, report, finalcallback) {
                         if (row['#project+site+country+identifier'] != "") {  //Projects must have countries even if sites come afterwards
                             if (!model.proj_id) {
                                 Project.update({_id: model._id}, {proj_id: row['#project+site+country+identifier'].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
-                                    //continue here TODO TODO TODO
                                     function(err) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
@@ -737,20 +737,19 @@ function parseData(sheets, report, finalcallback) {
                             else return wcallback(null, model); //Continue to site stuff
                         }
                         else {
-                            projectsReport.add(`Invalid data in row - projects and sites must have a country (${row}). Aborting.\n`);
+                            projectsReport.add(`Invalid data in row - projects and sites must have a country (row: ${util.inspect(row)}). Aborting.\n`);
                             return wcallback(`Failed: ${projectsReport.report}`);
                         }
-
                     }
                 );
             }
 
             function createSiteAndLink(projDoc, wcallback) {
-                if (row[2] != "") {
+                if (row['#project+site'] != "") {
                     Site.findOne(
                         {$or: [
-                            {site_name: row[2]},
-                            {"site_aliases.alias": {$elemMatch: {alias: row[2]}}} //TODO: Test with data!
+                            {site_name: row['#project+site']},
+                            {"site_aliases.alias": row['#project+site']}
                         ]},
                         function (err, sitemodel) {
                             if (err) {
@@ -761,23 +760,23 @@ function parseData(sheets, report, finalcallback) {
                                 //Site already exists - check for link, could be missing if site is from another project
                                 //TODO: For now if we find location add it to the site. In future sheets all site info should be in same row somewhere
                                 var update = {};
-                                if (row[3] != "") update.site_address = {string: row[3], source: sources[row[0].toLowerCase()]._id};
-                                if (row[6] != "") update.site_coordinates = {loc: [parseFloat(row[6]), parseFloat(row[7])], source: sources[row[0].toLowerCase()]._id};
+                                if (row['#project+site+address'] != "") update.site_address = {string: row['#project+site+address'], source: sources[row['#source'].toLowerCase()]._id};
+                                if (row['#project+site+lat'] != "") update.site_coordinates = {loc: [parseFloat(row['#project+site+lat']), parseFloat(row['#project+site+long'])], source: sources[row['#source'].toLowerCase()]._id};
                                 Site.update({_id: sitemodel._id}, {$addToSet: update});
                                 //TODO: check $addToSet
                                 var found = false;
-                                Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row[0].toLowerCase()]._id},
+                                Link.find({project: projDoc._id, site: sitemodel._id, source: sources[row['#source'].toLowerCase()]._id},
                                     function (err, sitelinkmodel) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                                             return wcallback(`Failed: ${projectsReport.report}`);
                                         }
                                         else if (sitelinkmodel) {
-                                            projectsReport.add(`Link to ${row[2]} already exists in the DB, not adding\n`);
+                                            projectsReport.add(`Link to ${row['#project+site']} already exists in the DB, not adding\n`);
                                             return wcallback(null);
                                         }
                                         else {
-                                            createSiteProjectLink(sitemodel._id, projDoc._id, sources[row[0].toLowerCase()]._id, projectsReport, wcallback);
+                                            createSiteProjectLink(sitemodel._id, projDoc._id, sources[row['#source'].toLowerCase()]._id, projectsReport, wcallback);
                                         }
                                     }
                                 );
@@ -791,7 +790,7 @@ function parseData(sheets, report, finalcallback) {
                                             return wcallback(`Failed: ${projectsReport.report}`);
                                         }
                                         else {
-                                            createSiteProjectLink(newsitemodel._id, projDoc._id, sources[row[0].toLowerCase()]._id, projectsReport, wcallback);
+                                            createSiteProjectLink(newsitemodel._id, projDoc._id, sources[row['#source'].toLowerCase()]._id, projectsReport, wcallback);
                                         }
                                     }
                                 );
@@ -805,13 +804,23 @@ function parseData(sheets, report, finalcallback) {
                 }
             }
 
-            //Projects - check against name and aliases
-            //TODO - may need some sort of sophisticated duplicate detection here
+            //Projects - check against name, country, and aliases
+            if (!countries[row['#project+site+country+identifier']]) {
+                projectsReport.add(`Invalid data in row - projects and sites must have a country with valud ID (row: ${util.inspect(row)}). Aborting.\n`);
+                return wcallback(`Failed: ${projectsReport.report}`);
+            }
             Project.findOne(
-                {$or: [
-                    {proj_name: row[rowIndex]},
-                    {"proj_aliases.alias": {$elemMatch: {alias: row[rowIndex]}}} //TODO: FIX POPULATE ETC.?
-                ]},
+                {
+                    $and: [
+                        {
+                            $or: [
+                                {proj_name: row[rowIndex]},
+                                {"proj_aliases.alias": row[rowIndex]}
+                            ]
+                        },
+                        {proj_country: countries[row['#project+site+country+identifier']]._id} //Search by id because this is only an object ref
+                    ]
+                    },
                 function(err, doc) {
                     //console.log(doc);
                     if (err) {
@@ -1074,7 +1083,7 @@ function parseData(sheets, report, finalcallback) {
                 Concession.findOne(
                     {$or: [
                         {concession_name: row[8]},
-                        {"concession_aliases.alias": {$elemMatch: {alias: row[8]}}} //TODO, alias population
+                        {"concession_aliases.alias": row[8]}
                     ]
                     },
                     function(err, doc) {
@@ -1241,16 +1250,16 @@ function parseData(sheets, report, finalcallback) {
                             };
                             var newProjectData = {};
                             if ((row[2] != "") && (row[4] != "") && (row[4] == "TRUE")) {
-                                newConcession.concession_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}]
-                                newProjectData.proj_operated_by = [{company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}];
+                                newConcession.concession_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id}
+                                newProjectData.proj_operated_by = {company: companies[row[2].toLowerCase()]._id, source: sources[row[0].toLowerCase()]._id};
                             }
                             if ((row[2] != "") && (row[3] != "")) {
                                 var share = parseInt(row[3].replace("%", ""))/100.0;
-                                newConcession.concession_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}]
-                                newProjectData.proj_company_share = [{company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}];
+                                newConcession.concession_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id}
+                                newProjectData.proj_company_share = {company: companies[row[2].toLowerCase()]._id, number: share, source: sources[row[0].toLowerCase()]._id};
                             }
                             if (row[10] != "") {
-                                newConcession.concession_country = [{country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}]
+                                newConcession.concession_country = {country: countries[row[10]]._id, source: sources[row[0].toLowerCase()]._id}
                             }
                             Concession.create(
                                 newConcession,
