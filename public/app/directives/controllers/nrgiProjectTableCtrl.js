@@ -37,7 +37,8 @@ angular
                             }
                             $scope.projects=success.projects;
                             usSpinnerService.stop('spinner-project');
-                            var headers = [{name: 'Name', status: true, field: 'proj_name'},
+                            var headers = [{name: 'Project ID', status: true, field: 'proj_id'},
+                                {name: 'Name', status: true, field: 'proj_name'},
                                 {name: 'Country', status: $scope.country, field: 'proj_country'},
                                 {name: 'Commodity Type ', status: $scope.type, field: 'proj_type'},
                                 {name: 'Commodity ', status: $scope.commodity, field: 'proj_commodity'},

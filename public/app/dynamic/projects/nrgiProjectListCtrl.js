@@ -19,8 +19,8 @@ angular.module('app')
 
         var country_name, str, proj_commodity_type, commodity_name, timestamp, status, com =', ';
         $scope.csv_projects = [];
-        var fields = ['proj_name', 'verified', 'proj_country', 'proj_commodity_type', 'proj_commodity', 'proj_status', 'company_count', 'transfer_count', 'production_count'];
-        var header_projects = ['Name', 'Verified Project', 'Country', 'Type', 'Commodity', 'Status', 'Companies', 'Payments', 'Production'];
+        var fields = ['proj_id', 'proj_name', 'verified', 'proj_country', 'proj_commodity_type', 'proj_commodity', 'proj_status', 'company_count', 'transfer_count', 'production_count'];
+        var header_projects = ['Project ID', 'Name', 'Verified Project', 'Country', 'Type', 'Commodity', 'Status', 'Companies', 'Payments', 'Production'];
         $scope.getHeaderProjects = function () {
             return header_projects
         };

@@ -247,11 +247,9 @@ exports.getTransferTable = function(req, res){
         if (type=='country') { query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{country:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
         if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
-            console.log(query)
             Transfer.find(query)
                 .populate('company country project site')
                 .exec(function (err, transfers) {
-                    console.log(transfers)
                     transfers_counter = 0;
                     transfers_len = transfers.length;
                     if (transfers_len > 0) {
