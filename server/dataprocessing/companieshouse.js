@@ -340,11 +340,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 	// checks if the project entries of this report already exist in the DB, creates new ones otherwise and then checks for potential duplicates
 	// So far, only projects from the "project totals" of each report are used
-
 	function loadProjects(report, source, company, currency, callback) {
+	  
 	  var projects = {};
+		
 		var updateOrCreateProject = function (projDoc, projectName, ucallback) {
-
 			var doc_id = null;
 			var newProj = true;
 
@@ -512,7 +512,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
         
 		async.eachSeries(chData.projectTotals.projectTotal, function (projectTotalEntry, forcallback) {
             // Projects - check against id and name
-
 			Project.findOne(
 				{
 					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project payments?
@@ -704,9 +703,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
 			if (!projects[projectPaymentEntry.projectName]) {
 
-                report.add('Invalid or missing project data. Aborting.\n');
-                return forcallback(null);
-
+        report.add('Invalid or missing project data. Aborting.\n');
+        return forcallback(null);
 
 			}
 
