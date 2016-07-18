@@ -49,9 +49,11 @@
                                     b.caret
                                 ul.dropdown-menu
                                     li
-                                        a(href='/about').dropdown-item About
+                                        a(href='/about'
+                                        target='_blank').dropdown-item About
                                     li
-                                        a(href='/glossary').dropdown-item Glossary
+                                        a(href='/glossary'
+                                        target='_blank').dropdown-item Glossary
                                     //li
                                     //    a(href='/sources').dropdown-item Sources
                             li.nav-item(ng-hide="!identity.isAuthenticated()")

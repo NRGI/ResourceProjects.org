@@ -7,6 +7,7 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiProjectsSrvc,
+        nrgiProjectsWithIsoSrvc,
         $filter
     ) {
         var limit = 50,
@@ -23,7 +24,6 @@ angular.module('app')
         $scope.getHeaderProjects = function () {
             return header_projects
         };
-
         $scope.createDownloadList = function (projects) {
             angular.forEach(projects, function (project, key) {
                 $scope.csv_projects[key] = [];
@@ -137,6 +137,10 @@ angular.module('app')
             currentPage = currentPage + 1;
             $scope.createDownloadList($scope.projects);
         });
+        //var iso = 'MX';
+        //nrgiProjectsWithIsoSrvc.get({_iso2: iso,skip: 0, limit: 0}, function (response) {
+        //    console.log(response)
+        //});
 
         $scope.loadMore = function() {
             if ($scope.busy) return;
