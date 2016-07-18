@@ -9,14 +9,13 @@ var countrySchema, Country,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema   = mongoose.Schema,
     fact     = require("./Facts"),
+    alias    = require("./Aliases"),
     ObjectId = Schema.Types.ObjectId;
 
 countrySchema = new Schema({
     iso2: String,
     name: String,
-    country_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}]
+    country_aliases: [alias]
 });
 
 //countrySchema.plugin(mongooseHistory, options);

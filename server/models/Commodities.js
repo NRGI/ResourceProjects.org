@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var commoditySchema, Commodity,
     Schema   = mongoose.Schema,
     ObjectId = Schema.Types.ObjectId,
+    alias    = require("./Aliases"),
     type_enu  = {
         values: 'mining oil_and_gas'.split(' '),
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select mining or oil and gas.'
@@ -19,9 +20,7 @@ commoditySchema = new Schema ({
         type: String,
         enum: type_enu},
     commodity_id: String,
-    commodity_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}]
+    commodity_aliases: [alias]
 });
 
 Commodity = mongoose.model('Commodity', commoditySchema);

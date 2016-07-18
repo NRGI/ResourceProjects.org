@@ -1,7 +1,6 @@
 var Contract 		= require('mongoose').model('Contract'),
     Country 		= require('mongoose').model('Country'),
     Source 			= require('mongoose').model('Source'),
-    Alias 			= require('mongoose').model('Alias'),
     Link 	        = require('mongoose').model('Link'),
     Company 		= require('mongoose').model('Company'),
     Commodity 		= require('mongoose').model('Commodity'),
