@@ -1450,7 +1450,7 @@ function parseData(sheets, report, finalcallback) {
             //Determine if payment or receipt
             var transfer_audit_type = "";
             if (row['#governmentReceipt+value'] !== "") {
-                transfer_audit_type = "government_receipt"
+                transfer_audit_type = "government_receipt";
                 transfer_type = "receipt";
             }
             else if (row['#companyPayment+value'] !== "") {
@@ -1459,62 +1459,21 @@ function parseData(sheets, report, finalcallback) {
             }
             else returnInvalid();
 
-            //TODO: How to match without projects in the transfers any more?
-            var query = {country: countries[row['#country+identifier']]._id, transfer_audit_type: transfer_audit_type, source: sources[row['#source'].toLowerCase()]._id};
-            if (row['#project'] !== "") {
-                query.project = projects[row['#project'].toLowerCase()]._id;
-                query.transfer_level = "project";
+            //Note: no checking for existing entries but blanket acceptance of data as rows themselves can duplicate. If we ever want back (for 0.5), look in git 18/7/16
+            var newTransfer = makeNewTransfer(row, transfer_audit_type);
+            if (!newTransfer) {
+                transReport.add(`Invalid or missing data in row: ${inspect.util(row)}. Aborting.\n`);
+                return callback(`Failed: ${transReport.report}`);
             }
-            else query.transfer_level = "country";
-
-            if (row['#company'] !== "") {
-                query.company = companies[row['#company'].toLowerCase()]._id;
-            }
-            //TODO (0.6): site, concession
-            if (transfer_type === "payment") {
-                query.transfer_year = parseInt(row['#companyPayment+year']);
-                query.transfer_type = row['#companyPayment+paymentType'];
-            }
-            else {
-                query.transfer_year = parseInt(row['#governmentReceipt+year']);
-                query.transfer_type = row['#governmentReceipt+paymentType'];
-                if (row['#governmentReceipt+governmentParty'] !== "") {
-                    query.transfer_gov_entity = row['#governmentReceipt+governmentParty'];
-                }
-                if (row['#governmentReceipt+governmentParty+identifier'] !== "") {
-                    query.transfer_gov_entity_id = row['#governmentReceipt+governmentParty+identifier'];
-                }
-            }
-
-            Transfer.findOne(
-                query,
-                function(err, doc) {
+            Transfer.create(
+                newTransfer,
+                function(err, model) {
                     if (err) {
-                        transReport.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
+                        transReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                         return callback(`Failed: ${transReport.report}`);
                     }
-                    else if (doc) {
-                        transReport.add(`Transfer (${util.inspect(query)}) already exists in the DB, not adding\n`);
-                        return callback(null);
-                    }
-                    else {
-                        var newTransfer = makeNewTransfer(row, transfer_audit_type);
-                        if (!newTransfer) {
-                            transReport.add(`Invalid or missing data in row: ${inspect.util(row)}. Aborting.\n`);
-                            return callback(`Failed: ${transReport.report}`);
-                        }
-                        Transfer.create(
-                            newTransfer,
-                            function(err, model) {
-                                if (err) {
-                                    transReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                    return callback(`Failed: ${transReport.report}`);
-                                }
-                                transReport.add(`Added transfer (${util.inspect(query)}) to the DB.\n`);
-                                return callback(null);
-                            }
-                        );
-                    }
+                    transReport.add(`Added transfer (${util.inspect(query)}) to the DB.\n`);
+                    return callback(null);
                 }
             );
         };
