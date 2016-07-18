@@ -44,7 +44,8 @@ angular
                                 {name: 'Value ', status: true, field: 'transfer_value'},
                                 {name: 'Level ', status: true, field: 'transfer_level'},
                                 {name: 'Payment or receipt?', status: true, field: 'transfer_audit_type'},
-                                {name: 'Projects and Sites', status: $scope.projectlink, field: 'proj_site'}];
+                                {name: 'Project ID', status: $scope.project, field: 'proj_id'},
+                                {name: 'Project / Site', status: $scope.project, field: 'proj_site'}];
                             angular.forEach(headers, function (header) {
                                 if (header.status != false && header.status != undefined) {
                                     header_transfer.push(header.name);
@@ -75,12 +76,20 @@ angular
                                     }
                                     if (field == 'proj_site') {
                                         name = '';
-                                        if (transfer[field] != undefined) {
+                                        if (transfer[field] != undefined && transfer[field].name !=undefined) {
                                             var name = transfer[field].name.toString();
                                         }
                                         $scope.csv_transfers[key].push(name)
                                     }
-                                    if (field != 'company' && field != 'country'&& field != 'proj_site') {
+                                    if (field == 'proj_id') {
+                                        id = '';
+                                        console.log(transfer)
+                                        if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.transfer_level =='project') {
+                                            id = transfer.proj_site._id.toString();
+                                        }
+                                        $scope.csv_transfers[key].push(id);
+                                    }
+                                    if (field != 'company' && field != 'country'&& field != 'proj_site' && field != 'proj_id') {
                                         $scope.csv_transfers[key].push(transfer[field])
                                     }
                                 })

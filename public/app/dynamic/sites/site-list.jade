@@ -12,8 +12,20 @@
                 button.btn.btn-secondary.pull-xs-right(type='button')
                     a(href='/{{record_type}}/map') Map View
 
-    table#sites.table.table-striped(ts-wrapper)
-        thead
+    table#sites.table.table-striped.table-fixed-header(ts-wrapper)
+        thead.header
+            tr
+                th.tablesort-sortable-th(ts-criteria='site_name') Name
+                th.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country
+                th.tablesort-sortable-th(ts-criteria='site_type[0].string') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='site_commodity[0].commodity_name') Commodity
+                th.text-center.tablesort-sortable-th(ts-criteria='site_status[site_status.length-1].string') Status
+                th.text-center.tablesort-sortable-th(ts-criteria="company_count|parseInt")  Companies
+                th.text-center.tablesort-sortable-th(ts-criteria="project_count|parseInt")  Projects
+                th.text-center.tablesort-sortable-th(ts-criteria="concession_count|parseInt")  Concessions
+                th.text-center.tablesort-sortable-th(ts-criteria="transfer_count|parseInt")  Payments
+                th.text-center.tablesort-sortable-th(ts-criteria="production_count|parseInt")  Production
+        thead.header-copy.header.hide
             tr
                 th.tablesort-sortable-th(ts-criteria='site_name') Name
                 th.tablesort-sortable-th(ts-criteria='site_country[site_country.length - 1].country.name') Country

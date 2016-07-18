@@ -45,6 +45,22 @@ script(type="text/javascript", src="/vendor/angular-google-analytics/dist/angula
 script(type="text/javascript", src="/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js")
 script(type='text/javascript').
     $(document).ready(function () {
+        var row = $('table > tbody > tr:first');
+        var table = $('table > tbody');
+        for (i=0; i<100; i++) {
+            table.append(row.clone());
+        }
+        var oldURL = "";
+        function checkURLchange(currentURL) {
+            if (currentURL != oldURL) {
+                oldURL = currentURL;
+            }
+        }
+        oldURL = window.location.href;
+        setInterval(function () {
+            $('.table-fixed-header').fixedHeader();
+            checkURLchange(window.location.href);
+        }, 1000);
         setTimeout(function(){
             $('.typeahead').typeahead({
                 source: function (query, process) {
@@ -72,8 +88,66 @@ script(type='text/javascript').
                 }
             });
         },100)
-
     });
+    (function ($) {
+        $.fn.fixedHeader = function (options) {
+            var config = {
+                topOffset: 50
+            };
+            if (options) {
+                $.extend(config, options);
+            }
+            return this.each(function () {
+                var o = $(this);
+                var $win = $(window);
+                var $head = $('thead.header', o);
+                var isFixed = 0;
+                var headTop = $head.length && $head.offset().top - config.topOffset;
+
+                function processScroll() {
+                    if (!o.is(':visible')) {
+                        return;
+                    }
+                    if ($('thead.header-copy').size()) {
+                        $('thead.header-copy').width($('thead.header').width());
+                    }
+                    var i;
+                    var scrollTop = $win.scrollTop();
+                    var t = $head.length && $head.offset().top - config.topOffset;
+                    if (!isFixed && headTop !== t) {
+                        headTop = t;
+                    }
+                    if (scrollTop >= headTop && !isFixed) {
+                        isFixed = 1;
+                    } else if (scrollTop <= headTop && isFixed) {
+                        isFixed = 0;
+                    }
+                    isFixed ? $('thead.header-copy', o).offset({
+                    }).removeClass('hide') : $('thead.header-copy', o).addClass('hide');
+                }
+                $win.on('scroll', processScroll);
+                $head.on('click', function () {
+                    if (!isFixed) {
+                        setTimeout(function () {
+                            $win.scrollTop($win.scrollTop() - 47);
+                        }, 10);
+                    }
+                });
+                $('.header-copy').removeClass('header').addClass('header-copy table-header-fixed').appendTo(o);
+                var header_width = $head.width();
+                o.find('thead.header-copy').width(header_width);
+                o.find('thead.header > tr:first > th').each(function (i, h) {
+                    var w = $(h).width();
+                    o.find('thead.header-copy> tr > th:eq(' + i + ')').width(w);
+                });
+                $head.css({
+                    margin: '0 auto',
+                    width: o.width()
+                });
+                processScroll();
+            });
+        };
+    })(jQuery);
 //- MAIN APP
 script(type="text/javascript", src="/app/app.js")
 script(type="text/javascript", src="/app/common/nrgiNotifier.js")

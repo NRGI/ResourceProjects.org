@@ -24,6 +24,8 @@ module.exports = function (config) {
             'public/vendor/angular-resource/angular-resource.js',
             'public/vendor/ngDialog/js/ngDialog.js',
             'public/vendor/toastr/toastr.js',
+            'public/vendor/angular-nvd3/dist/angular-nvd3.min.js',
+            'public/vendor/d3/d3.min.js',
             // 'node_modules/jade/jade.js',
             'node_modules/underscore/underscore.js',
             // 'public/vendor/angular-google-analytics/dist/angular-google-analytics.js',

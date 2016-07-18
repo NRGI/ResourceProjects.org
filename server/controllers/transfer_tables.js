@@ -239,7 +239,7 @@ exports.getTransferTable = function(req, res){
         var query = '';var proj_site={};
         projects.transfers = [];
         if (type == 'concession') { query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
-        if (type == 'company') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
+        if (type == 'company') {query = {company: {$in: projects.transfers_query}}}
         if (type == 'contract') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
         if (type == 'commodity') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
         if (type == 'project' || type == 'site') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}

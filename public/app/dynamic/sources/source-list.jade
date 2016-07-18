@@ -10,10 +10,16 @@
 		='.'
 	p The site currently incorporates {{count}} sources
 
-	table.table.table-striped(
+	table.table.table-striped.table-fixed-header(
 	about='http://resourceprojects.org/source'
 	ts-wrapper)
-		thead
+		thead.header
+			tr
+				th.tablesort-sortable-th(ts-criteria='source_name') Source
+				th.tablesort-sortable-th(ts-criteria='source_type') Source type
+				th.tablesort-sortable-th(ts-criteria='source_date') Source date
+				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+		thead.header-copy.header.hide
 			tr
 				th.tablesort-sortable-th(ts-criteria='source_name') Source
 				th.tablesort-sortable-th(ts-criteria='source_type') Source type

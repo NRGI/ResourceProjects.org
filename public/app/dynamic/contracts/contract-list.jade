@@ -5,10 +5,20 @@
                 = ' '
                 small(ng-if="count") {{count}}
 
-    table#contracts.table.table-striped(
+    table#contracts.table.table-striped.table-fixed-header(
     about='http://resourceprojects.org/contracts'
     ts-wrapper)
-        thead
+        thead.header
+            tr
+                th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
+                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
+                th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_type') Contract Type
+                th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_type') Commodity Type
+                th.tablesort-sortable-th(ts-criteria='commodity[commodity.length-1].commodity_name') Commodity
+                th.text-center.tablesort-sortable-th(ts-criteria='projects|parseInt') Projects
+                th.text-center.tablesort-sortable-th(ts-criteria='sites|parseInt') Sites
+                th.text-center.tablesort-sortable-th(ts-criteria='fields|parseInt') Fields
+        thead.header-copy.header.hide
             tr
                 th.tablesort-sortable-th(ts-criteria='contract_id') RC-ID
                 th.tablesort-sortable-th(ts-criteria='rc_info[rc_info.length-1].contract_country.code') Country
