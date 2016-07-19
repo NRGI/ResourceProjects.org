@@ -25,7 +25,8 @@ var auth 				= require('./auth'),
 	summaryStats 		= require('../controllers/summaryStats'),
 	lastAdded 			= require('../controllers/lastAdded'),
 	sunburst 			= require('../controllers/sunburst'),
-	content 			= require('../controllers/content');
+	content 			= require('../controllers/content'),
+	cors 				= require('cors');
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -34,7 +35,11 @@ var auth 				= require('./auth'),
 	// User 		= mongoose.model('User');
 
 module.exports	= function(app) {
-
+	app.use(function(req, res, next) {
+		res.header("Access-Control-Allow-Origin", "*");
+		res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+		next();
+	});
 	app.get('/api/search', search.searchText);
 
 	//CONTRACTS

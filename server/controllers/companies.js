@@ -20,6 +20,13 @@ exports.getCompanies = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        }else{
+            if (req.query && req.query.callback) {
+                console.log('req.query.callback',req.query.callback)
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -33,7 +40,7 @@ exports.getCompanies = function(req, res) {
         });
     }
     function getCompanySet(company_count, callback) {
-        Company.find(req.query)
+        Company.find({})
             .sort({
                 company_name: 'asc'
             })
@@ -163,7 +170,7 @@ exports.getCompanies = function(req, res) {
                     ++company_counter;
                     company.transfer_count = transfer_count;
                     if (company_counter === company_len) {
-                        res.send({data:companies, count:company_count});
+                        callback(null, {data:companies, count:company_count});
                     }
                 });
 
@@ -179,7 +186,11 @@ exports.getCompanyID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getCompany(callback) {
@@ -207,7 +218,11 @@ exports.getCompanyByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getCompanyLinks(callback) {

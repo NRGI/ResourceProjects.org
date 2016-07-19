@@ -20,7 +20,11 @@ exports.getCommodities = function(req, res) {
         if (err) {
             res.send(err);
         } else{
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -34,7 +38,7 @@ exports.getCommodities = function(req, res) {
         });
     }
     function getCommoditySet(commodity_count, callback) {
-        Commodity.find(req.query, {commodity_name: 1, commodity_id: 1, commodity_type: 1})
+        Commodity.find({}, {commodity_name: 1, commodity_id: 1, commodity_type: 1})
             .sort({
                 commodity_name: 'asc'
             })
@@ -126,7 +130,11 @@ exports.getCommodityByID = function(req, res) {
         if (err) {
             res.send(err);
         } else{
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 

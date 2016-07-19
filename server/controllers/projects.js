@@ -25,7 +25,11 @@ exports.getProjects = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function projectCount(callback) {
@@ -38,7 +42,7 @@ exports.getProjects = function(req, res) {
         });
     }
     function getProjectSet(project_count, callback) {
-        Project.find(req.query)
+        Project.find({})
             .sort({
                 proj_name: 'asc'
             })
@@ -53,7 +57,7 @@ exports.getProjects = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, project_count, projects);
                 } else {
-                    res.send({data: projects, count: project_count});
+                    callback({data: projects, count: project_count});
                 }
             });
     }
@@ -379,7 +383,11 @@ exports.getProjectByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 	function getProject(callback) {
@@ -689,7 +697,11 @@ exports.getProjectsMap = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result)
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -898,11 +910,15 @@ exports.getProjectsWithIso = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getProjectSet(callback) {
-        Project.find(req.query)
+        Project.find({})
             .sort({
                 proj_name: 'asc'
             })
@@ -917,7 +933,7 @@ exports.getProjectsWithIso = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, projects);
                 } else {
-                    res.send({data: projects, count: 0});
+                    callback({data: projects, count: 0});
                 }
             });
     }

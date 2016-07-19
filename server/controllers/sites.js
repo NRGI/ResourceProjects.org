@@ -25,7 +25,11 @@ exports.getSites = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function siteCount(callback) {
@@ -226,7 +230,11 @@ exports.getSiteByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result)
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 	function getSite(callback) {
@@ -496,6 +504,12 @@ exports.getSitesMap = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else{
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
