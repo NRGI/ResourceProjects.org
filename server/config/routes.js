@@ -180,8 +180,6 @@ module.exports	= function(app) {
 	// DELETE
 	app.delete('/api/sites/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sites.deleteSite);
 
-
-
 	//DATASETS - TODO: protect with admin?
 	app.get('/api/datasets', datasets.getDatasets);
 	app.get('/api/datasets/:limit/:skip', datasets.getDatasets);
