@@ -8,7 +8,7 @@ angular.module('app')
         nrgiIdentitySrvc,
         nrgiTransfersSrvc
     ) {
-        var limit = 1500,
+        var limit = 2000,
             currentPage = 0,
             totalPages = 0;
 
