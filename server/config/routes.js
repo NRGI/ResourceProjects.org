@@ -76,7 +76,7 @@ module.exports	= function(app) {
 	app.delete('/api/projects/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), projects.deleteProject);
 
 	/////////////////////////////
-	///// PAYMENTS CRUD ////////
+	///// TRANSFERS CRUD ////////
 	/////////////////////////////
 	app.get('/api/transfers/:limit/:skip', transfers.getTransfers);
 	// app.get('/api/transfers/:id', transfers.getPaymentByID);
