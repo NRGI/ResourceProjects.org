@@ -136,6 +136,24 @@ var makeNewCompanyGroup = function(newRow) {
     var companyg = {
         company_group_name: newRow['#group'],
     };
+    
+     if (newRow['#group+openCorporatesURL'] !== "") {
+        companyg.open_corporates_group_ID = ocUrlToId(newRow['#group+openCorporatesURL']);
+        if (companyg.open_corporates_group_ID === false) return false;
+    }
+    if (newRow['#group+country+identifier'] !== "") {
+        if (!countries[newRow['#group+country+identifier']]) {
+            console.log("SERIOUS ERROR: Missing country in the DB. Either the DB or Sheet need to be fixed.");
+            return false;
+        }
+        companyg.country_of_incorporation = [{country: countries[newRow['#group+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]; //Fact array
+    }
+    if (newRow['#group+website'] !== "") {
+        companyg.company_group_website = {string: newRow['#group+website'], source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
+    }
+    if (newRow['#group+notes'] !== "") {
+       companyg.description = newRow['#group+notes'];
+    }
 
     if (newRow['#source'] !== "") {
         if (sources[newRow['#source'].toLowerCase()]) { //Must be here due to lookups in sheet
@@ -149,17 +167,23 @@ var makeNewCompanyGroup = function(newRow) {
     return returnObj;
 };
 
+function ocUrlToId(url) {
+    if (url.indexOf("opencorporates") == -1) return false;
+    var parts = url.split('/');
+    return parts[parts.length-2] + '/' + parts[parts.length-1];
+}
+
 var makeNewCompany = function(newRow) {
     //TODO: https://github.com/NRGI/rp-org-frontend/issues/34
     var returnObj = {obj: null, link: null};
     var company = {
-        company_name: newRow['#company'],
-        company_established_source: sources[newRow['#source'].toLowerCase()]._id
+        company_name: newRow['#company']
     };
 
+    //TODO: Require OC URL for UK companies?
     if (newRow['#company+openCorporatesURL'] !== "") {
-        var parts = newRow['#company+openCorporatesURL'].split('/');
-        company.open_corporates_id = parts[parts.length-2] + '/' + parts[parts.length-1]; //URL in 0.5. May change to ID in 0.6.
+        company.open_corporates_id = ocUrlToId(newRow['#company+openCorporatesURL']);
+        if (company.open_corporates_id === false) return false;
     }
     if (newRow['#company+country+identifier'] !== "") {
         if (!countries[newRow['#company+country+identifier']]) {
@@ -171,12 +195,16 @@ var makeNewCompany = function(newRow) {
     if (newRow['#company+website'] !== "") {
         company.company_website = {string: newRow['#company+website'], source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
     }
+    if (newRow['#company+notes'] !== "") {
+       company.description = newRow['#company+notes'];
+    }
     if (newRow['#source'] !== "") {
         if (sources[newRow['#source'].toLowerCase()]) { //Must be here due to lookups in sheet
             company.company_established_source = sources[newRow['#source'].toLowerCase()]._id;
         }
         else return false; //error
     }
+    else return false; //Require source
 
     if (newRow['#group'] !== "") {
         returnObj.link = {company_group: company_groups[newRow['#group'].toLowerCase()]._id, source: sources[newRow['#source'].toLowerCase()]._id};
@@ -531,7 +559,7 @@ function parseData(sheets, report, finalcallback) {
     function parseSourceTypes(result, callback) {
         //Complete source type list is in the DB
         result.add("Getting source types from database...\n");
-        sourceTypes = new Object;
+        sourceTypes = {};
         SourceType.find({}, function (err, stresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -546,12 +574,12 @@ function parseData(sheets, report, finalcallback) {
                 callback(null, result);
             }
         });
-    };
+    }
 
     function parseCountries(result, callback) {
         //Complete country list is in the DB
         result.add("Getting countries from database...\n");
-        countries = new Object;
+        countries = {};
         Country.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -643,7 +671,7 @@ function parseData(sheets, report, finalcallback) {
 
     function parseCompanyGroups(result, callback) {
         company_groups = {};
-        parseEntity(result, '6', company_groups, processCompanyRow, "CompanyGroup", '#group', CompanyGroup, "company_group_name", makeNewCompanyGroup, callback);
+        parseEntity(result, '4', company_groups, processCompanyRow, "CompanyGroup", '#group', CompanyGroup, "company_group_name", makeNewCompanyGroup, callback);
     }
 
     function parseCompanies(result, callback) {

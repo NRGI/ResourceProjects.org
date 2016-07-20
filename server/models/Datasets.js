@@ -30,6 +30,13 @@ function createDefaultDatasets() {
                 actions: []
             });
             Dataset.create({
+                name: "Google Sheet: Nigeria 0.6",
+                source_url: 'https://docs.google.com/spreadsheets/d/1OqB00jJ7VKSUK4ZyyPwYZM3j4X6xftnIKWnteT2ORZw/pub',
+                created: Date.now(),
+                created_by: '56d011292cb1766d0c308ec0',
+                actions: []
+            });
+            Dataset.create({
                 name: "Google Sheet: Kosmos 2014 0.6",
                 source_url: 'https://docs.google.com/spreadsheets/d/1BDs3uuWzscQDid2iVtJNtW0alrHa7WQT6sxn6JU4R6c/pub',
                 created: Date.now(),
