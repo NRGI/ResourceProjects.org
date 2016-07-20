@@ -10,6 +10,7 @@ RUN     yum -y distro-sync
 RUN     yum -y update
 RUN     yum -y upgrade
 
+
 # Install Node.js, npm, and git
 RUN     yum install -y git nodejs npm
 
