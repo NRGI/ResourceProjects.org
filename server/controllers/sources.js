@@ -18,6 +18,12 @@ exports.getSources = function(req, res) {
 	], function (err, result) {
 		if (err) {
 			res.send(err);
+		} else{
+			if (req.query && req.query.callback) {
+				return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+			} else {
+				return res.send(result);
+			}
 		}
 	});
 
@@ -31,7 +37,7 @@ exports.getSources = function(req, res) {
 		});
 	}
 	function getSourceSet(source_count, callback) {
-		Source.find(req.query)
+		Source.find({})
 			.sort({
 				source_name: 'asc'
 			})
@@ -64,7 +70,7 @@ exports.getSources = function(req, res) {
 						}
 					});
 					if(source_counter == source_len && link_counter == link_len) {
-						res.send({data:sources, count:source_count});
+						callback(null, {data:sources, count:source_count});
 					}
 				});
 		});
@@ -77,6 +83,12 @@ exports.getSourceByID = function(req, res) {
 	], function (err, result) {
 		if (err) {
 			res.send(err);
+		} else{
+			if (req.query && req.query.callback) {
+				return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+			} else {
+				return res.send(result);
+			}
 		}
 	});
 
@@ -87,7 +99,6 @@ exports.getSourceByID = function(req, res) {
 			.exec(function(err, source) {
 				if(source) {
 					callback(null, source);
-					res.send(source);
 				} else {
 					callback(err);
 				}

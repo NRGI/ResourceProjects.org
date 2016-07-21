@@ -21,6 +21,12 @@ exports.getCompanyGroups = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else{
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -34,7 +40,7 @@ exports.getCompanyGroups = function(req, res) {
         });
     }
     function getCompanyGroupSet(companyGroup_count, callback) {
-        CompanyGroup.find(req.query)
+        CompanyGroup.find({})
             .sort({
                 company_group_name: 'asc'
             })
@@ -99,18 +105,18 @@ exports.getCompanyGroups = function(req, res) {
                             ++companyGroup_counter;
                             group.project_count = proj_count.length;
                             if (companyGroup_counter == companyGroup_len) {
-                                res.send({data: companyGroups, count: companyGroup_count});
+                                callback(null, {data: companyGroups, count: companyGroup_count});
                             }
                         });
                 }else{
                     ++companyGroup_counter;
                 }
                 if(Object.keys(group.companies).length == 0 && companyGroup_counter == companyGroup_len) {
-                    res.send({data: companyGroups, count: companyGroup_count});
+                    callback(null, {data: companyGroups, count: companyGroup_count});
                 }
                 });
         } else {
-            res.send({data:companyGroups, count:companyGroup_count});
+            callback(null, {data:companyGroups, count:companyGroup_count});
         }
     }
 };
@@ -123,7 +129,11 @@ exports.getCompanyGroupID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -141,6 +151,7 @@ exports.getCompanyGroupID = function(req, res) {
             });
     }
 }
+
 exports.getCompanyGroupByID = function(req, res) {
     var companyGroup={}, link_counter, link_len, company_counter, company_len;
 
@@ -151,7 +162,11 @@ exports.getCompanyGroupByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getCompanyGroupLinks(callback) {

@@ -360,13 +360,15 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				delete projDoc.__v; // https://github.com/Automattic/mongoose/issues/1933
 			}
 
-			if (projectName.indexOf(" ") > -1) {
-				var spacePos = projectName.indexOf(" ");
-				projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
-			}
-			else {
-                projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
-			}
+            // projDoc.proj_id = projectName.toLowerCase().replace("/","").replace(" ","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+            projDoc.proj_id = projectName.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			// if (projectName.indexOf(" ") > -1) {
+			// 	var spacePos = projectName.indexOf(" ");
+			// 	projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+			// }
+			// else {
+             //    projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			// }
 
 			if (!doc_id) doc_id = new ObjectId();
 			Project.findByIdAndUpdate(
@@ -514,7 +516,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
             // Projects - check against id and name
 			Project.findOne(
 				{
-					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project payments?
+					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project transfers?
 				},
 				function(err, projDoc) {
 					if (err) {
@@ -604,11 +606,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 
 	// checks if the transfer entries of this report already exist in the DB, creates new ones otherwise.
-	// This is done separately for government payments (transfer level "country") and project payments (transfer level "project")
+	// This is done separately for government transfers (transfer level "country") and project transfers (transfer level "project")
 	// So far, only single transfers are handled. Transfer totals are not yet calculated or validated
 	function loadTransfers(report, projects, company, currency, callback) {	  	 
 
-		// Handle transfers from government payments
+		// Handle transfers from government transfers
 		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, fcallback) {
 
 			var transfer_audit_type = "company_payment";
@@ -697,7 +699,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 		});
 
-		// Handle transfers from project payments
+		// Handle transfers from project transfers
 		async.eachSeries(chData.projectPayments.projectPayment, function (projectPaymentEntry, forcallback) {
 
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
@@ -717,14 +719,16 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			var projName = projectPaymentEntry.projectName;
 
-			if (projName.indexOf(" ") > -1) {
-				var spacePos = projName.indexOf(" ");
-				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+            update.proj_id = iso2country + '-' + projName.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
 
-			}
-			else {
-				update.proj_id = iso2country + '-' + projName.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
-			}
+			// if (projName.indexOf(" ") > -1) {
+			// 	var spacePos = projName.indexOf(" ");
+			// 	update.proj_id = iso2country + '-' + projName.toLowerCase().replace("/","").slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
+            //
+			// }
+			// else {
+			// 	update.proj_id = iso2country + '-' + projName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+			// }
 
 			// Enforce only one country per project...
 			update.proj_country = [{country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}];

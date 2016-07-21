@@ -22,6 +22,12 @@ exports.getSourceTypes = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else{
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -137,7 +143,7 @@ exports.getSourceTypes = function(req, res) {
     }
     function getFinalCounts (source_type_count, source_types, source_list, project_list, country_list, callback) {
         // source_type.sources = _.uniq(source_type.sources);
-        res.send({data:source_types, count:source_type_count});
+        callback(null, {data:source_types, count:source_type_count});
     }
 //    get #projects
 //    get #countries
@@ -150,7 +156,11 @@ exports.getSourceTypeByID = function(req, res) {
         if (err) {
             res.send(err);
         } else{
-            res.send(result)
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 

@@ -26,7 +26,11 @@ exports.getContracts = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function contractCount(callback) {
@@ -39,7 +43,7 @@ exports.getContracts = function(req, res) {
         });
     }
     function getContractSet(contract_count, callback) {
-        Contract.find(req.query)
+        Contract.find({})
             .sort({
                 contract_id: 'asc'
             })
@@ -167,7 +171,11 @@ exports.getContractByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 

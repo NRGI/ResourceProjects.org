@@ -9,7 +9,7 @@ exports.getConcessions = function(req, res) {
     var concession_len, link_len, concession_counter, link_counter,
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
-
+    console.log('req.query.callback',req.query.callback)
     async.waterfall([
         concessionCount,
         getConcessionSet,
@@ -17,10 +17,17 @@ exports.getConcessions = function(req, res) {
         getTransfersCount,
         getProductionCount
     ], function (err, result) {
-        if (err) {
-            res.send(err);
+            if (err) {
+                res.send(err);
+            } else {
+                if (req.query && req.query.callback) {
+                    return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+                } else {
+                    return res.send(result);
+                }
+            }
         }
-    });
+    );
     function concessionCount(callback) {
         Concession.find({}).count().exec(function(err, concession_count) {
             if(concession_count) {
@@ -31,7 +38,7 @@ exports.getConcessions = function(req, res) {
         });
     }
     function getConcessionSet(concession_count, callback) {
-        Concession.find(req.query)
+        Concession.find({})
             .sort({
                 concession_name: 'asc'
             })
@@ -46,7 +53,7 @@ exports.getConcessions = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, concession_count, concessions);
                 } else {
-                    res.send({data: concessions, count: concession_count});
+                    callback(null, {data: concessions, count: concession_count});
                 }
             });
     }
@@ -195,7 +202,7 @@ exports.getConcessions = function(req, res) {
                     ++concession_counter;
                     concession.production_count = production_count;
                     if (concession_counter === concession_len) {
-                        res.send({data: concessions, count: concession_count});
+                        callback(null, {data: concessions, count: concession_count});
                     }
                 });
 
@@ -213,7 +220,11 @@ exports.getConcessionByID = function(req, res) {
         if (err) {
             res.send(err);
         } else{
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 

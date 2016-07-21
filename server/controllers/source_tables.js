@@ -61,7 +61,11 @@ exports.getSourceTable = function(req, res){
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getEstablishedSource(callback) {

@@ -38,7 +38,11 @@ exports.getCountries = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -54,7 +58,7 @@ exports.getCountries = function(req, res) {
         });
     }
     function getCountrySet(country_count, callback) {
-        Country.find(req.query)
+        Country.find({})
             .sort({
                 name: 'asc'
             })
@@ -170,7 +174,11 @@ exports.getCountryByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result)
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -182,7 +190,7 @@ exports.getCountryByID = function(req, res) {
                 if(country) {
                     callback(null, country);
                 } else {
-                    res.send(err);
+                    callback(err);
                 }
             });
     }
@@ -199,7 +207,11 @@ exports.getAllCommodityCountryByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result)
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 

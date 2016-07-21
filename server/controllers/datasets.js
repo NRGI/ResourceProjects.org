@@ -227,7 +227,7 @@ exports.getTestdata = function(req, res, next) {
 		   }],
 		   "governmentPaymentTotals" :  [{ PaymentTotals : {
 		        notes           : "",
-		        amount          : "12,000,000",						// take only payments (not totals). Totals calculated by controller. Check afterwards if sum matches totals
+		        amount          : "12,000,000",						// take only transfers (not totals). Totals calculated by controller. Check afterwards if sum matches totals
 		        government      : "USA",
 		        countryCodeList : "US",
 		     }
