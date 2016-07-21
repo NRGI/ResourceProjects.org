@@ -530,10 +530,10 @@ function parseData(sheets, report, finalcallback) {
             parseCommodities,
             parseCompanyGroups,
             parseCompanies,
-            parseProjects,
+            /*parseProjects,
             parseConcessionsAndContracts,
             parseProduction,
-            parseTransfers,
+            parseTransfers,*/
             parseReserves
         ], function (err, report) {
             if (err) {
@@ -676,7 +676,7 @@ function parseData(sheets, report, finalcallback) {
 
     function parseCompanies(result, callback) {
         companies = {};
-        parseEntity(result, '6', companies, processCompanyRow, "Company", '#company', Company, "company_name", makeNewCompany, callback);
+        parseEntity(result, '4', companies, processCompanyRow, "Company", '#company', Company, "company_name", makeNewCompany, callback);
     }
 
     function createSiteProjectLink (siteId, projectId, sourceId, report, lcallback) {
