@@ -1,6 +1,7 @@
 'use strict';
 angular.module('app', [
     'angular.filter',
+    'angular-underscore',
     'iso-3166-country-codes',
     'angular-google-analytics',
     'leaflet-directive',
