@@ -35,6 +35,7 @@ angular.module('app')
         nrgiSourceTypesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
             $scope.sourceTypes = response.data;
+            console.log(response.data);
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
             $scope.createDownloadList($scope.sourceTypes);
