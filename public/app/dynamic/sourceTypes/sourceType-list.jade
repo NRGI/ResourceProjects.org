@@ -10,15 +10,15 @@
             thead.header
                 tr
                     th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-                    th Type
-                    th Projects
-                    th Countries
+                    th.tablesort-sortable-th(ts-criteria='source_type_authority') Type
+                    th.tablesort-sortable-th(ts-criteria='project_count') Projects
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Countries
             thead.header-copy.header.hide
                 tr
                     th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-                    th Type
-                    th Projects
-                    th Countries
+                    th.tablesort-sortable-th(ts-criteria='source_type_authority') Type
+                    th.tablesort-sortable-th(ts-criteria='project_count') Projects
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Countries
             tbody
                 tr(
                 ng-repeat="type in sourceTypes | unique: '_id'"
@@ -28,6 +28,7 @@
                             span(ng-bind-html="type.source_type_name|sanitize")
                     td.source_type_type {{type.source_type_authority|ucfirst}}
                     td {{type.project_count}}
+                    td {{type.country_count}}
 
     div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
     div(ng-if="sourceTypes.length>0")
