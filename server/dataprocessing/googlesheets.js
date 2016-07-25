@@ -663,7 +663,7 @@ function parseData(sheets, report, finalcallback) {
                     else projDoc.proj_status = proj_status;
                 }
                 
-                projects[row['#project']] = projDoc;
+                projects[row['#project'].toLowerCase()] = projDoc;
                 if (duplicateId) {
                     duplicates[row['#project']] = {
                         original: duplicateId,
@@ -788,6 +788,7 @@ function parseData(sheets, report, finalcallback) {
             }
             else {
                 var projectNames = Object.getOwnPropertyNames(projects);
+                console.log(util.inspect(projectNames));
                 async.eachSeries(projectNames,
                     function (project, ecallback) {
                         Project.create(projects[project], function(err, pmodel) {
