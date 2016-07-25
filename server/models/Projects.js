@@ -38,12 +38,9 @@ projectSchema = new Schema({
     proj_name: String,
     proj_aliases: [alias],
     proj_established_source: source,
-    proj_country: [fact],
     proj_commodity: [fact],
-    proj_address: [fact],
-    proj_coordinates: [fact],
-    proj_operated_by: [fact],
-    proj_company_share: [fact],
+    proj_commodity_notes: htmlSettings,
+    
     proj_status: [{
         source: source,
         string: {
@@ -53,6 +50,7 @@ projectSchema = new Schema({
         timestamp: {
             type: Date,
             default: Date.now()}}],
+        startTimestamp
     description: htmlSettings
 });
 //
