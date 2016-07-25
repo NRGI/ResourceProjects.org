@@ -456,7 +456,7 @@ function parseData(sheets, report, finalcallback) {
             parseCompanyGroups,
             parseCompanies,
             parseProjects,
-            /*parseConcessionsAndContracts,
+            /*parseProjectSitesAndCompaniesAndConcessionsAndContracts,
             parseProduction,
             parseTransfers,*/
             parseReserves
@@ -826,7 +826,19 @@ function parseData(sheets, report, finalcallback) {
         parseEntity(result, '3', projects, processProjectRow, "Project", '#project', Project, "proj_name", makeNewProject, saveAllProjectsWhenDone);
     }
 
-    function parseConcessionsAndContracts(result, callback) {
+    function parseProjectSitesAndCompaniesAndConcessionsAndContracts(result, callback) {
+        ...eachSeries:
+        addcompany coutnry of operation
+        if (row['#project+company'] != "") && row['#project+site+country+identifier'] != "")) {
+            Company.findByIdAndUpdate(
+                companies[row['#project+company']]._id,
+                {
+                    $addToSet: {
+                        //TODO: Test!!!!
+                        countries_of_operation: {country: countries[row['#project+site+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}
+                    }
+                },
+        }
         //First linked companies
         var processCandCRowCompanies = function(row, callback) {
             var compReport = "";
