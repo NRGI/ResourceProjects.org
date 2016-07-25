@@ -134,7 +134,7 @@ exports.createAction = function(req, res, next) {
                             res.status(200);
                             res.send();
                             console.log("Triggered, res sent\n");
-                            googlesheets.processData(dmodel.source_url, function(status, report) {
+                            googlesheets.processData(dmodel.source_url, amodel._id, function(status, report) {
 
                                 console.log("process finished");
                                 console.log("Status: " + status + "\n");

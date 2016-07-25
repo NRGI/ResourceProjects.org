@@ -19,8 +19,11 @@ var SourceType = require('mongoose').model('SourceType'),
     moment = require('moment'),
     _ = require('underscore'),
     randomstring = require('just.randomstring');
+    
+var actionId = null;
 
-exports.processData = function(link, callback) {
+exports.processData = function(link, actionid, callback) {
+    actionId = actionid;
     var report = "";
     var keytoend =  link.substr(link.indexOf("/d/") + 3, link.length);
     var key = keytoend.substr(0, keytoend.indexOf("/"));
@@ -216,15 +219,16 @@ var makeNewCompany = function(newRow) {
 };
 
 var makeNewProject = function(newRow) {
+    if (sources[newRow['#source'].toLowerCase()] === -1) return false;
+    
     var project = {
         proj_name: newRow['#project'],
         proj_established_source: sources[newRow['#source'].toLowerCase()]._id,
-        proj_country: [{country: countries[newRow['#project+site+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]
+        proj_commodity: [],
+        proj_aliases: [],
+        proj_status: [],
     };
-    if (newRow['#project+site+address'] !== "") project.proj_address = [{string: newRow['#project+site+address'], source: sources[newRow['#source'].toLowerCase()]._id}];
-    if (newRow['#project+site+lat'] !== "") project.proj_coordinates = [{loc: [parseFloat(newRow['#project+site+lat']), parseFloat(newRow['#project+site+long'])], source: sources[newRow['#source'].toLowerCase()]._id}];
-    if (newRow['#commodity'] !== "") project.proj_commodity = [{commodity: commodities[newRow['#commodity']]._id, source: sources[newRow['#source'].toLowerCase()]._id}];
-
+    
     return project;
 }
 
@@ -616,126 +620,65 @@ function parseData(sheets, report, finalcallback) {
     }
 
     function parseProjects(result, callback) {
+        var duplicates = {};
+        
         var processProjectRow = function(projectsReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
             function updateOrCreateProject(projDoc, duplicateId, wcallback) {
                 if (!projDoc) {
                     projDoc = makeNewProject(row);
+                    if (!projDoc) {
+                        projectsReport.add(`Invalid data in row: ${util.inspect(row)}. Aborting.\n`);
+                        return wcallback(`Failed: ${projectsReport.report}`);
+                    }
                 }
 
-                //Update status and commodity
+                //Assume spreadsheets don't have duplicates
+                if (row['#project+alias'] !== "") {
+                    projDoc.proj_aliases.push({alias: row['#project+alias'], source: sources[row['#source'].toLowerCase()]._id});
+                }
+
                 if (row['#commodity'] !== "") {
-                    var notfound = true;
-                    if (doc.proj_commodity) {
-                        for (fact of doc.proj_commodity) {
-                            //No need to check if commodity exists as the doc either comes from DB or has already had commodity added from DB list in makeNewProject
-                            //TODO: In general, do we want to store multiple sources for the same truth? [from GS]
-                            if (commodities[row['#commodity']]._id == fact.commodity._id) { //TODO type check
-                                notfound = false;
-                                report.add(`Project commodity ${row['#commodity']} already exists in project, not adding\n`);
-                                break;
-                            }
-                        }
-                    }
-                    else doc.proj_commodity = [];
-                    if (notfound) { //Commodity must be here, as based on this sheet
-                        //Don't push but add, existing values will not be removed
-                        doc.proj_commodity = [{commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id}];
-                        report.add(`Project commodity ${row['#commodity']} added to project\n`);
-                    }
+                    projDoc.proj_commodity.push({commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id});
+                    //TODO: how to store commodity notes in facts?
                 }
-                else if (doc.proj_commodity) delete doc.proj_commodity; //Don't push
             
-                if (row['#status+statusType'] != "") {
-                    var notfound = true;
-                    if (doc.proj_status) {
-                        for (fact of doc.proj_status) {
-                            if (row['#status+statusType'] == fact.string) {
-                                notfound = false;
-                                report.add(`Project status ${row['#status+statusType']} already exists in project, not adding\n`);
-                                break;
-                            }
-                        }
+                if (row['#status+statusType'] !== "") {
+                    var proj_status = {
+                        string: row['#status+statusType'],
+                        source: sources[row['#source'].toLowerCase()]._id
+                    };
+                    if (row['#status+trueAt'] !== "") {
+                        proj_status.timestamp = parseGsDate(row['#status+trueAt']);
                     }
-                    else doc.proj_status = [];
-                    if (notfound) {
-                        //Don't push but add, existing values will not be removed
-                        var status;
-                        if (row['#status+statusType'].indexOf('/') != -1) {
-                            status = row['#status+statusType'].split('/')[1]; //Workaround to cope with "construction/development"
-                        }
-                        else status = row['#status+statusType'];
-                        status = status.toLowerCase().replace(/ /g, '_');
-                        doc.proj_status = [{string: status, timestamp: parseGsDate(row['#status+trueAt']), source: sources[row['#source'].toLowerCase()]._id}];
-                        report.add(`Project status ${row['#status+statusType']} added to project\n`);
+                    if (row['#status+startDate'] !== "") {
+                        proj_status.startTimestamp = parseGsDate(row['#status+startDate']);
                     }
+                    if (row['#status+endDate'] !== "") {
+                        proj_status.endTimestamp = parseGsDate(row['#status+endDate']);
+                    }
+                    if (!(proj_status.timestamp || proj_status.startTimestamp || proj_status.endTimestamp)) {
+                        projectsReport.add(`Invalid status date data in row: ${util.inspect(row)}. Aborting.\n`);
+                        return wcallback(`Failed: ${projectsReport.report}`);
+                    }
+                    else projDoc.proj_status = proj_status;
                 }
-                else if (doc.proj_status) delete doc.proj_status; //Don't push
-            
-                //TODO... projects with mulitple countries, really?
-                //TODO: This can probably be simplified with $addToSet!
-                if (row['#project+site+country+identifier'] !== "") {
-                    var notfound = true;
-                    if (doc.proj_country) { //TODO: project without a country???
-                        for (fact of doc.proj_country) {
-                            if (countries[row['#project+site+country+identifier']]._id == fact.country._id) {
-                                notfound = false;
-                                report.add(`Project country ${row['#project+site+country+identifier']} already exists in project, not adding\n`);
-                                break;
-                            }
-                        }
-                    }
-                    else doc.proj_country = [];
-                    if (notfound) {
-                        //Don't push but add, existing values will not be removed
-                        doc.proj_country = [{country: countries[row['#project+site+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}];
-                        report.add(`Project country ${row['#project+site+country+identifier']} added to project\n`);
-                    }
-                }
-                else if (doc.proj_country) delete doc.proj_country; //Don't push
-            
-                return doc;
                 
-                if (!proj_doc) {
-                    projectsReport.add(`Invalid data in row: ${util.inspect(row)}. Aborting.\n`);
-                    return wcallback(`Failed: ${projectsReport.report}`);
+                projects[row['#project']] = projDoc;
+                if (duplicateId) {
+                    duplicates[row['#project']] = {
+                        original: duplicateId,
+                        resolved: false,
+                        isDuplicate: null,
+                        created_date: Date.now(),
+                        created_from: actionId,
+                        entity: "Project"
+                    };
                 }
 
-                if (!doc_id) doc_id = new ObjectId();
-                Project.findByIdAndUpdate(
-                    doc_id,
-                    final_doc,
-                    {setDefaultsOnInsert: true, upsert: true, new: true},
-                    function(err, model) {
-                        if (err) {
-                            //console.log(err);
-                            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                            return wcallback(`Failed: ${projectsReport.report}`);
-                        }
-                        //Take first country that occurs - TODO, correct if/when projects go back to having single countries
-                        if (row['#project+site+country+identifier'] !== "") {  //Projects must have countries even if sites come afterwards
-                            if (!model.proj_id) {
-                                Project.update({_id: model._id}, {proj_id: row['#project+site+country+identifier'].toLowerCase() + '-' + model.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
-                                    function(err) {
-                                        if (err) {
-                                            projectsReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                                            return wcallback(`Failed: ${projectsReport.report}`);
-                                        }
-                                        projectsReport.add(`Added or updated project ${row[rowIndex]} to the DB.\n`);
-                                        projects[row[rowIndex].toLowerCase()] = model;
-                                        return wcallback(null, model); //Continue to site stuff
-                                    }
-                                );
-                            }
-                            else return wcallback(null, model); //Continue to site stuff
-                        }
-                        else {
-                            projectsReport.add(`Invalid data in row - projects and sites must have a country (row: ${util.inspect(row)}). Aborting.\n`);
-                            return wcallback(`Failed: ${projectsReport.report}`);
-                        }
-                    }
-                );
+                return wcallback(null, model);
             }
 
+            //TODO: delete/move
             function createSiteAndLink(projDoc, wcallback) {
                 if (row['#project+site'] !== "") {
                     Site.findOne(
@@ -795,31 +738,24 @@ function parseData(sheets, report, finalcallback) {
                     return wcallback(null);
                 }
             }
+            //TODO END Delete/Move
 
-            
             if (row['#project'] === "") {
                 projectsReport.add('Empty project name in row. Skipping.\n');
                 return callback(null);
             }
             
-            //Look for project in DB
-            if (!_.findWhere(projects, {proj_name: row['#project'].toLowerCase()})) { //If no yet in internal list (i.e. contained in this workbook)
+            //Look for project in DB. This only happens if not in internal list. Hence duplicate -creation- only happens once.
+            if (!_.findWhere(projects, {proj_name: row['#project'].toLowerCase()})) { //If not yet in internal list (i.e. contained in this workbook)
                 //Projects - check against name and aliases
                 Project.findOne(
                     {
-                        $and: [
+                        $or: [
                             {
-                                $or: [
-                                    {
-                                        "proj_name": row[rowIndex]
-                                    },
-                                    {
-                                        "proj_aliases.alias": row[rowIndex]
-                                    }
-                                ]
+                                "proj_name": row[rowIndex]
                             },
                             {
-                                "proj_country": countries[row['#project+site+country+identifier']]._id
+                                "proj_aliases.alias": row[rowIndex]
                             }
                         ]
                     },
@@ -843,18 +779,51 @@ function parseData(sheets, report, finalcallback) {
             else {
                 updateOrCreateProject(projects[row['#project'].toLowerCase()], null, callback); //Existing project internally, may or may not already be flagged as duplicate of something in the DB
             }
+            
         };
-        projects = {};
-        var saveAllProjectsWhenDone = function (err, reportSoFar) {
+        
+        function saveAllProjectsWhenDone (err, reportSoFar) {
             if (err) {
                 callback(err, reportSoFar);
             }
             else {
-                //TODO - take projects and save them all to DB
-                //and when done, call this callback: callback(null, reportSoFar);
+                var projectNames = Object.getOwnPropertyNames(projects);
+                async.eachSeries(projectNames,
+                    function (project, ecallback) {
+                        Project.create(projects[project], function(err, pmodel) {
+                            if (err) {
+                                reportSoFar.add(`Encountered an error (${util.inspect(err)}) while saving project to the DB. Aborting.\n`);
+                                ecallback(err);
+                            }
+                            else if (duplicates[project.proj_name]) {
+                                reportSoFar.add('Created project ' + project.proj_name + ' in the DB. Creating duplicate...\n');
+                                duplicates[project.proj_name].duplicate = pmodel._id;
+                                Duplicate.create(duplicates[project.proj_name], function(err) {
+                                    if (err) {
+                                        reportSoFar.add('Encountered an error while creating a duplicate: ' + util.inspect(err) + '. Aborting.\n');
+                                        ecallback(err);
+                                    }
+                                    reportSoFar.add('Created duplicate entry for project ' + project.proj_name + ' in the DB.\n');
+                                    ecallback(null);
+                                });
+                            }
+                            else {
+                                reportSoFar.add('Created project ' + project.proj_name + ' in the DB.\n');
+                                ecallback(null);
+                            }
+                        });
+                    },
+                    function (err) {
+                        if (err) return callback(err, reportSoFar);
+                        else return (null, reportSoFar);
+                    }
+                );
             }
-        };
-        parseEntity(result, '5', projects, processProjectRow, "Project", '#project', Project, "proj_name", makeNewProject, saveAllProjectsWhenDone);
+        }
+        
+        projects = {};
+        
+        parseEntity(result, '3', projects, processProjectRow, "Project", '#project', Project, "proj_name", makeNewProject, saveAllProjectsWhenDone);
     }
 
     function parseConcessionsAndContracts(result, callback) {
@@ -1360,7 +1329,7 @@ function parseData(sheets, report, finalcallback) {
                 ],
                 function (err, result) {
                     if (err) {
-                        candcReport.add(`Processing of company/contract/concessions caused an error: ${err}\n`);
+                        candcReport.add(`Processing+company/contract/concessions caused an error: ${err}\n`);
                         return callback(`Processing of company/contract/concession caused an error: ${err}\n`);
                     }
                     candcReport.add(result);
