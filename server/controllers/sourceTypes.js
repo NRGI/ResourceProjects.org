@@ -1,6 +1,7 @@
 var SourceType 		= require('mongoose').model('SourceType'),
     Source   		= require('mongoose').model('Source'),
     Project   		= require('mongoose').model('Project'),
+    Link 	        = require('mongoose').model('Link'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request'),
@@ -9,12 +10,12 @@ exports.getSourceTypes = function(req, res) {
     var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
+    var project_id = [];
     async.waterfall([
         sourceTypeCount,
-        getSourceTypeSet,
-        getSourceSet,
-        getProjectCount,
-        getFinalCounts
+        getProjects,
+        getLinkProjects,
+        getSourceTypeSet
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -36,7 +37,68 @@ exports.getSourceTypes = function(req, res) {
             }
         });
     }
-    function getSourceTypeSet(source_type_count, callback) {
+    function getProjects(source_type_count, callback) {
+        var sources = [];
+        Project.find({})
+            .select("_id proj_country.country proj_country.source proj_established_source")
+            .populate('proj_established_source')
+            .exec(function(err, projects) {
+                if(projects.length>0) {
+                    _.map(_.groupBy(projects,function(doc){
+                        if(doc.proj_established_source!=undefined && doc.proj_established_source!=null) {
+                            return doc.proj_established_source.source_type_id;
+                        }
+                    }),function(grouped){
+                        if(grouped[0].proj_established_source!=undefined && grouped[0].proj_established_source!=null && grouped[0].proj_established_source.source_type_id!=undefined && grouped[0].proj_established_source.source_type_id!=null) {
+                            sources.push({
+                                '_id': grouped[0].proj_established_source.source_type_id,
+                                'source_id': grouped[0].proj_established_source._id,
+                                'count': grouped.length
+
+                            })
+                        }
+                        return sources;
+                    });
+                    callback(null, source_type_count, sources);
+                } else {
+                    callback(null, source_type_count, []);
+                }
+            });
+    }
+    function getLinkProjects(source_type_count,sources, callback) {
+        var link =[];
+        Link.find({'entities':'project'})
+            .select("source project.proj_country.country project.proj_country.source project.proj_established_source")
+            .populate('proj_established_source source project company concession site contract')
+            .exec(function(err, links) {
+                if(links.length>0) {
+                    link = _.map(_.groupBy(links,function(doc){
+                        if(doc.project!=undefined && doc.project!= null
+                            && doc.project.proj_established_source!=undefined
+                            && doc.project.proj_established_source!=null) {
+                            return doc.project.proj_established_source.source_type_id;
+                        }
+                    }),function(grouped){
+                        if(grouped[0].project!=undefined && grouped[0].project!= null
+                            && grouped[0].project.proj_established_source!=undefined
+                            && grouped[0].project.proj_established_source!=null
+                            && grouped[0].project.proj_established_source.source_type_id!=undefined
+                            && grouped[0].project.proj_established_source.source_type_id!=null) {
+                            sources.push({
+                                '_id': grouped[0].project.proj_established_source.source_type_id,
+                                'source_id': grouped[0].project.proj_established_source._id,
+                                'count': grouped.length
+                            })
+                        }
+                        return sources;
+                    });
+                    callback(null, source_type_count, sources);
+                } else {
+                    callback(null, source_type_count, sources);
+                }
+            });
+    }
+    function getSourceTypeSet(source_type_count,sources, callback) {
         SourceType.find({})
             .sort({
                 source_type_name: 'asc'
@@ -46,107 +108,20 @@ exports.getSourceTypes = function(req, res) {
             .lean()
             .exec(function(err, source_types) {
                 if(source_types.length>0) {
-                    callback(null, source_type_count, source_types);
+                    source_types = _.map(source_types, function (source_type) {
+                        source_type.project_count = 0
+                        _.each(sources, function (source) {
+                            if (source._id.toString() == source_type._id.toString()) {
+                                source_type.project_count = source_type.project_count + source.count;
+                            }
+                        })
+                        return source_type;
+                    });
+                    callback(null, {data: source_types, count: source_type_count});
                 } else {
                     callback(err);
                 }
             });
-    }
-    function getSourceSet(source_type_count, source_types, callback) {
-        if(source_types.length > 0) {
-            var source_type_len = source_types.length;
-            var source_type_counter = 0;
-            _.each(source_types, function(source_type) {
-                source_types.sources =[];
-                var sources_list =[];
-                Source.find({source_type_id: source_type._id})
-                    .lean()
-                    .exec(function(err, sources) {
-                        ++source_type_counter;
-                        var source_len = sources.length;
-                        var source_counter = 0;
-                        _.each(sources, function(source) {
-                            sources_list.push({_id:source._id});
-                            ++source_counter;
-                        });
-                        sources_list = _.map(_.groupBy(sources_list,function(doc){
-                            return doc._id;
-                        }),function(grouped){
-                            return grouped[0];
-                        });
-                        source_type.sources = sources_list
-                        if(source_type_len == source_type_counter && source_len == source_counter) {
-                            callback(null, source_type_count, source_types);
-                        }
-                    });
-            });
-        }
-    }
-
-    function getProjectCount(source_type_count, source_types, callback) {
-        var source_types_len = source_types.length;
-        var source_types_counter = 0;
-        if(source_types_len>0) {
-            _.each(source_types, function (source_type) {
-                source_type.project_count = 0;
-                source_type.country_count = 0;
-                var country = [];
-                if(source_type.sources.length>0) {
-
-                    var source_len = source_type.sources.length;
-                    var source_counter = 0;
-                    _.each(source_type.sources, function (source) {
-                        Project.find({proj_established_source: source._id})
-                            .select("_id proj_country.country")
-                            .exec(function (err, projects) {
-                                if(source_counter==0) {
-                                    ++source_types_counter;
-                                }
-                                ++source_counter;
-                                if (projects) {
-                                    projects = _.map(_.groupBy(projects, function (doc) {
-                                        return doc._id;
-                                    }), function (grouped) {
-                                        return grouped[0];
-                                    });
-                                    var proj_len = projects.length;
-                                    var proj_count = 0;
-                                    source_type.project_count = source_type.project_count + proj_len;
-                                    _.each(projects, function (proj) {
-                                        proj_count++;
-                                        if (proj.proj_country) {
-                                            country.push(proj.proj_country[0]);
-                                        }
-                                    });
-                                    if(proj_len==proj_count){
-                                        if(country!=undefined) {
-                                            country = _.map(_.groupBy(country, function (doc) {
-                                                return doc.country;
-                                            }), function (grouped) {
-                                                return grouped[0];
-                                            });
-                                            source_type.country_count = country.length;
-                                        }
-                                    }
-                                    if (source_types_len == source_types_counter&&source_len == source_counter) {
-                                        callback(null, source_type_count, source_types);
-                                    }
-                                }
-                            })
-                    });
-                } else{
-                    source_types_counter++;
-                    if (source_types_len == source_types_counter) {
-                        callback(null, source_type_count, source_types);
-                    }
-                }
-            });
-        } else{
-            callback(null, source_type_count, source_types);
-        }
-    }
-    function getFinalCounts (source_type_count, source_types, callback) {
-        callback(null, {data:source_types, count:source_type_count});
     }
 };
 exports.getSourceTypeByID = function(req, res) {

@@ -6,6 +6,33 @@
                 small(ng-if="count") {{count}}
 
     .row.top-padding-med
+        .right-padding-lg: b Filter by:
+    .row.top-padding-med
+        .col-md-2
+            .row: b Year
+            .row
+                form.form-inline
+                    .form-group
+                        select.form-control(ng-model="year_filter")
+                            option(value="") Show all years
+                            option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}: {{value}} records
+        //.col-md-4
+        //    .row: b Company
+        //    .row
+        //        form.form-inline
+        //            .form-group
+        //                select.form-control(ng-model="company_filter")
+        //                    option(value="") Show all companies
+        //                    option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{key | limitTo: 20}}: {{value}} records
+        //.col-md-4
+        //    .row: b Country
+        //    .row
+        //        form.form-inline
+        //            .form-group
+        //                select.form-control(ng-model="country_filter")
+        //                    option(value="") Show all countries
+        //                    option(ng-repeat="(key, value) in country_selector" value="{{key}}") {{key | limitTo: 20}}: {{value}} records
+    .row.top-padding-med
         table#payments.table.table-striped(
         about='http://resourceprojects.org/transfer'
         ts-wrapper)

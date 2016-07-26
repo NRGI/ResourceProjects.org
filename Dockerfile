@@ -10,6 +10,7 @@ RUN     yum -y distro-sync
 RUN     yum -y update
 RUN     yum -y upgrade
 
+
 # Install Node.js, npm, and git
 RUN     yum install -y git nodejs npm
 
@@ -19,6 +20,7 @@ RUN		npm install -g bower forever
 # Build src
 ADD     package.json /tmp/package.json
 RUN     cd /tmp && npm install --production
+RUN     npm dedupe
 RUN     mkdir -p /src && cp -a /tmp/node_modules /src
 RUN		rm -R /tmp/node_modules
 COPY	. /src
