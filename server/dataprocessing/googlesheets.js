@@ -107,6 +107,23 @@ function parseGsDate(input) {
     else return result;
 }
 
+function isFactAlreadyThere(doc, key, fact) {
+    /*
+    var factEntry;
+    var found = false;
+    if (doc[key]) {
+        for (factEntry of doc[key]) {
+            var factNewEntry;
+            var match = true;
+            for (factNewEntry of fact) {
+                if facfactNewEntry
+            }
+        }
+    }
+    */
+    return false;
+}
+
 //Data needed for inter-entity reference
 var sourceTypes, sources, countries, commodities, commoditiesById, companies, company_groups, projects, contracts;
 
@@ -221,15 +238,14 @@ var makeNewCompany = function(newRow) {
 
 var makeNewProject = function(newRow) {
     if (sources[newRow['#source'].toLowerCase()] === -1) return false;
-    
-    //TODO country
-    
+
     var project = {
         proj_name: newRow['#project'],
         proj_established_source: sources[newRow['#source'].toLowerCase()]._id,
         proj_commodity: [],
         proj_aliases: [],
         proj_status: [],
+        proj_country: []
     };
     
     return project;
@@ -629,10 +645,17 @@ function parseData(sheets, report, finalcallback) {
             function updateOrCreateProject(projDoc, duplicateId, wcallback) {
                 if (!projDoc) {
                     projDoc = makeNewProject(row);
-                    if (!projDoc) {
+                    
+                    //TODO: read sheet 1 in properly as the following is inefficient
+                    var countryRow = _.findWhere(sheets['1'].data, {"#project": projDoc.proj_name});
+                    
+                    if (!projDoc || !countryRow) {
                         projectsReport.add(`Invalid data in row: ${util.inspect(row)}. Aborting.\n`);
                         return wcallback(`Failed: ${projectsReport.report}`);
                     }
+                    
+                    var newFact = {source: sources[row['#source'].toLowerCase()]._id, country: countries[countryRow["#country+identifier"]]._id};
+                    if (!isFactAlreadyThere(projDoc, "proj_country", newFact)) projDoc.proj_country.push(newFact);
                 }
 
                 //Assume spreadsheets don't have duplicates

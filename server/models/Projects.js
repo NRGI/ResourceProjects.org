@@ -38,6 +38,7 @@ projectSchema = new Schema({
     proj_name: String,
     proj_aliases: [alias],
     proj_established_source: source,
+    proj_country: [fact],
     proj_commodity: [fact],
     
     proj_status: [{
