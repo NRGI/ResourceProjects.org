@@ -7,6 +7,7 @@ var SourceType = require('mongoose').model('SourceType'),
     Project = require('mongoose').model('Project'),
     Site = require('mongoose').model('Site'),
     Link = require('mongoose').model('Link'),
+    Duplicate = require('mongoose').model('Duplicate'),
     Contract = require('mongoose').model('Contract'),
     Concession = require('mongoose').model('Concession'),
     Production = require('mongoose').model('Production'),
@@ -37,7 +38,7 @@ exports.processData = function(link, actionid, callback) {
         report += `Using GS key ${key}\n`;
     }
     var feedurl = `https://spreadsheets.google.com/feeds/worksheets/${key}/public/full?alt=json`;
-    var sheets = new Object;
+    var sheets = {};
 
     request({
         url: feedurl,
@@ -93,7 +94,7 @@ exports.processData = function(link, actionid, callback) {
             return;
         }
     });
-}
+};
 
 function parseGsDate(input) {
     /* In general format should appear as YYYY or DD/MM/YYYY or empty but sometimes GS has it as a date internally */
@@ -104,6 +105,23 @@ function parseGsDate(input) {
     //Hope for the best
     if (result == "Invalid date") return input;
     else return result;
+}
+
+function isFactAlreadyThere(doc, key, fact) {
+    /*
+    var factEntry;
+    var found = false;
+    if (doc[key]) {
+        for (factEntry of doc[key]) {
+            var factNewEntry;
+            var match = true;
+            for (factNewEntry of fact) {
+                if facfactNewEntry
+            }
+        }
+    }
+    */
+    return false;
 }
 
 //Data needed for inter-entity reference
@@ -220,17 +238,18 @@ var makeNewCompany = function(newRow) {
 
 var makeNewProject = function(newRow) {
     if (sources[newRow['#source'].toLowerCase()] === -1) return false;
-    
+
     var project = {
         proj_name: newRow['#project'],
         proj_established_source: sources[newRow['#source'].toLowerCase()]._id,
         proj_commodity: [],
         proj_aliases: [],
         proj_status: [],
+        proj_country: []
     };
     
     return project;
-}
+};
 
 var makeNewSite = function(newRow, projDoc) {
     var site = {
@@ -626,10 +645,17 @@ function parseData(sheets, report, finalcallback) {
             function updateOrCreateProject(projDoc, duplicateId, wcallback) {
                 if (!projDoc) {
                     projDoc = makeNewProject(row);
-                    if (!projDoc) {
+                    
+                    //TODO: read sheet 1 in properly as the following is inefficient
+                    var countryRow = _.findWhere(sheets['1'].data, {"#project": projDoc.proj_name});
+                    
+                    if (!projDoc || !countryRow) {
                         projectsReport.add(`Invalid data in row: ${util.inspect(row)}. Aborting.\n`);
                         return wcallback(`Failed: ${projectsReport.report}`);
                     }
+                    
+                    var newFact = {source: sources[row['#source'].toLowerCase()]._id, country: countries[countryRow["#country+identifier"]]._id};
+                    if (!isFactAlreadyThere(projDoc, "proj_country", newFact)) projDoc.proj_country.push(newFact);
                 }
 
                 //Assume spreadsheets don't have duplicates
@@ -643,8 +669,14 @@ function parseData(sheets, report, finalcallback) {
                 }
             
                 if (row['#status+statusType'] !== "") {
+                    var status = row['#status+statusType'];
+                    
+                    if (row['#status+statusType'].indexOf('/') != -1) {
+                        status = row['#status+statusType'].split('/')[1]; //Workaround to cope with "construction/development"
+                    }
+
                     var proj_status = {
-                        string: row['#status+statusType'],
+                        string: status.toLowerCase(),
                         source: sources[row['#source'].toLowerCase()]._id
                     };
                     if (row['#status+trueAt'] !== "") {
@@ -656,22 +688,18 @@ function parseData(sheets, report, finalcallback) {
                     if (row['#status+endDate'] !== "") {
                         proj_status.endTimestamp = parseGsDate(row['#status+endDate']);
                     }
-                    if (!(proj_status.timestamp || proj_status.startTimestamp || proj_status.endTimestamp)) {
-                        projectsReport.add(`Invalid status date data in row: ${util.inspect(row)}. Aborting.\n`);
-                        return wcallback(`Failed: ${projectsReport.report}`);
-                    }
-                    else projDoc.proj_status = proj_status;
+                    projDoc.proj_status = proj_status;
                 }
                 
-                projects[row['#project']] = projDoc;
+                projects[row['#project'].toLowerCase()] = projDoc;
                 if (duplicateId) {
-                    duplicates[row['#project']] = {
+                    duplicates[row['#project'].toLowerCase()] = {
                         original: duplicateId,
                         resolved: false,
                         isDuplicate: null,
                         created_date: Date.now(),
                         created_from: actionId,
-                        entity: "Project"
+                        entity: "project"
                     };
                 }
 
@@ -788,34 +816,35 @@ function parseData(sheets, report, finalcallback) {
             }
             else {
                 var projectNames = Object.getOwnPropertyNames(projects);
+                //console.log(util.inspect(projectNames));
                 async.eachSeries(projectNames,
                     function (project, ecallback) {
                         Project.create(projects[project], function(err, pmodel) {
                             if (err) {
                                 reportSoFar.add(`Encountered an error (${util.inspect(err)}) while saving project to the DB. Aborting.\n`);
-                                ecallback(err);
+                                return ecallback(err);
                             }
-                            else if (duplicates[project.proj_name]) {
-                                reportSoFar.add('Created project ' + project.proj_name + ' in the DB. Creating duplicate...\n');
-                                duplicates[project.proj_name].duplicate = pmodel._id;
-                                Duplicate.create(duplicates[project.proj_name], function(err) {
+                            else if (duplicates[project]) {
+                                reportSoFar.add('Created project ' + projects[project].proj_name + ' in the DB. Creating duplicate...\n');
+                                duplicates[project].duplicate = pmodel._id;
+                                Duplicate.create(duplicates[project], function(err) {
                                     if (err) {
                                         reportSoFar.add('Encountered an error while creating a duplicate: ' + util.inspect(err) + '. Aborting.\n');
-                                        ecallback(err);
+                                        return ecallback(err);
                                     }
-                                    reportSoFar.add('Created duplicate entry for project ' + project.proj_name + ' in the DB.\n');
-                                    ecallback(null);
+                                    reportSoFar.add('Created duplicate entry for project ' + projects[project].proj_name + ' in the DB.\n');
+                                    return ecallback(null);
                                 });
                             }
                             else {
-                                reportSoFar.add('Created project ' + project.proj_name + ' in the DB.\n');
-                                ecallback(null);
+                                reportSoFar.add('Created project ' + projects[project].proj_name + ' in the DB.\n');
+                                return ecallback(null);
                             }
                         });
                     },
                     function (err) {
                         if (err) return callback(err, reportSoFar);
-                        else return (null, reportSoFar);
+                        else return callback(null, reportSoFar);
                     }
                 );
             }
