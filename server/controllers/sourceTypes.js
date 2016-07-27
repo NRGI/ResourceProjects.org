@@ -10,7 +10,6 @@ exports.getSourceTypes = function(req, res) {
     var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
-    var project_id = [];
     async.waterfall([
         sourceTypeCount,
         getProjects,
@@ -41,20 +40,36 @@ exports.getSourceTypes = function(req, res) {
         var sources = [];
         Project.find({})
             .select("_id proj_country.country proj_country.source proj_established_source")
-            .populate('proj_established_source')
+            .populate('proj_established_source proj_country.source')
             .exec(function(err, projects) {
                 if(projects.length>0) {
                     _.map(_.groupBy(projects,function(doc){
                         if(doc.proj_established_source!=undefined && doc.proj_established_source!=null) {
                             return doc.proj_established_source.source_type_id;
                         }
-                    }),function(grouped){
-                        if(grouped[0].proj_established_source!=undefined && grouped[0].proj_established_source!=null && grouped[0].proj_established_source.source_type_id!=undefined && grouped[0].proj_established_source.source_type_id!=null) {
-                            sources.push({
-                                '_id': grouped[0].proj_established_source.source_type_id,
-                                'source_id': grouped[0].proj_established_source._id,
-                                'count': grouped.length
-
+                    }),function(grouped, id){
+                        var len = grouped.length;
+                        var count = [];
+                        if(grouped[0].proj_established_source!=undefined
+                            && grouped[0].proj_established_source!=null
+                            && grouped[0].proj_established_source.source_type_id!=undefined
+                            && grouped[0].proj_established_source.source_type_id!=null) {
+                            _.each(grouped, function (group, key) {
+                                if (group.proj_country[0] != undefined
+                                    && group.proj_country[0] != null
+                                    && group.proj_country[0].country != undefined
+                                    && group.proj_country[0].country != null) {
+                                    count.push(group.proj_country[0].country.toString())
+                                    if (len - 1 == key) {
+                                        var country_count = _.uniq(count);
+                                        sources.push({
+                                            '_id': id,
+                                            'source_id': grouped[0].proj_country[0].source._id,
+                                            'count': len,
+                                            'country_count': country_count.length
+                                        })
+                                    }
+                                }
                             })
                         }
                         return sources;
@@ -69,7 +84,7 @@ exports.getSourceTypes = function(req, res) {
         var link =[];
         Link.find({'entities':'project'})
             .select("source project.proj_country.country project.proj_country.source project.proj_established_source")
-            .populate('proj_established_source source project company concession site contract')
+            .populate('source project company concession site contract project.proj_established_source project.proj_country.source')
             .exec(function(err, links) {
                 if(links.length>0) {
                     link = _.map(_.groupBy(links,function(doc){
@@ -78,16 +93,36 @@ exports.getSourceTypes = function(req, res) {
                             && doc.project.proj_established_source!=null) {
                             return doc.project.proj_established_source.source_type_id;
                         }
-                    }),function(grouped){
+                    }),function(grouped,id){
+                        var len = grouped.length;
+                        var count = [];
                         if(grouped[0].project!=undefined && grouped[0].project!= null
                             && grouped[0].project.proj_established_source!=undefined
                             && grouped[0].project.proj_established_source!=null
                             && grouped[0].project.proj_established_source.source_type_id!=undefined
                             && grouped[0].project.proj_established_source.source_type_id!=null) {
+                            _.each(grouped, function (group,key) {
+                                if(group.proj_country[0]!=undefined
+                                    && group.project.proj_country[0]!=null
+                                    && group.project.proj_country[0].country!=undefined
+                                    && group.project.proj_country[0].country!=null) {
+                                    count.push(group.project.proj_country[0].country.toString())
+                                    if (len - 1 == key) {
+                                        var country_count = _.uniq(count);
+                                        sources.push({
+                                            '_id': id,
+                                            'source_id': grouped[0].project.proj_country[0].source._id,
+                                            'count': len,
+                                            'country_count': country_count.length
+                                        })
+                                    }
+                                }
+                            })
                             sources.push({
                                 '_id': grouped[0].project.proj_established_source.source_type_id,
                                 'source_id': grouped[0].project.proj_established_source._id,
-                                'count': grouped.length
+                                'count': grouped.length,
+                                'country_count': 0
                             })
                         }
                         return sources;
@@ -109,10 +144,12 @@ exports.getSourceTypes = function(req, res) {
             .exec(function(err, source_types) {
                 if(source_types.length>0) {
                     source_types = _.map(source_types, function (source_type) {
-                        source_type.project_count = 0
+                        source_type.project_count = 0;
+                        source_type.country_count = 0;
                         _.each(sources, function (source) {
                             if (source._id.toString() == source_type._id.toString()) {
                                 source_type.project_count = source_type.project_count + source.count;
+                                source_type.country_count = source_type.country_count + source.country_count;
                             }
                         })
                         return source_type;
