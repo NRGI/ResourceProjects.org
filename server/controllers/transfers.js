@@ -14,7 +14,7 @@ exports.getTransfers = function(req, res) {
 
     async.waterfall([
         TransferCount,
-        getTransferSet,
+        getTransferSet
         // getProjectLinks,
         // getTransfersCount,
         // getProductionCount,
@@ -41,7 +41,7 @@ exports.getTransfers = function(req, res) {
         });
     }
     function getTransferSet(transfer_count, callback) {
-        Transfer.find({})
+        Transfer.find(req.query)
             .sort({
                 proj_name: 'asc'
             })
