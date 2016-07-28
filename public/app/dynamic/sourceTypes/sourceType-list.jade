@@ -8,16 +8,16 @@
         ts-wrapper)
             thead.header
                 tr
-                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-                    th.tablesort-sortable-th(ts-criteria='source_type_authority') Type
-                    th.tablesort-sortable-th(ts-criteria='project_count') Projects
-                    th.tablesort-sortable-th(ts-criteria='source_type_name') Countries
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source Type
+                    th.tablesort-sortable-th(ts-default ts-criteria='source_type_authority') Category
+                    th.tablesort-sortable-th(ts-criteria='project_count') Number of projects
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Number of countries
             thead.header-copy.header.hide
                 tr
-                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-                    th.tablesort-sortable-th(ts-criteria='source_type_authority') Type
-                    th.tablesort-sortable-th(ts-criteria='project_count') Projects
-                    th.tablesort-sortable-th(ts-criteria='source_type_name') Countries
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source Type
+                    th.tablesort-sortable-th(ts-criteria='source_type_authority') Category
+                    th.tablesort-sortable-th(ts-criteria='project_count') Number of projects
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Number of countries
             tbody
                 tr(
                 ng-repeat="type in sourceTypes | unique: '_id'"

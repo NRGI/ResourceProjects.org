@@ -136,7 +136,7 @@ exports.getSourceTypes = function(req, res) {
     function getSourceTypeSet(source_type_count,sources, callback) {
         SourceType.find({})
             .sort({
-                source_type_name: 'asc'
+                source_type_authority: 'asc'
             })
             .skip(skip)
             .limit(limit)
