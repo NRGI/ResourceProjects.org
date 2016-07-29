@@ -83,7 +83,6 @@ angular
                                     }
                                     if (field == 'proj_id') {
                                         id = '';
-                                        console.log(transfer)
                                         if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.transfer_level =='project') {
                                             id = transfer.proj_site._id.toString();
                                         }

@@ -26,19 +26,12 @@ exports.getProductionTable = function(req, res){
     if(type=='commodity') {  queries={commodity:req.params.id};projects.production_query = [req.params.id];}
     if(type=='source_type') {  queries={source_type_id:req.params.id};}
     if(type=='group') { queries={company_group: req.params.id, entities: "company"};projects.production_query = [req.params.id];}
-    var models = [
-        {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
-        {name:'Company',field:{'countries_of_operation.country':req.params.id},params:'country'},
-        {name:'Company',field:{'country_of_incorporation.country':req.params.id},params:'country'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Project',field:{'proj_country.country':req.params.id},params:'project'}
-    ];
-    var models_len,models_counter=0,counter=0;
+    var models = [],models_len,models_counter=0,counter=0;
     async.waterfall([
         getLinks,
         getGroupCompany,
         getGroupLinks,
+        getCountryID,
         getCountryLinks,
         getSource,
         getProduction
@@ -197,6 +190,25 @@ exports.getProductionTable = function(req, res){
             callback(null, projects);
         }
     }
+    function getCountryID(projects,callback) {
+        if(type=='country') {
+            Country.find({'iso2':req.params.id})
+                .exec(function (err, country) {
+                  if(country.length>0) {
+                      models = [
+                          {name: 'Site', field: {'site_country.country': country[0]._id}, params: 'site'},
+                          {name: 'Company', field: {'countries_of_operation.country': country[0]._id}, params: 'country'},
+                          {name: 'Company',field: {'country_of_incorporation.country': country[0]._id},params: 'country'},
+                          {name: 'Concession',field: {'concession_country.country': country[0]._id},params: 'concession'},
+                          {name: 'Project', field: {'proj_country.country': country[0]._id}, params: 'project'}
+                      ];
+                  }
+                    callback(null, projects);
+                });
+        }else {
+            callback(null, projects);
+        }
+    }
     function getCountryLinks(projects,callback) {
         if(type=='country') {
             models_counter=0;
@@ -204,7 +216,8 @@ exports.getProductionTable = function(req, res){
             _.each(models, function(model) {
                 var name = require('mongoose').model(model.name);
                 var $field = model.field;
-                name.find($field).exec(function (err, responce) {
+                name.find($field)
+                    .exec(function (err, responce) {
                     models_counter++;
                     _.each(responce, function(re) {
                         counter++;
@@ -247,7 +260,7 @@ exports.getProductionTable = function(req, res){
         if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
         if(type=='source_type') { query = {$or: [{source:{$in: projects.production_query}}]}}
         Production.find(query)
-            .populate('production_commodity project site')
+            .populate('production_commodity project site country')
             .exec(function (err, production) {
                 production_counter = 0;
                 production_len = production.length;

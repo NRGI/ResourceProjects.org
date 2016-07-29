@@ -75,7 +75,6 @@ angular
             var lat = [];
             var lng = [];
             angular.forEach(response, function (data) {
-                console.log(data)
                 counter++;
                 if ($scope.project == true && data.type == 'project') {
                     $scope.location.push({lat: data.lat, lng: data.lng, message: data.message});
