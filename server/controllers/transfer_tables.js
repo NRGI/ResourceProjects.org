@@ -22,19 +22,12 @@ exports.getTransferTable = function(req, res){
     if(type=='site') {  queries={site:req.params.id};projects.transfers_query = [req.params.id];}
     if(type=='group') { query={company_group: req.params.id, entities: "company"};projects.transfers_query = [req.params.id];}
     if(type=='source_type') {  query={source_type_id:req.params.id};}
-    var models = [
-        {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
-        {name:'Company',field:{'countries_of_operation.country':req.params.id},params:'country'},
-        {name:'Company',field:{'country_of_incorporation.country':req.params.id},params:'country'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Project',field:{'proj_country.country':req.params.id},params:'project'}
-    ];
-    var models_len,models_counter=0,counter=0;
+    var models =[], models_len,models_counter=0,counter=0;
     async.waterfall([
         getLinks,
         getGroupCompany,
         getGroupLinks,
+        getCountryID,
         getCountryLinks,
         getSource,
         getTransfers
@@ -191,6 +184,25 @@ exports.getTransferTable = function(req, res){
             }else {
                 callback(null, projects);
             }
+        }else {
+            callback(null, projects);
+        }
+    }
+    function getCountryID(projects,callback) {
+        if(type=='country') {
+            Country.find({'iso2':req.params.id})
+                .exec(function (err, country) {
+                    if(country.length>0) {
+                        models = [
+                            {name:'Site',field:{'site_country.country':country[0]._id},params:'site'},
+                            {name:'Company',field:{'countries_of_operation.country':country[0]._id},params:'country'},
+                            {name:'Company',field:{'country_of_incorporation.country':country[0]._id},params:'country'},
+                            {name:'Concession',field:{'concession_country.country':country[0]._id},params:'concession'},
+                            {name:'Project',field:{'proj_country.country':country[0]._id},params:'project'}
+                        ];
+                    }
+                    callback(null, projects);
+                });
         }else {
             callback(null, projects);
         }

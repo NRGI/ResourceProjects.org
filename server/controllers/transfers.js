@@ -14,7 +14,7 @@ exports.getTransfers = function(req, res) {
 
     async.waterfall([
         TransferCount,
-        getTransferSet,
+        getTransferSet
         // getProjectLinks,
         // getTransfersCount,
         // getProductionCount,
@@ -23,12 +23,16 @@ exports.getTransfers = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function TransferCount(callback) {
         Transfer.find({}).count().exec(function(err, transfer_count) {
-            console.log(transfer_count);
+            //console.log(transfer_count);
             if(transfer_count) {
                 callback(null, transfer_count);
             } else {

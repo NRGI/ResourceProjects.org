@@ -64,7 +64,6 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                                 }
                                 if (field == 'proj_id') {
                                     id = '';
-                                    console.log(p)
                                     if (p.proj_site != undefined && p.proj_site._id != undefined && p.production_level =='project') {
                                         id = p.proj_site._id.toString();
                                     }
@@ -72,7 +71,7 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                                 }
                                 if (field == 'proj_site') {
                                     name = '';
-                                    if (p[field] != undefined) {
+                                    if (p[field] != undefined && p[field].name != undefined) {
                                         name = p[field].name.toString();
                                     }
                                     $scope.csv_production[key].push(name);

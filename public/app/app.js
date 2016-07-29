@@ -1,6 +1,7 @@
 'use strict';
 angular.module('app', [
     'angular.filter',
+    'angular-underscore',
     'iso-3166-country-codes',
     'angular-google-analytics',
     'leaflet-directive',
@@ -420,7 +421,7 @@ angular.module('app')
             });
             output=output.substr(0,output.length-1);
 
-            console.log(output);
+            //console.log(output);
             $window.ga(['_trackPageview', output]);
         });
     });

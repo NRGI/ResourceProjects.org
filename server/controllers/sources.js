@@ -37,10 +37,11 @@ exports.getSources = function(req, res) {
 		});
 	}
 	function getSourceSet(source_count, callback) {
-		Source.find({})
+		Source.find(req.query)
 			.sort({
 				source_name: 'asc'
 			})
+			.populate('source_type_id')
 			.skip(skip)
 			.limit(limit)
 			.lean()

@@ -9,32 +9,43 @@
 		a(href='/contribute') how you can contribute here
 		='.'
 	p The site currently incorporates {{count}} sources
-
-	table.table.table-striped.table-fixed-header(
-	about='http://resourceprojects.org/source'
-	ts-wrapper)
-		thead.header
-			tr
-				th.tablesort-sortable-th(ts-criteria='source_name') Source
-				th.tablesort-sortable-th(ts-criteria='source_type') Source type
-				th.tablesort-sortable-th(ts-criteria='source_date') Source date
-				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
-		thead.header-copy.header.hide
-			tr
-				th.tablesort-sortable-th(ts-criteria='source_name') Source
-				th.tablesort-sortable-th(ts-criteria='source_type') Source type
-				th.tablesort-sortable-th(ts-criteria='source_date') Source date
-				th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
-		tbody
-			tr(
-			ng-repeat="source in sources | unique: '_id'"
-			ts-repeat)
-				td.source_name
-					a(href='source/{{ source._id }}')
-						span(ng-bind-html="source.source_name|sanitize")
-				td.source_type {{source.source_type}}
-				td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
-				td.source_projects {{source.projects}}
+	.row.top-padding-med
+		.right-padding-lg: b Filter by:
+	.row.top-padding-med
+		.col-md-2
+			.row: b Source type
+			.row
+				form.form-inline
+					.form-group
+						select.form-control(ng-model="source_type_filter")
+							option(value="") Show all source type
+							option(ng-repeat="(key, value) in source_type_id" value="{{key}}") {{key}}: {{value}} records
+	.row.top-padding-med
+		table.table.table-striped.table-fixed-header(
+		about='http://resourceprojects.org/source'
+		ts-wrapper)
+			thead.header
+				tr
+					th.tablesort-sortable-th(ts-criteria='source_name') Source
+					th.tablesort-sortable-th(ts-criteria='source_type') Source type
+					th.tablesort-sortable-th(ts-criteria='source_date') Source date
+					th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+			thead.header-copy.header.hide
+				tr
+					th.tablesort-sortable-th(ts-criteria='source_name') Source
+					th.tablesort-sortable-th(ts-criteria='source_type') Source type
+					th.tablesort-sortable-th(ts-criteria='source_date') Source date
+					th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+			tbody
+				tr(
+				ng-repeat="source in sources | unique: '_id'"
+				ts-repeat)
+					td.source_name
+						a(href='source/{{ source._id }}')
+							span(ng-bind-html="source.source_name|sanitize")
+					td.source_type {{source.source_type_id.source_type_name}}
+					td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
+					td.source_projects {{source.projects}}
 
 	div(ng-if='sources.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
 	div(ng-if="sources.length>0")
