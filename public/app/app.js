@@ -421,7 +421,7 @@ angular.module('app')
             });
             output=output.substr(0,output.length-1);
 
-            console.log(output);
+            //console.log(output);
             $window.ga(['_trackPageview', output]);
         });
     });
