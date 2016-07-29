@@ -78,4 +78,5 @@
     "phantomjs-prebuilt": "==2.1.7",
     "protractor": "^3.3.0"
   }
+
 }
