@@ -75,7 +75,7 @@
     "karma-safari-launcher": "^1.0.0",
     "load-grunt-tasks": "^3.5.0",
     "mocha": "^2.4.5",
-    "phantomjs-prebuilt": ">=1.9",
+    "phantomjs-prebuilt": "==1.9",
     "protractor": "^3.3.0"
   }
 }
