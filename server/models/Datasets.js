@@ -31,7 +31,7 @@ function createDefaultDatasets() {
             });
             Dataset.create({
                 name: "Google Sheet: Nigeria 0.6",
-                source_url: 'https://docs.google.com/spreadsheets/d/1OqB00jJ7VKSUK4ZyyPwYZM3j4X6xftnIKWnteT2ORZw/pub',
+                source_url: 'https://docs.google.com/spreadsheets/d/19gMEPl45wHtRpAd_e_-nViQPWr16GgKhuRqoPE0L-YU/pub',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []
