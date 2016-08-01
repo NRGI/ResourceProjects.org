@@ -54,8 +54,10 @@ exports.importData = function(action_id, finalcallback) {
 				// Call Companies House Extractives API
 
 				request
-					.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
-					// .get('http://localhost:3030/api/testdata')
+					//.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
+					// testing with local duplicates
+					.get('http://localhost:3030/api/duplicatestestdata')
+
 					.auth(API_KEY, '')
 					.end(function(err,res) {
 
@@ -73,7 +75,7 @@ exports.importData = function(action_id, finalcallback) {
 
 								// get all reports for this year and handle them one after another
 								async.eachSeries(res.body, function (chReportData, icallback) {
-										//Set currency for this report										
+										//Set currency for this report
 										loadChReport(chReportData, year, reporter, action_id, icallback);
 									},
 
@@ -196,59 +198,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	// checks if the company of this report already exists in the DB, creates a new one otherwise and then checks for potential duplicates
 	function loadCompany(report, source, currency, callback) {
 
-
-		function handleCompanyDuplicates(companiesList, companyName, company_id, company, currency) {
-
-			// use fuse for fuzzy search in nested search results
-
-			// tokenize: check for single words AND the complete String
-			// threshold: desired exactness of match
-			var fuse = new fusejs(companiesList, { keys: ["company_name", "company_aliases"], tokenize: true, threshold: 0.4});
-
-			// TODO: temporarily disabling Fuse as it chokes on a company name
-			var searchResult = false;// fuse.search(companyName);
-
-			if (!searchResult || searchResult == []) {
-				report.add('Found no matching companies in DB for company ' + companyName + ' and thus, no potential duplicate\n');
-				return callback(null, report, source, company, currency);
-			}
-			else {
-
-				// potential duplicates for company found
-				report.add('Found '+ searchResult.length-1 + ' matching companies which are potential duplicates\n');
-
-				notes = 'Found  '+ searchResult.length-1 + ' potentially matching company names for company ' + companyName + ' during Companies House API import. Date: ' + Date.now();
-
-				var originalCompany;
-				for (originalCompany of searchResult) {
-
-					// recently created company is not a duplicate to itself
-					// TODO: handle exact match if necessary
-					if (originalCompany.company_name != companyName) {
-
-						// create a new duplicate object
-						var newDuplicate = makeNewDuplicate(originalCompany._id, company_id, action_id, "company", notes);
-
-						Duplicate.create(
-							newDuplicate,
-							function(err, dmodel) {
-								if (err) {
-									report.add('Encountered an error while creating a duplicate: ' + err + '. Aborting.\n');
-									return callback(err,report,source, company, currency);
-								}
-								report.add('Created duplicate entry for company ' + companyName + ' in the DB.\n');
-								return callback(null, report,source, company, currency);
-
-							}
-						);
-					}
-				}
-
-			}
-
-		}
-
-
 		Company.findOne(
 			{
 				companies_house_id: chData.reportDetails.companyNumber
@@ -263,7 +212,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					company = doc;
 					//projects[company._id] = {}
 					report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (CH ID match), not adding.\n');
-					return callback(null,report, source, company, currency);
+					return callback(null, report, source, company, currency);
 				}
 				else {
 					Company.findOne(
@@ -283,7 +232,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 								// TODO: add aliases in comment if aliases are considered
 								report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-								return callback(null,report, source, company, currency);
+								return callback(null, report, source, company, currency);
 							}
 							else {
 
@@ -305,25 +254,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 										}
 										report.add('Added company ' + chData.reportDetails.companyName + ' to the DB.\n');
 										company = cmodel;
-										//projects[company._id] = {}
 
-										// retrieve a list of all companies in the DB. it is used for checking the project names in the current report for potential duplicates / similar entries.
-										// This could potentially be optimized by fuzzy search on the DB instead.
-										Company.find({}, function (err, cresult) {
-
-											if (err) {
-												report.add('Got an error: ' + err + ' while finding all companies.\n');
-												return callback(err,report, source, company, currency);
-											}
-											else {
-
-												// check for potential duplicates now - this function does the callback
-												handleCompanyDuplicates(cresult, chData.reportDetails.companyName, company._id, company, currency);
-												//callback(null,report);
-
-											}
-										});
-
+										callback(null, report, source, company, currency);
 									}
 								);
 
@@ -341,9 +273,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	// checks if the project entries of this report already exist in the DB, creates new ones otherwise and then checks for potential duplicates
 	// So far, only projects from the "project totals" of each report are used
 	function loadProjects(report, source, company, currency, callback) {
-	  
+
 	  var projects = {};
-		
+
 		var updateOrCreateProject = function (projDoc, projectName, ucallback) {
 			var doc_id = null;
 			var newProj = true;
@@ -384,22 +316,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					report.add('Added or updated project ' + projectName + ' to the DB.\n');
 					projects[projectName] = model;
 
-					Project.find({}, function (err, cresult) {
 
-						if (err) {
-							report.add('Got an error: ' + err + ' while finding all projects.\n');
-							return ucallback(err);
-						}
-						else if (!cresult || cresult.length === 0) {
-							return ucallback(null, project_id, projectName, null, newProj);
-						}
-						else {
-
-							return ucallback(null, model._id, projectName, cresult, newProj);
-						}
-					});
-
-
+					return ucallback(null, model._id, projectName, cresult, newProj);
+		
 				}
 			);
 		};
@@ -444,74 +363,8 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			);
 		};
 
-		var handleProjectDuplicates = function (projectsList, projectName, project_id, newProj, dcallback) {
+	        var counter = 0;
 
-			if (!projectsList || _.isEmpty(projectsList)) {
-				report.add('Found no projects, thus no potential duplicates\n');
-				return dcallback(null);
-			}
-
-			// TODO fuzzy search handling (fix match index problem)
-
-			// use fuse for fuzzy search in nested search results
-			// var fuse = new fusejs(projectsList, { keys: ["proj_name", "proj_aliases"], tokenize: true, threshold: 0.4 });
-
-			// TEMP TODO match index problem
-			// var searchResult = fuse.search(projectName);
-
-//    if (!searchResult || _.isEmpty(searchResult)) {
-//    report.add('Found no matching projects in DB for project ' + projectName + ' and thus, no potential duplicate\n');
-//    return callback(null);
-//    }
-
-			searchResult = false;
-			// END TEMP
-
-			if (!searchResult || _.isEmpty(searchResult)) {
-				report.add('Found no matching projects in DB for project ' + projectName + ' and thus, no potential duplicate\n');
-				return dcallback(null);
-			}
-			else {
-
-				// potential duplicates for project found
-				report.add('Found '+ (searchResult.length-1) + ' matching projects which are potential duplicates\n');
-
-				notes = 'Found  '+ (searchResult.length-1) + ' potentially matching project names for project ' + projectName + ' during Companies House API import. Date: ' + Date.now();
-
-				async.each(searchResult,  function(originalProject, ecallback) {
-
-					// recently created project is not a duplicate to itself
-					// TODO: handle exact match if necessary
-					if (originalProject.proj_name != projectName) {
-
-						var newDuplicate = makeNewDuplicate(originalProject._id, project_id, action_id, "project", notes);
-
-						Duplicate.create(
-							newDuplicate,
-							function(err, dmodel) {
-								if (err) {
-									report.add('Encountered an error while creating a duplicate: ' + err + '. Aborting.\n');
-									return ecallback(err);
-								}
-								report.add('Created duplicate entry for project ' + projectName + ' in the DB.\n');
-
-								ecallback(null);
-							}
-						);
-					}
-					if( err ) {
-						return dcallback(err);
-					} else {
-						return dcallback(null);
-					}
-				});
-
-			}
-
-		};
-
-        var counter = 0;
-        
 		async.eachSeries(chData.projectTotals.projectTotal, function (projectTotalEntry, forcallback) {
             // Projects - check against id and name
 			Project.findOne(
@@ -608,7 +461,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 	// checks if the transfer entries of this report already exist in the DB, creates new ones otherwise.
 	// This is done separately for government transfers (transfer level "country") and project transfers (transfer level "project")
 	// So far, only single transfers are handled. Transfer totals are not yet calculated or validated
-	function loadTransfers(report, projects, company, currency, callback) {	  	 
+	function loadTransfers(report, projects, company, currency, callback) {
 
 		// Handle transfers from government transfers
 		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, fcallback) {
@@ -857,23 +710,6 @@ function makeNewCompany (newData) {
 
 	returnObj.obj = company;
 	return returnObj;
-}
-
-
-function makeNewDuplicate(original_id, duplicate_id, action_id, entity, notes) {
-
-	var duplicate = {
-		original: original_id,
-		duplicate: duplicate_id,
-		created_from: action_id,
-		entity: entity,
-		resolved: false,
-		notes: notes
-		// TODO: user
-		// resolved_by: user_id,
-	};
-
-	return duplicate;
 }
 
 function makeNewProject(projectName, source) {
