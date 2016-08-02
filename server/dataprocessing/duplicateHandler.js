@@ -21,7 +21,10 @@ var fuse_options_project = {
 findAndHandleCompanyDuplicates = function(fnCallback) {
   console.log("handling company duplicates");
 
-  Company.find({}, function (err, result) {
+  Company.find({})
+  .populate('resolved_by')
+  .populate('company_aliases')
+  .exec(function (err, result) {
     if (err) {
       //handle errors
     }
@@ -42,19 +45,27 @@ findAndHandleCompanyDuplicates = function(fnCallback) {
           var notes = 'Found  ' + numberOfResults + ' potentially matching company name(s) for company ' + company.company_name + ' after import. Date: ' + moment(Date.now()).format('LLL');
           //console.log(notes);
           for (var originalCompany of searchResult) {
+
             if (originalCompany.company_name != searchString) {
-  						var newDuplicate = makeNewDuplicate(originalCompany._id, company._id, company.action_id, "company", notes);
-  						Duplicate.create(
-  							newDuplicate,
-  							function(err, dmodel) {
-  								if (err) {
 
-  								}
+              //check if searchstring is in aliases
+              var aliases = _.pluck(originalCompany.company_aliases, 'alias')
+              //if not in aliases then mark as duplicate
+              if(!_.contains(aliases, searchString)) {
 
-  							}
-  						);
-              console.log(originalCompany.company_name);
-  					}
+                var newDuplicate = makeNewDuplicate(originalCompany._id, company._id, company.action_id, "company", notes);
+                Duplicate.create(
+                  newDuplicate,
+                  function(err, dmodel) {
+                    if (err) {
+
+                    }
+
+                  }
+                );
+                console.log(originalCompany.company_name);
+              }
+            }
           }
         }
       }
