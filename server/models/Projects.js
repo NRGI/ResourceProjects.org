@@ -28,7 +28,7 @@ var projectSchema, Project,
     hst_options     = {customCollectionName: 'proj_hst'},
     status_enu  = {
         values: 'exploration development production on_hold inactive unknown'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on_hold, inactive or unknown.'
     };
 
 

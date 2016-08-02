@@ -24,7 +24,7 @@ function createDefaultDatasets() {
             console.log('no datasets, creating some fake ones');
             Dataset.create({
                 name: "Google Sheet: Angola 0.6",
-                source_url: 'https://docs.google.com/spreadsheets/d/1xA2GdDRTWeiCa7IXBPPQf8LoQCKVtT3dtV9Dp3s2Ow4/pub',
+                source_url: 'https://docs.google.com/spreadsheets/d/1e3bLjskAGs8R_XzOe7aPUXaArGQkFrY3GrjatHH1zz4/pub',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []
@@ -101,7 +101,7 @@ function createDefaultDatasets() {
             });
             Dataset.create({
                 name: "Google Sheet: World Bank - Africa Map Mines locations 0.6",
-                source_url: 'https://docs.google.com/spreadsheets/d/1_hzR7mfNwlkEwmF18syHrNXtoiJbGXEwyevrJFmDtrg/pub',
+                source_url: 'https://docs.google.com/spreadsheets/d/1a7On-q2xenf-y4FuH-w5RIyd1S78swmz_LfQ-OG3iVU/pub',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []
