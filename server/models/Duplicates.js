@@ -28,7 +28,8 @@ duplicateSchema = new Schema({
     entity: {
         type: String,
         required:'{PATH} is required!',
-        enum: entity_enu}
+        enum: entity_enu
+    }
 });
 
 duplicateSchema.plugin(deepPopulate);

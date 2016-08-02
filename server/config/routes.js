@@ -27,7 +27,9 @@ var auth 				= require('./auth'),
 	lastAdded 			= require('../controllers/lastAdded'),
 	sunburst 			= require('../controllers/sunburst'),
 	content 			= require('../controllers/content'),
-	cors 				= require('cors');
+	cors 				= require('cors'),
+  duplicates = require('../controllers/duplicates');
+
 	//etl         = require('../controllers/etl');
 	// answers 	= require('../controllers/answers'),
 	// questions 	= require('../controllers/questions'),
@@ -94,7 +96,7 @@ module.exports	= function(app) {
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyID);
 	app.get('/api/companydata/:id', companies.getCompanyByID);
-	
+
     // POST
 	app.post('/api/companies',auth.requiresApiLogin, auth.requiresRole('admin'),  companies.createCompany);
 	// PUT
@@ -204,8 +206,17 @@ module.exports	= function(app) {
 	/// COMPANIES HOUSE DUMMY DATASETS ///
 	//////////////////////////////////////
 
-	app.get('/api/testdata', datasets.getTestdata);
+  app.get('/api/testdata', datasets.getTestdata);
+  app.get('/api/duplicatestestdata', datasets.getDuplicatesTestData);
 
+  //////////////////////////////////////
+	/// DUPLICATES ///
+	//////////////////////////////////////
+
+  app.get('/api/identifyduplicates', datasets.identifyDuplicates);
+  app.get('/api/duplicates', duplicates.getDuplicates);
+  app.get('/api/duplicates/:date', duplicates.getDuplicatesCreatedAfterDate);
+  app.get('/api/duplicates/:id/:action', /*auth.requiresRole('admin'),*/ duplicates.resolveDuplicates);
 
 	//////////////////
 	/// USERS CRUD ///
