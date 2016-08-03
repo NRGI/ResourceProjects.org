@@ -25,7 +25,6 @@ var sourceSchema, Source,
 sourceSchema = new Schema({
     source_name: String,
     source_type: String, // loaded, edit. api
-    //source_type_id: String,
     source_type_id: {
         type: ObjectId,
         ref: 'SourceType'},
@@ -44,19 +43,7 @@ sourceSchema = new Schema({
             ref: 'User'}],
     create_date: {
         type: Date,
-        default: Date.now},
-    possible_duplicate: {
-        type: Boolean,
-        default: false
-    },
-    duplicate: {
-        type: ObjectId,
-        ref: 'Source'
-    },
-    staged: {
-        type: Boolean,
-        default: true
-    },
+        default: Date.now}
 });
 
 sourceSchema.plugin(mongooseHistory, hst_options);

@@ -5,6 +5,8 @@ var Dataset 		= require('mongoose').model('Dataset'),
     _               = require("underscore"),
     googlesheets    = require('../dataprocessing/googlesheets.js');
 	companieshouse  = require('../dataprocessing/companieshouse.js');
+var fs 		= require('fs');
+var duplicateHandler =  require('../dataprocessing/duplicateHandler.js');
 
 exports.getDatasets = function(req, res) {
     var dataset_len, limit = null, skip = 0;
@@ -117,7 +119,7 @@ exports.createAction = function(req, res, next) {
     //Create the action and set status "running"
     Action.create(
         {name: req.body.name, started: Date.now(), status: "Started", started_by: user_id},
-        function(err, amodel) {        	        	        
+        function(err, amodel) {
             if (err) {
                 res.status(400);
                 console.log(err);
@@ -134,7 +136,7 @@ exports.createAction = function(req, res, next) {
                             res.status(200);
                             res.send();
                             console.log("Triggered, res sent\n");
-                            googlesheets.processData(dmodel.source_url, function(status, report) {
+                            googlesheets.processData(dmodel.source_url, amodel._id, function(status, report) {
 
                                 console.log("process finished");
                                 console.log("Status: " + status + "\n");
@@ -171,21 +173,21 @@ exports.createAction = function(req, res, next) {
 	                        }
 	                    }
                     }
-                    else {  
+                    else {
                         if (err) {
                             res.status(400);
                             return res.send({reason:err.toString()})
                         }
-                        else {                        	
+                        else {
                             res.status(404);
                             res.send();
                         }
-                    }  
+                    }
                 }
             );
         }
-    ); 
-    
+    );
+
 };
 
 exports.getActionReport = function(req, res, next) {
@@ -199,12 +201,12 @@ exports.getActionReport = function(req, res, next) {
                    });
 }
 
-    
-    
+
+
 
 // simulates the Companies House Extractives API. Dummy controller for not yet existing CH Extractives API data
 exports.getTestdata = function(req, res, next) {
-	
+
 	var test = [{
 		   "ReportDetails"    : {
 		        notes           : "",
@@ -218,7 +220,7 @@ exports.getTestdata = function(req, res, next) {
 		        dateAdded       : "2015/11/11"
 		     }
 		   ,
-		   "projectTotals"           :  [{ projectTotal : {	
+		   "projectTotals"           :  [{ projectTotal : {
 		        notes       : "",
 		        amount      : "10,000,000",
 		        projectCode : "tose",
@@ -325,6 +327,20 @@ exports.getTestdata = function(req, res, next) {
 			     }
 			   }]
 			}]
-			
+
 	res.send(test)
+};
+
+// simulates the Companies House Extractives API. Dummy for duplicate entries (companies, projects)
+exports.getDuplicatesTestData = function(req, res, next) {
+  var file = 'files/ch_duplicates.json';
+  var obj = JSON.parse(fs.readFileSync(file, 'utf8'));
+  res.send(obj);
+};
+
+exports.identifyDuplicates = function(req, res, next) {
+  var callback = function(message) {
+    res.send(message);
+  }
+  duplicateHandler.findAndHandleDuplicates(callback);
 };

@@ -28,7 +28,7 @@ var projectSchema, Project,
     hst_options     = {customCollectionName: 'proj_hst'},
     status_enu  = {
         values: 'exploration development production on_hold inactive unknown'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on_hold, inactive or unknown.'
     };
 
 
@@ -40,10 +40,7 @@ projectSchema = new Schema({
     proj_established_source: source,
     proj_country: [fact],
     proj_commodity: [fact],
-    proj_address: [fact],
-    proj_coordinates: [fact],
-    proj_operated_by: [fact],
-    proj_company_share: [fact],
+    
     proj_status: [{
         source: source,
         string: {
@@ -52,7 +49,12 @@ projectSchema = new Schema({
             default: 'unknown'},
         timestamp: {
             type: Date,
-            default: Date.now()}}],
+            default: Date.now()},
+        startTimestamp: {
+            type: Date},
+        }],
+        endTimestamp: {
+            type: Date},
     description: htmlSettings
 });
 //
