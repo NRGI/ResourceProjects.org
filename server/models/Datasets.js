@@ -45,7 +45,7 @@ function createDefaultDatasets() {
             });
             Dataset.create({
                 name: "Google Sheet: Ghana Mining Resource Projects 0.6",
-                source_url: 'https://docs.google.com/spreadsheets/d/1dnoG8QsodrQTImWFdAkxPrMym_BpxRTipEIox9mQomk/pub',
+                source_url: 'https://docs.google.com/spreadsheets/d/1RYMJ7EYo7mXeWNyiAHQ4tVYc2fr24Gvz4CZYts0aHy0/pub',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []
