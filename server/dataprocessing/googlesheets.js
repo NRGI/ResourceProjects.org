@@ -123,7 +123,7 @@ function isFactAlreadyThere(doc, key, fact) {
 }
 
 //Data needed for inter-entity reference
-var sourceTypes, sources, countries, commodities, commoditiesById, companies, company_groups, projects, sites, contracts, concessions;
+var sourceTypes, sources, countries, countriesById, commodities, commoditiesById, companies, company_groups, projects, sites, contracts, concessions;
 
 function fixwebsite(input) {
     if (input.indexOf('http') == -1) input = "http://" + input;
@@ -281,11 +281,12 @@ var makeNewProduction = function(newRow) {
 function fillInGenericFields(newRow, object, name) {
     switch(newRow['#' + name + '+entity+type'].toLowerCase()) {
         case "":
+        case "unknown": //Strictly speaking unknown+value doesn't make much sense, but it makes the code a bit simpler
             if (newRow['#' + name + '+entity+name'] !== "") { //Entity names without entity type: default is project
                 object[name + '_level'] = "project";
                 object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             }
-            else if (newRow['#company'] !== "") object[name + '_level'] = "country"; //Implied company level. Company filled elsewhere.
+            else if (newRow['#company'] !== "") object[name + '_level'] = "company"; //Implied company level. Company filled elsewhere.
             //Otherwise we only have country to go on. Country must be present. Country filled elsewhere.
             else object[name + '_level'] = "country";
             break;
@@ -301,6 +302,12 @@ function fillInGenericFields(newRow, object, name) {
         case "field":
             object[name + '_level'] = row['#' + name + '+entity+type'].toLowerCase();
             object.site = sites[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
+            break;
+        case "company":
+            object[name + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere.
+            break;
+        case "country":
+            object[name + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere.
             break;
         default:
             return false; //Unsupported input!
@@ -462,7 +469,7 @@ function parseData(sheets, report, finalcallback) {
             parseCompanies,
             parseProjects,
             parseProjectSitesAndCompaniesAndConcessionsAndContracts, 
-            /*parseProduction,*/ //Out until row shift problem fixed
+            parseProduction,
             parseTransfers,
             parseReserves
         ], function (err, report) {
@@ -510,6 +517,7 @@ function parseData(sheets, report, finalcallback) {
         //Complete country list is in the DB
         result.add("Getting countries from database...\n");
         countries = {};
+        countriesById = {};
         Country.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -520,6 +528,7 @@ function parseData(sheets, report, finalcallback) {
                 var ctry;
                 for (ctry of cresult) {
                     countries[ctry.iso2] = ctry;
+                    countriesById[ctry._id] = ctry;
                 }
                 callback(null, result);
             }
@@ -659,6 +668,7 @@ function parseData(sheets, report, finalcallback) {
                 }
                 
                 destObj[row['#project'].toLowerCase()] = projDoc; //Can also serve as update to internal list
+                //TODO: don't overwrite project name with an alias!!!
 
                 return wcallback(null, model);
             }
@@ -673,7 +683,7 @@ function parseData(sheets, report, finalcallback) {
                 return callback(null);
             }
             
-            var countryRow = _.findWhere(sheets['1'].data, {"#project": projDoc.proj_name});
+            var countryRow = _.findWhere(sheets['1'].data, {"#project": row['#project']});
             var countryId = countries[countryRow['#country+identifier']]._id;
                 
             //Look for project in DB. This only happens if not in internal list.
@@ -741,7 +751,7 @@ function parseData(sheets, report, finalcallback) {
                             projects[project] = pmodel; //Internal update. Important to do this here to grab id if it was previously set.
                             
                             if (!pmodel.proj_id) {
-                                Project.update({_id: pmodel._id}, {proj_id: countries[pmodel.country[0].country._id].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
+                                Project.update({_id: pmodel._id}, {proj_id: countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
                                     function(err) {
                                         if (err) {
                                             projectsReport.add(`Encountered an error while setting the project ID DB: ${err}. Aborting.\n`);

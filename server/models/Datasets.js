@@ -73,7 +73,7 @@ function createDefaultDatasets() {
             });
             Dataset.create({
                 name: "Google Sheet: Norwegian Companies 2014 0.6",
-                source_url: 'https://docs.google.com/spreadsheets/d/1ZzUp5OxDeSFW5Pwe-MD7cWzWu76tL_lNEbQv4UkxxnA/pub',
+                source_url: 'https://docs.google.com/spreadsheets/d/1jIVRaxC8LclLZMyp1bNcPwJCTYhtetfVeUIU7e5BNiY/pub',
                 created: Date.now(),
                 created_by: '56d011292cb1766d0c308ec0',
                 actions: []
