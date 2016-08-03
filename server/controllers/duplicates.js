@@ -3,10 +3,13 @@
 var Duplicate = require('mongoose').model('Duplicate'),
 Project = require('mongoose').model('Project'),
 Company = require('mongoose').model('Company'),
+CompanyGroup = require('mongoose').model('CompanyGroup'),
 async = require('async'),
 _ = require("underscore"),
-request = require('request'),
 moment = require('moment');
+
+var mongoose = require('mongoose');
+var ObjectId = mongoose.Schema.Types.ObjectId;
 
 exports.getDuplicates = function(req, res) {
   async.parallel([
@@ -126,6 +129,7 @@ exports.resolveDuplicates = function(req, res) {
 
     switch(action) {
       case 'setasalias':
+
       switch(obj.entity) {
         case 'company':
         // get duplicate object
@@ -146,14 +150,29 @@ exports.resolveDuplicates = function(req, res) {
                     callback(err);
                   }
                   else {
-                    Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
+                    //update links
+                    async.waterfall([
+                      findLinks.bind(null, company_to_remove._id, obj._id),
+                      updateLinks
+                    ], function(err, results) {
                       if(err) {
                         callback(err);
                       }
-                      else {
-                        callback(null, "added alias");
+                      else if(results) {
+                        // finally update duplicate entry to resolved
+                        Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
+                          if(err) {
+                            callback(err);
+                          }
+                          else {
+                            callback(null, "added alias");
+                          }
+                        });
                       }
-                    });
+                      else {
+                        callback(err);
+                      }
+                    })
                   }
                 });
               }
@@ -167,10 +186,13 @@ exports.resolveDuplicates = function(req, res) {
           }
         });
 
+
+        // TODO update facts
+
         break;
 
         case 'project':
-        //TODO
+        // TODO
         break;
 
         default:
@@ -189,6 +211,39 @@ exports.resolveDuplicates = function(req, res) {
         }
       });
       break;
+
+      case 'update':
+      Company.findOneAndRemove({ _id: obj.duplicate}, function (err, company_to_remove) {
+        if(err) {
+          callback(err);
+        }
+        else if(company_to_remove) {
+          //TODO remove old _id from company_to_remove object
+          Company.findByIdAndUpdate(obj.original, company_to_remove, function(err, doc) {
+            if(err) {
+              callback(err);
+            }
+            else if(company_to_remove) {
+              Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
+                if(err) {
+                  callback(err);
+                }
+                else {
+                  callback(null, "company updated with information");
+                }
+              });
+            }
+            else {
+              callback(err);
+            }
+          });
+        }
+        else {
+          callback(err);
+        }
+      });
+      break;
+
       default:
       // do nothing here
       callback("no valid action chosen");
@@ -196,28 +251,171 @@ exports.resolveDuplicates = function(req, res) {
     }
   };
 
+  function findLinks(old_company_id, new_company_id, callback) {
+    Links.find({ company: company_id }, function(err, results) {
+      if(err) {
+        callback(err);
+      }
+      else if(results) {
+        callback(null, new_company_id, results);
+      }
+      else {
+        callback(err);
+      }
+    });
+  };
+
+  function updateLinks(new_company_id, listOfLinkIds, callback) {
+    async.each(listOfLinkIds, function(link_id, callback) {
+      Link.findByIdAndUpdate(link_id, { company: new_company_id }, function(err, results) {
+        if(err) {
+          callback(err);
+        }
+        else if(results) {
+          callback(null, "link updated successfully");
+        }
+        else {
+          callback(err);
+        }
+      });
+    });
+  };
+
   function getEntity(id, action, callback) {
     Duplicate.findOne({ _id: id })
     .lean()
     .exec(function(err, result) {
+      if(err) {
+        callback(err);
+      }
+      else {
+        callback(null, result, action);
+      }
+    });
+
+    function updateFacts(old_company_id, new_company_id, callback) {
+      async.parallel([
+        updateCompanyGroup.bind(null, old_company_id, new_company_id),
+        updateConcessions.bind(null, old_company_id, new_company_id),
+        updateProject.bind(null, old_company_id, new_company_id),
+        updateSites.bind(null, old_company_id, new_company_id)
+      ], function(err, results) {
         if(err) {
           callback(err);
         }
-        else {
-          callback(null, result, action);
+        else if(results) {
+          callback(null, results);
         }
+        else {
+          callback(err);
+        }
+      });
+    }
+  };
+
+  function updateCompanyGroup(old_company_id, new_company_id, callback) {
+    CompanyGroup.update(
+      { 'country_of_incorporation.company': old_company_id },
+      { 'country_of_incorporation.company': new_company_id }
+    )
+    .populate('country_of_incorporation')
+    .exec(function(err, facts){
+      if(err) {
+        callback(err);
+      }
+      else if(facts) {
+        facts.save(function(err, updatedFacts) {
+          if(err) {
+            callback(err);
+          }
+          else {
+            callback(null, 'facts updated');
+          }
+        })
+      }
+      else {
+        callback(err);
+      }
     });
+  }
+
+  function updateConcessions(old_company_id, new_company_id, callback) {
+
+  };
+
+  function updateProject(old_company_id, new_company_id, callback) {
+
+  };
+
+  function updateSites(old_company_id, new_company_id, callback) {
+
   };
 
   function makeNewAlias(name, entity, source) {
 
-  	var alias = {
-  		alias: name,
+    var alias = {
+      alias: name,
       model: entity,
       source: source
-  	};
+    };
 
-  	return alias;
+    return alias;
   };
 
 };
+
+exports.updateFacts = function(req, res) {
+  var cid = req.params.company_id;
+
+  async.waterfall([
+    findCG.bind(null, cid),
+    updateCG
+  ], function(err, result) {
+    if(err) res.send(err);
+    else if(result) {
+      res.send(result);
+    }
+    else {
+      res.send(err);
+    }
+  });
+
+  function findCG(cid, callback) {
+    CompanyGroup.find({ 'country_of_incorporation.company' : cid },
+    function(err, results) {
+      if(err) callback(err);
+      else if(results) {
+        callback(null, results, cid);
+      }
+      else callback(err);
+    });
+
+  };
+
+  function updateCG(list, cid, callback) {
+    console.log(list);
+    async.each(list, function(item, fcallback) {
+      for(var index in item.country_of_incorporation) {
+        console.log(index);
+        CompanyGroup.update(
+          { _id: item._id, 'country_of_incorporation.company': item.country_of_incorporation[index].company },
+          { "$set": { "country_of_incorporation.$.company": "57a1b6157f1247881ba6666b" }},
+          function(err, result) {
+            if(err) {
+              fcallback(err);
+            }
+            else if(result) {
+              fcallback(null, "updated");
+            }
+            else {
+              fcallback(err);
+            }
+          }
+        );
+      }
+    }, function(err) {
+      callback(err);
+    });
+  };
+
+}

@@ -218,6 +218,9 @@ module.exports	= function(app) {
   app.get('/api/duplicates/:date', duplicates.getDuplicatesCreatedAfterDate);
   app.get('/api/duplicates/:id/:action', /*auth.requiresRole('admin'),*/ duplicates.resolveDuplicates);
 
+  // just for testing
+  app.get('/api/test/:company_id', duplicates.updateFacts);
+
 	//////////////////
 	/// USERS CRUD ///
 	//////////////////
