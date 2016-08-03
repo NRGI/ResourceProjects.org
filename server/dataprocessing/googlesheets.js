@@ -1173,7 +1173,8 @@ function parseData(sheets, report, finalcallback) {
             var query = {
                 production_commodity: commodities[row['#production+commodity']]._id,
                 production_year: parseInt(row['#production+year']),
-                country: countries[row['#country+identifier']]._id
+                country: countries[row['#country+identifier']]._id,
+                source: sources[row['#source'].toLowerCase()]._id
             };
             if (newProduction.project) {
                 query.project = projects[row['#production+entity+name'].toLowerCase()]._id;
