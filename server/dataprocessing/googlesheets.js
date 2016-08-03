@@ -7,12 +7,10 @@ var SourceType = require('mongoose').model('SourceType'),
     Project = require('mongoose').model('Project'),
     Site = require('mongoose').model('Site'),
     Link = require('mongoose').model('Link'),
-    Duplicate = require('mongoose').model('Duplicate'),
     Contract = require('mongoose').model('Contract'),
     Concession = require('mongoose').model('Concession'),
     Production = require('mongoose').model('Production'),
     Transfer = require('mongoose').model('Transfer'),
-    ObjectId = require('mongoose').Types.ObjectId,
     util = require('util'),
     async   = require('async'),
     csv     = require('csv-parse/lib/sync'),
@@ -127,7 +125,11 @@ function isFactAlreadyThere(doc, key, fact) {
 //Data needed for inter-entity reference
 var sourceTypes, sources, countries, commodities, commoditiesById, companies, company_groups, projects, sites, contracts, concessions;
 
-//TODO: Move to new duplicates model
+function fixwebsite(input) {
+    if (input.indexOf('http') == -1) input = "http://" + input;
+    return input;
+}
+
 var makeNewSource = function(newRow) {
     newRow['#source+sourceDate'] = parseGsDate(newRow['#source+sourceDate']);
     newRow['#source+retrievedDate'] = parseGsDate(newRow['#source+retrievedDate']);
@@ -140,8 +142,8 @@ var makeNewSource = function(newRow) {
     var source = {
         source_name: newRow['#source'],
         source_type_id: sourceTypes[newRow['#source+sourceType']]._id,
-        source_url: newRow['#source+url'],
-        source_archive_url: newRow['#source+archiveCopy'],
+        source_url: fixwebsite(newRow['#source+url']),
+        source_archive_url: fixwebsite(newRow['#source+archiveCopy']),
         source_notes: newRow['#source+description'],
         source_date: newRow['#source+sourceDate'],
         retrieve_date: newRow['#source+retrievedDate']
@@ -156,7 +158,7 @@ var makeNewCompanyGroup = function(newRow) {
         company_group_name: newRow['#group'],
     };
     
-     if (newRow['#group+openCorporatesURL'] !== "") {
+    if (newRow['#group+openCorporatesURL'] !== "") {
         companyg.open_corporates_group_ID = ocUrlToId(newRow['#group+openCorporatesURL']);
         if (companyg.open_corporates_group_ID === false) return false;
     }
@@ -168,7 +170,7 @@ var makeNewCompanyGroup = function(newRow) {
         companyg.country_of_incorporation = [{country: countries[newRow['#group+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]; //Fact array
     }
     if (newRow['#group+website'] !== "") {
-        companyg.company_group_website = {string: newRow['#group+website'], source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
+        companyg.company_group_website = {string: fixwebsite(newRow['#group+website']), source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
     }
     if (newRow['#group+notes'] !== "") {
        companyg.description = newRow['#group+notes'];
@@ -211,7 +213,7 @@ var makeNewCompany = function(newRow) {
         company.country_of_incorporation = [{country: countries[newRow['#company+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]; //Fact array
     }
     if (newRow['#company+website'] !== "") {
-        company.company_website = {string: newRow['#company+website'], source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
+        company.company_website = {string: fixwebsite(newRow['#company+website']), source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
     }
     if (newRow['#company+notes'] !== "") {
        company.description = newRow['#company+notes'];
@@ -560,7 +562,7 @@ function parseData(sheets, report, finalcallback) {
             Source.findOne(
                 {source_url: row['#source+url'].toLowerCase()},
                 null, //return everything
-                { sort: { create_date: 1 } }, //Find OLDEST (use that for comparison instead of some other duplicate - important where we create duplicates)
+                {},
                 function(err, doc) {
                     if (err) {
                         sourcesReport.add(`Encountered an error while querying the DB: ${err}. Aborting.\n`);
@@ -607,46 +609,29 @@ function parseData(sheets, report, finalcallback) {
         parseEntity(result, '4', companies, processCompanyRow, "Company", '#company', Company, "company_name", makeNewCompany, callback);
     }
 
-    function createSiteProjectLink (siteId, projectId, sourceId, report, lcallback) {
-        Link.create({project: projectId, site: siteId, source: sourceId, entities: ['project', 'site']},
-            function (err, nlmodel) {
-                if (err) {
-                    report.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
-                    return lcallback(`Failed: ${report.report}`);
-                }
-                else {
-                    report.add(`Linked site to project in the DB.\n`);
-                    return lcallback(null); //Final step, no return value
-                }
-            }
-        );
-    }
-
     function parseProjects(result, callback) {
         function processProjectRow(projectsReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-            function updateOrCreateProject(projDoc, duplicateId, wcallback) {
+            function updateOrCreateProject(projDoc, currentDoc, countryId, wcallback) {
                 if (!projDoc) {
-                    projDoc = makeNewProject(row);
+                    projDoc = makeNewProject(row); //This can sit alongside the existing proj from db for now. Merging happens later.
                     
-                    //TODO: read sheet 1 in properly as the following is inefficient
-                    var countryRow = _.findWhere(sheets['1'].data, {"#project": projDoc.proj_name});
-                    
-                    if (!projDoc || !countryRow) {
+                    if (!projDoc) {
                         projectsReport.add(`Invalid data in row: ${util.inspect(row)}. Aborting.\n`);
                         return wcallback(`Failed: ${projectsReport.report}`);
                     }
                     
-                    var newFact = {source: sources[row['#source'].toLowerCase()]._id, country: countries[countryRow["#country+identifier"]]._id};
-                    if (!isFactAlreadyThere(projDoc, "proj_country", newFact)) projDoc.proj_country.push(newFact);
+                    var cFact = {source: sources[row['#source'].toLowerCase()]._id, country: countryId};
+                    if (!isFactAlreadyThere(projDoc, "proj_country", cFact)) projDoc.proj_country.push(cFact);
                 }
 
-                //Assume spreadsheets don't have duplicates
                 if (row['#project+alias'] !== "") {
-                    projDoc.proj_aliases.push({alias: row['#project+alias'], source: sources[row['#source'].toLowerCase()]._id});
+                    var aFact = {alias: row['#project+alias'], source: sources[row['#source'].toLowerCase()]._id};
+                    if (!isFactAlreadyThere(projDoc, "proj_aliases", aFact)) projDoc.proj_aliases.push(aFact);
                 }
 
                 if (row['#commodity'] !== "") {
-                    projDoc.proj_commodity.push({commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id});
+                    var coFact = {commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id};
+                    if (!isFactAlreadyThere(projDoc, "proj_commodity", coFact)) projDoc.proj_commodity.push(coFact);
                     //TODO: how to store commodity notes in facts?
                 }
             
@@ -673,17 +658,7 @@ function parseData(sheets, report, finalcallback) {
                     projDoc.proj_status = proj_status;
                 }
                 
-                destObj[row['#project'].toLowerCase()] = projDoc;
-                if (duplicateId) {
-                    duplicates[row['#project'].toLowerCase()] = {
-                        original: duplicateId,
-                        resolved: false,
-                        isDuplicate: null,
-                        created_date: Date.now(),
-                        created_from: actionId,
-                        entity: "project"
-                    };
-                }
+                destObj[row['#project'].toLowerCase()] = projDoc; //Can also serve as update to internal list
 
                 return wcallback(null, model);
             }
@@ -693,18 +668,35 @@ function parseData(sheets, report, finalcallback) {
                 return callback(null);
             }
             
-            //Look for project in DB. This only happens if not in internal list. Hence duplicate -creation- only happens once.
+            if (row['#project'] === "") {
+                projectsReport.add('Empty project name in row. Skipping.\n');
+                return callback(null);
+            }
+            
+            var countryRow = _.findWhere(sheets['1'].data, {"#project": projDoc.proj_name});
+            var countryId = countries[countryRow['#country+identifier']]._id;
+                
+            //Look for project in DB. This only happens if not in internal list.
             if (!_.findWhere(destObj, {proj_name: row['#project'].toLowerCase()})) { //If not yet in internal list (i.e. contained in this workbook)
                 //Projects - check against name and aliases
+                //TODO: read sheet 1 in properly as the following is inefficient
+                
                 Project.findOne(
                     {
-                        $or: [
+                        $and:
+                        [
                             {
-                                "proj_name": row[rowIndex]
+                                $or:
+                                    [
+                                        {
+                                            "proj_name": row[rowIndex]
+                                        },
+                                        {
+                                            "proj_aliases.alias": row[rowIndex]
+                                        }
+                                    ]
                             },
-                            {
-                                "proj_aliases.alias": row[rowIndex]
-                            }
+                            { "proj_country.country": countryId} 
                         ]
                     },
                     function(err, doc) {
@@ -713,19 +705,18 @@ function parseData(sheets, report, finalcallback) {
                             return callback(`Failed: ${projectsReport.report}`);
                         }
                         else if (doc) { //Project already exists,
-                            //TODO: Note duplicate status
-                            projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), flagging new project as duplicate\n`);
-                            updateOrCreateProject(null, doc._id, callback); //NO existing project internally
+                            projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), using\n`);
+                            updateOrCreateProject(null, doc, countryId, callback); //NO existing project internally
                         }
                         else {
                             projectsReport.add(`Project ${row[rowIndex]} not found in DB.\n`);
-                            updateOrCreateProject(null, null, callback); //NO existing project internally, NO project in DB
+                            updateOrCreateProject(null, null, countryId, callback); //NO existing project internally, NO project in DB
                         }
                     }
                 );
             }
             else {
-                updateOrCreateProject(destObj[row['#project'].toLowerCase()], null, callback); //Existing project internally, may or may not already be flagged as duplicate of something in the DB
+                updateOrCreateProject(destObj[row['#project'].toLowerCase()], null, countryId, callback); //Existing project internally, may or may not exist in the DB
             }
             
         }
@@ -738,28 +729,32 @@ function parseData(sheets, report, finalcallback) {
                 var projectNames = Object.getOwnPropertyNames(projects);
                 async.eachSeries(projectNames, //TODO: each parallel???
                     function (project, ecallback) {
-                        Project.create(projects[project], function(err, pmodel) {
+                        var idToUpdateOrCreate = projects[project]._id;
+                        if (projects[project]._id) delete projects[project]._id; //Don't send id back in to Mongo
+                        if (projects[project].__v) delete projects[project].__v; //or __v: https://github.com/Automattic/mongoose/issues/1933
+                        Project.findByIdAndUpdate(idToUpdateOrCreate, projects[project], {upsert: true, 'new': true}, function(err, pmodel) {
                             if (err) {
                                 reportSoFar.add(`Encountered an error (${util.inspect(err)}) while saving project to the DB. Aborting.\n`);
                                 return ecallback(err);
                             }
                             
-                            projects[project]._id = pmodel._id;
+                            projects[project] = pmodel; //Internal update. Important to do this here to grab id if it was previously set.
                             
-                            if (duplicates[project]) {
-                                reportSoFar.add('Created project ' + projects[project].proj_name + ' in the DB. Creating duplicate...\n');
-                                duplicates[project].duplicate = pmodel._id;
-                                Duplicate.create(duplicates[project], function(err) {
-                                    if (err) {
-                                        reportSoFar.add('Encountered an error while creating a duplicate: ' + util.inspect(err) + '. Aborting.\n');
-                                        return ecallback(err);
+                            if (!pmodel.proj_id) {
+                                Project.update({_id: pmodel._id}, {proj_id: countries[pmodel.country[0].country._id].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
+                                    function(err) {
+                                        if (err) {
+                                            projectsReport.add(`Encountered an error while setting the project ID DB: ${err}. Aborting.\n`);
+                                            return ecallback(err);
+                                        }
+                                        reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
+                                        
+                                        return ecallback(null);
                                     }
-                                    reportSoFar.add('Created duplicate entry for project ' + projects[project].proj_name + ' in the DB.\n');
-                                    return ecallback(null);
-                                });
+                                );
                             }
                             else {
-                                reportSoFar.add('Created project ' + projects[project].proj_name + ' in the DB.\n');
+                                reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
                                 return ecallback(null);
                             }
                         });
@@ -773,7 +768,6 @@ function parseData(sheets, report, finalcallback) {
         }
         
         projects = {};
-        var duplicates = {};
         
         parseEntity(result, '3', projects, processProjectRow, "Project", '#project', Project, "proj_name", makeNewProject, saveAllProjectsWhenDone);
     }
