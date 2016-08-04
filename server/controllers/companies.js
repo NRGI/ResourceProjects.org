@@ -253,7 +253,7 @@ exports.getCompanyByID = function(req, res) {
                                 }
                                 break;
                             case 'project':
-                                if (link.project.proj_commodity.length > 0) {
+                                if (link.project && link.project.proj_commodity.length > 0) {
                                     if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length < 1) {
                                         company.company_commodity.push({
                                             _id: _.last(link.project.proj_commodity).commodity._id,

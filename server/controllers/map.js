@@ -163,21 +163,23 @@ exports.getCoordinateCountryByID = function(req, res) {
                                     }
                                     break;
                                 case 'project':
-                                    link.project.proj_coordinates.forEach(function (loc) {
-                                        map.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.project.proj_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'project',
-                                            'id': link.project.proj_id
-                                        });
-                                    });
-                                    map.proj_coordinates = _.map(_.groupBy(map.proj_coordinates, function (doc) {
-                                        return doc._id;
-                                    }), function (grouped) {
-                                        return grouped[0];
-                                    });
+                                   if(link.project && link.project.proj_coordinates) {
+                                       link.project.proj_coordinates.forEach(function (loc) {
+                                           map.proj_coordinates.push({
+                                               'lat': loc.loc[0],
+                                               'lng': loc.loc[1],
+                                               'message': link.project.proj_name,
+                                               'timestamp': loc.timestamp,
+                                               'type': 'project',
+                                               'id': link.project.proj_id
+                                           });
+                                       });
+                                       map.proj_coordinates = _.map(_.groupBy(map.proj_coordinates, function (doc) {
+                                           return doc._id;
+                                       }), function (grouped) {
+                                           return grouped[0];
+                                       });
+                                   }
                                     break;
                                 default:
                                     console.log(entity, 'link skipped...');
@@ -277,16 +279,18 @@ exports.getCoordinateCountryByID = function(req, res) {
                                             }
                                             break;
                                         case 'project':
-                                            link.project.proj_coordinates.forEach(function (loc) {
-                                                companyGroup.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.project.proj_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'project',
-                                                    'id': link.project.proj_id
+                                            if(link.project && link.project.proj_coordinates && link.project.proj_coordinates.length>0) {
+                                                link.project.proj_coordinates.forEach(function (loc) {
+                                                    companyGroup.proj_coordinates.push({
+                                                        'lat': loc.loc[0],
+                                                        'lng': loc.loc[1],
+                                                        'message': link.project.proj_name,
+                                                        'timestamp': loc.timestamp,
+                                                        'type': 'project',
+                                                        'id': link.project.proj_id
+                                                    });
                                                 });
-                                            });
+                                            }
                                             break;
                                         default:
                                     }

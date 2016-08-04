@@ -126,7 +126,9 @@ exports.getSourceTable = function(req, res){
                             }
                             if (link_counter == link_len) {
                                 var uniques = _.map(_.groupBy(project.sources,function(doc){
-                                    return doc._id;
+                                    if(doc && doc._id) {
+                                        return doc._id;
+                                    }
                                 }),function(grouped){
                                     return grouped[0];
                                 });
@@ -297,7 +299,9 @@ exports.getSourceTable = function(req, res){
                                         }
                                         if (link_len == link_counter && companies_counter == companies_len) {
                                             var uniques = _.map(_.groupBy(project.sources,function(doc){
-                                                return doc._id;
+                                                if(doc && doc._id) {
+                                                    return doc._id;
+                                                }
                                             }),function(grouped){
                                                 return grouped[0];
                                             });

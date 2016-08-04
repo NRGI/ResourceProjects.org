@@ -29,7 +29,9 @@ angular
                                 $scope.expression = 'showLast';
                             }
                             $scope.sources = _.uniq(success.sources, function (a) {
-                                return a._id;
+                                if(a && a._id) {
+                                    return a._id;
+                                }
                             });
                             usSpinnerService.stop('spinner-source');
                             $scope.getHeaderSources = function () {

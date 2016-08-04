@@ -59,7 +59,7 @@ exports.getProductionTable = function(req, res){
                             var entity = _.without(link.entities, type)[0];
                             switch (entity) {
                                 case 'project':
-                                    if (link.project._id != undefined) {
+                                    if (link.project && link.project._id != undefined) {
                                         if (!_.contains(projects.production_query, link.project._id)) {
                                             projects.production_query.push(link.project._id);
                                         }
@@ -151,7 +151,7 @@ exports.getProductionTable = function(req, res){
                                         var entity = _.without(link.entities, 'company')[0];
                                         switch (entity) {
                                             case 'project':
-                                                if (link.project._id != undefined) {
+                                                if (link.project && link.project._id != undefined) {
                                                     if (!_.contains(projects.production_query, link.project._id)) {
                                                         projects.production_query.push(link.project._id);
                                                     }
