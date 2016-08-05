@@ -13,9 +13,13 @@ var mongoose = require('mongoose');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 exports.getDuplicates = function(req, res) {
+
+  var limit = Number(req.params.limit);
+  var skip = Number(req.params.skip);
+
   async.parallel([
-    getCompanyDuplicates,
-    getProjectDuplicates
+    getCompanyDuplicates.bind(null, limit, skip),
+    getProjectDuplicates.bind(null, limit, skip)
   ], function (err, result) {
     if (err) {
       res.send(err);
@@ -28,11 +32,13 @@ exports.getDuplicates = function(req, res) {
     }
   });
 
-  function getCompanyDuplicates(callback) {
+  function getCompanyDuplicates(limit, skip, callback) {
     Duplicate.find({ entity: 'company', resolved: false })
     .populate('original', null, 'Company')
     .populate('duplicate', null, 'Company')
     .populate('resolved_by')
+    .limit(limit)
+    .skip(limit * skip)
     .exec(function(err, duplicate) {
       if(duplicate) {
         callback(null, duplicate);
@@ -42,11 +48,13 @@ exports.getDuplicates = function(req, res) {
     });
   }
 
-  function getProjectDuplicates(callback) {
+  function getProjectDuplicates(limit, skip, callback) {
     Duplicate.find({ entity: 'project', resolved: false })
     .populate('original', null, 'Project')
     .populate('duplicate', null, 'Project')
     .populate('resolved_by')
+    .limit(limit)
+    .skip(limit * skip)
     .exec(function(err, duplicate) {
       if(duplicate) {
         callback(null, duplicate);

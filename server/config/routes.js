@@ -214,7 +214,7 @@ module.exports	= function(app) {
 	//////////////////////////////////////
 
   app.get('/api/identifyduplicates', datasets.identifyDuplicates);
-  app.get('/api/duplicates', duplicates.getDuplicates);
+  app.get('/api/duplicates/:limit/:skip', duplicates.getDuplicates);
   app.get('/api/duplicates/:date', duplicates.getDuplicatesCreatedAfterDate);
   app.get('/api/duplicates/:id/:action', /*auth.requiresRole('admin'),*/ duplicates.resolveDuplicates);
 
