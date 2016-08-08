@@ -2,7 +2,7 @@
 
 angular.module('app')
     .factory('nrgiDuplicatesSrvc', function($resource) {
-        var DuplicateResource = $resource('/api/duplicates/:id/:action', {id: "@id", action: "@action"}, {
+        var DuplicateResource = $resource('/api/duplicates/:limit/:skip/:id/:action', {id: "@id", action: "@action", limit: "@limit", skip: "@skip"}, {
             query:  {method: 'GET', isArray: true}
         });
 

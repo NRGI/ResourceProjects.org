@@ -407,6 +407,8 @@ angular.module('app')
         nrgiNotifier
     ) {
         $rootScope._ = _;
+        $rootScope.Object = Object;
+        $rootScope.keys = $rootScope.Object.keys;
         $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             if(rejection === 'not authorized') {
