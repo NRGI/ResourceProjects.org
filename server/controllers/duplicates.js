@@ -32,20 +32,52 @@ exports.getDuplicates = function(req, res) {
   });
 
   function getCompanyDuplicates(limit, skip, callback) {
-    Duplicate.find({ entity: 'company', resolved: false })
-    .populate('original', null, 'Company')
-    .populate('duplicate', null, 'Company')
-    .populate('resolved_by')
-    .limit(limit)
-    .skip(limit * skip)
-    .exec(function(err, duplicate) {
-      if(duplicate) {
-        callback(null, duplicate);
-      } else {
-        callback(err);
+
+    async.waterfall([
+      getDuplicateCount,
+      getDuplicateData
+    ], function(err, result) {
+      if (err) {
+          res.send(err);
+      }
+      else {
+          if (req.query && req.query.callback) {
+              console.log('req.query.callback', req.query.callback)
+              return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+          }
+          else {
+              return res.send(result);
+          }
       }
     });
-  }
+
+    function getDuplicateCount(callback) {
+      Duplicate.find({ entity: 'company', resolved: false }).count().exec(function(err, company_count) {
+        if(company_count) {
+          callback(null, company_count);
+        } else {
+          callback(err);
+        }
+      });
+    }
+
+    function getDuplicateData(duplicate_count, callback) {
+      Duplicate.find({ entity: 'company', resolved: false })
+      .populate('original', null, 'Company')
+      .populate('duplicate', null, 'Company')
+      .populate('resolved_by')
+      .limit(limit)
+      .skip(limit * skip)
+      .exec(function(err, duplicate) {
+        if(duplicate) {
+          callback(null, { data: duplicate, count: duplicate_count} );
+        } else {
+          callback(err);
+        }
+      });
+    }
+
+}
 
   function getProjectDuplicates(limit, skip, callback) {
     Duplicate.find({ entity: 'project', resolved: false })
