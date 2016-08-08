@@ -316,9 +316,20 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 					report.add('Added or updated project ' + projectName + ' to the DB.\n');
 					projects[projectName] = model;
 
+					Project.find({}, function (err, cresult) {
 
-					return ucallback(null, model._id, projectName, cresult, newProj);
-		
+							if (err) {
+									report.add('Got an error: ' + err + ' while finding all projects.\n');
+									return ucallback(err);
+							}
+							else if (!cresult || cresult.length === 0) {
+									return ucallback(null, project_id, projectName, null, newProj);
+							}
+							else {
+									return ucallback(null, model._id, projectName, cresult, newProj);
+							}
+					});
+
 				}
 			);
 		};
@@ -422,7 +433,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 										// then create a new link between this project and the referring report company
 										createLink,
 										// search potential duplicates for this project
-										handleProjectDuplicates,
+										//handleProjectDuplicates,
 									], function (err, result) {
 										return forcallback(null);
 									});
@@ -437,7 +448,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 										// then create a new link between this project and the referring report company
 										createLink,
 										// search potential duplicates for this project
-										handleProjectDuplicates,
+										//handleProjectDuplicates,
 									], function (err, result) {
 										return forcallback(null);
 									});
