@@ -98,6 +98,7 @@ exports.getCompanyGroups = function(req, res) {
                         .populate('project')
                         .exec(function (err, proj_count) {
                             proj_count = _.map(_.groupBy(proj_count,function(doc){
+                                if(doc.project!=undefined && doc.project._id!=undefined )
                                 return doc.project._id;
                             }),function(grouped){
                                 return grouped[0];
@@ -244,7 +245,7 @@ exports.getCompanyGroupByID = function(req, res) {
                                         }
                                         break;
                                     case 'project':
-                                        if (link.project.proj_commodity.length>0) {
+                                        if (link.project && link.project.proj_commodity.length>0) {
                                             if (_.where(companyGroup.commodities, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                                 companyGroup.commodities.push({
                                                     _id: _.last(link.project.proj_commodity).commodity._id,
