@@ -4,6 +4,7 @@ var Duplicate = require('mongoose').model('Duplicate'),
 Project = require('mongoose').model('Project'),
 Company = require('mongoose').model('Company'),
 CompanyGroup = require('mongoose').model('CompanyGroup'),
+Link = require('mongoose').model('Link'),
 async = require('async'),
 _ = require("underscore"),
 moment = require('moment');
@@ -292,7 +293,7 @@ exports.resolveDuplicates = function(req, res) {
   };
 
   function findLinks(old_company_id, new_company_id, callback) {
-    Links.find({ company: company_id }, function(err, results) {
+    Link.find({ company: company_id }, function(err, results) {
       if(err) {
         callback(err);
       }
@@ -433,10 +434,8 @@ exports.updateFacts = function(req, res) {
   };
 
   function updateCG(list, cid, callback) {
-    console.log(list);
     async.each(list, function(item, fcallback) {
       for(var index in item.country_of_incorporation) {
-        console.log(index);
         CompanyGroup.update(
           { _id: item._id, 'country_of_incorporation.company': item.country_of_incorporation[index].company },
           { "$set": { "country_of_incorporation.$.company": "57a1b6157f1247881ba6666b" }},

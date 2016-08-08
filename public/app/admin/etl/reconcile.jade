@@ -13,45 +13,51 @@
     table#reconcile.table(ts-wrapper)
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='name') Identifier
-                th Creation
+                th.tablesort-sortable-th(ts-criteria='original.company_name') Identifier
+                th Category
+                th Notes
                 th Available Actions
-                th Reviewer Notes
 
 
         tbody
-            tr(ng-repeat="dataset in datasets | filter:search_text" ts-repeat)
+            tr(ng-repeat="duplicate in duplicates | filter:search_text" ts-repeat)
                 //td(ng-repeat="action in dataset.actions")
                 //    span(ng-if="$last") {{action.name}}
                 td
-                    | Original: {{dataset.name}}
-                    //br
-                    //| Duplicate: {{dataset.name}}
+                    | Original: {{duplicate.original.company_name}}
+                    br
+                    | Duplicate: {{duplicate.duplicate.company_name}}
                 td
-                    | Created by
-                    span(ng-if="dataset.created_by")  dataset.created_by
-                    em(ng-if="!dataset.created_by")  N/A
-                    |  on {{dataset.created | date}} in
-                    span(ng-repeat="action in dataset.actions"): span(ng-if="$last")  {{action.name}}
-                    td
-                        a.btn.btn-danger.disabled(
-                        data-toggle="tooltip"
-                        title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
-                            span(class="glyphicon glyphicon-remove")
-                        | &nbsp;
-                        a.btn.btn-warning.disabled(
-                        data-toggle="tooltip"
-                        title="If the name of the entity represents an alias, store its name as such, then remove it and move all linked data to the original entity.")
-                            span(class="glyphicon glyphicon-paste")
-                        | &nbsp;
-                        a.btn.btn-warning.disabled(
-                        data-toggle="tooltip"
-                        title="Move all linked data to the original entity and copy this entity's details into the original. You will then be redirected to the edit page for the original entity to clean up.")
-                            span(class="glyphicon glyphicon-transfer")
-                        | &nbsp;
-                        a.btn.btn-success.disabled(
-                        data-toggle="tooltip"
-                        title="Mark this entity as a fully-fledged independent entity. No changes to the suspected original are made.")
-                            span(class="glyphicon glyphicon-check")
-                    td
-                        textarea(placeholder="Space for notes")
+                    | {{duplicate.entity}}
+
+                td
+                    | {{duplicate.notes}}
+                td
+                    a.btn.btn-danger(
+                    data-toggle="tooltip"
+                    ng-click="resolve(duplicate._id,'resolve')"
+                    title="Resolve")
+                        span(class="glyphicon glyphicon-remove")
+                    //title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
+
+                    | &nbsp;
+                    a.btn.btn-warning(
+                    data-toggle="tooltip"
+                    ng-click="resolve(duplicate._id,'update')"
+                    title="Update")
+                        span(class="glyphicon glyphicon-transfer")
+                        //span(class="glyphicon glyphicon-paste")
+                    //title="If the name of the entity represents an alias, store its name as such, then remove it and move all linked data to the original entity.")
+
+                    //| &nbsp;
+                    //a.btn.btn-warning.disabled(
+                    //data-toggle="tooltip"
+                    //ng-click=""
+                    //title="Move all linked data to the original entity and copy this entity's details into the original. You will then be redirected to the edit page for the original entity to clean up.")
+                    //    span(class="glyphicon glyphicon-transfer")
+                    //| &nbsp;
+                    //a.btn.btn-success.disabled(
+                    //data-toggle="tooltip"
+                    //ng-click=""
+                    //title="Mark this entity as a fully-fledged independent entity. No changes to the suspected original are made.")
+                    //    span(class="glyphicon glyphicon-check")

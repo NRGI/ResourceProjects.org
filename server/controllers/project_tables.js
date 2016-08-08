@@ -14,6 +14,7 @@ var Project 		= require('mongoose').model('Project'),
 
 exports.getProjectTable = function(req, res){
     var link_counter, link_len, companies_len, companies_counter;
+    var company =[];
     var type = req.params.type;
     var query={};
     var projects = {};
@@ -53,15 +54,17 @@ exports.getProjectTable = function(req, res){
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
-                            projects.projects.push({
-                                proj_id: link.project.proj_id,
-                                proj_name: link.project.proj_name,
-                                proj_country: link.project.proj_country,
-                                proj_commodity: link.project.proj_commodity,
-                                proj_status: link.project.proj_status,
-                                _id: link.project._id,
-                                companies: 0
-                            });
+                            if(link.project) {
+                                projects.projects.push({
+                                    proj_id: link.project.proj_id,
+                                    proj_name: link.project.proj_name,
+                                    proj_country: link.project.proj_country,
+                                    proj_commodity: link.project.proj_commodity,
+                                    proj_status: link.project.proj_status,
+                                    _id: link.project._id,
+                                    companies: 0
+                                });
+                            }
                             if (link_len == link_counter) {
                                 projects.projects = _.map(_.groupBy(projects.projects,function(doc){
                                     return doc._id;
@@ -195,7 +198,6 @@ exports.getProjectTable = function(req, res){
         }
     }
     function getGroupLinkedCompanies(projects,callback) {
-        var company =[];
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
@@ -211,7 +213,7 @@ exports.getProjectTable = function(req, res){
                                 }),function(grouped){
                                     return grouped[0];
                                 });
-                                callback(null, company);
+                                callback(null, projects);
                             }
                         })
                     } else {
@@ -222,14 +224,16 @@ exports.getProjectTable = function(req, res){
             callback(null, projects);
         }
     }
-    function getGroupLinkedProjects(companies,callback) {
+    function getGroupLinkedProjects(projects, callback) {
         if(type=='group') {
+            var companies = company;
             if(companies.length>0) {
                 companies_len = companies.length;
                 companies_counter = 0;
                 _.each(companies, function (company) {
-                    query = {company: company._id, entities: "project"};
-                    Link.find(query)
+                    var queries = {company: company._id, entities: "project"};
+                    Link.find(queries)
+                        .populate('project')
                         .deepPopulate('project.proj_country.country project.proj_commodity.commodity')
                         .exec(function (err, links) {
                             ++companies_counter;
@@ -238,15 +242,17 @@ exports.getProjectTable = function(req, res){
                                 link_counter = 0;
                                 _.each(links, function (link) {
                                     ++link_counter;
-                                    projects.projects.push({
-                                        proj_id: link.project.proj_id,
-                                        proj_name: link.project.proj_name,
-                                        proj_country: link.project.proj_country,
-                                        proj_commodity: link.project.proj_commodity,
-                                        proj_status: link.project.proj_status,
-                                        _id: link.project._id,
-                                        companies: 0
-                                    });
+                                    if(link.project) {
+                                        projects.projects.push({
+                                            proj_id: link.project.proj_id,
+                                            proj_name: link.project.proj_name,
+                                            proj_country: link.project.proj_country,
+                                            proj_commodity: link.project.proj_commodity,
+                                            proj_status: link.project.proj_status,
+                                            _id: link.project._id,
+                                            companies: 0
+                                        });
+                                    }
                                     if (link_len == link_counter&&companies_counter==companies_len) {
                                         projects.projects = _.map(_.groupBy(projects.projects,function(doc){
                                             return doc._id;
@@ -257,7 +263,9 @@ exports.getProjectTable = function(req, res){
                                     }
                                 })
                             } else {
-                                callback(null, projects);
+                                if (companies_counter==companies_len) {
+                                    callback(null, projects);
+                                }
                             }
                         });
                 })

@@ -149,7 +149,7 @@ exports.getTransferTable = function(req, res){
                                     var entity = _.without(link.entities, 'company')[0];
                                     switch (entity) {
                                         case 'project':
-                                            if (link.project._id != undefined) {
+                                            if (link.project && link.project._id != undefined && link.project!=null) {
                                                 if (!_.contains(projects.transfers_query, link.project._id)) {
                                                     projects.transfers_query.push(link.project._id);
                                                 }
