@@ -20,11 +20,8 @@
                         th Notes
                         th Available Actions
 
-
                 tbody
                     tr(ng-repeat="duplicate in duplicates | filter:search_text" ts-repeat)
-                        //td(ng-repeat="action in dataset.actions")
-                        //    span(ng-if="$last") {{action.name}}
                         td
                             | Original: {{duplicate.original.company_name}}
                             br
@@ -37,16 +34,14 @@
                         td
                             a.btn.btn-danger(
                             data-toggle="tooltip"
-                            ng-click="resolve(duplicate._id,'resolve')"
+                            ng-click="resolve_duplicate(duplicate._id,'resolve')"
                             title="Resolve")
                                 span(class="glyphicon glyphicon-remove")
-                            //title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
-
                             | &nbsp;
                             a.btn.btn-warning(
                             data-toggle="tooltip"
-                            ng-click="resolve(duplicate._id,'update')"
+                            ng-click="resolve_duplicate(duplicate._id,'update')"
                             title="Update")
                                 span(class="glyphicon glyphicon-transfer")
-    div(ng-if='keys(duplicates).length >49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+    div(ng-if='duplicates.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
 

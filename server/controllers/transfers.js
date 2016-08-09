@@ -1,24 +1,16 @@
 var Transfer 		= require('mongoose').model('Transfer'),
-    // Country 		= require('mongoose').model('Country'),
-    // Source	 		= require('mongoose').model('Source'),
-    // Link 	        = require('mongoose').model('Link'),
-    // Production 	    = require('mongoose').model('Production'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
 
 exports.getTransfers = function(req, res) {
-    var transfer_len, transfer_counter,
+    var transfers_len, transfers_counter,
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
     async.waterfall([
         TransferCount,
         getTransferSet
-        // getProjectLinks,
-        // getTransfersCount,
-        // getProductionCount,
-        // getVerified
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -32,7 +24,6 @@ exports.getTransfers = function(req, res) {
     });
     function TransferCount(callback) {
         Transfer.find({}).count().exec(function(err, transfer_count) {
-            //console.log(transfer_count);
             if(transfer_count) {
                 callback(null, transfer_count);
             } else {
@@ -49,16 +40,61 @@ exports.getTransfers = function(req, res) {
             .limit(limit)
             .populate('country', '_id iso2 name')
             .populate('company', ' _id company_name')
+            .populate('project', ' _id proj_name proj_id')
+            .populate('site', ' _id site_name field')
             .populate('source source', '_id source_name source_url source_date source_type_id')
-            // .deepPopulate('source.source_type_id', '_id source_name source_url source_date source_type_id')
             .lean()
             .exec(function(err, transfers) {
-                if(transfers.length>0) {
-                    //TODO clean up returned data if we see performance lags
-                    // callback(null, transfer_count, projects);
-                    res.send({data: transfers, count: transfer_count});
+                transfers_counter = 0;
+                var proj_site={},project_transfers=[];
+                transfers_len = transfers.length;
+                if (transfers_len > 0) {
+                    transfers.forEach(function (transfer) {
+                    if(transfer.project!=undefined){
+                            proj_site =  {name:transfer.project.proj_name,_id:transfer.project.proj_id,type:'project'}
+                        }
+                        if(transfer.site!=undefined){
+                            if(transfer.site.field){
+                                proj_site =  {name:transfer.site.site_name,_id:transfer.site._id,type:'field'}
+                            }
+                            if(!transfer.site.field){
+                                proj_site =  {name:transfer.site.site_name,_id:transfer.site._id,type:'site'}
+                            }
+                        }
+                        ++transfers_counter;
+                        if (!project_transfers.hasOwnProperty(transfer._id)) {
+                            project_transfers.push({
+                                _id: transfer._id,
+                                transfer_year: transfer.transfer_year,
+                                country: {
+                                    name: transfer.country.name,
+                                    iso2: transfer.country.iso2},
+                                transfer_type: transfer.transfer_type,
+                                transfer_unit: transfer.transfer_unit,
+                                transfer_value: transfer.transfer_value,
+                                transfer_level: transfer.transfer_level,
+                                transfer_audit_type: transfer.transfer_audit_type,
+                                proj_site: proj_site
+                            });
+                        }
+                        if (transfer.company !== null) {
+                            _.last(project_transfers).company = {
+                                _id: transfer.company._id,
+                                company_name: transfer.company.company_name
+                            };
+                        }
+                        if (transfers_counter === transfers_len) {
+                            project_transfers = _.map(_.groupBy(project_transfers,function(doc){
+                                return doc._id;
+                            }),function(grouped){
+                                return grouped[0];
+                            });
+                            transfers = project_transfers;
+                            callback(null, {data: transfers, count: transfer_count});
+                        }
+                    });
                 } else {
-                    res.send({data: transfers, count: transfer_count});
+                    callback(null, {data: transfers, count: transfer_count});
                 }
             });
     }
