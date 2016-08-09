@@ -18,6 +18,8 @@ var fuse_options_project = {
   threshold: 0.3
 };
 
+var actionId = null;
+
 findAndHandleCompanyDuplicates = function(fnCallback) {
   console.log("handling company duplicates");
 
@@ -53,7 +55,7 @@ findAndHandleCompanyDuplicates = function(fnCallback) {
               //if not in aliases then mark as duplicate
               if(!_.contains(aliases, searchString)) {
 
-                var newDuplicate = makeNewDuplicate(originalCompany._id, company._id, company.action_id, "company", notes);
+                var newDuplicate = makeNewDuplicate(originalCompany._id, company._id, "company", notes);
                 Duplicate.create(
                   newDuplicate,
                   function(err, dmodel) {
@@ -121,12 +123,12 @@ removeViceVersaDuplicates = function(fnCallback) {
 
 };
 
-makeNewDuplicate = function(original_id, duplicate_id, action_id, entity, notes) {
+makeNewDuplicate = function(original_id, duplicate_id, entity, notes) {
 
 	var duplicate = {
 		original: ObjectId(original_id),
 		duplicate: ObjectId(duplicate_id),
-		created_from: action_id,
+		created_from: actionId,
 		entity: entity,
 		resolved: false,
 		notes: notes
@@ -148,13 +150,15 @@ preprocessString = function(str) {
   return result;
 };
 
-exports.findAndHandleDuplicates = function(fcallback) {
+exports.findAndHandleDuplicates = function(action_id, fcallback) {
+  actionId = action_id;
+  
   async.series([
     findAndHandleCompanyDuplicates,
     findAndHandleProjectDuplicates,
     removeViceVersaDuplicates
   ], function(err, results) {
-    if(!err) fcallback("ok");
+    if(!err) fcallback(null, "ok");
     else fcallback(err, "not ok");
   });
 };

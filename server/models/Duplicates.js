@@ -18,7 +18,7 @@ var duplicateSchema, Duplicate,
 duplicateSchema = new Schema({
     original: {type: ObjectId},
     duplicate: {type: ObjectId},
-    resolved: {type: Boolean},
+    resolved: {type: Boolean, default: false},
     isDuplicate: {type: Boolean, default: null},
     resolved_by: {type: ObjectId, ref: 'User'},
     created_date: {type: Date, default: Date.now},
