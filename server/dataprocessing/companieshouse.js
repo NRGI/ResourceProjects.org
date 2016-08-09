@@ -1,22 +1,14 @@
 var Source 			= require('mongoose').model('Source'),
 	Country 		= require('mongoose').model('Country'),
-	Commodity 		= require('mongoose').model('Commodity'),
 	Company 		= require('mongoose').model('Company'),
 	Project 		= require('mongoose').model('Project'),
 	Link 			= require('mongoose').model('Link'),
-	Contract 		= require('mongoose').model('Contract'),
-	Concession 		= require('mongoose').model('Concession'),
-	Production 		= require('mongoose').model('Production'),
 	Transfer 		= require('mongoose').model('Transfer'),
-	Duplicate 		= require('mongoose').model('Duplicate'),
 	ObjectId 		= require('mongoose').Types.ObjectId,
 	isocountries 	= require("i18n-iso-countries"),
 	_ 				= require("underscore"),
-	csv     		= require('csv'),
 	async  			= require('async'),
-	moment 			= require('moment'),
 	request 		= require('superagent'),
-	fusejs 			= require('fuse.js'),
 	randomstring	= require('just.randomstring');
 
 API_KEY = process.env.CHAPIKEY;

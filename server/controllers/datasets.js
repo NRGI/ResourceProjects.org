@@ -1,15 +1,16 @@
 var Dataset 		= require('mongoose').model('Dataset'),
     Duplicate		= require('mongoose').model('Duplicate'),
     Action 		    = require('mongoose').model('Action'),
+    ImportSource    = require('mongoose').model('ImportSource'),
     async           = require('async'),
-    _               = require("underscore"),
+    _               = require('underscore'),
     googlesheets    = require('../dataprocessing/googlesheets.js');
 	companieshouse  = require('../dataprocessing/companieshouse.js');
 var fs 		= require('fs');
 var duplicateHandler =  require('../dataprocessing/duplicateHandler.js');
 
 exports.getDatasets = function(req, res) {
-    var dataset_len, limit = null, skip = 0;
+    var limit = null, skip = 0;
 
     if (req.params.limit) limit = Number(req.params.limit);
     if (req.params.skip) skip = Number(req.params.skip);
@@ -17,7 +18,7 @@ exports.getDatasets = function(req, res) {
     async.waterfall([
         datasetCount,
         getAllDatasets
-    ], function (err, result) {
+    ], function (err) {
         if (err) {
             res.send(err);
         }
@@ -47,11 +48,7 @@ exports.getDatasets = function(req, res) {
                 if(datasets) {
                     async.each(datasets, function (dataset, ecallback) {
                         var action_ids = [];
-                        var action_id;
-                        //for (action_id of dataset.actions) {
-                        //  action_ids.push(action_id);
-                        //}
-                      Duplicate.find(
+                        Duplicate.find(
                             { created_from: { $in: action_ids } },
                             function (err, duplicates) {
                                 if (duplicates.length > 0) {
@@ -84,8 +81,6 @@ exports.getDatasetByID = function(req, res) {
         .populate('actions.started_by')
         .lean()
         .exec(function(err, dataset) {
-
-			console.log(dataset)
             if(dataset) {
                 res.send(dataset);
             } else {
@@ -94,20 +89,20 @@ exports.getDatasetByID = function(req, res) {
     });
 };
 
-exports.createDataset = function(req, res, next) {
+exports.createDataset = function(req, res) {
 	var datasetData = req.body;
 	//TODO: uncomment once working //datasetData.created_by = req.user._id;
 
-	Dataset.create(datasetData, function(err, dataset) {
+	Dataset.create(datasetData, function(err) {
 		if(err){
-			res.status(400)
-			return res.send({reason:err.toString()})
+			res.status(400);
+			return res.send({reason:err.toString()});
 		}
 	});
 	res.send();
 };
 
-exports.createAction = function(req, res, next) {
+exports.createAction = function(req, res) {
     var user_id;
     if (!req.user) {
         user_id = null;
@@ -115,7 +110,7 @@ exports.createAction = function(req, res, next) {
     else {
         user_id = req.user._id;
     }
-    console.log("Starting an action for dataset " + req.params['id']);
+    console.log("Starting an action for dataset " + req.params.id);
     //Create the action and set status "running"
     Action.create(
         {name: req.body.name, started: Date.now(), status: "Started", started_by: user_id},
@@ -123,30 +118,38 @@ exports.createAction = function(req, res, next) {
             if (err) {
                 res.status(400);
                 console.log(err);
-	            return res.send({reason:err.toString()})
+	            return res.send({reason:err.toString()});
             }
             Dataset.findByIdAndUpdate(
-                req.params['id'],
+                req.params.id,
                 {$push: {"actions": amodel._id}},
                 {safe: true, upsert: false, new: true},
                 function(err, dmodel) {
                     if (!err && dmodel) {
                         if (req.body.name == "Import from Google Sheets") {
-                            console.log("Starting import from " + dmodel.name);
+                            console.log("Starting import from " + dmodel.name + '...');
                             res.status(200);
                             res.send();
-                            console.log("Triggered, res sent\n");
-                            googlesheets.processData(dmodel.source_url, amodel._id, function(status, report) {
-
-                                console.log("process finished");
+                            googlesheets.processData(dmodel.source_url, amodel._id, function(status, report, affectedEntities) {
+                                console.log("Action finished...");
                                 console.log("Status: " + status + "\n");
                                 console.log("Report: " + report + "\n");
                                 Action.findByIdAndUpdate(
                                     amodel._id,
                                     {finished: Date.now(), status: status, details: report},
-                                    {safe: true, upsert: false, new: true},
+                                    {safe: true, upsert: false, 'new': true},
                                     function(err, ramodel) {
-                                        if (err) console.log("Failed to update an action: " + err);
+                                        if (err) console.log("Failed to update an action: " + err); //We are unable to really communicate this to the user
+                                        else {
+                                            var importSources = [];
+                                            _.each(affectedEntities, function(value) {
+                                                value.action = ramodel._id;
+                                                importSources.push(value);
+                                            });
+                                            ImportSource.collection.insert(importSources, {}, function(err) {
+                                               if (err) console.log("Failed to store affected entities: " + err); 
+                                            });
+                                        }
                                     }
                                 );
                             });

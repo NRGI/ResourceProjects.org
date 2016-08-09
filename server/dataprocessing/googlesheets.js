@@ -21,6 +21,8 @@ var SourceType = require('mongoose').model('SourceType'),
     
 var actionId = null;
 
+var createdOrAffectedEntities = {};
+
 exports.processData = function(link, actionid, callback) {
     actionId = actionid;
     var report = "";
@@ -29,7 +31,7 @@ exports.processData = function(link, actionid, callback) {
     report += `Using link ${link}\n`;
     if (key.length != 44) {
         report += "Could not detect a valid spreadsheet key in URL\n";
-        callback("Failed", report);
+        callback("Failed", report, createdOrAffectedEntities);
         return;
     }
     else {
@@ -59,7 +61,7 @@ exports.processData = function(link, actionid, callback) {
                         }, (function (i, error, response, sbody) {
                             if (error) {
                                 report += `${body.feed.entry[i].title.$t}: Could not retrieve sheet`;
-                                callback("Failed", report);
+                                callback("Failed", report, createdOrAffectedEntities);
                                 return;
                             }
                             sbody = sbody.substring(sbody.indexOf("\n#") + 1); //Skip to start
@@ -88,7 +90,7 @@ exports.processData = function(link, actionid, callback) {
         }
         else {
             report += "Could not get information from GSheets feed - is the sheet shared?\n";
-            callback("Failed", report);
+            callback("Failed", report, createdOrAffectedEntities);
             return;
         }
     });
@@ -386,6 +388,7 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                             return callback(`Failed: ${companiesReport.report}`);
                         }
                         else {
+                            createdOrAffectedEntities[nlmodel._id] = {entity: 'link', obj: nlmodel._id};
                             companiesReport.add(`Created link\n`);
                             return callback(null);
                         }
@@ -400,6 +403,7 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                                 return callback(`Failed: ${companiesReport.report}`);
                             }
                             else if (lmodel) {
+                                createdOrAffectedEntities[lmodel._id] = {entity: 'link', obj: lmodel._id};
                                 companiesReport.add(`Link already exists in the DB, not adding\n`);
                                 return callback(null);
                             }
@@ -416,6 +420,7 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                 return callback(`Failed: ${companiesReport.report}`);
             }
             else if (doc) {
+                createdOrAffectedEntities[doc._id] = {entity: prefix, obj: doc._id};
                 destObj[row[rowIndex].toLowerCase()] = doc;
                 //Also index by aliases
                 var alias;
@@ -446,6 +451,7 @@ processCompanyRow = function(companiesReport, destObj, entityName, rowIndex, mod
                             companiesReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                             return callback(`Failed: ${companiesReport.report}`);
                         }
+                        createdOrAffectedEntities[cmodel._id] = {entity: prefix, obj: cmodel._id};
                         companiesReport.add(`Added ${entityName} ${row[rowIndex]} to the DB.\n`);
                         destObj[row[rowIndex].toLowerCase()] = cmodel;
                         if (newObj.link) {
@@ -475,9 +481,9 @@ function parseData(sheets, report, finalcallback) {
         ], function (err, report) {
             if (err) {
                 console.log("PARSE: Got an error\n");
-                return finalcallback("Failed", report.report);
+                return finalcallback("Failed", report.report, createdOrAffectedEntities);
             }
-            finalcallback("Success", report.report);
+            finalcallback("Success", report.report, createdOrAffectedEntities);
         }
     );
 
@@ -538,8 +544,8 @@ function parseData(sheets, report, finalcallback) {
     function parseCommodities(result, callback) {
         //Complete commodity list is in the DB
         result.add("Getting commodities from database...\n");
-        commodities = new Object;
-        commoditiesById = new Object;
+        commodities = {};
+        commoditiesById = {};
         Commodity.find({}, function (err, cresult) {
             if (err) {
                 result.add(`Got an error: ${err}\n`);
@@ -564,7 +570,7 @@ function parseData(sheets, report, finalcallback) {
 
     function parseSources(result, callback) {
         var processSourceRow = function(sourcesReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-            if (row['#source'] == "") {
+            if (row['#source'] === "") {
                 sourcesReport.add("Sources: source name cannot be empty. Aborting.\n");
                 return callback(`Failed: ${sourcesReport.report}`);
             }
@@ -578,6 +584,7 @@ function parseData(sheets, report, finalcallback) {
                         return callback(`Failed: ${sourcesReport.report}`);
                     }
                     else if (doc) {
+                        createdOrAffectedEntities[doc._id] = {entity: 'source', obj: doc._id};
                         sourcesReport.add(`Source ${row['#source']} already exists in the DB (url match), not adding\n`);
                         sources[row['#source'].toLowerCase()] = doc;
                         return callback(null);
@@ -596,6 +603,7 @@ function parseData(sheets, report, finalcallback) {
                                     return callback(`Failed: ${sourcesReport.report}`);
                                 }
                                 sourcesReport.add(`Added source ${row['#source']} to the DB.\n`);
+                                createdOrAffectedEntities[model._id] = {entity: 'source', obj: model._id};
                                 sources[row['#source'].toLowerCase()] = model;
                                 return callback(null);
                             })
@@ -739,35 +747,43 @@ function parseData(sheets, report, finalcallback) {
                 var projectNames = Object.getOwnPropertyNames(projects);
                 async.eachSeries(projectNames, //TODO: each parallel???
                     function (project, ecallback) {
-                        var idToUpdateOrCreate = projects[project]._id;
-                        if (projects[project]._id) delete projects[project]._id; //Don't send id back in to Mongo
-                        if (projects[project].__v) delete projects[project].__v; //or __v: https://github.com/Automattic/mongoose/issues/1933
-                        Project.findByIdAndUpdate(idToUpdateOrCreate, projects[project], {upsert: true, 'new': true}, function(err, pmodel) {
-                            if (err) {
-                                reportSoFar.add(`Encountered an error (${util.inspect(err)}) while saving project to the DB. Aborting.\n`);
-                                return ecallback(err);
-                            }
-                            
-                            projects[project] = pmodel; //Internal update. Important to do this here to grab id if it was previously set.
-                            
-                            if (!pmodel.proj_id) {
-                                Project.update({_id: pmodel._id}, {proj_id: countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
-                                    function(err) {
-                                        if (err) {
-                                            projectsReport.add(`Encountered an error while setting the project ID DB: ${err}. Aborting.\n`);
-                                            return ecallback(err);
+                        var idToUpdateOrCreate = require('mongoose').Types.ObjectId(); //Generate a new ID if we don't have one
+                        if (projects[project]._id) idToUpdateOrCreate = projects[project]._id;
+                        if (projects[project].__v) delete projects[project].__v; //Don't send __v back in to Mongo: https://github.com/Automattic/mongoose/issues/1933
+                        Project.findByIdAndUpdate(
+                            idToUpdateOrCreate,
+                            projects[project],
+                            {upsert: true, 'new': true},
+                            function(err, pmodel) {
+                                
+                                if (err) {
+                                    reportSoFar.add(`Encountered an error (${util.inspect(err)}) while saving project to the DB. Aborting.\n`);
+                                    return ecallback(err);
+                                }
+                                
+                                createdOrAffectedEntities[pmodel._id] = {entity: 'project', obj: pmodel._id};
+                                
+                                projects[project] = pmodel; //Internal update. Important to do this here to grab id if it was previously set.
+                                
+                                if (!pmodel.proj_id) {
+                                    Project.update({_id: pmodel._id}, {proj_id: countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
+                                        function(err) {
+                                            if (err) {
+                                                projectsReport.add(`Encountered an error while setting the project ID DB: ${err}. Aborting.\n`);
+                                                return ecallback(err);
+                                            }
+                                            reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
+                                            
+                                            return ecallback(null);
                                         }
-                                        reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
-                                        
-                                        return ecallback(null);
-                                    }
-                                );
+                                    );
+                                }
+                                else {
+                                    reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
+                                    return ecallback(null);
+                                }
                             }
-                            else {
-                                reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
-                                return ecallback(null);
-                            }
-                        });
+                        );
                     },
                     function (err) {
                         if (err) return callback(err, reportSoFar);
@@ -827,6 +843,7 @@ function parseData(sheets, report, finalcallback) {
                                         function (err, cmodel) {
                                             if (err) return wcallback(err);
                                             else {
+                                                createdOrAffectedEntities[cmodel._id] = {entity: 'company', obj: cmodel._id};
                                                 companies[row['#project+company'].toLowerCase()] = cmodel;
                                                 return wcallback(null, project, companies[row['#project+company'].toLowerCase()]);
                                             }
@@ -861,6 +878,7 @@ function parseData(sheets, report, finalcallback) {
                                         return wcallback(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                                     }
                                     else if (doc) { //Found contract, but no clear reference to archive by. For inter-sheet lookups use title if present, but pass it along for this row only.
+                                        createdOrAffectedEntities[doc._id] = {entity: 'contract', obj: doc._id};
                                         if (row['#contract'] !== "") contracts[row['#contract'].toLowerCase] = doc;
                                         candcReport.add(`Contract ${row['#contract+identifier']} exists\n`);
                                         return wcallback(null, project, company, doc);
@@ -878,6 +896,7 @@ function parseData(sheets, report, finalcallback) {
                                                 if (err) {
                                                     return wcallback(err);
                                                 }
+                                                createdOrAffectedEntities[cmodel._id] = {entity: 'contract', obj: cmodel._id};
                                                 if (row['#contract'] !== "") contracts[row['#contract']] = cmodel;
                                                 candcReport.add(`Created a contract.\n`);
                                                 return wcallback(null, project, company, cmodel);
@@ -929,6 +948,7 @@ function parseData(sheets, report, finalcallback) {
                                         wcallback(err);
                                     }
                                     else  {
+                                        createdOrAffectedEntities[doc._id] = {entity: 'concession', obj: doc._id};
                                         concessions[row['#project+concession'].toLowerCase()] = doc;
                                         candcReport.add("Found and updated concession\n"); //TODO include name
                                         return wcallback(null, project, company, contract, doc);
@@ -993,6 +1013,7 @@ function parseData(sheets, report, finalcallback) {
                                     return wcallback(err);
                                 }
                                 else  {
+                                    createdOrAffectedEntities[doc._id] = {entity: 'site', obj: doc._id};
                                     sites[row['#project+' + identifier].toLowerCase()] = doc;
                                     candcReport.add("Found and updated site\n"); //TODO include name
                                     return wcallback(null, project, company, contract, concession, doc);
@@ -1020,12 +1041,13 @@ function parseData(sheets, report, finalcallback) {
                                 llink,
                                 llink,
                                 {upsert: true, 'new': true},
-                                function (err) {
+                                function (err, doc) {
                                     if (err) {
                                         candcReport.add("Error creating link\n"); //TODO include name
                                         lcallback(err);
                                     }
                                     else {
+                                        createdOrAffectedEntities[doc._id] = {entity: 'link', obj: doc._id};
                                         candcReport.add("Linked " + llink.entities[0] + " with " + llink.entities[1] + "\n"); //TODO include name
                                         lcallback(null);
                                     }
@@ -1201,13 +1223,14 @@ function parseData(sheets, report, finalcallback) {
             Production.findOneAndUpdate(
                 query,
                 newProduction,
-                {upsert: true},
-                function(err) {
+                {upsert: true, 'new': true},
+                function(err, doc) {
                     if (err) {
                         prodReport.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                         return callback(`Failed: ${prodReport.report}`);
                     }
                     else {
+                        createdOrAffectedEntities[doc._id] = {entity: 'production', obj: doc._id};
                         prodReport.add(`Production added or updated\n`); //TODO add details
                         return callback(null);
                     }
@@ -1241,11 +1264,12 @@ function parseData(sheets, report, finalcallback) {
             //Note: no checking for existing entries but blanket acceptance of data as rows themselves can duplicate. If we ever want back (for 0.5), look in git 18/7/16
             Transfer.create(
                 newTransfer,
-                function(err) {
+                function(err, tmodel) {
                     if (err) {
                         transReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);
                         return callback(`Failed: ${transReport.report}`);
                     }
+                    createdOrAffectedEntities[tmodel._id] = {entity: 'transfer', obj: tmodel._id};
                     transReport.add(`Added transfer to the DB.\n`); //TODO detail
                     return callback(null);
                 }
