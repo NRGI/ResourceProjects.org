@@ -107,10 +107,12 @@ exports.getProjects = function(req, res) {
                             }
                             switch (entity) {
                                 case 'company':
-                                    company.push({
-                                        _id: link.company._id,
-                                        company_name: link.company.company_name
-                                    });
+                                    if(link.company && link.company._id) {
+                                        company.push({
+                                            _id: link.company._id,
+                                            company_name: link.company.company_name
+                                        });
+                                    }
                                     company = _.map(_.groupBy(company,function(doc){
                                         return doc._id;
                                     }),function(grouped){

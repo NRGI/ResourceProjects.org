@@ -283,10 +283,14 @@ var makeNewProduction = function(newRow) {
 function fillInGenericFields(newRow, object, name) {
     switch(newRow['#' + name + '+entity+type'].toLowerCase()) {
         case "":
-        case "unknown": //Strictly speaking unknown+value doesn't make much sense, but it makes the code a bit simpler
+        case "unknown":
             if (newRow['#' + name + '+entity+name'] !== "") { //Entity names without entity type: default is project
-                object[name + '_level'] = "project";
-                object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
+                //But it can also not be a project
+                if (projects[newRow['#' + name + '+entity+name'].toLowerCase()]) {
+                    object[name + '_level'] = "project";
+                    object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
+                }
+                else object[name + '_level'] = "unknown";
             }
             else if (newRow['#company'] !== "") object[name + '_level'] = "company"; //Implied company level. Company filled elsewhere.
             //Otherwise we only have country to go on. Country must be present. Country filled elsewhere.
@@ -302,7 +306,7 @@ function fillInGenericFields(newRow, object, name) {
             break;
         case "site":
         case "field":
-            object[name + '_level'] = row['#' + name + '+entity+type'].toLowerCase();
+            object[name + '_level'] = newRow['#' + name + '+entity+type'].toLowerCase();
             object.site = sites[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "company":
@@ -690,10 +694,15 @@ function parseData(sheets, report, finalcallback) {
                 projectsReport.add('Empty project name in row. Skipping.\n');
                 return callback(null);
             }
-            
-            var countryRow = _.findWhere(sheets['1'].data, {"#project": row['#project']});
-            var countryId = countries[countryRow['#country+identifier']]._id;
-                
+            var countryRow, countryId;
+            try {
+                countryRow = _.findWhere(sheets['1'].data, {"#project": row['#project']});
+                countryId = countries[countryRow['#country+identifier']]._id;
+            }
+            catch (error) {
+                projectsReport.add(`Invalid data in referenced sheet 1: \n${util.inspect(countryRow)} referenced from row \n${util.inspect(row)}. Aborting.\n`);
+                return callback(`Failed: ${projectsReport.report}`);
+            }
             //Look for project in DB. This only happens if not in internal list.
             if (!_.findWhere(destObj, {proj_name: row['#project'].toLowerCase()})) { //If not yet in internal list (i.e. contained in this workbook)
                 //Projects - check against name and aliases
@@ -727,7 +736,7 @@ function parseData(sheets, report, finalcallback) {
                             updateOrCreateProject(null, doc, countryId, callback); //NO existing project internally
                         }
                         else {
-                            projectsReport.add(`Project ${row[rowIndex]} not found in DB.\n`);
+                            projectsReport.add(`Project ${row[rowIndex]} not found in DB. It will be added later.\n`);
                             updateOrCreateProject(null, null, countryId, callback); //NO existing project internally, NO project in DB
                         }
                     }
@@ -865,13 +874,16 @@ function parseData(sheets, report, finalcallback) {
                     function (project, company, wcallback) {
                         //Check for existing contract, if doesn't exist, create
                          if ((row['#contract'] !== "") || (row['#contract+uri'] !== "") || (row['#contract+rcId'] !== "") || (row['#contract+ooId'] !== "")) {
+                            var query = [];
+                            var contract_obj = {};
+                            var contract_describer = "";
+                            if (row['#contract'] !== "") { query.push({contract_title: row['#contract']}); contract_obj.contract_title = row['#contract']; contract_describer += (contract_obj.contract_title + "/"); }
+                            if (row['#contract+rcId'] !== "") { query.push({contract_title: row['#contract+rcId']}); contract_obj.contract_id = row['#contract']; contract_describer += (contract_obj.contract_id + "/"); }
+                            if (row['#contract+ooId'] !== "") { query.push({contract_title: row['#contract+ooId']}); contract_obj.oo_contract_id= row['#contract']; contract_describer += (contract_obj.oo_contract_id + "/"); }
+                            if (row['#contract+uri'] !== "") { query.push({contract_title: row['#contract+uri']}); contract_obj.contract_url = row['#contract']; contract_describer += (contract_obj.contract_url + "/"); }
+                            contract_describer = contract_describer.slice(0,-1);
                             Contract.findOne({
-                                    $or: [
-                                        {contract_title: row['#contract']},
-                                        {contract_id: row['#contract+rcId']},
-                                        {oo_contract_id: row['#contract+ooId']},
-                                        {contract_url: row['#contract+uri']}
-                                    ]
+                                    $or: query
                                 },
                                 function(err, doc) {
                                     if (err) {
@@ -880,25 +892,19 @@ function parseData(sheets, report, finalcallback) {
                                     else if (doc) { //Found contract, but no clear reference to archive by. For inter-sheet lookups use title if present, but pass it along for this row only.
                                         createdOrAffectedEntities[doc._id] = {entity: 'contract', obj: doc._id};
                                         if (row['#contract'] !== "") contracts[row['#contract'].toLowerCase] = doc;
-                                        candcReport.add(`Contract ${row['#contract+identifier']} exists\n`);
+                                        candcReport.add(`Contract ${contract_describer} exists\n`);
                                         return wcallback(null, project, company, doc);
                                     }
                                     else { //No contract, create
-                                        var newContract = {
-                                            contract_title: row['#contract'],
-                                            contract_id: row['#contract+rcId'],
-                                            oo_contract_id: row['#contract+ooId'],
-                                            contract_url: row['#contract+uri']
-                                        };
                                         Contract.create(
-                                            newContract,
+                                            contract_obj,
                                             function(err, cmodel) {
                                                 if (err) {
                                                     return wcallback(err);
                                                 }
                                                 createdOrAffectedEntities[cmodel._id] = {entity: 'contract', obj: cmodel._id};
                                                 if (row['#contract'] !== "") contracts[row['#contract']] = cmodel;
-                                                candcReport.add(`Created a contract.\n`);
+                                                candcReport.add(`Created a contract (${contract_describer})\n`);
                                                 return wcallback(null, project, company, cmodel);
                                             }
                                         );

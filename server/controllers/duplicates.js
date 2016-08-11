@@ -1,13 +1,13 @@
 'use strict';
 
 var Duplicate = require('mongoose').model('Duplicate'),
-Project = require('mongoose').model('Project'),
-Company = require('mongoose').model('Company'),
-CompanyGroup = require('mongoose').model('CompanyGroup'),
-Link = require('mongoose').model('Link'),
-async = require('async'),
-_ = require("underscore"),
-moment = require('moment');
+    Project = require('mongoose').model('Project'),
+    Company = require('mongoose').model('Company'),
+    CompanyGroup = require('mongoose').model('CompanyGroup'),
+    Link = require('mongoose').model('Link'),
+    async = require('async'),
+    _ = require("underscore"),
+    moment = require('moment');
 
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Schema.Types.ObjectId;
@@ -33,35 +33,67 @@ exports.getDuplicates = function(req, res) {
   });
 
   function getCompanyDuplicates(limit, skip, callback) {
-    Duplicate.find({ entity: 'company', resolved: false })
-    .populate('original', null, 'Company')
-    .populate('duplicate', null, 'Company')
-    .populate('resolved_by')
-    .limit(limit)
-    .skip(limit * skip)
-    .exec(function(err, duplicate) {
-      if(duplicate) {
-        callback(null, duplicate);
-      } else {
-        callback(err);
+
+    async.waterfall([
+      getDuplicateCount,
+      getDuplicateData
+    ], function(err, result) {
+      if (err) {
+        res.send(err);
+      }
+      else {
+        if (req.query && req.query.callback) {
+          console.log('req.query.callback', req.query.callback)
+          return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+        }
+        else {
+          return res.send(result);
+        }
       }
     });
+
+    function getDuplicateCount(callback) {
+      Duplicate.find({ entity: 'company', resolved: false }).count().exec(function(err, company_count) {
+        if(company_count) {
+          callback(null, company_count);
+        } else {
+          callback(err);
+        }
+      });
+    }
+
+    function getDuplicateData(duplicate_count, callback) {
+      Duplicate.find({ entity: 'company', resolved: false })
+          .populate('original', null, 'Company')
+          .populate('duplicate', null, 'Company')
+          .populate('resolved_by')
+          .limit(limit)
+          .skip(limit * skip)
+          .exec(function(err, duplicate) {
+            if(duplicate) {
+              callback(null, { data: duplicate, count: duplicate_count} );
+            } else {
+              callback(err);
+            }
+          });
+    }
+
   }
 
   function getProjectDuplicates(limit, skip, callback) {
     Duplicate.find({ entity: 'project', resolved: false })
-    .populate('original', null, 'Project')
-    .populate('duplicate', null, 'Project')
-    .populate('resolved_by')
-    .limit(limit)
-    .skip(limit * skip)
-    .exec(function(err, duplicate) {
-      if(duplicate) {
-        callback(null, duplicate);
-      } else {
-        callback(err);
-      }
-    });
+        .populate('original', null, 'Project')
+        .populate('duplicate', null, 'Project')
+        .populate('resolved_by')
+        .limit(limit)
+        .skip(limit * skip)
+        .exec(function(err, duplicate) {
+          if(duplicate) {
+            callback(null, duplicate);
+          } else {
+            callback(err);
+          }
+        });
   }
 };
 
@@ -83,22 +115,22 @@ exports.getDuplicateByID = function(req, res) {
 
   function getDuplicate(callback) {
     Duplicate.findOne({ _id: req.params.id })
-    .lean()
-    .exec(function(err, duplicate) {
-      if(duplicate) {
-        callback(null, duplicate);
-      } else {
-        callback(err);
-      }
-    });
+        .lean()
+        .exec(function(err, duplicate) {
+          if(duplicate) {
+            callback(null, duplicate);
+          } else {
+            callback(err);
+          }
+        });
   }
 };
 
 /* TODO implement this as soon as papertrail code is implemented
-exports.getDuplicatesAfterLastUpdate = function(req, res) {
+ exports.getDuplicatesAfterLastUpdate = function(req, res) {
 
-};
-*/
+ };
+ */
 
 exports.getDuplicatesCreatedAfterDate = function(req, res) {
 
@@ -139,49 +171,106 @@ exports.resolveDuplicates = function(req, res) {
     switch(action) {
       case 'setasalias':
 
-      switch(obj.entity) {
-        case 'company':
-        // get duplicate object
+        switch(obj.entity) {
+          case 'company':
+            // get duplicate object
+            Company.findOneAndRemove({ _id: obj.duplicate}, function (err, company_to_remove) {
+              if(err) {
+                callback(err);
+              }
+              else if(company_to_remove) {
+                var alias = makeNewAlias(company_to_remove.company_name, 'company', company_to_remove.company_established_source);
+                Company.findById(obj.original, function(err, company) {
+                  if(err) {
+                    callback(err);
+                  }
+                  else if(company){
+                    company.company_aliases.push(alias);
+                    company.save(function(err){
+                      if(err) {
+                        callback(err);
+                      }
+                      else {
+                        //update links
+                        async.waterfall([
+                          findLinks.bind(null, company_to_remove._id, obj._id),
+                          updateLinks
+                        ], function(err, results) {
+                          if(err) {
+                            callback(err);
+                          }
+                          else if(results) {
+                            // finally update duplicate entry to resolved
+                            Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
+                              if(err) {
+                                callback(err);
+                              }
+                              else {
+                                callback(null, "added alias");
+                              }
+                            });
+                          }
+                          else {
+                            callback(err);
+                          }
+                        })
+                      }
+                    });
+                  }
+                  else {
+                    callback(err);
+                  }
+                });
+              }
+              else {
+                callback(err);
+              }
+            });
+
+
+            // TODO update facts
+
+            break;
+
+          case 'project':
+            // TODO
+            break;
+
+          default:
+            break;
+        }
+        callback(null, "duplicate, alias set");
+        break;
+
+      case 'resolve':
+        Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
+          if(err) {
+            callback(err);
+          }
+          else {
+            callback(null, "no duplicate, resolved");
+          }
+        });
+        break;
+
+      case 'update':
         Company.findOneAndRemove({ _id: obj.duplicate}, function (err, company_to_remove) {
           if(err) {
             callback(err);
           }
           else if(company_to_remove) {
-            var alias = makeNewAlias(company_to_remove.company_name, 'company', company_to_remove.company_established_source);
-            Company.findById(obj.original, function(err, company) {
+            //TODO remove old _id from company_to_remove object
+            Company.findByIdAndUpdate(obj.original, company_to_remove, function(err, doc) {
               if(err) {
                 callback(err);
               }
-              else if(company){
-                company.company_aliases.push(alias);
-                company.save(function(err){
+              else if(company_to_remove) {
+                Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
                   if(err) {
                     callback(err);
                   }
                   else {
-                    //update links
-                    async.waterfall([
-                      findLinks.bind(null, company_to_remove._id, obj._id),
-                      updateLinks
-                    ], function(err, results) {
-                      if(err) {
-                        callback(err);
-                      }
-                      else if(results) {
-                        // finally update duplicate entry to resolved
-                        Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
-                          if(err) {
-                            callback(err);
-                          }
-                          else {
-                            callback(null, "added alias");
-                          }
-                        });
-                      }
-                      else {
-                        callback(err);
-                      }
-                    })
+                    callback(null, "company updated with information");
                   }
                 });
               }
@@ -194,69 +283,12 @@ exports.resolveDuplicates = function(req, res) {
             callback(err);
           }
         });
-
-
-        // TODO update facts
-
         break;
-
-        case 'project':
-        // TODO
-        break;
-
-        default:
-        break;
-      }
-      callback(null, "duplicate, alias set");
-      break;
-
-      case 'resolve':
-      Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
-        if(err) {
-          callback(err);
-        }
-        else {
-          callback(null, "no duplicate, resolved");
-        }
-      });
-      break;
-
-      case 'update':
-      Company.findOneAndRemove({ _id: obj.duplicate}, function (err, company_to_remove) {
-        if(err) {
-          callback(err);
-        }
-        else if(company_to_remove) {
-          //TODO remove old _id from company_to_remove object
-          Company.findByIdAndUpdate(obj.original, company_to_remove, function(err, doc) {
-            if(err) {
-              callback(err);
-            }
-            else if(company_to_remove) {
-              Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
-                if(err) {
-                  callback(err);
-                }
-                else {
-                  callback(null, "company updated with information");
-                }
-              });
-            }
-            else {
-              callback(err);
-            }
-          });
-        }
-        else {
-          callback(err);
-        }
-      });
-      break;
 
       default:
-      // do nothing here
-      callback("no valid action chosen");
-      break;
+        // do nothing here
+        callback("no valid action chosen");
+        break;
     }
   };
 
@@ -292,15 +324,15 @@ exports.resolveDuplicates = function(req, res) {
 
   function getEntity(id, action, callback) {
     Duplicate.findOne({ _id: id })
-    .lean()
-    .exec(function(err, result) {
-      if(err) {
-        callback(err);
-      }
-      else {
-        callback(null, result, action);
-      }
-    });
+        .lean()
+        .exec(function(err, result) {
+          if(err) {
+            callback(err);
+          }
+          else {
+            callback(null, result, action);
+          }
+        });
 
     function updateFacts(old_company_id, new_company_id, callback) {
       async.parallel([
@@ -324,28 +356,28 @@ exports.resolveDuplicates = function(req, res) {
 
   function updateCompanyGroup(old_company_id, new_company_id, callback) {
     CompanyGroup.update(
-      { 'country_of_incorporation.company': old_company_id },
-      { 'country_of_incorporation.company': new_company_id }
+        { 'country_of_incorporation.company': old_company_id },
+        { 'country_of_incorporation.company': new_company_id }
     )
-    .populate('country_of_incorporation')
-    .exec(function(err, facts){
-      if(err) {
-        callback(err);
-      }
-      else if(facts) {
-        facts.save(function(err, updatedFacts) {
+        .populate('country_of_incorporation')
+        .exec(function(err, facts){
           if(err) {
             callback(err);
           }
-          else {
-            callback(null, 'facts updated');
+          else if(facts) {
+            facts.save(function(err, updatedFacts) {
+              if(err) {
+                callback(err);
+              }
+              else {
+                callback(null, 'facts updated');
+              }
+            })
           }
-        })
-      }
-      else {
-        callback(err);
-      }
-    });
+          else {
+            callback(err);
+          }
+        });
   }
 
   function updateConcessions(old_company_id, new_company_id, callback) {
@@ -391,13 +423,13 @@ exports.updateFacts = function(req, res) {
 
   function findCG(cid, callback) {
     CompanyGroup.find({ 'country_of_incorporation.company' : cid },
-    function(err, results) {
-      if(err) callback(err);
-      else if(results) {
-        callback(null, results, cid);
-      }
-      else callback(err);
-    });
+        function(err, results) {
+          if(err) callback(err);
+          else if(results) {
+            callback(null, results, cid);
+          }
+          else callback(err);
+        });
 
   };
 
@@ -405,19 +437,19 @@ exports.updateFacts = function(req, res) {
     async.each(list, function(item, fcallback) {
       for(var index in item.country_of_incorporation) {
         CompanyGroup.update(
-          { _id: item._id, 'country_of_incorporation.company': item.country_of_incorporation[index].company },
-          { "$set": { "country_of_incorporation.$.company": "57a1b6157f1247881ba6666b" }},
-          function(err, result) {
-            if(err) {
-              fcallback(err);
+            { _id: item._id, 'country_of_incorporation.company': item.country_of_incorporation[index].company },
+            { "$set": { "country_of_incorporation.$.company": "57a1b6157f1247881ba6666b" }},
+            function(err, result) {
+              if(err) {
+                fcallback(err);
+              }
+              else if(result) {
+                fcallback(null, "updated");
+              }
+              else {
+                fcallback(err);
+              }
             }
-            else if(result) {
-              fcallback(null, "updated");
-            }
-            else {
-              fcallback(err);
-            }
-          }
         );
       }
     }, function(err) {

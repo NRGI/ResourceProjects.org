@@ -186,7 +186,7 @@ exports.createAction = function(req, res) {
                             googlesheets.processData(dmodel.source_url, amodel._id, function(status, report, affectedEntities) {
                                 console.log("Action finished...");
                                 console.log("Status: " + status + "\n");
-                                console.log("Report: " + report + "\n");
+                                //console.log("Report: " + report + "\n");
                                 
                                 //Save affected entities (for unloading)
                                 var importSources = [];
@@ -252,7 +252,7 @@ exports.createAction = function(req, res) {
                             companieshouse.importData(amodel._id,function(status, report) {
                                 console.log("Process finished");
                                 console.log("Status: " + status + "\n");
-                                console.log("Report: " + report + "\n");
+                                //console.log("Report: " + report + "\n");
                                 console.log("Searching for duplicates...");
                                 if (status == "Success") {
                                     duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
