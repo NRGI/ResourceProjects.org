@@ -65,7 +65,7 @@ findAndHandleCompanyDuplicates = function(fnCallback) {
 
                   }
                 );
-                console.log(originalCompany.company_name);
+                //console.log(originalCompany.company_name);
               }
             }
           }
@@ -154,11 +154,11 @@ exports.findAndHandleDuplicates = function(action_id, fcallback) {
   actionId = action_id;
   
   async.series([
-    findAndHandleCompanyDuplicates,
+    //findAndHandleCompanyDuplicates, //TODO temp
     findAndHandleProjectDuplicates,
     removeViceVersaDuplicates
   ], function(err, results) {
-    if(!err) fcallback(null, "ok");
-    else fcallback(err, "not ok");
+    if(!err) { console.log("finished duplicates"); fcallback(null, "ok");}
+    else {console.log("finished duplicates with error"); fcallback(err, "not ok");}
   });
 };

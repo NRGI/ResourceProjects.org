@@ -185,7 +185,7 @@ exports.createAction = function(req, res) {
                             googlesheets.processData(dmodel.source_url, amodel._id, function(status, report, affectedEntities) {
                                 console.log("Action finished...");
                                 console.log("Status: " + status + "\n");
-                                console.log("Report: " + report + "\n");
+                                //console.log("Report: " + report + "\n");
                                 
                                 //Save affected entities (for unloading)
                                 var importSources = [];
@@ -193,40 +193,49 @@ exports.createAction = function(req, res) {
                                     value.action = amodel._id;
                                     importSources.push(value);
                                 });
-                                ImportSource.collection.insert(importSources, {}, function(err) {
-                                   if (err) console.log("Failed to store affected entities: " + err);
-                                   else {
-                                        //TODO: duplicates detector should only look at the entites of the last things that were inserted
-                                        //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
-                                        if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
-                                            duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-                                                 if (err) {
-                                                     status = "Failed";
-                                                     report += "\nDuplicate detection failed with error: " + err;
-                                                 }
-                                                 else report += "\nDuplicate detection completed.";
-                                                 Action.findByIdAndUpdate(
-                                                     amodel._id,
-                                                     {finished: Date.now(), status: status, details: report},
-                                                     {safe: true, upsert: false},
-                                                     function(err) {
-                                                         if (err) console.log("Failed to update an action: " + err);
+                                async.eachSeries(
+                                    importSources,
+                                    function(importSource, scallback) {
+                                        ImportSource.create(importSource, function(err) {
+                                            if (err) scallback(err);
+                                            else scallback(null);
+                                        });
+                                    },
+                                    function (err) {
+                                        if (err) console.log("Failed to store affected entities: " + err);
+                                        else {
+                                            //TODO: duplicates detector should only look at the entites of the last things that were inserted
+                                            //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
+                                            if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
+                                                duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                     if (err) {
+                                                         status = "Failed";
+                                                         report += "\nDuplicate detection failed with error: " + err;
                                                      }
-                                                 );
-                                             });
-                                        }
-                                        else { //TODO dedup code
-                                            Action.findByIdAndUpdate(
-                                                     amodel._id,
-                                                     {finished: Date.now(), status: status, details: report},
-                                                     {safe: true, upsert: false},
-                                                     function(err) {
-                                                         if (err) console.log("Failed to update an action: " + err);
-                                                     }
-                                            );
+                                                     else report += "\nDuplicate detection completed.";
+                                                     Action.findByIdAndUpdate(
+                                                         amodel._id,
+                                                         {finished: Date.now(), status: status, details: report},
+                                                         {safe: true, upsert: false},
+                                                         function(err) {
+                                                             if (err) console.log("Failed to update an action: " + err);
+                                                         }
+                                                     );
+                                                 });
+                                            }
+                                            else { //TODO dedup code
+                                                Action.findByIdAndUpdate(
+                                                         amodel._id,
+                                                         {finished: Date.now(), status: status, details: report},
+                                                         {safe: true, upsert: false},
+                                                         function(err) {
+                                                             if (err) console.log("Failed to update an action: " + err);
+                                                         }
+                                                );
+                                            }
                                         }
                                     }
-                                });
+                                );
                             });
                         }
                         else if (req.body.name == "Import from Companies House API") {
@@ -237,7 +246,7 @@ exports.createAction = function(req, res) {
                             companieshouse.importData(amodel._id,function(status, report) {
                                 console.log("Process finished");
                                 console.log("Status: " + status + "\n");
-                                console.log("Report: " + report + "\n");
+                                //console.log("Report: " + report + "\n");
                                 console.log("Searching for duplicates...");
                                 if (status == "Success") {
                                     duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
