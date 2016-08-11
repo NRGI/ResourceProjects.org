@@ -78,17 +78,14 @@ exports.getDatasets = function(req, res) {
                                                 dataset.isLoaded = false;
                                                 dataset.readyForCleaning = false;
                                                 dataset.canBeUnloaded = false;
+                                                dataset.canReLoad = false;
                                                 for (action of actions) { //Remember these are in reverse date order, so we are grabbing the last import/mark cleaned
                                                     if ((action.name == 'Unload last import') && (action.status == 'Success')) {
-                                                        dataset.isLoaded = false;
-                                                        dataset.readyForCleaning = false; //Not loaded so can't be marked cleaned
-                                                        dataset.canBeUnloaded = false; //Already unloaded
                                                         break;
                                                     }
                                                     if ((action.name == 'Mark as cleaned') && (action.status == 'Success')) {
                                                         dataset.isLoaded = true;
-                                                        dataset.readyForCleaning = false; //Already cleaned
-                                                        dataset.canBeUnloaded = false; //Will trial this to see if OK for workflow
+                                                        if (dataset.type === "Incremental API") dataset.canReLoad = true;
                                                         break;
                                                     }
                                                     if ((action.name.indexOf('Import') != -1) && (action.status == 'Success')) {
@@ -99,7 +96,6 @@ exports.getDatasets = function(req, res) {
                                                     }
                                                     if ((action.name.indexOf('Import') != -1) && (action.status == 'Failed')) {
                                                         dataset.isLoaded = true;
-                                                        dataset.readyForCleaning = false;
                                                         dataset.canBeUnloaded = true; //Only option: unload!
                                                         break;
                                                     }
@@ -199,7 +195,7 @@ exports.createAction = function(req, res) {
                                     function(importSource, icallback) {
                                         ImportSource.findOneAndUpdate(
                                             {obj: importSource.obj},
-                                            {$push: {actions: amodel._id}},
+                                            {$push: {actions: amodel._id}, entity: importSource.entity},
                                             {upsert: true},
                                             function (err) {
                                                 if (err) icallback("Failed to log an importsource");
@@ -296,12 +292,54 @@ exports.createAction = function(req, res) {
                                 }
                             );
 	                    }
-                        //TODO: Unload actionmakeNewDuplicate
+                        else if (req.body.name == "Unload last import") {
+                            console.log("Starting unload for " + dmodel.name);
+
+                            Action.find({dataset: dmodel._id}) //TODO: only doing this to get actions in date sorted order, even though we could already have them - bad
+                                .sort({started: 'desc'}).lean()
+                                .exec(function(err, actions)
+                                {
+                                    var action_id = null;
+                                    if (err) {
+                                        res.status(400);
+                                        return res.send({reason: err.toString()});
+                                    }
+                                    else {
+                                        var action;
+                                        for (action of actions) { //Remember these are in reverse date order, so we are grabbing the last import/mark cleaned
+                                            if (action.name.indexOf('Import') != -1) {
+                                                action_id = action._id;
+                                                break;
+                                            }
+                                        }
+                                        if (action_id) {
+                                            res.status(200);
+                                            res.send();
+                                            unloader.unloadActionData(action_id, function(error, status, report) {
+                                                console.log("Process finished");
+                                                console.log("Status: " + status + "\n");
+                                                Action.findByIdAndUpdate(
+                                                    amodel._id,
+                                                    {finished: Date.now(), status: status, details: report},
+                                                    {safe: true, upsert: false},
+                                                    function(err) {
+                                                        if (err) console.log("Failed to update an action: " + err);
+                                                    }
+                                                );
+                                            });
+                                        }
+                                        else {
+                                            res.status(400);
+                                            return res.send({reason:"No import to unload"});
+                                        }
+                                    }
+                                });
+	                    }
                     }
                     else {
                         if (err) {
                             res.status(400);
-                            return res.send({reason:err.toString()})
+                            return res.send({reason:err.toString()});
                         }
                         else {
                             res.status(404);
@@ -324,7 +362,7 @@ exports.getActionReport = function(req, res, next) {
                         else req.report = action.details;
                         next();
                    });
-}
+};
 
 
 

@@ -1,6 +1,4 @@
 var Source = require('mongoose').model('Source'),
-    Country = require('mongoose').model('Country'),
-    Commodity = require('mongoose').model('Commodity'),
     CompanyGroup = require('mongoose').model('CompanyGroup'),
     Company = require('mongoose').model('Company'),
     Project = require('mongoose').model('Project'),
@@ -13,29 +11,79 @@ var Source = require('mongoose').model('Source'),
     ImportSource    = require('mongoose').model('ImportSource');
 var async = require('async');
 
+var map = {
+    "company": Company,
+    "company_group": CompanyGroup,
+    "concession": Concession,
+    "contract": Contract,
+    "project": Project,
+    "production": Production,
+    "site": Site,
+    "transfer": Transfer,
+    "source": Source,
+    "link": Link
+};
+
 exports.unloadActionData = function(action_id, callback) {
-    async.series(
-        [
-            function(wcallback) { //Get list of things to delete
-                ImportSource.find(
-                    {$in: {actions: action_id}},
+    var report = "";
+    ImportSource.find(
+                    {actions: action_id},
                     function (err, importSources) {
-                        if (err) return wcallback(err);
-                        var importSource;
-                        for (importSource of importSources) {
-                            switch(importSource.entity) {
-                              default:
-                                console.log(importSource.obj._id); //TODO
-                            }
+                        if (err) {
+                            report += "Couldn't query ImportSources: " + err.toString();
+                            return callback(err, "Failed", report);
                         }
-                        return wcallback(null);
+                        async.eachSeries(importSources,
+                            function(importSource, scallback) {
+                            var model = map[importSource.entity];
+                            if (model) {
+                                model.findByIdAndRemove(importSource.obj, function(err) {
+                                    if (err) scallback(err);
+                                    else {
+                                        if (importSource.actions.length > 1) {
+                                            for (var j=0; j<importSource.actions.length; j++) {
+                                                if (importSource.actions[j] == action_id) {
+                                                    importSource.actions = importSource.actions.splice(j, 1); //Remove one item at pos j
+                                                    break;
+                                                }
+                                            }
+                                            if (importSource.__v) delete importSource.__v; //Don't send __v back in to Mongo: https://github.com/Automattic/mongoose/issues/1933
+                                            ImportSource.findByIdAndUpdate(
+                                                importSource._id,
+                                                importSource,
+                                                {},
+                                                function (err) {
+                                                    if (err) scallback(err);
+                                                    else {
+                                                        report += "Removed a " + importSource.entity + " with id " + importSource.obj + " and modified the record of its import from this import\n";
+                                                        scallback(null);
+                                                    }
+                                                }
+                                            );
+                                        }
+                                        else {
+                                            ImportSource.findByIdAndRemove(importSource._id, function (err) {
+                                                if (err) scallback(err);
+                                                else {
+                                                    report += "Removed a " + importSource.entity + " with id " + importSource.obj + " and the record of its import\n";
+                                                    scallback(null);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                            else return scallback("Invalid entity in Import Source: " + importSource.entity);
+                        },
+                        function (err) {
+                            if (err) {
+                                        report += "Encountered an error " + err.toString() + "\n";
+                                        return callback(err, "Failed", report);
+                                    }
+                                    else {
+                                       callback(null, "Success", report);
+                                    }
+                        });
                     }
                 );
-            }
-        ],
-        function(err) {
-            if (!err) callback(null, "ok");
-            else callback(err, "not ok");
-        }
-    );
 };
