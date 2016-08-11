@@ -15,7 +15,7 @@ var importSourceSchema, ImportSource,
 
 importSourceSchema = new Schema({
     obj: {type: ObjectId}, //No ref
-    action: {type: ObjectId, ref: 'Action'},
+    actions: [{type: ObjectId, ref: 'Action'}],
     entity: {
         type: String,
         required:'{PATH} is required!',
