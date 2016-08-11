@@ -38,40 +38,19 @@ angular.module('app')
 
             if(year) {
                 searchOptions.transfer_year = year;
+
+                nrgiTransfersSrvc.query(searchOptions, function (response) {
+                    if (response.reason) {
+                        rgiNotifier.error('Load document data failure');
+                    } else {
+                        $scope.count = response.count;
+                        $scope.transfers = response.data;
+                        totalPages = Math.ceil(response.count / limit);
+                        currentPage = currentPage + 1;
+                    }
+                });
             }
-
-            nrgiTransfersSrvc.query(searchOptions, function (response) {
-                if(response.reason) {
-                    rgiNotifier.error('Load document data failure');
-                } else {
-                    $scope.count = response.count;
-                    $scope.transfers = response.data;
-                    totalPages = Math.ceil(response.count / limit);
-                    currentPage = currentPage + 1;
-                }
-            });
         });
-
-        // $scope.$watch('year_filter', function(year) {
-        //     currentPage = 0;
-        //     totalPages = 0;
-        //     var searchOptions = {skip: currentPage, limit: limit};
-        //
-        //     if(year) {
-        //         searchOptions.transfer_year = year;
-        //     }
-        //
-        //     nrgiTransfersSrvc.query(searchOptions, function (response) {
-        //         if(response.reason) {
-        //             rgiNotifier.error('Load document data failure');
-        //         } else {
-        //             $scope.count = response.count;
-        //             $scope.transfers = response.data;
-        //             totalPages = Math.ceil(response.count / limit);
-        //             currentPage = currentPage + 1;
-        //         }
-        //     });
-        // });
 
         $scope.loadMore = function() {
             if ($scope.busy) return;

@@ -209,8 +209,6 @@ exports.getSites = function(req, res) {
                     ++site_counter;
                     site.production_count = production_count;
                     if (site_counter === site_len) {
-                        // callback(null, site_count, sites);
-                        // res.send({data: sites, count: site_count});
                         callback(null, {data: sites, count: site_count});
                     }
                 });
@@ -322,17 +320,18 @@ exports.getSiteByID = function(req, res) {
                                     proj_id: link.project.proj_id,
                                     proj_name: link.project.proj_name
                                 });
-                                //site.projects.push(link.project);
-                                link.project.proj_coordinates.forEach(function (loc) {
-                                    site.coordinates.push({
-                                        'lat': loc.loc[0],
-                                        'lng': loc.loc[1],
-                                        'message': link.project.proj_name,
-                                        'timestamp': loc.timestamp,
-                                        'type': 'project',
-                                        'id': link.project.proj_id
+                                if(link.project && link.project.proj_coordinates) {
+                                    link.project.proj_coordinates.forEach(function (loc) {
+                                        site.coordinates.push({
+                                            'lat': loc.loc[0],
+                                            'lng': loc.loc[1],
+                                            'message': link.project.proj_name,
+                                            'timestamp': loc.timestamp,
+                                            'type': 'project',
+                                            'id': link.project.proj_id
+                                        });
                                     });
-                                });
+                                }
                                 if (link.project.proj_commodity.length>0) {
                                     if (_.where(site.site_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                         site.site_commodity.push({
