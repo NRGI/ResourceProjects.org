@@ -55,7 +55,7 @@
                         target="_new") Failed
                 td
                     .row
-                        span(ng-if="!dataset.isLoaded")
+                        span(ng-if="!dataset.isLoaded || dataset.canReLoad")
                             a.btn.center-block.btn-primary-outline(ng-click="startAction('import', dataset._id)") Import
                         span(ng-if="dataset.isLoaded")
                             a.btn.center-block.btn-secondary.disabled() Import
