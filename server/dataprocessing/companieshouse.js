@@ -281,6 +281,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			if (!projDoc) {
 				report.add('Project ' + projectName + ' not found, creating.\n');
 				projDoc = makeNewProject(projectName, source, countryIso);
+				projDoc.proj_id = makeProjId( countryIso, projectName );
 			}
 			else {
 				newProj = false;
@@ -291,7 +292,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			}
 
             // projDoc.proj_id = projectName.toLowerCase().replace("/","").replace(" ","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
-            projDoc.proj_id = makeProjId( countryIso, projectName );
+            
 			// if (projectName.indexOf(" ") > -1) {
 			// 	var spacePos = projectName.indexOf(" ");
 			// 	projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
@@ -398,10 +399,11 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			
 			}
 			
-			// Projects - check against id and name+country
-			Project.findOne(
+			// Projects - check against <strike>id and </strike>name+country
+			//we don't know the proj_id out of the API	
+			/*Project.findOne(
 				{
-					proj_id: makeProjId(countryIso, projectTotalEntry.projectName)		// TODO: only projects for project totals or also for single project transfers?
+					proj_id: //we don't know the proj_id out of the API		// TODO: only projects for project totals or also for single project transfers?
 				},
 				function(err, projDoc) {
 					if (err) {
@@ -427,7 +429,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						//TODO End move into function
 					}
 					else {
-						Project.findOne( //match case-insensitive
+				*/		Project.findOne( //match case-insensitive
 							{
 								$or:
 									[
@@ -486,9 +488,9 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 								}
 							}
 						);
-					}
-				}
-			);
+					//}
+				//}
+			//);
 		}, function (err) {
 			if (err) {
 				return callback(err, report, projects, company, currency);
