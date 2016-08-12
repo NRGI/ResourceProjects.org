@@ -710,21 +710,16 @@ function parseData(sheets, report, finalcallback) {
                 
                 Project.findOne(
                     {
-                        $and:
-                        [
-                            {
-                                $or:
-                                    [
-                                        {
-                                            "proj_name": row[rowIndex]
-                                        },
-                                        {
-                                            "proj_aliases.alias": row[rowIndex]
-                                        }
-                                    ]
-                            },
-                            { "proj_country.country": countryId} 
-                        ]
+                        $or:
+                            [
+                                {
+                                    "proj_name":  { $regex : new RegExp(row[rowIndex], "i") } //case insensitive... companies house!
+                                },
+                                {
+                                    "proj_aliases.alias": { $regex : new RegExp(row[rowIndex], "i") }
+                                }
+                            ],
+                        "proj_country.country": countryId
                     },
                     function(err, doc) {
                         if (err) {
@@ -937,15 +932,11 @@ function parseData(sheets, report, finalcallback) {
                             } 
                             Concession.findOneAndUpdate(
                                 {
-                                    $and: [
-                                        {
-                                            $or: [
-                                                {concession_name: row['#project+concession']},
-                                                {"concession_aliases.alias": row['#project+concession']} //TODO: Could lead to replacing a concession with a new name by alias and losing the name
-                                            ]
-                                        },
-                                        {"concession_country.country": countries[row['#project+concession+country+identifier']]._id}
-                                    ]
+                                    $or: [
+                                        {concession_name: row['#project+concession']},
+                                        {"concession_aliases.alias": row['#project+concession']} //TODO: Could lead to replacing a concession with a new name by alias and losing the name
+                                    ],
+                                    "concession_country.country": countries[row['#project+concession+country+identifier']]._id
                                 },
                                 newConcession,
                                 {upsert: true, 'new': true},
@@ -1001,15 +992,11 @@ function parseData(sheets, report, finalcallback) {
 
                        Site.findOneAndUpdate(
                             {
-                                $and: [
-                                    {
-                                        $or: [
-                                            {site_name: row['#project+' + identifier]},
-                                            {"site_aliases.alias": row['#project+' + identifier]} //TODO: Could lead to replacing a site with a new name by alias and losing the name
-                                        ]
-                                    },
-                                    {"site_country.country": countries[row['#project+' + identifier + '+country+identifier']]._id}
-                                ]
+                                $or: [
+                                    {site_name: row['#project+' + identifier]},
+                                    {"site_aliases.alias": row['#project+' + identifier]} //TODO: Could lead to replacing a site with a new name by alias and losing the name
+                                ],
+                                "site_country.country": countries[row['#project+' + identifier + '+country+identifier']]._id
                             },
                             site,
                             {upsert: true, 'new': true},

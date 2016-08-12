@@ -22,6 +22,10 @@ var sourceTypeId = '56e8736944442a3824141429';
 //Data needed for inter-entity reference
 var countries;
 
+function makeProjId (countryIso, name) {
+	return countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+}
+
 exports.importData = function(action_id, finalcallback) {
 
 	var reportString = "";
@@ -31,10 +35,10 @@ exports.importData = function(action_id, finalcallback) {
 		add: function(more) {
 			this.text += more;
 		}
-	}
+	};
 
-	if (!API_KEY || (API_KEY == '')) {
-		reporter.add("API key must be set as environment variable CHAPIKEY! Aborting.")
+	if (!API_KEY || (API_KEY === '')) {
+		reporter.add("API key must be set as environment variable CHAPIKEY! Aborting.");
 		return finalcallback("Failed", reporter.text);
 	}
 
@@ -46,9 +50,9 @@ exports.importData = function(action_id, finalcallback) {
 				// Call Companies House Extractives API
 
 				request
-					//.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
+					.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
 					// testing with local duplicates
-					.get('http://localhost:3030/api/duplicatestestdata')
+					//.get('http://localhost:3030/api/duplicatestestdata')
 
 					.auth(API_KEY, '')
 					.end(function(err,res) {
@@ -103,7 +107,8 @@ exports.importData = function(action_id, finalcallback) {
 
 	// Get all countries from the DB
 	reporter.add("Getting countries from database...\n");
-	countries = new Object;
+	countries = {};
+	countries_iso2 = {};
 	Country.find({}, function (err, cresult) {
 		if (err) {
 			reporter.add(`Got an error: ${err}\n`);
@@ -115,6 +120,7 @@ exports.importData = function(action_id, finalcallback) {
 			for (ctry of cresult) {
 				country_iso3 = isocountries.alpha2ToAlpha3(ctry.iso2).toUpperCase();
 				countries[country_iso3] = ctry;
+				countries_iso2[ctry.iso2.toUpperCase()] = ctry;
 			}
 			processYears();
 		}
@@ -268,13 +274,13 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 	  var projects = {};
 
-		var updateOrCreateProject = function (projDoc, projectName, ucallback) {
+		var updateOrCreateProject = function (projDoc, projectName, countryIso, ucallback) {
 			var doc_id = null;
 			var newProj = true;
 
 			if (!projDoc) {
 				report.add('Project ' + projectName + ' not found, creating.\n');
-				projDoc = makeNewProject(projectName, source);
+				projDoc = makeNewProject(projectName, source, countryIso);
 			}
 			else {
 				newProj = false;
@@ -285,7 +291,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			}
 
             // projDoc.proj_id = projectName.toLowerCase().replace("/","").replace(" ","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
-            projDoc.proj_id = projectName.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+            projDoc.proj_id = makeProjId( countryIso, projectName );
 			// if (projectName.indexOf(" ") > -1) {
 			// 	var spacePos = projectName.indexOf(" ");
 			// 	projDoc.proj_id = projectName.toLowerCase().replace("/","").slice(0, 2) + projectName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
@@ -352,7 +358,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						};
 						Link.create(
 							newCompanyLink,
-							function(err, model) {
+							function(err) {
 								if (err) {
 									report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
 									return lcallback(err);
@@ -366,13 +372,36 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			);
 		};
 
-	        var counter = 0;
-
 		async.eachSeries(chData.projectTotals.projectTotal, function (projectTotalEntry, forcallback) {
-            // Projects - check against id and name
+			var countryId = null; //Allow setting of fact "CH API doesn't state a country". Makes searching a bit easier.
+			var ckey;
+			var countryIso = "99"; //code for "we don't know the country". Annoying because we would want to change this later.
+			if (isNaN(projectTotalEntry.projectCode[2])) { //Sometimes 2 letter code is used, sometimes 3, sometimes none
+				ckey = projectTotalEntry.projectCode.slice(0,3).toUpperCase();
+				if (countries[ckey]) {
+					countryId = countries[ckey]._id;
+					countryIso = countries[ckey].iso2;
+					report.add("Project uses a 3 letter ISO code\n"); }
+				else {
+					report.add("Project does not contain a country code\n");
+				}
+			}
+			else {
+				ckey = projectTotalEntry.projectCode.slice(0,2).toUpperCase().replace("UK", "GB");
+				if (countries_iso2[ckey]) {
+					countryId = countries_iso2[ckey]._id;
+					countryIso = ckey; report.add("2letter");
+				}
+			    else {
+					report.add("missingcountry");
+				}
+			
+			}
+			
+			// Projects - check against id and name+country
 			Project.findOne(
 				{
-					proj_id: projectTotalEntry.projectCode		// TODO: only projects for project totals or also for single project transfers?
+					proj_id: makeProjId(countryIso, projectTotalEntry.projectName)		// TODO: only projects for project totals or also for single project transfers?
 				},
 				function(err, projDoc) {
 					if (err) {
@@ -387,20 +416,29 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						// TODO: Cope with lack of country in totals?
 						async.waterfall([
 							// update the project if exists, otherwise create a new one
-							async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+							async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName, countryId),
 							// then create a new link between this project and the referring report company
 							createLink,
 							// search potential duplicates for this project
 							handleProjectDuplicates,
-						], function (err, result) {
+						], function () {
 							return forcallback(null);
 						});
 						//TODO End move into function
 					}
 					else {
-						Project.findOne(
+						Project.findOne( //match case-insensitive
 							{
-								proj_name: projectTotalEntry.projectName
+								$or:
+									[
+										{
+											"proj_name":  { $regex : new RegExp(projectTotalEntry.projectName, "i") }
+										},
+										{
+											"proj_aliases.alias": { $regex : new RegExp(projectTotalEntry.projectName, "i") }
+										}
+									],
+								"proj_country.country": countryId
 							},
 							function(err, doc) {
 								if (err) {
@@ -421,12 +459,12 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 									// TODO: Cope with lack of country in totals?
 									async.waterfall([
 										// update the project if exists, otherwise create a new one
-										async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+										async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName, countryIso),
 										// then create a new link between this project and the referring report company
 										createLink,
 										// search potential duplicates for this project
 										//handleProjectDuplicates,
-									], function (err, result) {
+									], function () {
 										return forcallback(null);
 									});
 									// TODO: End Move into function
@@ -436,12 +474,12 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 									// TODO: Cope with lack of country in totals?
 									async.waterfall([
 										// update the project if exists, otherwise create a new one
-										async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+										async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName, countryIso),
 										// then create a new link between this project and the referring report company
 										createLink,
 										// search potential duplicates for this project
 										//handleProjectDuplicates,
-									], function (err, result) {
+									], function () {
 										return forcallback(null);
 									});
 									// TODO: End Move into function
@@ -566,36 +604,6 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 			}
 
-
-			// Add in country information for the project
-			var update = {};
-
-			// Update project ID
-			var iso2country = countries[projectPaymentEntry.countryCodeList].iso2.toLowerCase();
-
-			var projName = projectPaymentEntry.projectName;
-
-            update.proj_id = iso2country + '-' + projName.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
-
-			// if (projName.indexOf(" ") > -1) {
-			// 	var spacePos = projName.indexOf(" ");
-			// 	update.proj_id = iso2country + '-' + projName.toLowerCase().replace("/","").slice(0, 2) + projName.toLowerCase().slice(spacePos + 1, spacePos + 3) + '-' + randomstring(6).toLowerCase();
-            //
-			// }
-			// else {
-			// 	update.proj_id = iso2country + '-' + projName.toLowerCase().replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
-			// }
-
-			// Enforce only one country per project...
-			update.proj_country = [{country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}];
-			// In theory this only adds the country if not already there
-			Project.update({proj_name: projectPaymentEntry.projectName}, update, {}, function(err, numAffected) {
-				if (err) console.log(err);
-			});
-
-
-
-
 			var transfer_audit_type = "company_payment";
 			var transfer_type = projectPaymentEntry.paymentType;
 			var transfer_level = "project";
@@ -715,11 +723,12 @@ function makeNewCompany (newData) {
 	return returnObj;
 }
 
-function makeNewProject(projectName, source) {
+function makeNewProject(projectName, source, countryIso) {
 
 	var project = {
 		proj_name: projectName,
 		proj_established_source: source._id,
+		proj_country: [{source: source._id, country: countries_iso2[countryIso]._id}]
 	};
 
 	return project;

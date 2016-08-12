@@ -343,7 +343,7 @@ exports.createAction = function(req, res) {
                         }
                         else {
                             res.status(404);
-                            res.send();
+                            res.send({reason:"Couldn't find dataset"});
                         }
                     }
                 }
