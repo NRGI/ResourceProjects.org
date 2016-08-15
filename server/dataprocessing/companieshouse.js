@@ -45,7 +45,7 @@ exports.importData = function(action_id, finalcallback) {
 	// loop all years in the given range and call the Companies House Extractives API for each of these years
 	var processYears = function() {
 		async.eachSeries(years, function (year, fcallback) {
-				reporter.add('Processing year ' + year);
+				reporter.add('Processing year ' + year + '\n');
 
 				// Call Companies House Extractives API
 

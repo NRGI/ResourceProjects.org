@@ -20,8 +20,9 @@ var fuse_options_project = {
 
 var actionId = null;
 
-findAndHandleCompanyDuplicates = function(fnCallback) {
-  console.log("handling company duplicates");
+findCompanyDuplicates = function(fnCallback) {
+  console.log("Searching for company duplicates...");
+  var duplicate_count = 0;
 
   Company.find({})
   .populate('resolved_by')
@@ -54,8 +55,9 @@ findAndHandleCompanyDuplicates = function(fnCallback) {
               var aliases = _.pluck(originalCompany.company_aliases, 'alias')
               //if not in aliases then mark as duplicate
               if(!_.contains(aliases, searchString)) {
-
+                duplicate_count++;
                 var newDuplicate = makeNewDuplicate(originalCompany._id, company._id, "company", notes);
+
                 Duplicate.create(
                   newDuplicate,
                   function(err, dmodel) {
@@ -71,7 +73,8 @@ findAndHandleCompanyDuplicates = function(fnCallback) {
           }
         }
       }
-      fnCallback(null, "finding company duplicates completed");
+      console.log("Searching for company duplicates completed. " + duplicate_count + ' duplicates found.');
+      fnCallback(null, duplicate_count + ' company duplicates found.');
     }
   });
 };
@@ -79,48 +82,6 @@ findAndHandleCompanyDuplicates = function(fnCallback) {
 findAndHandleProjectDuplicates = function(fnCallback) {
   //TODO implent project duplicate search
   fnCallback(null, "finding project duplicates completed");
-};
-
-removeViceVersaDuplicates = function(fnCallback) {
-  async.waterfall([
-    getDuplicates
-    //removePairs
-  ], function(err, results) {
-    if(err) {
-      fnCallback(err);
-    }
-    else {
-      fnCallback(null, "vice versa duplicates eliminated");
-    }
-  });
-
-  function getDuplicates(callback) {
-    Duplicate.find({})
-    .exec(function(err, duplicates) {
-      if(err) {
-        callback(err);
-      }
-      else {
-        callback(null, duplicates)
-      }
-    });
-  };
-
-  //not used, function is able to remove duplicates pairs, problem is handled when resolving
-  function removePairs(duplicates, callback) {
-    _.each(duplicates, function(duplicate) {
-      Duplicate.remove({ original: duplicate.duplicate, duplicate: duplicate.original })
-      .exec(function(err, removed) {
-        if(removed) {
-          console.log("duplicate removed");
-          callback(null, removed);
-        } else {
-          callback(err);
-        }
-      });
-    });
-  };
-
 };
 
 makeNewDuplicate = function(original_id, duplicate_id, entity, notes) {
@@ -152,13 +113,19 @@ preprocessString = function(str) {
 
 exports.findAndHandleDuplicates = function(action_id, fcallback) {
   actionId = action_id;
-  
+
   async.series([
-    //findAndHandleCompanyDuplicates, //TODO temp
-    findAndHandleProjectDuplicates,
-    removeViceVersaDuplicates
+    findCompanyDuplicates,
+    //findAndHandleProjectDuplicates,
   ], function(err, results) {
-    if(!err) { console.log("finished duplicates"); fcallback(null, "ok");}
-    else {console.log("finished duplicates with error"); fcallback(err, "not ok");}
+    if(err) {
+      fcallback(err);
+    }
+    else if(results) {
+      fcallback(null, "ok");
+    }
+    else {
+      fcallback(err, "not ok");
+    }
   });
 };

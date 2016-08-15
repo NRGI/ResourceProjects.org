@@ -214,12 +214,13 @@ module.exports	= function(app) {
 	//////////////////////////////////////
 
   app.get('/api/identifyduplicates', datasets.identifyDuplicates);
-  app.get('/api/duplicates/:limit/:skip', duplicates.getDuplicates);
-  app.get('/api/duplicates/:date', duplicates.getDuplicatesCreatedAfterDate);
+  app.get('/api/duplicates/:type/:limit/:skip/', duplicates.getDuplicates);
   app.get('/api/duplicates/:id/:action', /*auth.requiresRole('admin'),*/ duplicates.resolveDuplicates);
+  //app.get('/api/duplicates', duplicates.getCompanyDuplicates);
+  //app.get('/api/duplicates/:date', duplicates.getDuplicatesCreatedAfterDate);
 
   // just for testing
-  app.get('/api/test/:company_id', duplicates.updateFacts);
+  app.get('/api/test/:old/:new', duplicates.test);
 
 	//////////////////
 	/// USERS CRUD ///
