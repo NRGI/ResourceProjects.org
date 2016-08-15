@@ -69,7 +69,7 @@
                         ng-if="project.proj_status.length>0"
                         ng-repeat="status in project.proj_status")
                             text(ng-if="$last")
-                                | {{status.string | ucfirst}}
+                                | {{status.string | ucfirst | addSpaces}}
                                 text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                     td.text-center.proj_company_count {{project.company_count}}
                     td.text-center.proj_transfer_count {{project.transfer_count}}
