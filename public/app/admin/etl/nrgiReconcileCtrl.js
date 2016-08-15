@@ -14,8 +14,13 @@ angular.module('app')
         $scope.duplicate_companies=[];
         $scope.duplicate_projects=[];
         $scope.duplicates = [];
+        $scope.types = [
+            {name:'company'},
+            {name:'project'}
+        ]
+        $scope.type_filter = $scope.types[0].name;
 
-        nrgiDuplicatesSrvc.query({skip: currentPage, limit: limit}, function (response) {
+        nrgiDuplicatesSrvc.query({type:$scope.types[0].name, skip: currentPage, limit: limit}, function (response) {
             $scope.duplicates = response.data;
             $scope.count = response.count;
             totalPages = Math.ceil(response.count / limit);
@@ -24,7 +29,7 @@ angular.module('app')
 
         $scope.resolve_duplicate = function (id, action) {
             console.log(id, action)
-            nrgiDuplicatesSrvc.query({id:id,action:action}, function (response) {
+            nrgiDuplicatesSrvc.query({type:$scope.type_filter,id:id,action:action}, function (response) {
                 currentPage = 0;
                 $scope.duplicates = [];
                 $scope.duplicates = response.data;
@@ -38,10 +43,24 @@ angular.module('app')
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
-                nrgiDuplicatesSrvc.query({skip: currentPage, limit: limit}, function (response) {
+                nrgiDuplicatesSrvc.query({type:$scope.type_filter,skip: currentPage, limit: limit}, function (response) {
                     $scope.duplicates = _.union($scope.duplicates, response.data);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
+                });
+            }
+        };
+        $scope.changeTypeFilter = function(type) {
+            currentPage = 0;
+            totalPages = 0;
+            var searchOptions = {type:type,skip: currentPage, limit: limit};
+            if(type) {
+                searchOptions.type = type;
+                nrgiDuplicatesSrvc.query(searchOptions, function (response) {
+                    $scope.duplicates = response.data;
+                    $scope.count = response.count;
+                    totalPages = Math.ceil(response.count / limit);
+                    currentPage = currentPage + 1;
                 });
             }
         };
