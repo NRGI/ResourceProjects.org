@@ -26,6 +26,7 @@ script(type="text/javascript", src="/vendor/spin.js/spin.js")
 script(type="text/javascript", src="/vendor/angular-spinner/angular-spinner.js")
 script(type="text/javascript", src="/vendor/plotlyjs/plotly.js")
 script(type="text/javascript", src="/vendor/d3/d3.min.js")
+script(type="text/javascript", src="/vendor/topojson/topojson.min.js")
 script(type="text/javascript", src="/vendor/nvd3/build/nv.d3.min.js")
 script(type="text/javascript", src="/vendor/angular-nvd3/dist/angular-nvd3.min.js")
 script(type="text/javascript", src="/vendor/bootstrap-select/dist/js/bootstrap-select.js")
@@ -91,6 +92,9 @@ script(type='text/javascript').
         },100)
     });
     (function ($) {
+        $(document).on('click', '.dropdown', function (e) {
+            e.stopPropagation();
+        });
         $.fn.fixedHeader = function (options) {
             var config = {
                 topOffset: 50
@@ -213,6 +217,7 @@ script(type="text/javascript", src="/app/directives/directives/nrgi-leaflet.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-summary-stats.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-last-added.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-sunburst.js")
+script(type ="text/javascript",src= "/app/directives/directives/nrgi-map.js")
 
 //- DIRECTIVE CTRLS
 //  tables
@@ -231,6 +236,7 @@ script(type="text/javascript", src="/app/directives/controllers/nrgiLeafletCtrl.
 script(type="text/javascript", src="/app/directives/controllers/nrgiSummaryStatsCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiLastAddedCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiSunburstCtrl.js")
+script(type="text/javascript", src="/app/directives/controllers/nrgiMapCtrl.js")
 
 
 //- SERVICES
