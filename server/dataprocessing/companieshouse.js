@@ -225,14 +225,26 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 								return callback(err,report, null, null);
 							}
 							else if (doc) {
-
 								// company with this exact name is found. use this and create no duplicate.
 								company = doc;
-								//projects[company._id] = {}
-
+								//Update OC id if not present
+								if (!doc.open_corporates_id) {
+									Company.findByIdAndUpdate(doc._id, {open_corporates_id: "gb/" + chData.reportDetails.companyNumber}, {}, function (err) {
+										if (err) {
+											report.add('Encountered an error (' + err + ') while updating the DB. Aborting.\n');
+											return callback(err,report, null, null);
+										}
+										else {
+											report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
+											return callback(null, report, source, company, currency);
+										}
+									});
+							    }
+                                else {
+									report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
+									return callback(null, report, source, company, currency);
+								}
 								// TODO: add aliases in comment if aliases are considered
-								report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-								return callback(null, report, source, company, currency);
 							}
 							else {
 
