@@ -16,6 +16,8 @@ API_KEY = process.env.CHAPIKEY;
 //define desired report years here
 years = _.range(2014, 2016);
 
+var createdOrAffectedEntities = {};
+
 //source type is always 'UK Mandatory payment disclosure'
 var sourceTypeId = '56e8736944442a3824141429';
 
@@ -28,7 +30,7 @@ function makeProjId (countryIso, name) {
 	return pid;
 }
 
-exports.importData = function(action_id, finalcallback) {
+exports.importData = function(finalcallback) {
 
 	var reportString = "";
 
@@ -41,7 +43,7 @@ exports.importData = function(action_id, finalcallback) {
 
 	if (!API_KEY || (API_KEY === '')) {
 		reporter.add("API key must be set as environment variable CHAPIKEY! Aborting.");
-		return finalcallback("Failed", reporter.text);
+		return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
 	}
 
 	// loop all years in the given range and call the Companies House Extractives API for each of these years
@@ -61,20 +63,20 @@ exports.importData = function(action_id, finalcallback) {
 
 						if (err || !res.ok) {
 							reporter.add('error in retrieving data from Companies House: ' + err);
-							return finalcallback("Failed", reporter.text);	// continue loop
+							return finalcallback("Failed", reporter.text, createdOrAffectedEntities);	// continue loop
 						}
 						else {
 
 							if (!res.body || res.body == {}) {
 								// no data
-								return finalcallback("Failed", reporter.text);
+								return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
 							}
 							else {
 
 								// get all reports for this year and handle them one after another
 								async.eachSeries(res.body, function (chReportData, icallback) {
 										//Set currency for this report
-										loadChReport(chReportData, year, reporter, action_id, icallback);
+										loadChReport(chReportData, year, reporter, icallback);
 									},
 
 									function (err) {
@@ -101,7 +103,7 @@ exports.importData = function(action_id, finalcallback) {
 					return finalcallback("Failed",reporter.text);
 				}
 				reporter.add('Successfully handled all data from CH API\n');
-				finalcallback("Success", reporter.text);
+				finalcallback("Success", reporter.text, createdOrAffectedEntities);
 
 			}
 		);
@@ -114,7 +116,7 @@ exports.importData = function(action_id, finalcallback) {
 	Country.find({}, function (err, cresult) {
 		if (err) {
 			reporter.add(`Got an error: ${err}\n`);
-			return finalcallback("Failed", reporter.text);
+			return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
 		}
 		else {
 			reporter.add(`Found ${cresult.length} countries\n`);
@@ -130,7 +132,7 @@ exports.importData = function(action_id, finalcallback) {
 };
 
 //load report data sequentially from Extractives reports
-function loadChReport(chData, year, report, action_id, loadcallback) {
+function loadChReport(chData, year, report, loadcallback) {
 	async.waterfall([
 			loadSource.bind(null, report),
 			loadCompany,
@@ -173,6 +175,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				else if (doc) {
 					report.add('Source already exists in the DB (url and name match), not adding\n');
 					source = doc;
+					//Note that we DON'T add to created/affected as the data from this source will be ignored
 					return callback("source exists",report, source, currency);
 				}
 				else {
@@ -186,6 +189,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 								report.add('Encountered an error while creating a source in the DB: ' + err + '. Aborting.\n');
 								return callback(err, report, null, null);
 							}
+							createdOrAffectedEntities[model._id] = {entity: "source", obj: model._id};
 							source = model;
 							return callback(null,report, source, currency);
 						})
@@ -227,6 +231,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 							else if (doc) {
 								// company with this exact name is found. use this and create no duplicate.
 								company = doc;
+								createdOrAffectedEntities[doc._id] = {entity: "company", obj: doc._id};
 								//Update OC id if not present
 								if (!doc.open_corporates_id) {
 									Company.findByIdAndUpdate(doc._id, {open_corporates_id: "gb/" + chData.reportDetails.companyNumber}, {}, function (err) {
@@ -265,6 +270,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 											return callback(err,report, null, null, null);
 										}
 										report.add('Added company ' + chData.reportDetails.companyName + ' to the DB.\n');
+										createdOrAffectedEntities[cmodel._id] = {entity: "company", obj: cmodel._id};
 										company = cmodel;
 
 										callback(null, report, source, company, currency);
@@ -327,6 +333,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						return ucallback(err);
 					}
 
+					createdOrAffectedEntities[model._id] = {entity: "project", obj: model._id};
 					report.add('Added or updated project ' + projectName + ' to the DB.\n');
 					projects[projectName] = model;
 
@@ -362,6 +369,7 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						return lcallback(err);
 					}
 					else if (doc) {
+						createdOrAffectedEntities[doc._id] = {entity: "link", obj: doc._id};
 						report.add('Company is already linked with project ' + projectName + ', not adding\n');
 						return lcallback(null, projectsList, projectName, project_id, newProj);
 					}
@@ -374,11 +382,12 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						};
 						Link.create(
 							newCompanyLink,
-							function(err) {
+							function(err, lmodel) {
 								if (err) {
 									report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
 									return lcallback(err);
 								}
+								createdOrAffectedEntities[lmodel._id] = {entity: "link", obj: lmodel._id};
 								report.add('Linked company with project in the DB.\n');
 								return lcallback(null, projectsList, projectName, project_id, newProj);
 							}
@@ -539,18 +548,12 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 		// Handle transfers from government transfers
 		async.eachSeries(chData.governmentPayments.payment, function (governmentPaymentsEntry, fcallback) {
 
-			var transfer_audit_type = "company_payment";
-			var transfer_level = "country";
-
-			// TODO: transfer_type = Total?
-			var transfer_type = "Total";
 			var transfer_gov_entity = governmentPaymentsEntry.government;
 
-			// TODO: wrong result if point instead of comma for thousands separator
-			var transfer_value = parseFloat(governmentPaymentsEntry.amount.replace(/,/g, ""));
-			var transfer_note = governmentPaymentsEntry.notes;
 			var country = governmentPaymentsEntry.countryCode;
 			var country_id = null;
+			
+			var transfer_audit_type = "company_payment";
 
 			if (country.length == 3) {
 				country_id = countries[country]._id;
@@ -560,61 +563,28 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				report.add('Invalid country code. Aborting.\n');
 				return fallback(true);
 			}
-
-			var query = {
-				country: country_id,
-				transfer_gov_entity: transfer_gov_entity,
-				transfer_audit_type: transfer_audit_type,
-				transfer_level: transfer_level,
-				transfer_type: transfer_type,
-				transfer_value: transfer_value,
-				transfer_note: transfer_note,
-				source: source._id
-			};
-
-			if (company) {
-				query.company = company._id;
-			}
-			else {
-				report.add('Company data could not be retrieved. Aborting.\n');
+			
+			var newTransfer = makeNewTransfer(governmentPaymentsEntry, projects, company, currency, transfer_audit_type, "country", year, country_id);
+			if (!newTransfer) {
+				report.add('Invalid or missing data for new transfer. Aborting.\n');
 				return fcallback(null);
 			}
 
-			Transfer.findOne(
-				query,
-				function(err, doc) {
+			Transfer.create(
+				newTransfer,
+				function(err, tmodel) {
 					if (err) {
-						report.add('Encountered an error (' + err + ') while querying the DB. Aborting.\n');
+						report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
 						return fcallback(err);
 					}
-					else if (doc) {
-						report.add('Transfer for government ' + transfer_gov_entity + ' already exists in the DB, not adding\n');
-						return fcallback(null);
-					}
 					else {
-
-						// create a new transfer entry in the DB if it does not exist yet
-						var newTransfer = makeNewTransfer(governmentPaymentsEntry, projects, company, currency, transfer_audit_type, "country", year, country_id);
-						if (!newTransfer) {
-							report.add('Invalid or missing data for new transfer. Aborting.\n');
-							return fcallback(null);
-						}
-						Transfer.create(
-							newTransfer,
-							function(err, model) {
-								if (err) {
-									report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-									return fcallback(err);
-								}
-								else {
-									report.add('Added transfer for government ' + transfer_gov_entity + '\n');
-									fcallback(null);
-								}
-							}
-						);
+						createdOrAffectedEntities[tmodel._id] = {entity: "transfer", obj: tmodel._id};
+						report.add('Added transfer for government ' + transfer_gov_entity + '\n');
+						fcallback(null);
 					}
 				}
 			);
+
 
 
 		},   function (err) {
@@ -642,10 +612,10 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			// Only adds the country if not already there
 			var update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
 			if (!projects[projectPaymentEntry.projectName].proj_id) {
-				console.log("Project ID not set, setting...");
+				//console.log("Project ID not set, setting...");
 				update.proj_id = makeProjId( countryIso, projectPaymentEntry.projectName );
 			}
-			else console.log("Project ID already set, not setting...");
+			//else console.log("Project ID already set, not setting...");
 
  			Project.findByIdAndUpdate(projects[projectPaymentEntry.projectName]._id, update, {'new': true}, function(err, uproject) {
  				if (err) {
@@ -659,70 +629,29 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
  			});
  
 			var transfer_audit_type = "company_payment";
-			var transfer_type = projectPaymentEntry.paymentType;
-			var transfer_level = "project";
 
-			// TODO: wrong result if point instead of comma for-separator
-			var transfer_value = parseFloat(projectPaymentEntry.amount.replace(/,/g, ""));
-
-			var transfer_note = projectPaymentEntry.notes;
-			var project = projects[projectPaymentEntry.projectName]._id;
 			var country = countries[projectPaymentEntry.countryCodeList]._id;
-
-			var query = {
-				country: country,
-				project: project,
-				transfer_audit_type: transfer_audit_type,
-				transfer_level: transfer_level,
-				transfer_type: transfer_type,
-				transfer_value: transfer_value,
-				transfer_note: transfer_note,
-				source: source._id
-			};
-
-			if (company) {
-				query.company = company._id;
-			}
-			else {
-				report.add('Company data could not be retrieved. Aborting.\n');
-				return forcallback(null);
-			}
 
 			// TODO: transfer year = year of report date?
 			// query.transfer_year = year;
 
-			Transfer.findOne(
-				query,
-				function(err, doc) {
+			var newTransfer = makeNewTransfer(projectPaymentEntry, projects, company, currency, transfer_audit_type, "project", year, country);
+			if (!newTransfer) {
+
+				report.add('Invalid or missing data for new transfer. Aborting.\n');
+				return forcallback(err);
+			}
+			Transfer.create(
+				newTransfer,
+				function(err, tmodel) {
 					if (err) {
-						report.add('Encountered an error (' + err + ') while querying the DB. Aborting.\n');
+						report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
 						return forcallback(err);
 					}
-					else if (doc) {
-						report.add('Transfer for project ' + projectPaymentEntry.projectName + ' already exists in the DB, not adding\n');
-						return forcallback(null);
-					}
 					else {
-						// create a new transfer entry in the DB if it does not exist yet
-						var newTransfer = makeNewTransfer(projectPaymentEntry, projects, company, currency, transfer_audit_type, "project", year, country);
-						if (!newTransfer) {
-
-							report.add('Invalid or missing data for new transfer. Aborting.\n');
-							return forcallback(err);
-						}
-						Transfer.create(
-							newTransfer,
-							function(err, model) {
-								if (err) {
-									report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-									return forcallback(err);
-								}
-								else {
-									report.add('Added transfer for project ' + projectPaymentEntry.projectName + '\n');
-									forcallback(null);
-								}
-							}
-						);
+						createdOrAffectedEntities[tmodel._id] = {entity: "transfer", obj: tmodel._id};
+						report.add('Added transfer for project ' + projectPaymentEntry.projectName + '\n');
+						forcallback(null);
 					}
 				}
 			);
