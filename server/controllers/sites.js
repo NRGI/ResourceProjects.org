@@ -37,7 +37,7 @@ exports.getSites = function(req, res) {
             if(site_count) {
                 callback(null, site_count);
             } else {
-                callback(null, 0);
+                return res.send(err);
             }
         });
     }
@@ -56,7 +56,7 @@ exports.getSites = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, site_count, sites);
                 } else {
-                    callback(null, [], sites);
+                    return res.send(err);
                 }
             });
     }
@@ -282,7 +282,7 @@ exports.getSiteByID = function(req, res) {
         }
         var commodity = site.site_commodity;
         site.site_commodity = [];
-        if (commodity.length>0) {
+        if (commodity && commodity.length>0) {
             if (_.where(commodity, {_id: _.last(commodity).commodity._id}).length<1) {
                 site.site_commodity.push({
                     _id: _.last(commodity).commodity._id,
