@@ -23,7 +23,9 @@ var sourceTypeId = '56e8736944442a3824141429';
 var countries;
 
 function makeProjId (countryIso, name) {
-	return countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+	var pid = countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+	console.log(pid + ": " + countryIso);
+	return pid;
 }
 
 exports.importData = function(action_id, finalcallback) {
@@ -223,14 +225,26 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 								return callback(err,report, null, null);
 							}
 							else if (doc) {
-
 								// company with this exact name is found. use this and create no duplicate.
 								company = doc;
-								//projects[company._id] = {}
-
+								//Update OC id if not present
+								if (!doc.open_corporates_id) {
+									Company.findByIdAndUpdate(doc._id, {open_corporates_id: "gb/" + chData.reportDetails.companyNumber}, {}, function (err) {
+										if (err) {
+											report.add('Encountered an error (' + err + ') while updating the DB. Aborting.\n');
+											return callback(err,report, null, null);
+										}
+										else {
+											report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
+											return callback(null, report, source, company, currency);
+										}
+									});
+							    }
+                                else {
+									report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
+									return callback(null, report, source, company, currency);
+								}
 								// TODO: add aliases in comment if aliases are considered
-								report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-								return callback(null, report, source, company, currency);
 							}
 							else {
 
@@ -274,14 +288,15 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 
 	  var projects = {};
 
-		var updateOrCreateProject = function (projDoc, projectName, countryIso, ucallback) {
+		var updateOrCreateProject = function (projDoc, projectName, ucallback) {
 			var doc_id = null;
 			var newProj = true;
 
 			if (!projDoc) {
 				report.add('Project ' + projectName + ' not found, creating.\n');
-				projDoc = makeNewProject(projectName, source, countryIso);
-				projDoc.proj_id = makeProjId( countryIso, projectName );
+				projDoc = makeNewProject(projectName, source);
+				//TODO: Can't create ID without country...
+				//projDoc.proj_id = makeProjId( countryIso, projectName );
 			}
 			else {
 				newProj = false;
@@ -374,14 +389,13 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 		};
 
 		async.eachSeries(chData.projectTotals.projectTotal, function (projectTotalEntry, forcallback) {
+			//TODO: Remove, transfers are better and this doesn't always work
 			var countryId = null; //Allow setting of fact "CH API doesn't state a country". Makes searching a bit easier.
 			var ckey;
-			var countryIso = "99"; //code for "we don't know the country". Annoying because we would want to change this later.
 			if (isNaN(projectTotalEntry.projectCode[2])) { //Sometimes 2 letter code is used, sometimes 3, sometimes none
 				ckey = projectTotalEntry.projectCode.slice(0,3).toUpperCase();
 				if (countries[ckey]) {
 					countryId = countries[ckey]._id;
-					countryIso = countries[ckey].iso2;
 					report.add("Project uses a 3 letter ISO code\n"); }
 				else {
 					report.add("Project does not contain a country code\n");
@@ -391,13 +405,15 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 				ckey = projectTotalEntry.projectCode.slice(0,2).toUpperCase().replace("UK", "GB");
 				if (countries_iso2[ckey]) {
 					countryId = countries_iso2[ckey]._id;
-					countryIso = ckey; report.add("2letter");
+					report.add("2letter");
 				}
 			    else {
 					report.add("missingcountry");
 				}
 			
 			}
+			
+			//TODO: Add the actual API project code to the model and check against this instead: sure bet
 			
 			// Projects - check against <strike>id and </strike>name+country
 			//we don't know the proj_id out of the API	
@@ -429,65 +445,79 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 						//TODO End move into function
 					}
 					else {
-				*/		Project.findOne( //match case-insensitive
-							{
-								$or:
-									[
-										{
-											"proj_name":  { $regex : new RegExp(projectTotalEntry.projectName, "i") }
-										},
-										{
-											"proj_aliases.alias": { $regex : new RegExp(projectTotalEntry.projectName, "i") }
-										}
-									],
-								"proj_country.country": countryId
-							},
-							function(err, doc) {
-								if (err) {
-									report.add('Encountered an error (' + err + ') while querying the DB. Aborting.\n');
-									return forcallback(err);
-								}
-								else if (doc) {
-									report.add('Project ' + projectTotalEntry.projectName + ' already exists in the DB (id or name match), not adding but updating project.\n');
-
-									if (!doc.proj_id) {
-										report.add('Project ' + projectTotalEntry.projectName + ' has no project code in DB. Aborting.\n');
-										return forcallback('Project ' + projectTotalEntry.projectName + ' has no project code in DB. Aborting.');
+				*/
+			            if (countryId !== null) {
+							Project.findOne( //match case-insensitive
+								{
+									$or:
+										[
+											{
+												"proj_name":  { $regex : new RegExp(projectTotalEntry.projectName, "i") }
+											},
+											{
+												"proj_aliases.alias": { $regex : new RegExp(projectTotalEntry.projectName, "i") }
+											}
+										],
+									"proj_country.country": countryId
+								},
+								function(err, doc) {
+									if (err) {
+										report.add('Encountered an error (' + err + ') while querying the DB. Aborting.\n');
+										return forcallback(err);
 									}
-
-									projectNamefromDB = doc.proj_name;
-									projects[projectNamefromDB] = doc;
-									// TODO: Move into function
-									// TODO: Cope with lack of country in totals?
-									async.waterfall([
-										// update the project if exists, otherwise create a new one
-										async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName, countryIso),
-										// then create a new link between this project and the referring report company
-										createLink,
-										// search potential duplicates for this project
-										//handleProjectDuplicates,
-									], function () {
-										return forcallback(null);
-									});
-									// TODO: End Move into function
+									else if (doc) {
+										report.add('Project ' + projectTotalEntry.projectName + ' already exists in the DB (id or name match), not adding but updating project.\n');
+	
+										if (!doc.proj_id) {
+											report.add('Project ' + projectTotalEntry.projectName + ' has no project code in DB. Aborting.\n');
+											return forcallback('Project ' + projectTotalEntry.projectName + ' has no project code in DB. Aborting.');
+										}
+	
+										projectNamefromDB = doc.proj_name;
+										projects[projectNamefromDB] = doc;
+										// TODO: Move into function
+										async.waterfall([
+											// update the project if exists, otherwise create a new one
+											async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+											// then create a new link between this project and the referring report company
+											createLink,
+											// search potential duplicates for this project
+											//handleProjectDuplicates,
+										], function () {
+											return forcallback(null);
+										});
+										// TODO: End Move into function
+									}
+									else {
+										// TODO: Move into function
+										async.waterfall([
+											// update the project if exists, otherwise create a new one
+											async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+											// then create a new link between this project and the referring report company
+											createLink,
+											// search potential duplicates for this project
+											//handleProjectDuplicates,
+										], function () {
+											return forcallback(null);
+										});
+										// TODO: End Move into function
+									}
 								}
-								else {
-									// TODO: Move into function
-									// TODO: Cope with lack of country in totals?
-									async.waterfall([
-										// update the project if exists, otherwise create a new one
-										async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName, countryIso),
-										// then create a new link between this project and the referring report company
-										createLink,
-										// search potential duplicates for this project
-										//handleProjectDuplicates,
-									], function () {
-										return forcallback(null);
-									});
-									// TODO: End Move into function
-								}
-							}
-						);
+							);
+						}
+						else { //No country info so just create duplicate, will be picked up later
+							// TODO: Move into function
+							async.waterfall([
+								// update the project if exists, otherwise create a new one
+								async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+								// then create a new link between this project and the referring report company
+								createLink,
+								// search potential duplicates for this project
+								//handleProjectDuplicates,
+							], function () {
+								return forcallback(null);
+							});
+						}
 					//}
 				//}
 			//);
@@ -601,11 +631,33 @@ function loadChReport(chData, year, report, action_id, loadcallback) {
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
 			if (!projects[projectPaymentEntry.projectName]) {
 
-        report.add('Invalid or missing project data. Aborting.\n');
-        return forcallback(null);
+				report.add('Invalid or missing project data. Aborting.\n');
+				return forcallback(null);
 
 			}
+			
+			// Update project countries and set ID if not set
+			// We assume that every project in the API has transfers. Otherwise it wouldn't make much sense.
+			var countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
+			// Only adds the country if not already there
+			var update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
+			if (!projects[projectPaymentEntry.projectName].proj_id) {
+				console.log("Project ID not set, setting...");
+				update.proj_id = makeProjId( countryIso, projectPaymentEntry.projectName );
+			}
+			else console.log("Project ID already set, not setting...");
 
+ 			Project.findByIdAndUpdate(projects[projectPaymentEntry.projectName]._id, update, {'new': true}, function(err, uproject) {
+ 				if (err) {
+					console.log(err);
+					report.add('Could not update project. Aborting.\n');
+					return forcallback(err);
+				}
+				else {
+					projects[projectPaymentEntry.projectName] = uproject;
+				}
+ 			});
+ 
 			var transfer_audit_type = "company_payment";
 			var transfer_type = projectPaymentEntry.paymentType;
 			var transfer_level = "project";
@@ -725,12 +777,10 @@ function makeNewCompany (newData) {
 	return returnObj;
 }
 
-function makeNewProject(projectName, source, countryIso) {
-
+function makeNewProject(projectName, source) {
 	var project = {
 		proj_name: projectName,
-		proj_established_source: source._id,
-		proj_country: [{source: source._id, country: countries_iso2[countryIso]._id}]
+		proj_established_source: source._id
 	};
 
 	return project;
