@@ -1,0 +1,27 @@
+div.map_data
+    span(
+    us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+    spinner-start-active="true"
+    spinner-key="spinner-map")
+    .zoomdiv
+        button(id="zoomIn" ng-click='zoomIn()') +
+        button(id="zoomOut" ng-click='zoomOut()') -
+    .dropdown.border.layer-selector-box
+        a.layers(data-toggle="dropdown") Visible layers
+            .count {{count}}
+        ul.dropdown-menu
+            li
+                a.layer RP projects
+                .onoffswitch-proj.pull-right
+                    input.onoffswitch-proj-checkbox(type="checkbox" ng-model='projCheckbox' ng-change='checked(projCheckbox,"projCheckbox")' name="onoffswitch-proj" id="myonoffswitch-proj")
+                    label.onoffswitch-proj-label(for="myonoffswitch-proj")
+                        .onoffswitch-proj-inner
+                        .onoffswitch-proj-switch
+            hr
+            li
+                a.layer RP payments
+                .onoffswitch.pull-right
+                    input.onoffswitch-checkbox(type="checkbox" ng-model='paymentsCheckbox' ng-change='checked(paymentsCheckbox,"paymentsCheckbox")' name="onoffswitch" id="myonoffswitch" )
+                    label.onoffswitch-label(for="myonoffswitch")
+                        .onoffswitch-inner
+                        .onoffswitch-switch

@@ -2,15 +2,16 @@
     .row.top-padding-med.bottom-padding-med
         h1 Reconciliation (De-duplification) Management
         p This page shows all unresolved duplicates. Duplicates are "removed" by marking them as resolved and the course of action taken. Hence, when new data comes in and matches the data in a duplicate rather than the intended original, you will not need to perform the reconciliation process again.
-    .row.bottom-padding-lg
-        div.col-md-9
         div.col-md-3
-            form.form-inline
-                .form-group
-                    input.form-control(
-                    ng-model="search_text"
-                    placeholder="Filter")
-    .row
+            .row.top-padding-med
+                .right-padding-lg: b Filter by:
+                    .right-padding-lg: b Type
+                    .right-padding-lg
+                        form.form-inline
+                            .form-group
+                                select.form-control(ng-model="type_filter" ng-change='changeTypeFilter(type_filter)')
+                                    option(ng-repeat="type in types" value="{{type.name}}") {{type.name}}
+    .row.top-padding-med
         .col-md-12
             table#reconcile.table(ts-wrapper)
                 thead
