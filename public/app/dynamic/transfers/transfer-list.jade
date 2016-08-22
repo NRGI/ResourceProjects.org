@@ -29,7 +29,7 @@
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Currency
                     th.tablesort-sortable-th(ts-criteria='transfer_value') Value
-                    th.tablesort-sortable-th(ts-criteria='transfer_level') Level
+                    th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_audit_type') Payment or Reciept?
                     th.tablesort-sortable-th(ts-criteria='proj_site.name') Projects and Sites
 
@@ -45,6 +45,6 @@
                     td.transfer_type {{transfer.transfer_type}}
                     td.transfer_currency {{transfer.transfer_unit}}
                     td.transfer_value {{transfer.transfer_value}}
-                    td.transfer_level {{transfer.transfer_level}}
+                    td.transfer_level {{transfer.proj_site.type | addSpaces | ucfirst}}
                     td.transfer_type {{transfer.transfer_audit_type | addSpaces | ucfirst}}
                     td.transfer_type: a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}

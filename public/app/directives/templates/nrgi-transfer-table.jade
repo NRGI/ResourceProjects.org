@@ -25,7 +25,7 @@ data-target="#transfers")
                 th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                 th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
                 th.text-center.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value
-                th.tablesort-sortable-th(ts-criteria='transfer_level') Level
+                th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                 th.tablesort-sortable-th(ts-criteria='transfer_audit_type') Payment or receipt?
                 th.tablesort-sortable-th(
                 ng-if="projectlink==true"
@@ -50,7 +50,7 @@ data-target="#transfers")
                 td.transfer_type {{transfer.transfer_type}}
                 td.transfer_unit {{transfer.transfer_unit}}
                 td.text-right.transfer_value {{transfer.transfer_value | number}}
-                td.transfer_level {{transfer.transfer_level}}
+                td.transfer_level {{transfer.proj_site.type}}
                 td.transfer_audit_type {{transfer.transfer_audit_type | addSpaces}}
                 td.project_links(ng-if="projectlink===true")
                     //: span(ng-repeat="link in transfer.transfer_links | unique: '_id'")

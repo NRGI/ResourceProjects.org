@@ -49,7 +49,7 @@ exports.getCountries = function(req, res) {
     function countryCount(callback) {
         Country.find({}).count().exec(function(err, country_count) {
             if (err) {
-                callback(err);
+                res.send(err);
             } else if (!country_count) {
                 callback(null, 0);
             } else {
@@ -67,7 +67,7 @@ exports.getCountries = function(req, res) {
             .lean()
             .exec(function(err, countries) {
                 if (err) {
-                    callback(err);
+                    res.send(err);
                 } else if (!countries) {
                     callback(null, country_count, []);
                 } else {
@@ -78,32 +78,40 @@ exports.getCountries = function(req, res) {
     function getProjectCounts(country_count, countries, callback) {
         countries_len = countries.length;
         countries_counter = 0;
-        _.each(countries, function(country) {
-            Project.find({'proj_country.country': country._id})
-                .count()
-                .exec(function (err, count){
-                    ++countries_counter;
-                    country.project_count = count;
-                    if (countries_counter == countries_len) {
-                        callback(null, country_count, countries);
-                    }
-                });
-        });
+        if(countries_len>0) {
+            _.each(countries, function (country) {
+                Project.find({'proj_country.country': country._id})
+                    .count()
+                    .exec(function (err, count) {
+                        ++countries_counter;
+                        country.project_count = count;
+                        if (countries_counter == countries_len) {
+                            callback(null, country_count, countries);
+                        }
+                    });
+            });
+        } else{
+            callback(null, country_count, countries);
+        }
     }
     function getSiteCounts(country_count, countries, callback) {
         countries_len = countries.length;
         countries_counter = 0;
-        _.each(countries, function(country) {
-            Site.find({'site_country.country': country._id, field:false})
-                .count()
-                .exec(function (err, count){
-                    ++countries_counter;
-                    country.site_count = count;
-                    if (countries_counter == countries_len) {
-                        callback(null, country_count, countries);
-                    }
-                });
-        });
+        if(countries_len>0) {
+            _.each(countries, function (country) {
+                Site.find({'site_country.country': country._id, field: false})
+                    .count()
+                    .exec(function (err, count) {
+                        ++countries_counter;
+                        country.site_count = count;
+                        if (countries_counter == countries_len) {
+                            callback(null, country_count, countries);
+                        }
+                    });
+            });
+        }else {
+            callback(null, country_count, countries);
+        }
     }
     function getFieldCounts(country_count, countries, callback) {
         countries_len = countries.length;

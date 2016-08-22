@@ -22,7 +22,6 @@ exports.getCompanies = function(req, res) {
             res.send(err);
         }else{
             if (req.query && req.query.callback) {
-                console.log('req.query.callback',req.query.callback)
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
             } else {
                 return res.send(result);
@@ -35,7 +34,7 @@ exports.getCompanies = function(req, res) {
             if(company_count) {
                 callback(null, company_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
@@ -53,7 +52,7 @@ exports.getCompanies = function(req, res) {
                 if(companies) {
                     callback(null, company_count, companies);
                 } else {
-                    callback(err);
+                    return res.send(err);
                 }
             });
     }
@@ -163,18 +162,22 @@ exports.getCompanies = function(req, res) {
     function getTransfersCount(company_count, companies, callback) {
         company_len = companies.length;
         company_counter = 0;
-        _.each(companies, function(company) {
-            Transfer.find({company:{$in: company.transfers_query}})
-                .count()
-                .exec(function (err, transfer_count) {
-                    ++company_counter;
-                    company.transfer_count = transfer_count;
-                    if (company_counter === company_len) {
-                        callback(null, {data:companies, count:company_count});
-                    }
-                });
+        if (company_len>0) {
+            _.each(companies, function (company) {
+                Transfer.find({company: {$in: company.transfers_query}})
+                    .count()
+                    .exec(function (err, transfer_count) {
+                        ++company_counter;
+                        company.transfer_count = transfer_count;
+                        if (company_counter === company_len) {
+                            callback(null, {data: companies, count: company_count});
+                        }
+                    });
 
-        });
+            });
+        } else {
+            callback(null, company_count, companies);
+        }
     }
 };
 
