@@ -19,7 +19,7 @@ var SourceType = require('mongoose').model('SourceType'),
     _ = require('underscore'),
     randomstring = require('just.randomstring');
     
-var actionId = null; //TODO: remove, was needed for duplicates
+var actionId = null;
 
 var createdOrAffectedEntities = {};
 

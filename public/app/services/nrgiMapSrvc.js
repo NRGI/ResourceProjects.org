@@ -15,3 +15,10 @@ angular.module('app')
 
         return CountriesResource;
     })
+    .factory('nrgiMainMaprvc', function($resource) {
+        var CountriesResource = $resource('/api/main_map/', {}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return CountriesResource;
+    })

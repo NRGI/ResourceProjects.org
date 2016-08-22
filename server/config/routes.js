@@ -27,6 +27,7 @@ var auth 				= require('./auth'),
 	lastAdded 			= require('../controllers/lastAdded'),
 	sunburst 			= require('../controllers/sunburst'),
 	content 			= require('../controllers/content'),
+	main_map 			= require('../controllers/main_map'),
 	cors 				= require('cors'),
   duplicates = require('../controllers/duplicates');
 
@@ -278,6 +279,7 @@ module.exports	= function(app) {
 
 	//GLOSSARY PAGE CONTENT
 	app.get('/api/landing', content.getLandingPage);
+	app.get('/api/main_map', main_map.getMainMap);
 	app.put('/api/landing', auth.requiresApiLogin, auth.requiresRole('admin'), content.getLandingPage);
 
 	app.post('/login', auth.authenticate);

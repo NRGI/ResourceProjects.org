@@ -185,6 +185,7 @@ exports.createAction = function(req, res) {
                                 //console.log("Report: " + report + "\n");
                                 
                                 //Save affected entities (for unloading)
+                                //TODO move to function, below is identical
                                 var importSources = [];
                                 _.each(affectedEntities, function(value) {
                                     value.action = amodel._id;
@@ -215,6 +216,7 @@ exports.createAction = function(req, res) {
                                                          report += "\nDuplicate detection failed with error: " + err;
                                                      }
                                                      else report += "\nDuplicate detection completed.";
+                                                     //TODO move to function
                                                      Action.findByIdAndUpdate(
                                                          amodel._id,
                                                          {finished: Date.now(), status: status, details: report},
@@ -245,38 +247,66 @@ exports.createAction = function(req, res) {
                             res.status(200);
                             res.send();
                             console.log("Triggered, res sent\n");
-                            companieshouse.importData(amodel._id,function(status, report) {
+                            companieshouse.importData(function(status, report, affectedEntities) {
+                                //TODO: affected entries!
                                 console.log("Process finished");
                                 console.log("Status: " + status + "\n");
                                 //console.log("Report: " + report + "\n");
-                                console.log("Searching for duplicates...");
-                                if (status == "Success") {
-                                    duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-                                        if (err) {
-                                            status = "Failed";
-                                            report += "\nDuplicate detection failed with error: " + err;
-                                        }
-                                        else report += "\nDuplicate detection completed.";
-                                        Action.findByIdAndUpdate(
-                                            amodel._id,
-                                            {finished: Date.now(), status: status, details: report},
-                                            {safe: true, upsert: false},
-                                            function(err) {
-                                                if (err) console.log("Failed to update an action: " + err);
+                                
+                                //Save affected entities (for unloading)
+                                var importSources = [];
+                                _.each(affectedEntities, function(value) {
+                                    value.action = amodel._id;
+                                    importSources.push(value);
+                                });
+                                async.eachSeries(
+                                    importSources,
+                                    function(importSource, icallback) {
+                                        ImportSource.findOneAndUpdate(
+                                            {obj: importSource.obj},
+                                            {$push: {actions: amodel._id}, entity: importSource.entity},
+                                            {upsert: true},
+                                            function (err) {
+                                                if (err) icallback("Failed to log an importsource");
+                                                else icallback(null);
                                             }
                                         );
-                                    });
-                                }
-                                else { //TODO dedup code
-                                    Action.findByIdAndUpdate(
-                                        amodel._id,
-                                        {finished: Date.now(), status: status, details: report},
-                                        {safe: true, upsert: false},
-                                        function(err) {
-                                            if (err) console.log("Failed to update an action: " + err);
+                                    },
+                                    function (err) {
+                                        if (err) console.log(err); //TODO: close the action properly
+                                        else {
+                                
+                                            console.log("Searching for duplicates...");
+                                            if (status == "Success") {
+                                                duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                    if (err) {
+                                                        status = "Failed";
+                                                        report += "\nDuplicate detection failed with error: " + err;
+                                                    }
+                                                    else report += "\nDuplicate detection completed.";
+                                                    Action.findByIdAndUpdate(
+                                                        amodel._id,
+                                                        {finished: Date.now(), status: status, details: report},
+                                                        {safe: true, upsert: false},
+                                                        function(err) {
+                                                            if (err) console.log("Failed to update an action: " + err);
+                                                        }
+                                                    );
+                                                });
+                                            }
+                                            else { //TODO dedup code
+                                                Action.findByIdAndUpdate(
+                                                    amodel._id,
+                                                    {finished: Date.now(), status: status, details: report},
+                                                    {safe: true, upsert: false},
+                                                    function(err) {
+                                                        if (err) console.log("Failed to update an action: " + err);
+                                                    }
+                                                );
+                                            }
                                         }
-                                    );
-                                }
+                                    }
+                                );
                             });
 	                    }
                         else if (req.body.name == "Mark as cleaned") {
