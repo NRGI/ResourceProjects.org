@@ -27,7 +27,7 @@ exports.getTransfers = function(req, res) {
             if(transfer_count) {
                 callback(null, transfer_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
@@ -72,8 +72,6 @@ exports.getTransfers = function(req, res) {
                                 transfer_type: transfer.transfer_type,
                                 transfer_unit: transfer.transfer_unit,
                                 transfer_value: transfer.transfer_value,
-                                transfer_level: transfer.transfer_level,
-                                transfer_audit_type: transfer.transfer_audit_type,
                                 proj_site: proj_site
                             });
                         }

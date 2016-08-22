@@ -37,7 +37,7 @@ exports.getProjects = function(req, res) {
             if(project_count) {
                 callback(null, project_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
@@ -57,7 +57,7 @@ exports.getProjects = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, project_count, projects);
                 } else {
-                    callback({data: projects, count: project_count});
+                    return res.send(err);
                 }
             });
     }
@@ -177,109 +177,125 @@ exports.getProjects = function(req, res) {
         var transfer_counter, transfer_len;
         project_len = projects.length;
         project_counter = 0;
-        _.each(projects, function(project) {
-            if (!project.source_type.p || !project.source_type.c) {
-                project.transfer_count = 0;
-                Transfer.find({$or: [
-                        {project:{$in: project.transfers_query}},
-                        {site:{$in: project.transfers_query}}]})
-                    .deepPopulate('source.source_type_id')
-                    .exec(function (err, transfers) {
-                        transfer_len = transfers.length;
-                        transfer_counter = 0;
-                        ++project_counter;
-                        if (transfer_len>0) {
-                            _.each(transfers, function (transfer) {
-                                ++transfer_counter;
-                                if (!project.source_type.p || !project.source_type.c) {
-                                    if (transfer.source.source_type_id.source_type_authority === 'authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (transfer.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (transfer.source.source_type_id.source_type_authority === 'disclosure') {
-                                        project.source_type.p = true;
+        if(project_len>0) {
+            _.each(projects, function (project) {
+                if (!project.source_type.p || !project.source_type.c) {
+                    project.transfer_count = 0;
+                    Transfer.find({
+                        $or: [
+                            {project: {$in: project.transfers_query}},
+                            {site: {$in: project.transfers_query}}]
+                    })
+                        .deepPopulate('source.source_type_id')
+                        .exec(function (err, transfers) {
+                            transfer_len = transfers.length;
+                            transfer_counter = 0;
+                            ++project_counter;
+                            if (transfer_len > 0) {
+                                _.each(transfers, function (transfer) {
+                                    ++transfer_counter;
+                                    if (!project.source_type.p || !project.source_type.c) {
+                                        if (transfer.source.source_type_id.source_type_authority === 'authoritative') {
+                                            project.source_type.c = true;
+                                        } else if (transfer.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                            project.source_type.c = true;
+                                        } else if (transfer.source.source_type_id.source_type_authority === 'disclosure') {
+                                            project.source_type.p = true;
+                                        }
                                     }
-                                }
-                                project.transfer_count += 1;
+                                    project.transfer_count += 1;
+                                    if (project_counter === project_len && transfer_counter === transfer_len) {
+                                        callback(null, project_count, projects);
+                                    }
+                                });
+                            } else {
                                 if (project_counter === project_len && transfer_counter === transfer_len) {
                                     callback(null, project_count, projects);
                                 }
-                            });
-                        } else {
-                            if (project_counter === project_len && transfer_counter === transfer_len) {
+                            }
+
+                        });
+                } else {
+                    Transfer.find({
+                        $or: [
+                            {project: {$in: project.transfers_query}},
+                            {site: {$in: project.transfers_query}}]
+                    })
+                        .count()
+                        .exec(function (err, transfer_count) {
+                            ++project_counter;
+                            project.transfer_count = transfer_count;
+                            if (project_counter === project_len) {
                                 callback(null, project_count, projects);
                             }
-                        }
-
-                    });
-            } else {
-                Transfer.find({$or: [
-                        {project:{$in: project.transfers_query}},
-                        {site:{$in: project.transfers_query}}]})
-                    .count()
-                    .exec(function (err, transfer_count) {
-                        ++project_counter;
-                        project.transfer_count = transfer_count;
-                        if (project_counter === project_len) {
-                            callback(null, project_count, projects);
-                        }
-                    });
-            }
-        });
+                        });
+                }
+            });
+        }else{
+            callback(null, project_count, projects);
+        }
     }
     function getProductionCount(project_count, projects, callback) {
         var prod_counter, prod_len;
         project_len = projects.length;
         project_counter = 0;
-        _.each(projects, function(project) {
-            if (!project.source_type.p || !project.source_type.c) {
-                project.production_count = 0;
-                Production.find({$or: [
-                        {project:{$in: project.transfers_query}},
-                        {site:{$in: project.transfers_query}}]})
-                    .deepPopulate('source.source_type_id')
-                    .exec(function (err, production) {
-                        prod_len = production.length;
-                        prod_counter = 0;
-                        ++project_counter;
-                        if (prod_len>0) {
-                            _.each(production, function (prod) {
-                                ++prod_counter;
-                                if (!project.source_type.p || !project.source_type.c) {
-                                    if (prod.source.source_type_id.source_type_authority === 'authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (prod.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (prod.source.source_type_id.source_type_authority === 'disclosure') {
-                                        project.source_type.p = true;
+        if(project_len>0) {
+            _.each(projects, function (project) {
+                if (!project.source_type.p || !project.source_type.c) {
+                    project.production_count = 0;
+                    Production.find({
+                        $or: [
+                            {project: {$in: project.transfers_query}},
+                            {site: {$in: project.transfers_query}}]
+                    })
+                        .deepPopulate('source.source_type_id')
+                        .exec(function (err, production) {
+                            prod_len = production.length;
+                            prod_counter = 0;
+                            ++project_counter;
+                            if (prod_len > 0) {
+                                _.each(production, function (prod) {
+                                    ++prod_counter;
+                                    if (!project.source_type.p || !project.source_type.c) {
+                                        if (prod.source.source_type_id.source_type_authority === 'authoritative') {
+                                            project.source_type.c = true;
+                                        } else if (prod.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                            project.source_type.c = true;
+                                        } else if (prod.source.source_type_id.source_type_authority === 'disclosure') {
+                                            project.source_type.p = true;
+                                        }
                                     }
-                                }
-                                project.production_count += 1;
+                                    project.production_count += 1;
+                                    if (project_counter === project_len && prod_counter === prod_len) {
+                                        callback(null, project_count, projects);
+                                    }
+                                });
+                            } else {
                                 if (project_counter === project_len && prod_counter === prod_len) {
                                     callback(null, project_count, projects);
                                 }
-                            });
-                        } else {
-                            if (project_counter === project_len && prod_counter === prod_len) {
+                            }
+
+                        });
+                } else {
+                    Production.find({
+                        $or: [
+                            {project: {$in: project.transfers_query}},
+                            {site: {$in: project.transfers_query}}]
+                    })
+                        .count()
+                        .exec(function (err, production_count) {
+                            ++project_counter;
+                            project.production_count = production_count;
+                            if (project_counter === project_len) {
                                 callback(null, project_count, projects);
                             }
-                        }
-
-                    });
-            } else {
-                Production.find({$or: [
-                        {project:{$in: project.transfers_query}},
-                        {site:{$in: project.transfers_query}}]})
-                    .count()
-                    .exec(function (err, production_count) {
-                        ++project_counter;
-                        project.production_count = production_count;
-                        if (project_counter === project_len) {
-                            callback(null, project_count, projects);
-                        }
-                    });
-            }
-        });
+                        });
+                }
+            });
+        }else{
+            callback(null, project_count, projects);
+        }
     }
     function getCompanyGroup(project_count, projects, callback) {
         var company_groups =[];
@@ -353,21 +369,25 @@ exports.getProjects = function(req, res) {
     function getVerified (project_count, projects, callback) {
         project_len = projects.length;
         project_counter = 0;
-        _.each(projects, function(project) {
-            ++project_counter;
-            if (!project.source_type.c && !project.source_type.p) {
-                project.verified = 'none';
-            } else if (project.source_type.c && !project.source_type.p) {
-                project.verified = 'context';
-            } else if (!project.source_type.c && project.source_type.p) {
-                project.verified = 'payment';
-            } else if (project.source_type.c && project.source_type.p) {
-                project.verified = 'verified';
-            }
-            if (project_counter === project_len) {
-                callback(null, {data: projects, count: project_count});
-            }
-        });
+        if (project_len > 0) {
+            _.each(projects, function (project) {
+                ++project_counter;
+                if (!project.source_type.c && !project.source_type.p) {
+                    project.verified = 'none';
+                } else if (project.source_type.c && !project.source_type.p) {
+                    project.verified = 'context';
+                } else if (!project.source_type.c && project.source_type.p) {
+                    project.verified = 'payment';
+                } else if (project.source_type.c && project.source_type.p) {
+                    project.verified = 'verified';
+                }
+                if (project_counter === project_len) {
+                    callback(null, {data: projects, count: project_count});
+                }
+            });
+        } else {
+            callback(null, {data: projects, count: project_count});
+        }
     }
 };
 
@@ -458,16 +478,18 @@ exports.getProjectByID = function(req, res) {
                                 //    field: link.site.field,
                                 //    site_name: link.site.site_name
                                 //});
-                                if (link.site.field && link.site.site_coordinates.length>0) {
+                                if (link.site.field && link.site.site_coordinates && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        project.site_coordinates.fields.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
+                                        if(loc.loc) {
+                                            project.site_coordinates.fields.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
@@ -623,24 +645,30 @@ exports.getProjectByID = function(req, res) {
                 })
             }
         }
-        project_counter = 0;
-        project_len = project.proj_coordinates.length;
-        if(project_len>0) {
-            project.proj_coordinates.forEach(function (loc) {
-                ++project_counter;
-                project.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': project.proj_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'project',
-                    'id': project.proj_id
+
+        if(project.proj_coordinates!=undefined) {
+            project_counter = 0;
+            project_len = project.proj_coordinates.length;
+            if (project_len > 0) {
+                project.proj_coordinates.forEach(function (loc) {
+                    ++project_counter;
+                    project.coordinates.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': project.proj_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'project',
+                        'id': project.proj_id
+                    });
+                    if (project_counter == project_len) {
+                        callback(null, project);
+                    }
                 });
-                if (project_counter == project_len) {
-                    callback(null, project);
-                }
-            });
-        } else {
+            }else {
+                callback(null, project);
+            }
+        }
+        else {
             callback(null, project);
         }
     }

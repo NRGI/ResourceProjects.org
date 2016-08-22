@@ -33,7 +33,7 @@ exports.getCommodities = function(req, res) {
             if(commodity_count) {
                 callback(null, commodity_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
@@ -49,7 +49,7 @@ exports.getCommodities = function(req, res) {
                 if(commodities) {
                     callback(null, commodity_count, commodities);
                 } else {
-                    callback(err);
+                    return res.send(err);
                 }
             });
     }

@@ -35,7 +35,7 @@ exports.getCompanyGroups = function(req, res) {
             if(companyGroup_count) {
                 callback(null, companyGroup_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
@@ -51,41 +51,45 @@ exports.getCompanyGroups = function(req, res) {
                 if(companyGroups) {
                     callback(null, companyGroup_count, companyGroups);
                 } else {
-                    callback(err);
+                    return res.send(err);
                 }
             });
     }
     function getCompanyGroupLinks(companyGroup_count, companyGroups, callback) {
         companyGroup_len = companyGroups.length;
         companyGroup_counter = 0;
-        companyGroups.forEach(function (group) {
-            Link.find({company_group: group._id})
-                .populate('company')
-                .populate('project')
-                .exec(function(err, links) {
-                    ++companyGroup_counter;
-                    link_len = links.length;
-                    link_counter = 0;
-                    group.company_count = 0;
-                    group.companies = {};
-                    links.forEach(function(link) {
-                        ++link_counter;
+        if(companyGroup_len>0) {
+            companyGroups.forEach(function (group) {
+                Link.find({company_group: group._id})
+                    .populate('company')
+                    .populate('project')
+                    .exec(function (err, links) {
+                        ++companyGroup_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        group.company_count = 0;
+                        group.companies = {};
+                        links.forEach(function (link) {
+                            ++link_counter;
 
-                        var entity = _.without(link.entities, 'company_group')[0];
-                        switch (entity) {
-                            case 'company':
-                                group.companies={company: link.company._id};
-                                group.company_count += 1;
-                                break;
-                            default:
-                                console.log(entity, 'link skipped...');
+                            var entity = _.without(link.entities, 'company_group')[0];
+                            switch (entity) {
+                                case 'company':
+                                    group.companies = {company: link.company._id};
+                                    group.company_count += 1;
+                                    break;
+                                default:
+                                    console.log(entity, 'link skipped...');
+                            }
+                        });
+                        if (companyGroup_counter == companyGroup_len && link_counter == link_len) {
+                            callback(null, companyGroup_count, companyGroups);
                         }
                     });
-                    if(companyGroup_counter == companyGroup_len && link_counter == link_len) {
-                        callback(null, companyGroup_count, companyGroups);
-                    }
-                });
-        });
+            });
+        }else{
+            callback(null, companyGroup_count, companyGroups);
+        }
     }
     function getLinkedCompanyProjects (companyGroup_count, companyGroups, callback){
         companyGroup_len = companyGroups.length;
