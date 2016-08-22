@@ -7,6 +7,7 @@ Concession = require('mongoose').model('Concession'),
 Site = require('mongoose').model('Site'),
 Link = require('mongoose').model('Link'),
 Transfer = require('mongoose').model('Transfer'),
+Production = require('mongoose').model('Production'),
 async = require('async'),
 _ = require("underscore"),
 moment = require('moment');
@@ -143,7 +144,9 @@ exports.resolveDuplicates = function(req, res) {
             var alias = makeNewAlias(company_to_remove.company_name, 'company', company_to_remove.company_established_source);
 
             // push newly created alias to original company
-            Company.findById(obj.original, function(err, company) {
+            Company.findById(obj.original)
+            .populate('original')
+            .exec(function(err, company) {
               if(err) {
                 callback(err);
               }
@@ -158,9 +161,9 @@ exports.resolveDuplicates = function(req, res) {
                     //update links, transfers and facts
                     console.log("updating all entities.")
                     async.parallel([
-                      updateAll.bind(null, Link, company_to_remove._id, obj._id),
-                      updateAll.bind(null, Transfer, company_to_remove._id, obj._id),
-                      updateAllFacts.bind(null, company_to_remove._id, obj._id)
+                      updateAll.bind(null, Link, company_to_remove._id, obj.original._id),
+                      updateAll.bind(null, Transfer, company_to_remove._id, obj.original._id),
+                      updateAllCompanyFacts.bind(null, company_to_remove._id, obj.original._id)
                     ], function(err, results) {
                       if(err) {
                         console.log("updating all entities. ERROR: " + err);
@@ -198,15 +201,78 @@ exports.resolveDuplicates = function(req, res) {
             callback(err);
           }
         });
-
-
-        // TODO update facts
-
         break;
 
         // HANDLE PROJECT DUPLICATES
         case 'project':
-        // TODO
+        Project.findOneAndRemove({ _id: obj.duplicate}, function (err, project_to_remove) {
+          console.log("looking for duplicate project with id " + obj.duplicate);
+          if(err) {
+            callback(err);
+          }
+          else if(project_to_remove) {
+            // create new alias to company object
+            console.log("creating new alias for project id " + project_to_remove._id);
+            var alias = makeNewAlias(project_to_remove.proj_name, 'project', project_to_remove.proj_established_source);
+
+            // push newly created alias to original company
+            Project.findById(obj.original)
+            .populate('original')
+            .exec(function(err, project) {
+              if(err) {
+                callback(err);
+              }
+              else if(project) {
+                console.log("pushing alias to project id " + project._id);
+                project.proj_aliases.push(alias);
+                project.save(function(err){
+                  if(err) {
+                    callback(err);
+                  }
+                  else {
+                    //update links, transfers and facts
+                    console.log("updating all project relevant entities.")
+                    async.parallel([
+                      updateAll.bind(null, Link, project_to_remove._id, obj.original._id),
+                      updateAll.bind(null, Transfer, project_to_remove._id, obj.original._id),
+                      updateAll.bind(null, Production, project_to_remove._id, obj.original._id),
+                      //updateAllProjectFacts.bind(null, project_to_remove._id, obj.original._id)
+                    ], function(err, results) {
+                      if(err) {
+                        console.log("updating all project relevant entities. ERROR: " + err);
+                        callback(err);
+                      }
+                      else if(results) {
+                        console.log("updating all project relevant entities. DONE.")
+                        console.log('setting resolved flag to id ' + obj._id + '.');
+                        Duplicate.findByIdAndUpdate(obj._id, { resolved: true, resolved_date: Date.now() }, function(err, result) {
+                          if(err) {
+                            console.log('setting resolved flag to id ' + obj._id + '. ERROR: ' + err);
+                            callback(err);
+                          }
+                          else {
+                            console.log('setting resolved flag to id ' + obj._id + '. DONE.');
+                            callback(null, 'company duplicate with id ' + obj._id + ' resolved, all associated links and facts updated');
+                          }
+                        });
+                      }
+                      else {
+                        console.log("updating all entities. ERROR: " + err);
+                        callback(err);
+                      }
+                    });
+                  }
+                });
+              }
+              else {
+                callback(err);
+              }
+            });
+          }
+          else {
+            callback(err);
+          }
+        });
         break;
 
         default:
@@ -230,18 +296,30 @@ exports.resolveDuplicates = function(req, res) {
       case 'update':
       console.log("updating document with duplicate information");
       console.log("removing duplicate object.");
-      Company.findOneAndRemove({ _id: obj.duplicate}, function (err, company_to_remove) {
+      var entity;
+      switch(obj.entity) {
+        case 'project':
+        entity = Project;
+        break;
+        case 'company':
+        entity = Company;
+        break;
+        default:
+        callback("entity type not found");
+        break;
+      }
+      entity.findOneAndRemove({ _id: obj.duplicate}, function (err, entity_to_remove) {
         if(err) {
           console.log("removing duplicate object. ERROR: " + err);
           callback(err);
         }
-        else if(company_to_remove) {
+        else if(entity_to_remove) {
           console.log("removing duplicate object. DONE.");
 
           //do not overwrite object id
-          delete company_to_remove._id;
+          delete entity_to_remove._id;
           console.log("updating original object with id " + obj._id + ".");
-          Company.findByIdAndUpdate(obj.original, company_to_remove, function(err, doc) {
+          entity.findByIdAndUpdate(obj.original, entity_to_remove, function(err, doc) {
             if(err) {
               console.log("updating original object with id " + obj._id + ". ERROR: " + err);
               callback(err);
@@ -256,7 +334,7 @@ exports.resolveDuplicates = function(req, res) {
                 }
                 else {
                   console.log("setting resolved flag to id " + obj._id + ". DONE.");
-                  callback(null, "company updated with information");
+                  callback(null, "entity updated with information");
                 }
               });
             }
@@ -345,7 +423,7 @@ exports.resolveDuplicates = function(req, res) {
     }
   };
 
-  function updateAllFacts(old_company_id, new_company_id, callback) {
+  function updateAllCompanyFacts(old_company_id, new_company_id, callback) {
     async.parallel([
       update_concession_operated_by.bind(null, old_company_id, new_company_id),
       update_concession_company_share.bind(null, old_company_id, new_company_id),
