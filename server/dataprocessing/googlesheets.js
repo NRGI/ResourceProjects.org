@@ -679,10 +679,12 @@ function parseData(sheets, report, finalcallback) {
                     projDoc.proj_status = proj_status;
                 }
                 
+                if (currentDoc) projDoc._id = currentDoc._id; //Crucial as we use findByIdAndUpdate later to do the upsert/merge
+                
                 destObj[row['#project'].toLowerCase()] = projDoc; //Can also serve as update to internal list
                 //TODO: don't overwrite project name with an alias!!!
 
-                return wcallback(null, model);
+                return wcallback(null);  //Signal this one done without error
             }
 
             if (row['#project'] === "") {
