@@ -52,9 +52,9 @@ projectSchema = new Schema({
             default: Date.now()},
         startTimestamp: {
             type: Date},
-        }],
         endTimestamp: {
-            type: Date},
+            type: Date}
+        }],
     description: htmlSettings
 });
 //
