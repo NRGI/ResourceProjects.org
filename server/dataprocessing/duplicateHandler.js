@@ -67,7 +67,7 @@ findCompanyDuplicates = function(action_id, fnCallback) {
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
                     duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalCompany._id, new_company.obj._id, "company", notes, originalCompany.score);
+                    var newDuplicate = makeNewDuplicate(action_id, originalCompany.item._id, new_company.obj._id, "company", notes, originalCompany.score);
                     Duplicate.create(newDuplicate, null);
                   }
                 }
@@ -128,7 +128,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
                     duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalProject._id, new_project._id, "project", notes, originalProject.score);
+                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project._id, "project", notes, originalProject.score);
                     Duplicate.create(newDuplicate, null);
                   }
                 }
