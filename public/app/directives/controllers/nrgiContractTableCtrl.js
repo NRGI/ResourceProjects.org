@@ -27,10 +27,11 @@ angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiC
                         type: type
                     }, function (success) {
                         $scope.expression='';
-                        if (success.contracts.length == 0 && $scope.contracts.length == 0) {
-                            $scope.expression = 'showLast';
-                        }
                         $scope.contracts =success.contracts;
+                        if (success.contracts.length == 0 || _.isEmpty(success.contracts[0])) {
+                            $scope.expression = 'showLast';
+                            $scope.contracts = [];
+                        }
                         usSpinnerService.stop('spinner-contract');
                         var headers = [{name: 'Name', status: !$scope.companies, field: 'contract_name'},
                             {name: 'RC-ID', status: $scope.companies, field: '_id'},

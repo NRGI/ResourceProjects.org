@@ -67,7 +67,7 @@ exports.getSites = function(req, res) {
             sites.forEach(function (site) {
                 var commodity = site.site_commodity;
                 site.site_commodity = [];
-                if (commodity.length>0) {
+                if (commodity && commodity.length>0) {
                     if (_.where(commodity, {_id: _.last(commodity).commodity._id}).length<1) {
                         site.site_commodity.push({
                             _id: _.last(commodity).commodity._id,
@@ -259,25 +259,29 @@ exports.getSiteByID = function(req, res) {
         site.source_type = {p: false, c: false};
         if (site.field && site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
-                site.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': site.site_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'field',
-                    'id': site._id
-                });
+                if(loc && loc.loc) {
+                    site.coordinates.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': site.site_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'field',
+                        'id': site._id
+                    });
+                }
             });
         } else if (!site.field && site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
-                site.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': site.site_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'site',
-                    'id': site._id
-                });
+                if(loc && loc.loc) {
+                    site.coordinates.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': site.site_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'site',
+                        'id': site._id
+                    });
+                }
             });
         }
         var commodity = site.site_commodity;
@@ -320,18 +324,6 @@ exports.getSiteByID = function(req, res) {
                                     proj_id: link.project.proj_id,
                                     proj_name: link.project.proj_name
                                 });
-                                if(link.project && link.project.proj_coordinates) {
-                                    link.project.proj_coordinates.forEach(function (loc) {
-                                        site.coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.project.proj_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'project',
-                                            'id': link.project.proj_id
-                                        });
-                                    });
-                                }
                                 if (link.project.proj_commodity.length>0) {
                                     if (_.where(site.site_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                         site.site_commodity.push({
@@ -351,25 +343,29 @@ exports.getSiteByID = function(req, res) {
                                 });
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        site.proj_coordinates.fields.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            site.proj_coordinates.fields.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        site.proj_coordinates.sites.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            site.proj_coordinates.sites.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'site',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 }
                                 if (link.site.site_commodity.length>0) {
@@ -482,7 +478,7 @@ exports.getSiteByID = function(req, res) {
                                     callback(null, site);
                                 }
                             });
-                        } else {
+                           } else {
                             if(proj_counter == proj_len && link_counter == link_len) {
                                 callback(null, site);
                             }
@@ -528,14 +524,16 @@ exports.getSitesMap = function(req, res) {
                             }else{
                                 site_type='site';
                             }
-                            data.push({
-                                'lat': loc.loc[0],
-                                'lng': loc.loc[1],
-                                'message': site.site_name,
-                                'timestamp': loc.timestamp,
-                                'type': site_type,
-                                'id': site._id
-                            })
+                            if(loc && loc.loc) {
+                                data.push({
+                                    'lat': loc.loc[0],
+                                    'lng': loc.loc[1],
+                                    'message': site.site_name,
+                                    'timestamp': loc.timestamp,
+                                    'type': site_type,
+                                    'id': site._id
+                                })
+                            }
                         })
                     });
                     if(site_counter == site_len) {

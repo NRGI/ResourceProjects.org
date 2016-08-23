@@ -13,10 +13,9 @@ var Country 		= require('mongoose').model('Country'),
     _               = require("underscore"),
     request         = require('request');
 exports.getCoordinateCountryByID = function(req, res) {
-    var country={}, site_counter, site_len, project_counter, project_len;
+    var country={}, site_counter, site_len;
     var type = req.params.type;
     async.waterfall([
-        getProjects,
         getSites,
         getCompanyLinks,
         getCompanyGroupLinks,
@@ -32,46 +31,9 @@ exports.getCoordinateCountryByID = function(req, res) {
             }
         }
     });
-
-    function getProjects(callback) {
-        if(type=='country') {
-            country.proj_coordinates = [];
-            country.location = [];
-            Project.find({'proj_country.country': req.params.id})
-                .populate('proj_country.country')
-                .exec(function (err, project) {
-                    project_len = project.length;
-                    project_counter = 0;
-                    if (project_len > 0) {
-                        _.each(project, function (proj) {
-                            ++project_counter;
-                            if(proj.proj_coordinates) {
-                                proj.proj_coordinates.forEach(function (loc) {
-                                    if(loc.loc) {
-                                        country.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': proj.proj_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'project',
-                                            'id': proj.proj_id
-                                        });
-                                    }
-                                });
-                            }
-                            if (project_counter == project_len) {
-                                callback(null, country);
-                            }
-                        });
-                    } else {
-                        callback(null, country);
-                    }
-                });
-        } else {
-            callback(null, country);
-        }
-    }
-    function getSites(country, callback) {
+    function getSites(callback) {
+        country.proj_coordinates = [];
+        country.location = [];
         if (type == 'country') {
             Site.find({'site_country.country': req.params.id})
                 .populate('site_commodity.commodity')
@@ -83,7 +45,7 @@ exports.getCoordinateCountryByID = function(req, res) {
                             ++site_counter;
                             if (site.field && site.site_coordinates.length > 0) {
                                 site.site_coordinates.forEach(function (loc) {
-                                    if(loc.loc) {
+                                    if(loc && loc.loc) {
                                         country.proj_coordinates.push({
                                             'lat': loc.loc[0],
                                             'lng': loc.loc[1],
@@ -96,7 +58,7 @@ exports.getCoordinateCountryByID = function(req, res) {
                                 });
                             } else if (!site.field && site.site_coordinates.length > 0) {
                                 site.site_coordinates.forEach(function (loc) {
-                                    if(loc.loc) {
+                                    if(loc && loc.loc) {
                                         country.proj_coordinates.push({
                                             'lat': loc.loc[0],
                                             'lng': loc.loc[1],
@@ -138,7 +100,7 @@ exports.getCoordinateCountryByID = function(req, res) {
                                 case 'site':
                                     if (link.site.field && link.site.site_coordinates.length > 0) {
                                         link.site.site_coordinates.forEach(function (loc) {
-                                            if(loc.loc) {
+                                            if(loc && loc.loc) {
                                                 map.proj_coordinates.push({
                                                     'lat': loc.loc[0],
                                                     'lng': loc.loc[1],
@@ -156,7 +118,7 @@ exports.getCoordinateCountryByID = function(req, res) {
                                         });
                                     } else if (!link.site.field && link.site.site_coordinates.length > 0) {
                                         link.site.site_coordinates.forEach(function (loc) {
-                                            if(loc.loc) {
+                                            if(loc && loc.loc) {
                                                 map.proj_coordinates.push({
                                                     'lat': loc.loc[0],
                                                     'lng': loc.loc[1],
@@ -173,27 +135,6 @@ exports.getCoordinateCountryByID = function(req, res) {
                                             return grouped[0];
                                         });
                                     }
-                                    break;
-                                case 'project':
-                                   if(link.project && link.project.proj_coordinates) {
-                                       link.project.proj_coordinates.forEach(function (loc) {
-                                           if(loc.loc) {
-                                               map.proj_coordinates.push({
-                                                   'lat': loc.loc[0],
-                                                   'lng': loc.loc[1],
-                                                   'message': link.project.proj_name,
-                                                   'timestamp': loc.timestamp,
-                                                   'type': 'project',
-                                                   'id': link.project.proj_id
-                                               });
-                                           }
-                                       });
-                                       map.proj_coordinates = _.map(_.groupBy(map.proj_coordinates, function (doc) {
-                                           return doc._id;
-                                       }), function (grouped) {
-                                           return grouped[0];
-                                       });
-                                   }
                                     break;
                                 default:
                                     console.log(entity, 'link skipped...');
@@ -270,7 +211,7 @@ exports.getCoordinateCountryByID = function(req, res) {
                                         case 'site':
                                             if (link.site.field && link.site.site_coordinates.length > 0) {
                                                 link.site.site_coordinates.forEach(function (loc) {
-                                                    if(loc.loc) {
+                                                    if(loc && loc.loc) {
                                                         companyGroup.proj_coordinates.push({
                                                             'lat': loc.loc[0],
                                                             'lng': loc.loc[1],
@@ -283,7 +224,7 @@ exports.getCoordinateCountryByID = function(req, res) {
                                                 });
                                             } else if (!link.site.field && link.site.site_coordinates.length > 0) {
                                                 link.site.site_coordinates.forEach(function (loc) {
-                                                    if(loc.loc) {
+                                                    if(loc && loc.loc) {
                                                         companyGroup.proj_coordinates.push({
                                                             'lat': loc.loc[0],
                                                             'lng': loc.loc[1],
@@ -291,22 +232,6 @@ exports.getCoordinateCountryByID = function(req, res) {
                                                             'timestamp': loc.timestamp,
                                                             'type': 'site',
                                                             'id': link.site._id
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            break;
-                                        case 'project':
-                                            if(link.project && link.project.proj_coordinates && link.project.proj_coordinates.length>0) {
-                                                link.project.proj_coordinates.forEach(function (loc) {
-                                                    if(loc.loc) {
-                                                        companyGroup.proj_coordinates.push({
-                                                            'lat': loc.loc[0],
-                                                            'lng': loc.loc[1],
-                                                            'message': link.project.proj_name,
-                                                            'timestamp': loc.timestamp,
-                                                            'type': 'project',
-                                                            'id': link.project.proj_id
                                                         });
                                                     }
                                                 });

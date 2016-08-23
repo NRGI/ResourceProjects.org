@@ -85,10 +85,12 @@ exports.getCompanies = function(req, res) {
                                 var entity = _.without(link.entities, 'company')[0]
                                 switch (entity) {
                                     case 'company_group':
-                                        company.company_groups.push({
-                                            _id: link.company_group._id,
-                                            company_group_name: link.company_group.company_group_name
-                                        });
+                                        if(link.company_group) {
+                                            company.company_groups.push({
+                                                _id: link.company_group._id,
+                                                company_group_name: link.company_group.company_group_name
+                                            });
+                                        }
                                         break;
                                     case 'project':
                                         projects.push(link.project);

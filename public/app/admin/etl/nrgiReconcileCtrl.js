@@ -28,7 +28,6 @@ angular.module('app')
         });
 
         $scope.resolve_duplicate = function (id, action) {
-            console.log(id, action)
             nrgiDuplicatesSrvc.query({type:$scope.type_filter,id:id,action:action}, function (response) {
                 currentPage = 0;
                 $scope.duplicates = [];

@@ -73,6 +73,11 @@ exports.getConcessions = function(req, res) {
                 });
                 concession.transfers_query = [concession._id];
                 concession.source_type = {p: false, c: false};
+                concession.project_count = 0;
+                concession.company_count = 0;
+                concession.site_count = 0;
+                concession.field_count  = 0;
+                concession.contract_count = 0;
                 Link.find({concession: concession._id})
                     .populate('commodity', '_id commodity_name commodity_type commodity_id')
                     .populate('company site project')
@@ -82,11 +87,6 @@ exports.getConcessions = function(req, res) {
                         link_len = links.length;
                         link_counter = 0;
                         if(link_len>0) {
-                            concession.project_count = 0;
-                            concession.company_count = 0;
-                            concession.site_count = 0;
-                            concession.field_count  = 0;
-                            concession.contract_count = 0;
                             links.forEach(function (link) {
                                 ++link_counter;
                                 var entity = _.without(link.entities, 'concession')[0];
@@ -143,21 +143,21 @@ exports.getConcessions = function(req, res) {
                                                 concession.transfers_query.push(link.site._id);
                                             }
                                         }
-                                        if (link.site.field) {
+                                        if (!link.site.field) {
                                             concession.site_count += 1;
-                                        } else if (!link.site.field) {
+                                        } else if (link.site.field) {
                                             concession.field_count += 1;
                                         }
                                         break;
                                     default:
                                         console.log(entity, 'skipped...');
                                 }
+                                if (concession_counter == concession_len && link_counter == link_len) {
+                                    callback(null, concession_count, concessions);
+                                }
                             });
-                            if (concession_counter == concession_len && link_counter == link_len) {
-                                callback(null, concession_count, concessions);
-                            }
                         } else {
-                            if (concession_counter == concession_len && link_counter == link_len) {
+                            if (concession_counter == concession_len) {
                                 callback(null, concession_count, concessions);
                             }
                         }
@@ -276,10 +276,12 @@ exports.getConcessionByID = function(req, res) {
             var coordinate=[];
             concession.concession_polygon.forEach(function (con_loc) {
                 ++counter;
-                coordinate.push({
-                    'lat': con_loc.loc[0],
-                    'lng': con_loc.loc[1]
-                });
+                if(con_loc && con_loc.loc) {
+                    coordinate.push({
+                        'lat': con_loc.loc[0],
+                        'lng': con_loc.loc[1]
+                    });
+                }
                 if(len==counter){
                     concession.polygon.push({coordinate:coordinate});
                 }
@@ -313,18 +315,6 @@ exports.getConcessionByID = function(req, res) {
                                 }
                                 break;
                             case 'project':
-                                if(link.project && link.project.proj_coordinates) {
-                                    link.project.proj_coordinates.forEach(function (loc) {
-                                        concession.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.project.proj_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'project',
-                                            'id': link.project.proj_id
-                                        });
-                                    });
-                                }
                                 if (link.project.proj_commodity.length>0) {
                                     if (_.where(concession.concession_commodity, {_id:_.last(link.project.proj_commodity).commodity._id}).length<1) {
                                         concession.concession_commodity.push({
@@ -339,25 +329,29 @@ exports.getConcessionByID = function(req, res) {
                             case 'site':
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        concession.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            concession.proj_coordinates.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        concession.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            concession.proj_coordinates.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'site',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 }
                                 if (link.site.site_commodity.length>0) {

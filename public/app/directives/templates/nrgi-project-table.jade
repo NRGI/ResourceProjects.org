@@ -59,7 +59,7 @@ data-target="#projects")
                     em(ng-if="project.proj_status.length<1") ..
                     text(
                     ng-if="project.proj_status")
-                        | {{project.proj_status.string | ucfirst}}
+                        | {{project.proj_status.string | ucfirst | addSpaces}}
                         text.small(ng-if="project.proj_status.timestamp")  (true at {{project.proj_status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.text-center(ng-if="companies==true") {{project.companies}}
     div(ng-if="projects.length>0")
