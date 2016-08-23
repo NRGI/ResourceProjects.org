@@ -679,10 +679,12 @@ function parseData(sheets, report, finalcallback) {
                     projDoc.proj_status = proj_status;
                 }
                 
+                if (currentDoc) projDoc._id = currentDoc._id; //Crucial as we use findByIdAndUpdate later to do the upsert/merge
+                
                 destObj[row['#project'].toLowerCase()] = projDoc; //Can also serve as update to internal list
                 //TODO: don't overwrite project name with an alias!!!
 
-                return wcallback(null, model);
+                return wcallback(null);  //Signal this one done without error
             }
 
             if (row['#project'] === "") {
@@ -975,8 +977,8 @@ function parseData(sheets, report, finalcallback) {
                             site_country: {$addToSet: {country: countries[row['#project+' + identifier + '+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}} //TODO: How in the world can there multiple versions of country
                         };
                         
-                        if (identifier === "field") site.site_field = true;
-                        else site.site_field = false;
+                        if (identifier === "field") site.field = true;
+                        else site.field = false;
                         
                         if (row['#project+' + identifier + '+address'] !== "") site.site_address = {$addToSet: {string: row['#project+' + identifier + '+address'], source: sources[row['#source'].toLowerCase()]._id}};
                         if (row['#project+' + identifier + '+lat'] !== "") site.site_coordinates = {$addToSet: {loc: [parseFloat(row['#project+' + identifier + '+lat']), parseFloat(row['#project+' + identifier + '+long'])], source: sources[row['#source'].toLowerCase()]._id}};

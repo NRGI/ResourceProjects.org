@@ -61,11 +61,14 @@ exports.getDatasets = function(req, res) {
                                 if (err) ecallback(err);
                                 else if (duplicates.length > 0) {
                                     dataset.isLoaded = true; //Must have been loaded
+                                    dataset.canBeUnloaded = true; //TODO: suboptimal
                                     dataset.hasDuplicates = true;
                                     dataset.readyForCleaning = false; //Can't be marked cleaned because of duplicates
+                                    dataset.canReLoad = false; //First deal with duplicates
                                     ecallback(null); //This one finished
                                 }
                                 else {
+                                    //TODO: It would be good if after reconciliation is complete/started, unload is no longer possible
                                     dataset.hasDuplicates = false; //No duplicates... need to figure out what stage its at
                                     //Figure out if ready for cleaning
                                     Action.find({dataset: dataset._id}) //TODO: only doing this to get actions in date sorted order, even though we could already have them - bad
@@ -79,6 +82,7 @@ exports.getDatasets = function(req, res) {
                                                 dataset.readyForCleaning = false;
                                                 dataset.canBeUnloaded = false;
                                                 dataset.canReLoad = false;
+                                                if (dataset.type == "Incremental API") dataset.canReLoad = true;
                                                 for (action of actions) { //Remember these are in reverse date order, so we are grabbing the last import/mark cleaned
                                                     if ((action.name == 'Unload last import') && (action.status == 'Success')) {
                                                         break;
