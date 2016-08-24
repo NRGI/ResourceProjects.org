@@ -10,12 +10,16 @@ var fusejs = require('fuse.js');
 
 var fuse_options_company = {
   keys: ["company_name"],
-  threshold: 0.3
+  threshold: 0.3,
+  include: ["score"],
+  shouldSort: true
 };
 
 var fuse_options_project = {
   keys: ["proj_name"],
-  threshold: 0.1
+  threshold: 0.1,
+  include: ["score"],
+  shouldSort: true
 };
 
 findCompanyDuplicates = function(action_id, fnCallback) {
@@ -56,14 +60,14 @@ findCompanyDuplicates = function(action_id, fnCallback) {
               //console.log(notes);
               for (var originalCompany of searchResult) {
 
-                if (originalCompany.company_name != searchString) {
+                if (originalCompany.item.company_name != searchString) {
 
                   //check if searchstring is in aliases
-                  var aliases = _.pluck(originalCompany.company_aliases, 'alias')
+                  var aliases = _.pluck(originalCompany.item.company_aliases, 'alias')
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
                     duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalCompany._id, new_company.obj._id, "company", notes);
+                    var newDuplicate = makeNewDuplicate(action_id, originalCompany.item._id, new_company.obj._id, "company", notes, originalCompany.score);
                     Duplicate.create(newDuplicate, null);
                   }
                 }
@@ -117,14 +121,14 @@ findProjectDuplicates = function(action_id, fnCallback) {
               //console.log(notes);
               for (var originalProject of searchResult) {
 
-                if (originalProject.proj_name != searchString) {
+                if (originalProject.item.proj_name != searchString) {
 
                   //check if searchstring is in aliases
-                  var aliases = _.pluck(originalProject.proj_aliases, 'alias')
+                  var aliases = _.pluck(originalProject.item.proj_aliases, 'alias')
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
                     duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalProject._id, new_project._id, "project", notes);
+                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project._id, "project", notes, originalProject.score);
                     Duplicate.create(newDuplicate, null);
                   }
                 }
@@ -142,7 +146,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
   });
 };
 
-makeNewDuplicate = function(action_id, original_id, duplicate_id, entity, notes) {
+makeNewDuplicate = function(action_id, original_id, duplicate_id, entity, notes, score) {
 
 	var duplicate = {
 		original: ObjectId(original_id),
@@ -150,7 +154,8 @@ makeNewDuplicate = function(action_id, original_id, duplicate_id, entity, notes)
 		created_from: action_id,
 		entity: entity,
 		resolved: false,
-		notes: notes
+		notes: notes,
+    score: score
 		// TODO: user
 		// resolved_by: user_id,
 	};

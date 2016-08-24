@@ -25,6 +25,7 @@ duplicateSchema = new Schema({
     created_from: {type: ObjectId, ref: 'Action'},
     resolved_date: {type: Date, default: Date.now},
     notes: {type: String},
+    score: {type: Number},
     entity: {
         type: String,
         required:'{PATH} is required!',
