@@ -8,6 +8,7 @@ var Source = require('mongoose').model('Source'),
     Concession = require('mongoose').model('Concession'),
     Production = require('mongoose').model('Production'),
     Transfer = require('mongoose').model('Transfer'),
+    Duplicate    = require('mongoose').model('Duplicate'),
     ImportSource    = require('mongoose').model('ImportSource');
 var async = require('async');
 
@@ -40,38 +41,41 @@ exports.unloadActionData = function(action_id, callback) {
                                 model.findByIdAndRemove(importSource.obj, function(err) {
                                     if (err) scallback(err);
                                     else {
-                                        if (importSource.actions.length > 1) {
-                                            for (var j=0; j<importSource.actions.length; j++) {
-                                                if (importSource.actions[j] == action_id) {
-                                                    importSource.actions = importSource.actions.splice(j, 1); //Remove one item at pos j
-                                                    break;
-                                                }
-                                            }
-                                            if (importSource.__v) delete importSource.__v; //Don't send __v back in to Mongo: https://github.com/Automattic/mongoose/issues/1933
-                                            var theId = importSource._id;
-                                            delete importSource._id; //Don't make Mongo try to update the _id
-                                            ImportSource.findByIdAndUpdate(
-                                                theId,
-                                                importSource,
-                                                {},
-                                                function (err) {
-                                                    if (err) scallback(err);
-                                                    else {
-                                                        report += "Removed a " + importSource.entity + " with id " + importSource.obj + " and modified the record of its import from this import\n";
-                                                        scallback(null);
+                                        //Remove any duplicates Duplicate.find(
+                                        Duplicate.remove({created_from: action_id}, function (err) {
+                                            if (err) return scallback(err);
+                                            if (importSource.actions.length > 1) {
+                                                for (var j=0; j<importSource.actions.length; j++) {
+                                                    if (importSource.actions[j] == action_id) {
+                                                        importSource.actions = importSource.actions.splice(j, 1); //Remove one item at pos j
                                                     }
                                                 }
-                                            );
-                                        }
-                                        else {
-                                            ImportSource.findByIdAndRemove(importSource._id, function (err) {
-                                                if (err) scallback(err);
-                                                else {
-                                                    report += "Removed a " + importSource.entity + " with id " + importSource.obj + " and the record of its import\n";
-                                                    scallback(null);
-                                                }
-                                            });
-                                        }
+                                                if (importSource.__v) delete importSource.__v; //Don't send __v back in to Mongo: https://github.com/Automattic/mongoose/issues/1933
+                                                var theId = importSource._id;
+                                                delete importSource._id; //Don't make Mongo try to update the _id
+                                                ImportSource.findByIdAndUpdate(
+                                                    theId,
+                                                    importSource,
+                                                    {},
+                                                    function (err) {
+                                                        if (err) scallback(err);
+                                                        else {
+                                                            report += "Removed a " + importSource.entity + " with id " + importSource.obj + " and modified the record of its import from this import\n";
+                                                            scallback(null);
+                                                        }
+                                                    }
+                                                );
+                                            }
+                                            else {
+                                                ImportSource.findByIdAndRemove(importSource._id, function (err) {
+                                                    if (err) scallback(err);
+                                                    else {
+                                                        report += "Removed a " + importSource.entity + " with id " + importSource.obj + " and the record of its import\n";
+                                                        scallback(null);
+                                                    }
+                                                });
+                                            }
+                                        });
                                     }
                                 });
                             }
