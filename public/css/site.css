@@ -170,6 +170,10 @@ li .glyphicon[disabled] {
   cursor: not-allowed;
   color: #777 !important;
 }
+.resolve,
+.update {
+  width: 48px;
+}
 .navbar-header a.navbar-brand {
   padding-top: 30px;
   margin-top: -15px;

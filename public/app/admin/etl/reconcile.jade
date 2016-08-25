@@ -38,13 +38,13 @@
                         td
                             | {{duplicate.notes}}
                         td
-                            a.btn.btn-danger(
+                            a.btn.btn-danger.resolve(
                             data-toggle="tooltip"
                             ng-click="resolve_duplicate(duplicate._id,'resolve')"
                             title="Resolve")
-                                span(class="glyphicon glyphicon-remove")
+                                span(class="fa fa-1x fa-code-fork")
                             | &nbsp;
-                            a.btn.btn-warning(
+                            a.btn.btn-warning.update(
                             data-toggle="tooltip"
                             ng-click="resolve_duplicate(duplicate._id,'update')"
                             title="Update")
