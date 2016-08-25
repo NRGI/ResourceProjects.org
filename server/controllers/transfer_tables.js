@@ -79,7 +79,7 @@ exports.getTransferTable = function(req, res){
                                     }
                                     break;
                                 case 'company':
-                                    if (link.company._id != undefined) {
+                                    if (link.company && link.company._id != undefined) {
                                         if (!_.contains(projects.transfers_query, link.company._id)) {
                                             projects.transfers_query.push(link.company._id);
                                         }

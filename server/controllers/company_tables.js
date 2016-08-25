@@ -61,11 +61,17 @@ exports.getCompanyTable = function(req, res){
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
-                            companies.companies.push({
-                                company_name: link.company.company_name,
-                                _id: link.company._id,
-                                company_groups: []
-                            });
+                            var name = '';
+                            if(link.company) {
+                                if (link.company.company_name) {
+                                    name = link.company.company_name;
+                                }
+                                companies.companies.push({
+                                    company_name: name,
+                                    _id: link.company._id,
+                                    company_groups: []
+                                });
+                            }
                             companies.companies = _.map(_.groupBy(companies.companies,function(doc){
                                 return doc._id;
                             }),function(grouped){
