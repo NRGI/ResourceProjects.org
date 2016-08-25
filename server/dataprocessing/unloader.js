@@ -48,8 +48,10 @@ exports.unloadActionData = function(action_id, callback) {
                                                 }
                                             }
                                             if (importSource.__v) delete importSource.__v; //Don't send __v back in to Mongo: https://github.com/Automattic/mongoose/issues/1933
+                                            var theId = importSource._id;
+                                            delete importSource._id; //Don't make Mongo try to update the _id
                                             ImportSource.findByIdAndUpdate(
-                                                importSource._id,
+                                                theId,
                                                 importSource,
                                                 {},
                                                 function (err) {
