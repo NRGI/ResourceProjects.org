@@ -16,7 +16,8 @@
             table#reconcile.table(ts-wrapper)
                 thead
                     tr
-                        th.tablesort-sortable-th(ts-criteria='original.company_name') Identifier
+                        th.tablesort-sortable-th(ng-if="type_filter =='company'",ts-criteria='original.company_name') Identifier
+                        th.tablesort-sortable-th(ng-if="type_filter =='project'",ts-criteria='original.proj_name') Identifier
                         th Category
                         th Notes
                         th Available Actions
@@ -24,9 +25,13 @@
                 tbody
                     tr(ng-repeat="duplicate in duplicates | filter:search_text" ts-repeat)
                         td
-                            | Original: {{duplicate.original.company_name}}
+                            text Original:
+                                text(ng-if='duplicate.original.company_name') {{duplicate.original.company_name}}
+                                text(ng-if='duplicate.original.proj_name') {{duplicate.original.proj_name}}
                             br
-                            | Duplicate: {{duplicate.duplicate.company_name}}
+                            text Duplicate:
+                                text(ng-if='duplicate.duplicate.company_name') {{duplicate.duplicate.company_name}}
+                                text(ng-if='duplicate.duplicate.proj_name') {{duplicate.duplicate.proj_name}}
                         td
                             | {{duplicate.entity}}
 
