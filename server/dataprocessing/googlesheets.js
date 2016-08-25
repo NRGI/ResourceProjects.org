@@ -754,7 +754,10 @@ function parseData(sheets, report, finalcallback) {
                 async.eachSeries(projectNames, //TODO: each parallel???
                     function (project, ecallback) {
                         var idToUpdateOrCreate = require('mongoose').Types.ObjectId(); //Generate a new ID if we don't have one
-                        if (projects[project]._id) idToUpdateOrCreate = projects[project]._id;
+                        if (projects[project]._id) {
+                            idToUpdateOrCreate = projects[project]._id;
+                            delete projects[project]._id; //Don't try to update _id
+                        }
                         if (projects[project].__v) delete projects[project].__v; //Don't send __v back in to Mongo: https://github.com/Automattic/mongoose/issues/1933
                         Project.findByIdAndUpdate(
                             idToUpdateOrCreate,
