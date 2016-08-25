@@ -269,25 +269,29 @@ exports.getContractByID = function(req, res) {
                             case 'site':
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        contract.location.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            contract.location.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        contract.location.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            contract.location.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'site',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 }
                                 break;
@@ -303,19 +307,6 @@ exports.getContractByID = function(req, res) {
                                         concession_polygon: link.concession.concession_polygon
                                     });
                                 }
-                                break;
-                            case 'project':
-                                //TODO clean up data returned if laggy
-                                link.project.proj_coordinates.forEach(function (loc) {
-                                    contract.location.push({
-                                        'lat': loc.loc[0],
-                                        'lng': loc.loc[1],
-                                        'message': link.project.proj_name,
-                                        'timestamp': loc.timestamp,
-                                        'type': 'project',
-                                        'id': link.project.proj_id
-                                    });
-                                });
                                 break;
                             default:
                                 console.log(entity, 'link skipped...');
