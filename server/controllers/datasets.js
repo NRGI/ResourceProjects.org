@@ -393,7 +393,13 @@ exports.getActionReport = function(req, res, next) {
                         if (err) {
                             return next(err);
                         }
-                        else req.report = action.details;
+                        else if (action) {
+                            req.report = action.details;
+                        }
+                        else {
+                            res.status(404);
+                            return res.send({reason:"Couldn't find dataset"});
+                        }
                         next();
                    });
 };

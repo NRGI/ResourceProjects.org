@@ -24,6 +24,9 @@ aliasSchema = new Schema({
     source: {
         type: ObjectId,
         ref: 'Sources'}
+},
+{
+    _id: false //Don't assign ID
 });
 
 /*

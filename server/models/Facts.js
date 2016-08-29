@@ -42,6 +42,9 @@ factSchema = new Schema({
     //    },
     //    coordinates: mixedSchema
     // }
+},
+{
+    _id: false //Don't assign ID
 });
 
 module.exports = factSchema;

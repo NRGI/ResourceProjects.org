@@ -47,12 +47,12 @@ exports.processData = function(link, actionid, callback) {
         if (!error && response.statusCode === 200) {
             //create num of sheets without . in name
             var numSheets = 0;
-            for (var i=0; i<body.feed.entry.length; i++) {
+            var i;
+            for (i=0; i<body.feed.entry.length; i++) {
                 if (body.feed.entry[i].title.$t.indexOf(".") != -1) numSheets++;
             }
-            var mainTitle = body.feed.title.$t;
             var numProcessed = 0;
-            for (var i=0; i<body.feed.entry.length; i++) {
+            for (i=0; i<body.feed.entry.length; i++) {
                 for (var j=0; j<body.feed.entry[i].link.length; j++) {
                     if ((body.feed.entry[i].link[j].type == "text/csv") && (body.feed.entry[i].title.$t.indexOf(".") != -1)) {
                         report += `Getting data from sheet "${body.feed.entry[i].title.$t}"...\n`;
@@ -96,32 +96,17 @@ exports.processData = function(link, actionid, callback) {
     });
 };
 
+var currentTime = moment.utc().format(); //Time for this import: set once
+
 function parseGsDate(input) {
     /* In general format should appear as YYYY or DD/MM/YYYY or empty but sometimes GS has it as a date internally */
     var result;
-    if (!input || input == "") return null;
+    if (!input || input === "") return null;
     else if (input.length == 4) result = moment(input + ' +0000', "YYYY Z").format();
     else result = moment(input + ' +0000', "DD/MM/YYYY Z").format();
     //Hope for the best
     if (result == "Invalid date") return input;
     else return result;
-}
-
-function isFactAlreadyThere(doc, key, fact) {
-    /*
-    var factEntry;
-    var found = false;
-    if (doc[key]) {
-        for (factEntry of doc[key]) {
-            var factNewEntry;
-            var match = true;
-            for (factNewEntry of fact) {
-                if facfactNewEntry
-            }
-        }
-    }
-    */
-    return false;
 }
 
 //Data needed for inter-entity reference
@@ -169,10 +154,10 @@ var makeNewCompanyGroup = function(newRow) {
             console.log("SERIOUS ERROR: Missing country in the DB. Either the DB or Sheet need to be fixed.");
             return false;
         }
-        companyg.country_of_incorporation = [{country: countries[newRow['#group+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]; //Fact array
+        companyg.country_of_incorporation = [{country: countries[newRow['#group+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id, timestamp: currentTime}]; //Fact array
     }
     if (newRow['#group+website'] !== "") {
-        companyg.company_group_website = {string: fixwebsite(newRow['#group+website']), source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
+        companyg.company_group_website = {string: fixwebsite(newRow['#group+website']), source: sources[newRow['#source'].toLowerCase()]._id, timestamp: currentTime}; //Fact
     }
     if (newRow['#group+notes'] !== "") {
        companyg.description = newRow['#group+notes'];
@@ -212,10 +197,10 @@ var makeNewCompany = function(newRow) {
             console.log("SERIOUS ERROR: Missing country in the DB. Either the DB or Sheet need to be fixed.");
             return false;
         }
-        company.country_of_incorporation = [{country: countries[newRow['#company+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id}]; //Fact array
+        company.country_of_incorporation = [{country: countries[newRow['#company+country+identifier']]._id, source: sources[newRow['#source'].toLowerCase()]._id, timestamp: currentTime}]; //Fact array
     }
     if (newRow['#company+website'] !== "") {
-        company.company_website = {string: fixwebsite(newRow['#company+website']), source: sources[newRow['#source'].toLowerCase()]._id}; //Fact
+        company.company_website = {string: fixwebsite(newRow['#company+website']), source: sources[newRow['#source'].toLowerCase()]._id, timestamp: currentTime}; //Fact
     }
     if (newRow['#company+notes'] !== "") {
        company.description = newRow['#company+notes'];
@@ -240,12 +225,16 @@ var makeNewProject = function(newRow) {
     if (sources[newRow['#source'].toLowerCase()] === -1) return false;
 
     var project = {
-        proj_name: newRow['#project'],
-        proj_established_source: sources[newRow['#source'].toLowerCase()]._id,
-        proj_commodity: [],
-        proj_aliases: [],
-        proj_status: [],
-        proj_country: []
+        $set: {
+            proj_name: newRow['#project'],
+            proj_established_source: sources[newRow['#source'].toLowerCase()]._id
+        },
+        $addToSet: {
+            proj_commodity: {$each: []},
+            proj_aliases:   {$each: []},
+            proj_status:    {$each: []},
+            proj_country:   {$each: []}
+        }
     };
     
     return project;
@@ -616,7 +605,7 @@ function parseData(sheets, report, finalcallback) {
                 }
             );
         };
-        sources = new Object;
+        sources = {};
         parseEntity(result, '2', sources, processSourceRow, "Source", 0, Source, "source_name", makeNewSource, callback);
     }
 
@@ -640,22 +629,12 @@ function parseData(sheets, report, finalcallback) {
                         projectsReport.add(`Invalid data in row: ${util.inspect(row)}. Aborting.\n`);
                         return wcallback(`Failed: ${projectsReport.report}`);
                     }
-                    
-                    var cFact = {source: sources[row['#source'].toLowerCase()]._id, country: countryId};
-                    if (!isFactAlreadyThere(projDoc, "proj_country", cFact)) projDoc.proj_country.push(cFact);
                 }
-
-                if (row['#project+alias'] !== "") {
-                    var aFact = {alias: row['#project+alias'], source: sources[row['#source'].toLowerCase()]._id};
-                    if (!isFactAlreadyThere(projDoc, "proj_aliases", aFact)) projDoc.proj_aliases.push(aFact);
-                }
-
-                if (row['#commodity'] !== "") {
-                    var coFact = {commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id};
-                    if (!isFactAlreadyThere(projDoc, "proj_commodity", coFact)) projDoc.proj_commodity.push(coFact);
-                    //TODO: how to store commodity notes in facts?
-                }
-            
+                
+                projDoc.$addToSet.proj_country.$each.push({source: sources[row['#source'].toLowerCase()]._id, country: countryId, timestamp: currentTime});
+                if (row['#project+alias'] !== "") projDoc.$addToSet.proj_aliases.$each.push({alias: row['#project+alias'], source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime});
+                if (row['#commodity'] !== "") projDoc.$addToSet.proj_commodity.$each.push({commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime});
+                
                 if (row['#status+statusType'] !== "") {
                     var status = row['#status+statusType'];
                     
@@ -676,10 +655,10 @@ function parseData(sheets, report, finalcallback) {
                     if (row['#status+endDate'] !== "") {
                         proj_status.endTimestamp = parseGsDate(row['#status+endDate']);
                     }
-                    projDoc.proj_status = proj_status;
+                    projDoc.$addToSet.proj_status.$each.push(proj_status);
                 }
                 
-                if (currentDoc) projDoc._id = currentDoc._id; //Crucial as we use findByIdAndUpdate later to do the upsert/merge
+                if (currentDoc) projDoc._id = currentDoc._id; //Crucial as we use findByIdAndUpdate later to do the upsert/merge. WIll be removed from doc before updating.
                 
                 destObj[row['#project'].toLowerCase()] = projDoc; //Can also serve as update to internal list
                 //TODO: don't overwrite project name with an alias!!!
@@ -772,7 +751,7 @@ function parseData(sheets, report, finalcallback) {
                                 
                                 createdOrAffectedEntities[pmodel._id] = {entity: 'project', obj: pmodel._id};
                                 
-                                projects[project] = pmodel; //Internal update. Important to do this here to grab id if it was previously set.
+                                projects[project] = pmodel; //Internal update switching from update format to saved format. Also gets us _id "back"
                                 
                                 if (!pmodel.proj_id) {
                                     Project.update({_id: pmodel._id}, {proj_id: countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
@@ -845,7 +824,7 @@ function parseData(sheets, report, finalcallback) {
                                         companies[row['#project+company'].toLowerCase()]._id,
                                         {
                                             $addToSet: {
-                                                countries_of_operation: {country: countries[row['#project+site+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}
+                                                countries_of_operation: {country: countries[row['#project+site+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime}
                                             }
                                         },
                                         {'new': true}, //Return updated model
@@ -921,21 +900,25 @@ function parseData(sheets, report, finalcallback) {
                     function (project, company, contract, wcallback) {
                         //Check for existing concession, if doesn't exist, create
                         if (row['#project+concession'] !== "") {
-                            var newConcession = {
+                            var setstuff = {
                                 concession_name: row['#project+concession'],
                                 concession_established_source: sources[row['#source'].toLowerCase()]._id
                             };
+                            
+                            var addtostuff = {};
+                            
                             if (row['#project+concession+country+identifier'] !== "") {
-                                newConcession.concession_country = {$addToSet: {country: countries[row['#project+concession+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}};
+                                addtostuff.concession_country = {country: countries[row['#project+concession+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
                             }
                             if ((row['#project+company'] !== "") && (row['#project+company+isOperator'] === "TRUE")) { //TODO review stringency
-                                newConcession.concession_operated_by =  {$addToSet: {company: companies[row['#project+company'].toLowerCase()]._id, source: sources[row['#source'].toLowerCase()]._id}};
+                                addtostuff.concession_operated_by = {company: companies[row['#project+company'].toLowerCase()]._id, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
                             }
                             if (row['#project+company+share'] !== "") {
                                 var share = parseInt(row['#project+company+share'].replace("%", ""))/100.0;
-                                newConcession.concession_company_share =  {$addToSet: {company: companies[row['#project+company'].toLowerCase()]._id, number: share, source: sources[row['#source'].toLowerCase()]._id}};
-                            } 
-                            Concession.findOneAndUpdate(
+                                addtostuff.concession_company_share = {company: companies[row['#project+company'].toLowerCase()]._id, number: share, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
+                            }
+                            //N.B. Can't use findOneAndUpdate (yet): https://jira.mongodb.org/browse/SERVER-13843
+                            Concession.findOne(
                                 {
                                     $or: [
                                         {concession_name: row['#project+concession']},
@@ -943,18 +926,31 @@ function parseData(sheets, report, finalcallback) {
                                     ],
                                     "concession_country.country": countries[row['#project+concession+country+identifier']]._id
                                 },
-                                newConcession,
-                                {upsert: true, 'new': true},
-                                function(err, doc) {
+                                function (err, found) {
                                     if (err) {
                                         wcallback(err);
                                     }
-                                    else  {
-                                        createdOrAffectedEntities[doc._id] = {entity: 'concession', obj: doc._id};
-                                        concessions[row['#project+concession'].toLowerCase()] = doc;
-                                        candcReport.add("Found and updated concession\n"); //TODO include name
-                                        return wcallback(null, project, company, contract, doc);
-                                    }
+                                    var id = require('mongoose').Types.ObjectId(); //Generate a new ID if we don't have one
+                                    if (found) id = found._id;
+                                    Concession.findByIdAndUpdate(
+                                        id,
+                                        {
+                                            $set: setstuff,
+                                            $addToSet: addtostuff
+                                        },
+                                        {upsert: true, 'new': true},
+                                        function(err, doc) {
+                                            if (err) {
+                                                wcallback(err);
+                                            }
+                                            else  {
+                                                createdOrAffectedEntities[doc._id] = {entity: 'concession', obj: doc._id};
+                                                concessions[row['#project+concession'].toLowerCase()] = doc;
+                                                candcReport.add("Found and updated concession\n"); //TODO include name
+                                                return wcallback(null, project, company, contract, doc);
+                                            }
+                                        }
+                                    );
                                 }
                             );
                         }
@@ -974,61 +970,83 @@ function parseData(sheets, report, finalcallback) {
                         }
                         else return wcallback(null, project, company, contract, concession, null);
                         
-                        var site = {
+                        var setstuff = {
                             site_name: row['#project+' + identifier],
-                            site_established_source: sources[row['#source'].toLowerCase()]._id,
-                            site_country: {$addToSet: {country: countries[row['#project+' + identifier + '+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id}} //TODO: How in the world can there multiple versions of country
+                            site_established_source: sources[row['#source'].toLowerCase()]._id
                         };
                         
-                        if (identifier === "field") site.field = true;
-                        else site.field = false;
+                        if (identifier === "field") setstuff.field = true;
+                        else setstuff.field = false;
                         
-                        if (row['#project+' + identifier + '+address'] !== "") site.site_address = {$addToSet: {string: row['#project+' + identifier + '+address'], source: sources[row['#source'].toLowerCase()]._id}};
-                        if (row['#project+' + identifier + '+lat'] !== "") site.site_coordinates = {$addToSet: {loc: [parseFloat(row['#project+' + identifier + '+lat']), parseFloat(row['#project+' + identifier + '+long'])], source: sources[row['#source'].toLowerCase()]._id}};
+                        var addtostuff = {};
+                        
+                        addtostuff.site_country = {country: countries[row['#project+' + identifier + '+country+identifier']]._id, source: sources[row['#source'].toLowerCase()]._id};
+                        
+                        if (row['#project+' + identifier + '+address'] !== "") addtostuff.site_address = {string: row['#project+' + identifier + '+address'], source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
+                        if (row['#project+' + identifier + '+lat'] !== "") addtostuff.site_coordinates = {loc: [parseFloat(row['#project+' + identifier + '+lat']), parseFloat(row['#project+' + identifier + '+long'])], source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
                         
                         if ((row['#project+company'] !== "") && (row['#project+company+isOperator'] === "TRUE")) { //TODO review stringency
-                            site.site_operated_by = {$addToSet: {company: companies[row['#project+company'].toLowerCase()]._id, source: sources[row['#source'].toLowerCase()]._id}};
+                            addtostuff.site_operated_by = {company: companies[row['#project+company'].toLowerCase()]._id, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
                         }
                         
                         if (row['#project+company+share'] !== "") {
                             var share = parseInt(row['#project+company+share'].replace("%", ""))/100.0;
-                            site.site_company_share = {$addToSet: {company: companies[row['#project+company'].toLowerCase()]._id, number: share, source: sources[row['#source'].toLowerCase()]._id}};
+                            addtostuff.site_company_share = {company: companies[row['#project+company'].toLowerCase()]._id, number: share, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime};
                         }    
 
-                       Site.findOneAndUpdate(
-                            {
-                                $or: [
-                                    {site_name: row['#project+' + identifier]},
-                                    {"site_aliases.alias": row['#project+' + identifier]} //TODO: Could lead to replacing a site with a new name by alias and losing the name
-                                ],
-                                "site_country.country": countries[row['#project+' + identifier + '+country+identifier']]._id
-                            },
-                            site,
-                            {upsert: true, 'new': true},
-                            function(err, doc) {
-                                if (err) {
-                                    console.log(err);
-                                    return wcallback(err);
-                                }
-                                else  {
-                                    createdOrAffectedEntities[doc._id] = {entity: 'site', obj: doc._id};
-                                    sites[row['#project+' + identifier].toLowerCase()] = doc;
-                                    candcReport.add("Found and updated site\n"); //TODO include name
-                                    return wcallback(null, project, company, contract, concession, doc);
-                                }
-                            }
-                        );
+                        //Same workaround broken findOneAndUpdate as with concessions
+                        Site.findOne(
+                             {
+                                 $or: [
+                                     {site_name: row['#project+' + identifier]},
+                                     {"site_aliases.alias": row['#project+' + identifier]} //TODO: Could lead to replacing a site with a new name by alias and losing the name
+                                 ],
+                                 "site_country.country": countries[row['#project+' + identifier + '+country+identifier']]._id
+                             },
+                             function (err, found) {
+                                 if (err) {
+                                     console.log(err);
+                                     return wcallback(err);
+                                 }
+                                 var id = require('mongoose').Types.ObjectId(); //Generate a new ID if we don't have one
+                                 if (found) id = found._id;
+                                 Site.findByIdAndUpdate(
+                                    id,  
+                                    {
+                                        $set: setstuff,
+                                        $addToSet: addtostuff
+                                    },
+                                    {upsert: true, 'new': true},
+                                    function(err, doc) {
+                                        if (err) {
+                                            console.log(err);
+                                            return wcallback(err);
+                                        }
+                                        else  {
+                                            createdOrAffectedEntities[doc._id] = {entity: 'site', obj: doc._id};
+                                            sites[row['#project+' + identifier].toLowerCase()] = doc;
+                                            candcReport.add("Found and updated site\n"); //TODO include name
+                                            return wcallback(null, project, company, contract, concession, doc);
+                                        }
+                                    }
+                                );
+                             }
+                         );
                         
                     },
                     function (project, company, contract, concession, site, wcallback) {
-                        var baselink =  {
-                            source: sources[row['#source'].toLowerCase()]._id,
-
+                        var project_link = {
+                            source: sources[row['#source'].toLowerCase()]._id
                         };
-                        var project_link = baselink;
-                        var company_link = baselink;
-                        var contract_link = baselink;
-                        var concession_link = baselink;
+                        var company_link = {
+                            source: sources[row['#source'].toLowerCase()]._id
+                        };
+                        var contract_link = {
+                            source: sources[row['#source'].toLowerCase()]._id
+                        };
+                        var concession_link =  {
+                            source: sources[row['#source'].toLowerCase()]._id
+                        };
                         if (project) project_link.project = project._id;
                         if (company) company_link.company = company._id;
                         if (contract) contract_link.contract = contract._id;
