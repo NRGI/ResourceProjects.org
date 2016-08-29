@@ -54,10 +54,7 @@ angular.module('app')
             if(type) {
                 searchOptions.type = type;
                 nrgiDuplicatesSrvc.query(searchOptions, function (response) {
-                    $scope.duplicates = response.data;
-                    $scope.count = response.count;
-                    totalPages = Math.ceil(response.count / limit);
-                    currentPage = currentPage + 1;
+                    loadData();
                 });
             }
         };
