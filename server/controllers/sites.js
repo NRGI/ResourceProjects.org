@@ -257,7 +257,7 @@ exports.getSiteByID = function(req, res) {
         site.proj_coordinates=[];
         site.coordinates=[];
         site.source_type = {p: false, c: false};
-        if (site.field && site.site_coordinates.length>0) {
+        if (site.field && site.site_coordinates && site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
                 if(loc && loc.loc) {
                     site.coordinates.push({
@@ -270,7 +270,7 @@ exports.getSiteByID = function(req, res) {
                     });
                 }
             });
-        } else if (!site.field && site.site_coordinates.length>0) {
+        } else if (!site.field && site.site_coordinates && site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
                 if(loc && loc.loc) {
                     site.coordinates.push({
@@ -518,23 +518,26 @@ exports.getSitesMap = function(req, res) {
                 if(sites) {
                     sites.forEach(function (site) {
                         ++site_counter;
-                        site.site_coordinates.forEach(function (loc) {
-                            if(field==true){
-                                site_type ='field';
-                            }else{
-                                site_type='site';
-                            }
-                            if(loc && loc.loc) {
-                                data.push({
-                                    'lat': loc.loc[0],
-                                    'lng': loc.loc[1],
-                                    'message': site.site_name,
-                                    'timestamp': loc.timestamp,
-                                    'type': site_type,
-                                    'id': site._id
-                                })
-                            }
-                        })
+                        console.log(site.site_coordinates)
+                        if(site.site_coordinates && site.site_coordinates.length>0) {
+                            site.site_coordinates.forEach(function (loc) {
+                                if (field == true) {
+                                    site_type = 'field';
+                                } else {
+                                    site_type = 'site';
+                                }
+                                if (loc && loc.loc) {
+                                    data.push({
+                                        'lat': loc.loc[0],
+                                        'lng': loc.loc[1],
+                                        'message': site.site_name,
+                                        'timestamp': loc.timestamp,
+                                        'type': site_type,
+                                        'id': site._id
+                                    })
+                                }
+                            })
+                        }
                     });
                     if(site_counter == site_len) {
                         res.send({data:data});}

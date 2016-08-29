@@ -81,7 +81,7 @@ exports.getProductionTable = function(req, res){
                                     }
                                     break;
                                 case 'company':
-                                    if (link.company._id != undefined) {
+                                    if (link.company&&link.company._id != undefined) {
                                         if (!_.contains(projects.production_query, link.company._id)) {
                                             projects.production_query.push(link.company._id);
                                         }

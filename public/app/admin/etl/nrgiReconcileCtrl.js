@@ -19,22 +19,20 @@ angular.module('app')
             {name:'project'}
         ]
         $scope.type_filter = $scope.types[0].name;
-
-        nrgiDuplicatesSrvc.query({type:$scope.types[0].name, skip: currentPage, limit: limit}, function (response) {
-            $scope.duplicates = response.data;
-            $scope.count = response.count;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-        });
-
-        $scope.resolve_duplicate = function (id, action) {
-            nrgiDuplicatesSrvc.query({type:$scope.type_filter,id:id,action:action}, function (response) {
+        var loadData = function(){
+            nrgiDuplicatesSrvc.query({type: $scope.type_filter, skip: currentPage, limit: limit}, function (response) {
                 currentPage = 0;
                 $scope.duplicates = [];
                 $scope.duplicates = response.data;
                 $scope.count = response.count;
                 totalPages = Math.ceil(response.count / limit);
                 currentPage = currentPage + 1;
+            });
+        }
+        loadData();
+        $scope.resolve_duplicate = function (id, action) {
+            nrgiDuplicatesSrvc.query({id:id,action:action}, function (response) {
+                loadData();
             });
         }
 
