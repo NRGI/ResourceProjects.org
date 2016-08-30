@@ -1035,23 +1035,6 @@ function parseData(sheets, report, finalcallback) {
                         
                     },
                     function (project, company, contract, concession, site, wcallback) {
-                        var project_link = {
-                            source: sources[row['#source'].toLowerCase()]._id
-                        };
-                        var company_link = {
-                            source: sources[row['#source'].toLowerCase()]._id
-                        };
-                        var contract_link = {
-                            source: sources[row['#source'].toLowerCase()]._id
-                        };
-                        var concession_link =  {
-                            source: sources[row['#source'].toLowerCase()]._id
-                        };
-                        if (project) project_link.project = project._id;
-                        if (company) company_link.company = company._id;
-                        if (contract) contract_link.contract = contract._id;
-                        if (concession) concession_link.concession = concession._id;
-                        
                         function makeLink (llink, lcallback) {
                             Link.findOneAndUpdate( //Create if doesn't already exist
                                 llink,
@@ -1075,9 +1058,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link project with company */
                             function(scallback) {
                                 if (project && company) {
-                                    var link = project_link;
-                                    link.entities = ['project', 'company'];
-                                    link.company = company._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        project: project._id,
+                                        company: company._id,
+                                        entities: ['project', 'company']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1085,9 +1071,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link project with contract */
                             function(scallback) {
                                 if (project && contract) {
-                                    var link = project_link;
-                                    link.entities = ['project', 'contract'];
-                                    link.contract = contract._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        project: project._id,
+                                        contract: contract._id,
+                                        entities: ['project', 'contract']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1095,9 +1084,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link project with concession */
                             function(scallback) {
                                 if (project && concession) {
-                                    var link = project_link;
-                                    link.entities = ['project', 'concession'];
-                                    link.concession = concession._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        project: project._id,
+                                        concession: concession._id,
+                                        entities: ['project', 'concession']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1105,9 +1097,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link project with site */
                             function(scallback) {
                                 if (project && site) {
-                                    var link = project_link;
-                                    link.entities = ['project', 'site'];
-                                    link.site = site._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        project: project._id,
+                                        site: site._id,
+                                        entities: ['project', 'site']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1115,9 +1110,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link company with contract */
                             function(scallback) {
                                 if (company && contract) {
-                                    var link = company_link;
-                                    link.entities = ['company', 'contract'];
-                                    link.contract = contract._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        company: company._id,
+                                        contract: contract._id,
+                                        entities: ['company', 'contract']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1125,9 +1123,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link company with concession */
                             function(scallback) {
                                 if (company && concession) {
-                                    var link = company_link;
-                                    link.entities = ['company', 'concession'];
-                                    link.concession = concession._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        company: company._id,
+                                        concession: concession._id,
+                                        entities: ['company', 'concession']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1135,9 +1136,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link company with site */
                             function(scallback) {
                                 if (company && site) {
-                                    var link = company_link;
-                                    link.entities = ['company', 'site'];
-                                    link.site = site._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        company: company._id,
+                                        site: site._id,
+                                        entities: ['company', 'site']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1145,9 +1149,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link contract with concession */
                             function(scallback) {
                                 if (contract && concession) {
-                                    var link = contract_link;
-                                    link.entities = ['contract', 'concession'];
-                                    link.concession = concession._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        contract: contract._id,
+                                        concession: concession._id,
+                                        entities: ['contract', 'concession']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1155,9 +1162,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link contract with site */
                             function(scallback) {
                                 if (contract && site) {
-                                    var link = contract_link;
-                                    link.entities = ['contract', 'site'];
-                                    link.site = site._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        contract: contract._id,
+                                        site: site._id,
+                                        entities: ['contract', 'site']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
@@ -1165,9 +1175,12 @@ function parseData(sheets, report, finalcallback) {
                             /* Link concession with site */
                             function(scallback) {
                                 if (concession && site) {
-                                    var link = concession_link;
-                                    link.entities = ['concession', 'site'];
-                                    link.site = site._id;
+                                    var link = {
+                                        source: sources[row['#source'].toLowerCase()]._id,
+                                        concession: concession._id,
+                                        site: site._id,
+                                        entities: ['concession', 'site']
+                                    };
                                     makeLink(link, scallback);
                                 }
                                 else scallback(null);
