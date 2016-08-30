@@ -101,6 +101,7 @@ exports.getDatasets = function(req, res) {
                                                     if ((action.name.indexOf('Import') != -1) && (action.status == 'Failed')) {
                                                         dataset.isLoaded = true;
                                                         dataset.canBeUnloaded = true; //Only option: unload!
+                                                        dataset.canReLoad = false; //Even for CH: if last import failed, force unload first
                                                         break;
                                                     }
                                                 }
