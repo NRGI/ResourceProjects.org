@@ -30,10 +30,9 @@ findCompanyDuplicates = function(action_id, fnCallback) {
   var duplicate_count = 0;
 
   Company.find({})
-  .populate('resolved_by')
-  .populate('company_aliases')
   .exec(function (err, all_companies) {
     if (err) {
+      console.log(6);
       fnCallback(err);
     }
     else if(all_companies) {
@@ -46,6 +45,7 @@ findCompanyDuplicates = function(action_id, fnCallback) {
       .populate('obj', null, 'Company')
       .exec(function(err, new_companies) {
         if(err) {
+          console.log(3);
           fnCallback(err);
         }
         else if(new_companies) {
@@ -80,6 +80,7 @@ findCompanyDuplicates = function(action_id, fnCallback) {
       });
     }
     else {
+      console.log(4);
       fnCallback(err);
     }
   });
@@ -91,10 +92,9 @@ findProjectDuplicates = function(action_id, fnCallback) {
   var duplicate_count = 0;
 
   Project.find({})
-  .populate('resolved_by')
-  .populate('project_aliases')
   .exec(function (err, all_projects) {
     if (err) {
+      console.log(5);
       fnCallback(err);
     }
     else if(all_projects) {
@@ -107,6 +107,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
       .populate('obj', null, 'Project')
       .exec(function(err, new_projects) {
         if(err) {
+          console.log(1);
           fnCallback(err);
         }
         else if(new_projects) {
@@ -141,6 +142,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
       });
     }
     else {
+      console.log(2);
       fnCallback(err);
     }
   });

@@ -286,7 +286,7 @@ exports.createAction = function(req, res) {
                                                 duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
                                                     if (err) {
                                                         status = "Failed";
-                                                        report += "\nDuplicate detection failed with error: " + err;
+                                                        report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
                                                     }
                                                     else report += "\nDuplicate detection completed.";
                                                     Action.findByIdAndUpdate(
@@ -545,6 +545,6 @@ exports.getDuplicatesTestData = function(req, res, next) {
 exports.identifyDuplicates = function(req, res, next) {
   var callback = function(message) {
     res.send(message);
-  }
-  duplicateHandler.findAndHandleDuplicates(callback);
+  };
+  duplicateHandler.findAndHandleDuplicates(req.params.action_id, callback);
 };
