@@ -31,6 +31,8 @@ angular.module('app')
         }
         loadData();
         $scope.resolve_duplicate = function (id, action) {
+            currentPage = 0;
+            totalPages = 0;
             nrgiDuplicatesSrvc.query({id:id,action:action}, function (response) {
                 loadData();
             });
@@ -50,12 +52,10 @@ angular.module('app')
         $scope.changeTypeFilter = function(type) {
             currentPage = 0;
             totalPages = 0;
-            var searchOptions = {type:type,skip: currentPage, limit: limit};
             if(type) {
-                searchOptions.type = type;
-                nrgiDuplicatesSrvc.query(searchOptions, function (response) {
-                    loadData();
-                });
+                $scope.duplicates = [];
+                $scope.type_filter = type;
+                loadData();
             }
         };
     });

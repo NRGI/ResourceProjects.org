@@ -4,7 +4,7 @@
 'use strict';
 var mongoose = require('mongoose');
 
-var aliasSchema,
+var aliasSchema, Alias,
     Schema   = mongoose.Schema,
     ObjectId = mongoose.Schema.Types.ObjectId,
     model_enu  = {
@@ -24,10 +24,9 @@ aliasSchema = new Schema({
     source: {
         type: ObjectId,
         ref: 'Sources'}
-},
-{
-    _id: false //Don't assign ID
 });
+
+Alias = mongoose.model('Alias', aliasSchema);
 
 /*
 function createDefaultAliases() {
