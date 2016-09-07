@@ -42,7 +42,7 @@ findCompanyDuplicates = function(action_id, fnCallback) {
       var fuse = new fusejs(all_companies, fuse_options_company);
 
       ImportSource.find({ actions: action_id, entity: 'company' })
-      .populate('obj', null, 'Company')
+      .populate({path: 'obj', model: Company})
       .exec(function(err, new_companies) {
         if(err) {
           console.log(3);
@@ -104,7 +104,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
       var fuse = new fusejs(all_projects, fuse_options_project);
 
       ImportSource.find({ actions: action_id, entity: 'project' })
-      .populate('obj', null, 'Project')
+      .populate({path: 'obj', model: Project})
       .exec(function(err, new_projects) {
         if(err) {
           console.log(1);
@@ -129,7 +129,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
                     duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project._id, "project", notes, originalProject.score);
+                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
                     Duplicate.create(newDuplicate, null);
                   }
                 }

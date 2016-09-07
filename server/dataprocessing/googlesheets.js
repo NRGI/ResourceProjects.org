@@ -19,12 +19,13 @@ var SourceType = require('mongoose').model('SourceType'),
     _ = require('underscore'),
     randomstring = require('just.randomstring');
     
-var actionId = null;
+var actionId;
 
-var createdOrAffectedEntities = {};
+var createdOrAffectedEntities;
 
 exports.processData = function(link, actionid, callback) {
     actionId = actionid;
+    createdOrAffectedEntities = {};
     var report = "";
     var keytoend =  link.substr(link.indexOf("/d/") + 3, link.length);
     var key = keytoend.substr(0, keytoend.indexOf("/"));
