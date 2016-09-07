@@ -266,6 +266,7 @@ exports.getProductionTable = function(req, res){
                 production_len = production.length;
                 if (production_len > 0) {
                     production.forEach(function (prod) {
+                        proj_site={};
                         if(prod.project!=undefined){
                             proj_site =  {name:prod.project.proj_name,_id:prod.project.proj_id,type:'project'}
                         }

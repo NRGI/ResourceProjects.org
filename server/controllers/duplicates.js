@@ -8,7 +8,6 @@ Site = require('mongoose').model('Site'),
 Link = require('mongoose').model('Link'),
 Transfer = require('mongoose').model('Transfer'),
 Production = require('mongoose').model('Production'),
-Alias = require('mongoose').model('Alias'),
 async = require('async'),
 _ = require("underscore"),
 moment = require('moment');
@@ -103,7 +102,6 @@ exports.resolveDuplicates = function(req, res) {
   async.waterfall([
     getEntity.bind(null, duplicate_id, action),
     getCompanyOrProject,
-    addAlias,
     addAliasToCompanyOrProject,
     resolveEntity
   ], function (err, result) {
@@ -155,16 +153,6 @@ exports.resolveDuplicates = function(req, res) {
         default:
           break;
       }
-    }else{
-      callback(null, result, action, '');
-    }
-  };
-  function addAlias(result, action,alias, callback) {
-    if(action=='setasalias') {
-      Alias.create(alias, function (err, res) {
-        aliases = res;
-        callback(null, result, action, aliases);
-      });
     }else{
       callback(null, result, action, '');
     }

@@ -218,7 +218,7 @@ exports.getSites = function(req, res) {
 };
 
 exports.getSiteByID = function(req, res) {
-    var proj_len, proj_counter, link_counter, link_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
+    var proj_len, proj_counter, link_counter, link_len;
 
     async.waterfall([
         getSite,

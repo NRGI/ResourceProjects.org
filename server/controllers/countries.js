@@ -16,14 +16,7 @@ var Country 		= require('mongoose').model('Country'),
 exports.getCountries = function(req, res) {
     var countries_len, countries_counter, final_country_set,
         limit = Number(req.params.limit),
-        skip = Number(req.params.skip),
-        models = [
-            {name:'Site',field:'site_country.country',params:'false',count:'site_count'},
-            {name:'Site',field:'site_country.country',params:'true',count:'field_count'},
-            {name:'Concession',field:'concession_country.country',count:'concession_count'},
-            {name:'Transfer',field:'country',count:'transfer_count'},
-            {name:'Production',field:'country',count:'production_count'}
-        ];
+        skip = Number(req.params.skip);
 
     async.waterfall([
         countryCount,

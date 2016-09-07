@@ -26,7 +26,7 @@ aliasSchema = new Schema({
         ref: 'Sources'}
 });
 
-Alias = mongoose.model('Alias', aliasSchema);
+//Alias = mongoose.model('Alias', aliasSchema);
 
 /*
 function createDefaultAliases() {

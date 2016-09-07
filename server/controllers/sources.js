@@ -5,7 +5,7 @@ var Source 		= require('mongoose').model('Source'),
 	_               = require("underscore"),
 	request         = require('request'),
 	encrypt 	= require('../utilities/encryption');
-//.populate('comments.author', 'firstName lastName role')
+
 exports.getSources = function(req, res) {
 	var source_len, link_len, source_counter, link_counter,
 		limit = Number(req.params.limit),

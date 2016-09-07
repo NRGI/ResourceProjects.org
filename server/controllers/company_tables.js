@@ -14,7 +14,7 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request');
 
 exports.getCompanyTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter;
+    var link_counter, link_len, companies_len, companies_counter, company_len, company_counter;
     var type = req.params.type;
     var query='';
     if(type=='project') { query = {project:req.params.id, entities:"company"}}

@@ -76,7 +76,7 @@ exports.getContracts = function(req, res) {
                         open_contracting_id: body.open_contracting_id
                     });
                     if(body.resource!=undefined){
-                        var commodity =body.resource;
+                        var commodity = body.resource;
                         commodity.map(function(name){return contract.commodities.push(name);});
                     }
                     if (contract_counter == contract_len) {
