@@ -84,6 +84,10 @@ exports.getDatasets = function(req, res) {
                                                 dataset.canReLoad = false;
                                                 if (dataset.type == "Incremental API") dataset.canReLoad = true;
                                                 for (action of actions) { //Remember these are in reverse date order, so we are grabbing the last import/mark cleaned
+                                                    if (action.status == 'Started') {
+                                                        dataset.isLoaded = true; //Prevent import
+                                                        break;
+                                                    }
                                                     if ((action.name == 'Unload last import') && (action.status == 'Success')) {
                                                         break;
                                                     }
@@ -196,6 +200,8 @@ exports.createAction = function(req, res) {
                                     value.action = amodel._id;
                                     importSources.push(value);
                                 });
+                                console.log("There were " + affectedEntities.length + " affected entities ");
+                                console.log("There were " + importSources.length + " import sources ");
                                 async.eachSeries(
                                     importSources,
                                     function(importSource, icallback) {
