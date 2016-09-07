@@ -40,13 +40,13 @@
                         td
                             a.btn.btn-danger.resolve(
                             data-toggle="tooltip"
-                            ng-click="resolve_duplicate(duplicate._id,'setasalias')"
+                            ng-click="resolve_duplicate(duplicate._id,'resolve')"
                             title="Resolve")
                                 span(class="fa fa-1x fa-code-fork")
                             | &nbsp;
                             a.btn.btn-warning.update(
                             data-toggle="tooltip"
-                            ng-click="resolve_duplicate(duplicate._id,'update')"
+                            ng-click="resolve_duplicate(duplicate._id,'setasalias')"
                             title="Update")
                                 span(class="glyphicon glyphicon-transfer")
     div(ng-if='duplicates.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
