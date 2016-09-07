@@ -129,7 +129,7 @@ findProjectDuplicates = function(action_id, fnCallback) {
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
                     duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project._id, "project", notes, originalProject.score);
+                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
                     Duplicate.create(newDuplicate, null);
                   }
                 }
