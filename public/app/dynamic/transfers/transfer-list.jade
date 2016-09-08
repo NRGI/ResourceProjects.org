@@ -26,21 +26,21 @@
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Year
                     th.tablesort-sortable-th(ts-criteria='company.company_name') Paid By
                     th.tablesort-sortable-th(ts-criteria='country.name') Paid To
+                    th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
+                    th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Currency
                     th.tablesort-sortable-th(ts-criteria='transfer_value') Value
-                    th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
-                    th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
             thead.header-copy.header.hide
                 tr
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Year
                     th.tablesort-sortable-th(ts-criteria='company.company_name') Paid By
                     th.tablesort-sortable-th(ts-criteria='country.name') Paid To
+                    th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
+                    th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Currency
                     th.tablesort-sortable-th(ts-criteria='transfer_value') Value
-                    th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
-                    th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
             tbody
                 tr(
                 ng-repeat="transfer in transfers | unique: '_id'"
@@ -50,11 +50,11 @@
                         span(ng-bind-html="transfer.company.company_name|sanitize")
                     td.transfer_country: a(href='country/{{transfer.country.iso2}}')
                         span(ng-bind-html="transfer.country.name|sanitize")
+                    td.transfer_type: a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}
+                    td.transfer_level {{transfer.proj_site.type}}
                     td.transfer_type {{transfer.transfer_type}}
                     td.transfer_currency {{transfer.transfer_unit}}
                     td.transfer_value {{transfer.transfer_value}}
-                    td.transfer_level {{transfer.proj_site.type}}
-                    td.transfer_type: a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}
     div(ng-if='transfers.length>0' infinite-scroll='load_all()' infinite-scroll-distance='3')
     div(ng-if="transfers.length>0")
         .download
