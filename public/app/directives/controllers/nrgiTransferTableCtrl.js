@@ -36,16 +36,14 @@ angular
                             usSpinnerService.stop('spinner-transfers');
                             var headers = [
                                 {name: 'Year', status: true, field: 'transfer_year'},
-                                {name: 'Project', status: $scope.project, field: 'company'},
-                                {name: 'Paid by', status: !$scope.project, field: 'company'},
+                                {name: 'Paid by', status: true, field: 'company'},
                                 {name: 'Paid to', status: true, field: 'country'},
+                                {name: 'Project', status: true, field: 'proj_site'},
+                                {name: 'Project ID', status: true, field: 'proj_id'},
+                                {name: 'Level ', status: true, field: 'proj_type'},
                                 {name: 'Payment Type', status: true, field: 'transfer_type'},
                                 {name: 'Currency', status: true, field: 'transfer_unit'},
-                                {name: 'Value ', status: true, field: 'transfer_value'},
-                                {name: 'Level ', status: true, field: 'transfer_level'},
-                                {name: 'Payment or receipt?', status: true, field: 'transfer_audit_type'},
-                                {name: 'Project ID', status: $scope.project, field: 'proj_id'},
-                                {name: 'Project / Site', status: $scope.project, field: 'proj_site'}];
+                                {name: 'Value ', status: true, field: 'transfer_value'}];
                             angular.forEach(headers, function (header) {
                                 if (header.status != false && header.status != undefined) {
                                     header_transfer.push(header.name);
@@ -76,19 +74,26 @@ angular
                                     }
                                     if (field == 'proj_site') {
                                         name = '';
-                                        if (transfer[field] != undefined && transfer[field].name !=undefined) {
+                                        if (transfer[field] != undefined && transfer[field].name != undefined) {
                                             var name = transfer[field].name.toString();
                                         }
                                         $scope.csv_transfers[key].push(name)
                                     }
+                                    if (field == 'proj_type') {
+                                        type = '';
+                                        if (transfer.proj_site != undefined && transfer.proj_site.type != undefined) {
+                                            var type = transfer.proj_site.type.toString();
+                                        }
+                                        $scope.csv_transfers[key].push(type)
+                                    }
                                     if (field == 'proj_id') {
                                         id = '';
-                                        if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.transfer_level =='project') {
-                                            id = transfer.proj_site._id.toString();
+                                        if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.proj_site.type == 'project') {
+                                            var id = transfer.proj_site._id.toString();
                                         }
                                         $scope.csv_transfers[key].push(id);
                                     }
-                                    if (field != 'company' && field != 'country'&& field != 'proj_site' && field != 'proj_id') {
+                                    if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_type' && field != 'proj_id') {
                                         $scope.csv_transfers[key].push(transfer[field])
                                     }
                                 })

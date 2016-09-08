@@ -72,12 +72,12 @@ angular.module('app')
             {name: 'Year', status: true, field: 'transfer_year'},
             {name: 'Paid by', status: true, field: 'company'},
             {name: 'Paid to', status: true, field: 'country'},
+            {name: 'Project', status: true, field: 'proj_site'},
+            {name: 'Project ID', status: true, field: 'proj_id'},
+            {name: 'Level ', status: true, field: 'proj_type'},
             {name: 'Payment Type', status: true, field: 'transfer_type'},
             {name: 'Currency', status: true, field: 'transfer_unit'},
-            {name: 'Value ', status: true, field: 'transfer_value'},
-            {name: 'Level ', status: true, field: 'proj_type'},
-            {name: 'Project', status: true, field: 'proj_site'},
-            {name: 'Project ID', status: true, field: 'proj_id'}];
+            {name: 'Value ', status: true, field: 'transfer_value'}];
         angular.forEach(headers, function (header) {
             if (header.status != false && header.status != undefined) {
                 header_transfer.push(header.name);
