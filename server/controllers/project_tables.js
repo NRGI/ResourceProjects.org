@@ -62,7 +62,8 @@ exports.getProjectTable = function(req, res){
                                     proj_commodity: link.project.proj_commodity,
                                     proj_status: link.project.proj_status,
                                     _id: link.project._id,
-                                    companies: 0
+                                    companies_count: 0,
+                                    companies: []
                                 });
                             }
                             if (link_len == link_counter) {
@@ -101,7 +102,8 @@ exports.getProjectTable = function(req, res){
                                 proj_commodity: project.proj_commodity,
                                 proj_status: project.proj_status,
                                 _id: project._id,
-                                companies: 0
+                                companies_count: 0,
+                                companies: []
                             });
                             if (link_len == link_counter) {
                                 projects.projects = _.map(_.groupBy(projects.projects,function(doc){
@@ -142,7 +144,8 @@ exports.getProjectTable = function(req, res){
                                 proj_commodity: project.proj_commodity,
                                 proj_status: project.proj_status,
                                 _id: project._id,
-                                companies: 0
+                                companies_count:0,
+                                companies: []
                             });
                             if (link_len == link_counter) {
                                 projects.projects = _.map(_.groupBy(projects.projects,function(doc){
@@ -179,10 +182,17 @@ exports.getProjectTable = function(req, res){
                             });
                             link_len = links.length;
                             if(links.length>0) {
-                                _.each(links, function (link) {
-                                    ++link_counter;
-                                    project.companies = +1;
-                                });
+                                if(links.length>=3){
+                                    project.companies_count = links.length;
+                                    link_counter = links.length;
+                                } else{
+                                    console.log(links.length)
+                                    _.each(links, function (link) {
+                                        project.companies.push(link.company);
+                                        project.companies_count = links.length;
+                                        ++link_counter;
+                                    });
+                                }
                             }
                             if (link_len == link_counter && companies_counter == companies_len) {
                                 callback(null, projects);
