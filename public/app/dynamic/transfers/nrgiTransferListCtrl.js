@@ -12,6 +12,7 @@ angular.module('app')
             currentPage = 0,
             totalPages = 0;
 
+        var searchOptions = {skip: currentPage * limit, limit: limit};
         $scope.count =0;
         $scope.busy = false;
         $scope.transfers=[];
@@ -19,41 +20,62 @@ angular.module('app')
         var fields = [];
         var country_name = '';
         var company_name = '';
-        nrgiTransfersSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            var companies = [],
-                countries = [];
-            $scope.count = response.count;
-            $scope.transfers = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.year_selector = _.countBy(response.data, "transfer_year");
-            _.each(response.data, function(transfer) {
-                companies.push(transfer.company);
-                countries.push(transfer.country);
+        $scope.currency = '';
+        $scope.year = '';
+        $scope.load = function(searchOptions) {
+            nrgiTransfersSrvc.query(searchOptions, function (response) {
+                var companies = [],
+                    countries = [];
+                $scope.count = response.count;
+                $scope.transfers = response.data;
+                totalPages = Math.ceil(response.count / limit);
+                currentPage = currentPage + 1;
+                $scope.year_selector = _.countBy(response.data, "transfer_year");
+                $scope.currency_selector = _.countBy(response.data, "transfer_unit");
+                _.each(response.data, function (transfer) {
+                    companies.push(transfer.company);
+                    countries.push(transfer.country);
+                });
+                $scope.company_selector = _.countBy(companies, "company_name");
+                $scope.country_selector = _.countBy(countries, "name");
             });
-            $scope.company_selector = _.countBy(companies, "company_name");
-            $scope.country_selector = _.countBy(countries, "name");
-        });
+        }
+
+        $scope.load(searchOptions);
 
         $scope.$watch('year_filter', function(year) {
-            currentPage = 0;
-            totalPages = 0;
-            var searchOptions = {skip: currentPage, limit: limit};
-
+            $scope.year = year;
             if(year) {
+                searchOptions.skip=0;
+                searchOptions.limit= 0;
                 searchOptions.transfer_year = year;
-
-                nrgiTransfersSrvc.query(searchOptions, function (response) {
-                    if (response.reason) {
-                        rgiNotifier.error('Load document data failure');
-                    } else {
-                        $scope.count = response.count;
-                        $scope.transfers = response.data;
-                        totalPages = Math.ceil(response.count / limit);
-                        currentPage = currentPage + 1;
-                    }
-                });
+                if($scope.currency) {
+                    searchOptions.transfer_unit = $scope.currency;
+                }
             }
+            if($scope.year=='' && $scope.currency){
+                searchOptions = {skip:0, limit:0, transfer_unit:searchOptions.transfer_unit }
+            } else if($scope.year=='' && $scope.currency==''){
+                searchOptions = {skip:0, limit:0}
+            }
+            $scope.load(searchOptions);
+        });
+        $scope.$watch('currency_filter', function(currency) {
+            $scope.currency = currency;
+            if(currency) {
+                searchOptions.skip=0;
+                searchOptions.limit=0;
+                searchOptions.transfer_unit = currency;
+                if($scope.year) {
+                    searchOptions.transfer_year = $scope.year;
+                }
+            }
+            if($scope.currency=='' && $scope.year){
+                searchOptions = {skip:0, limit:0, transfer_year:searchOptions.transfer_year }
+            } else if($scope.year=='' && $scope.currency==''){
+                searchOptions = {skip:0, limit:0}
+            }
+            $scope.load(searchOptions);
         });
 
         $scope.loadMore = function() {

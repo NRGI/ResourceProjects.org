@@ -16,6 +16,14 @@
                         select.form-control(ng-model="year_filter")
                             option(value="") Show all years
                             option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}: {{value}} records
+        .col-md-2
+            .row: b Currency
+            .row
+                form.form-inline
+                    .form-group
+                        select.form-control(ng-model="currency_filter")
+                            option(value="") Show all currency
+                            option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}: {{value}} records
 
     .row.top-padding-med
         table#payments.table.table-striped.table-fixed-header(
@@ -29,7 +37,7 @@
                     th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
                     th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
-                    th.tablesort-sortable-th(ts-criteria='transfer_year') Currency
+                    th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
                     th.tablesort-sortable-th(ts-criteria='transfer_value') Value
             thead.header-copy.header.hide
                 tr
@@ -39,7 +47,7 @@
                     th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
                     th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
-                    th.tablesort-sortable-th(ts-criteria='transfer_year') Currency
+                    th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
                     th.tablesort-sortable-th(ts-criteria='transfer_value') Value
             tbody
                 tr(
