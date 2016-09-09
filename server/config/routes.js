@@ -28,6 +28,7 @@ var auth 				= require('./auth'),
 	sunburst 			= require('../controllers/sunburst'),
 	content 			= require('../controllers/content'),
 	main_map 			= require('../controllers/main_map'),
+	pie_chart 			= require('../controllers/pieChart'),
 	cors 				= require('cors'),
   duplicates = require('../controllers/duplicates');
 
@@ -268,6 +269,10 @@ module.exports	= function(app) {
 
 	//Payments
 	app.get('/api/transfers', sunburst.getPayments);
+
+
+	//Payments pie chart
+	app.get('/api/pie_chart', pie_chart.getPayments);
 
 	//ABOUT PAGE CONTENT
 	app.get('/api/about', content.getAboutPage);

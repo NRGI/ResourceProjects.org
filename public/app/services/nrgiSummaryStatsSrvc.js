@@ -24,4 +24,12 @@ angular.module('app')
 
         return PaymentsResource;
 
+    })
+
+    .factory('nrgiPieChartSrvc', function($resource) {
+        var TransferResource = $resource('/api/pie_chart', {}, {
+            query: {method: 'GET', isArray: false}
+        });
+
+        return TransferResource;
     });
