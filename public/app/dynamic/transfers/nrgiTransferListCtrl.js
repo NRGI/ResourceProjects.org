@@ -52,13 +52,15 @@ angular.module('app')
                 if($scope.currency) {
                     searchOptions.transfer_unit = $scope.currency;
                 }
+                $scope.load(searchOptions);
             }
             if($scope.year=='' && $scope.currency){
                 searchOptions = {skip:0, limit:0, transfer_unit:searchOptions.transfer_unit }
+                $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
                 searchOptions = {skip:0, limit:0}
+                $scope.load(searchOptions);
             }
-            $scope.load(searchOptions);
         });
         $scope.$watch('currency_filter', function(currency) {
             $scope.currency = currency;
@@ -69,13 +71,15 @@ angular.module('app')
                 if($scope.year) {
                     searchOptions.transfer_year = $scope.year;
                 }
+                $scope.load(searchOptions);
             }
             if($scope.currency=='' && $scope.year){
                 searchOptions = {skip:0, limit:0, transfer_year:searchOptions.transfer_year }
+                $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
                 searchOptions = {skip:0, limit:0}
+                $scope.load(searchOptions);
             }
-            $scope.load(searchOptions);
         });
 
         $scope.loadMore = function() {

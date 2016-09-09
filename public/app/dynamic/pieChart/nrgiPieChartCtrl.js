@@ -3,13 +3,16 @@
 angular.module('app')
     .controller('nrgiPieChartCtrl', function (
         $scope,
-        nrgiPieChartSrvc
+        nrgiPieChartSrvc,
+        nrgiDestroySrvc
     ) {
 
-        var currency='NOK', year='2014';
+        var currency='USD', year='2014';
         var searchOptions = {transfer_unit: currency,transfer_year: year};
         nrgiPieChartSrvc.query(searchOptions, function (response) {
-            $scope.data = response.data[0].children;
+            if(response.data) {
+                $scope.data = response.data[0].children;
+            }
         });
         $scope.options = {
             chart: {

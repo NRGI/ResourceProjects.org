@@ -21,10 +21,9 @@ exports.getPayments = function(req, res) {
     });
     function getPayment(callback) {
         Transfer.find(req.query)
-            .populate('source country project')
-            .deepPopulate('source.source_type_id')
+            .populate('country')
             .exec(function (err, transfers) {
-                var count = transfers.length;
+                var counter = 0;
                 var value=0;
                 var transfers_value=0;
                 sunburst_new.push({
@@ -33,22 +32,26 @@ exports.getPayments = function(req, res) {
                     size: transfers.length
                 });
                 if(transfers.length) {
+                    var transfers_data = _.map(_.groupBy(transfers, function (doc) {if(doc.project!=undefined||doc.site!=undefined) {return doc;}}), function (grouped) {return grouped})
                     _.map(_.groupBy(transfers, function (doc) {
-                        return doc.country.iso2;
+                        if(doc.project!=undefined||doc.site!=undefined) {return doc.country.iso2;}
                     }), function (grouped) {
-                        _.each(grouped, function (group) {
-                            value = value + group.transfer_value
-                        })
-                        if(value>0){
-                            transfers_value =(value/1000000)
+                        if(grouped[0].project!=undefined||grouped[0].site!=undefined){
+                            _.each(grouped, function (group) {
+                                value = value + group.transfer_value
+                            })
+                            if (value > 0) {
+                                transfers_value = (value / 1000000)
+                            }
+                            sunburst_new[0].children.push({
+                                key: grouped[0].country.name,
+                                y: ((grouped.length * 100) / transfers_data.length),
+                                value: transfers_value
+                            });
+                            ++counter;
+
+                            return sunburst_new;
                         }
-                        sunburst_new[0].children.push({
-                            key: grouped[0].country.name,
-                            y: ((grouped.length*100)/count),
-                            value: transfers_value
-                        });
-                        ++counter;
-                        return sunburst_new;
                     });
                     sunburst = sunburst_new;
                     callback(null, {data:sunburst,transfers:transfers})
