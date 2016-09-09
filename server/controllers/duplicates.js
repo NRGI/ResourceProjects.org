@@ -212,108 +212,101 @@ exports.resolveDuplicates = function(req, res) {
     switch (action) {
 
       case 'setasalias':
-        switch (obj.entity) {
-
+        if(obj.entity=='company') {
           // HANDLE COMPANY DUPLICATES
-          case 'company':
-            async.parallel([
-              updateAll.bind(null, Link, obj.duplicate, obj.original),
-              updateAll.bind(null, Transfer, obj.duplicate, obj.original),
-              updateAllCompanyFacts.bind(null, obj.duplicate, obj.original)
-            ], function (err, results) {
-              if (err) {
-                console.log("updating all entities. ERROR: " + err);
-                callback(err);
-              }
-              else if (results) {
-                Company.findOneAndRemove({_id: obj.duplicate}, function (err, company_to_remove) {
-                  console.log("looking for duplicate company with id " + obj.duplicate);
-                  if (err) {
-                    callback(err);
-                  }
-                  else if (company_to_remove) {
-                    console.log("updating all entities. DONE.")
-                    console.log('setting resolved flag to id ' + obj._id + '.');
-                    Duplicate.find( {$or:[ {'original':obj.duplicate}, {'duplicate':obj.duplicate}]}, function (err, result) {
-                      if (err) {
-                        console.log('setting resolved flag to id ' + obj._id + '. ERROR: ' + err);
-                        callback(err);
-                      }
-                      else {
-                        _.each(result, function (duplicate) {
-                          duplicate.resolved = true;
-                          duplicate.resolved_date = Date.now();
-                          duplicate.save(function (err) {
+          async.parallel([
+            updateAll.bind(null, Link, obj.duplicate, obj.original),
+            updateAll.bind(null, Transfer, obj.duplicate, obj.original),
+            updateAllCompanyFacts.bind(null, obj.duplicate, obj.original)
+          ], function (err, results) {
+            if (err) {
+              console.log("updating all entities. ERROR: " + err);
+              callback(err);
+            }
+            else if (results) {
+              Company.findOneAndRemove({_id: obj.duplicate}, function (err, company_to_remove) {
+                console.log("looking for duplicate company with id " + obj.duplicate);
+                if (err) {
+                  callback(err);
+                }
+                else if (company_to_remove) {
+                  console.log("updating all entities. DONE.")
+                  console.log('setting resolved flag to id ' + obj._id + '.');
+                  Duplicate.find({$or: [{'original': obj.duplicate}, {'duplicate': obj.duplicate}]}, function (err, result) {
+                    if (err) {
+                      console.log('setting resolved flag to id ' + obj._id + '. ERROR: ' + err);
+                      callback(err);
+                    }
+                    else {
+                      _.each(result, function (duplicate) {
+                        duplicate.resolved = true;
+                        duplicate.resolved_date = Date.now();
+                        duplicate.save(function (err) {
 
-                          })
-                        });
-                        console.log('setting resolved flag to id ' + obj._id + '. DONE.');
-                        callback(null, 'company duplicate with id ' + obj._id + ' resolved, all associated links and facts updated');
-                      }
-                    });
-                  }
-                })
-              }
-            })
-            break;
+                        })
+                      });
 
-          // HANDLE PROJECT DUPLICATES
-          case 'project':
-            //update links, transfers and facts
-            console.log("updating all project relevant entities.")
-            async.parallel([
-              updateAll.bind(null, Link, project_to_remove._id, obj.original._id),
-              updateAll.bind(null, Transfer, project_to_remove._id, obj.original._id),
-              updateAll.bind(null, Production, project_to_remove._id, obj.original._id)
-              //updateAllProjectFacts.bind(null, project_to_remove._id, obj.original._id)
-            ], function (err, results) {
-              if (err) {
-                console.log("updating all project relevant entities. ERROR: " + err);
-                callback(err);
-              }
-              else if (results) {
-                console.log("updating all project relevant entities. DONE.")
-                console.log('setting resolved flag to id ' + obj._id + '.');
-                Project.findOneAndRemove({_id: obj.duplicate}, function (err, project_to_remove) {
-                  console.log("looking for duplicate project with id " + obj.duplicate);
-                  if (err) {
-                    callback(err);
-                  }
-                  else if (project_to_remove) {
-                    console.log("updating all entities. DONE.")
-                    console.log('setting resolved flag to id ' + obj._id + '.');
-                    Duplicate.find( {$or:[ {'original':obj.duplicate}, {'duplicate':obj.duplicate}]}, function (err, result) {
-                      if (err) {
-                        console.log('setting resolved flag to id ' + obj._id + '. ERROR: ' + err);
-                        callback(err);
-                      }
-                      else {
-                        _.each(result, function (duplicate) {
-                          duplicate.resolved = true;
-                          duplicate.resolved_date = Date.now();
-                          duplicate.save(function (err) {
-
-                          })
-                        });
-                        console.log('setting resolved flag to id ' + obj._id + '. DONE.');
-                        callback(null, 'project duplicate with id ' + obj._id + ' resolved, all associated links and facts updated');
-                      }
-                    });
-                  }
-                })
-              }
-              else {
-                console.log("updating all entities. ERROR: " + err);
-                callback(err);
-              }
-            });
-            break;
-
-          default:
-            // no actions here
-            break;
+                      console.log('setting resolved flag to id ' + obj._id + '. DONE.');
+                      callback(null, 'company duplicate with id ' + obj._id + ' resolved, all associated links and facts updated');
+                    }
+                  });
+                }
+              })
+            }
+          })
         }
-        callback(null, "duplicate, alias set");
+
+        if(obj.entity=='project') {
+          // HANDLE PROJECT DUPLICATES
+          //update links, transfers and facts
+          console.log("updating all project relevant entities.")
+          async.parallel([
+            updateAll.bind(null, Link, project_to_remove._id, obj.original._id),
+            updateAll.bind(null, Transfer, project_to_remove._id, obj.original._id),
+            updateAll.bind(null, Production, project_to_remove._id, obj.original._id)
+            //updateAllProjectFacts.bind(null, project_to_remove._id, obj.original._id)
+          ], function (err, results) {
+            if (err) {
+              console.log("updating all project relevant entities. ERROR: " + err);
+              callback(err);
+            }
+            else if (results) {
+              console.log("updating all project relevant entities. DONE.")
+              console.log('setting resolved flag to id ' + obj._id + '.');
+              Project.findOneAndRemove({_id: obj.duplicate}, function (err, project_to_remove) {
+                console.log("looking for duplicate project with id " + obj.duplicate);
+                if (err) {
+                  callback(err);
+                }
+                else if (project_to_remove) {
+                  console.log("updating all entities. DONE.")
+                  console.log('setting resolved flag to id ' + obj._id + '.');
+                  Duplicate.find({$or: [{'original': obj.duplicate}, {'duplicate': obj.duplicate}]}, function (err, result) {
+                    if (err) {
+                      console.log('setting resolved flag to id ' + obj._id + '. ERROR: ' + err);
+                      callback(err);
+                    }
+                    else {
+                      _.each(result, function (duplicate) {
+                        duplicate.resolved = true;
+                        duplicate.resolved_date = Date.now();
+                        duplicate.save(function (err) {
+
+                        })
+                      });
+                      console.log('setting resolved flag to id ' + obj._id + '. DONE.');
+                      callback(null, 'project duplicate with id ' + obj._id + ' resolved, all associated links and facts updated');
+                    }
+                  });
+                }
+              })
+            }
+            else {
+              console.log("updating all entities. ERROR: " + err);
+              callback(err);
+            }
+          });
+        }
         break;
 
       case 'resolve':
