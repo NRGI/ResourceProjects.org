@@ -34,7 +34,6 @@ exports.destroy = function(req, res) {
         {name: 'ImportSource'},
         {name: 'Action'},
         {name: 'Project'}
-
     ];
 
     var companies = {};
