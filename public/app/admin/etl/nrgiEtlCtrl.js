@@ -4,7 +4,9 @@ angular.module('app')
             $route,
             nrgiDatasetSrvc,
             nrgiDatasetActionMethodSrvc,
-            nrgiNotifier
+            nrgiNotifier,
+            nrgiDestroySrvc,
+            $window
         ) {
         nrgiDatasetSrvc.query({}, function (success) {
             $scope.datasets=success.data;
@@ -50,6 +52,18 @@ angular.module('app')
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })
+        };
+
+
+
+        // DO NOT MERGE TO PRODUCTION! FOR STAGING USE ONLY!
+        $scope.dalete_all_data = function() {
+            if($window.confirm('are you sure?')) {
+                nrgiDestroySrvc.query({}, function (response) {
+                    console.log(response)
+                });
+            } else {
+            }
         };
 
     });
