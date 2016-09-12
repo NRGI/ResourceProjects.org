@@ -284,21 +284,23 @@ exports.getTransferTable = function(req, res){
                             }
                             ++transfers_counter;
                             if (!project_transfers.hasOwnProperty(transfer._id)) {
-                                project_transfers.push({
-                                    _id: transfer._id,
-                                    transfer_year: transfer.transfer_year,
-                                    country: {
-                                        name: transfer.country.name,
-                                        iso2: transfer.country.iso2},
-                                    transfer_type: transfer.transfer_type,
-                                    transfer_unit: transfer.transfer_unit,
-                                    transfer_value: transfer.transfer_value,
-                                    transfer_level: transfer.transfer_level,
-                                    transfer_audit_type: transfer.transfer_audit_type,
-                                    proj_site: proj_site
-                                });
+                                if(Object.keys(proj_site).length != 0) {
+                                    project_transfers.push({
+                                        _id: transfer._id,
+                                        transfer_year: transfer.transfer_year,
+                                        country: {
+                                            name: transfer.country.name,
+                                            iso2: transfer.country.iso2},
+                                        transfer_type: transfer.transfer_type,
+                                        transfer_unit: transfer.transfer_unit,
+                                        transfer_value: transfer.transfer_value,
+                                        transfer_level: transfer.transfer_level,
+                                        transfer_audit_type: transfer.transfer_audit_type,
+                                        proj_site: proj_site
+                                    });
+                                }
                             }
-                            if (transfer.company !== null) {
+                            if (transfer.company && transfer.company!=undefined&&Object.keys(proj_site).length != 0) {
                                 _.last(project_transfers).company = {
                                     _id: transfer.company._id,
                                     company_name: transfer.company.company_name

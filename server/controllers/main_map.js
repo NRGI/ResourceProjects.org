@@ -85,7 +85,7 @@ exports.getMainMap = function(req, res) {
         countries_len = countries.length;
         countries_counter = 0;
         _.each(countries, function (country) {
-            Transfer.find({'country': country._id})
+            Transfer.find({'country': country._id,'project':{ $exists: true }})
                 .count()
                 .exec(function (err, count) {
                     ++countries_counter;

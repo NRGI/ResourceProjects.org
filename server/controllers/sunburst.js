@@ -20,7 +20,7 @@ exports.getPayments = function(req, res) {
         }
     });
     function getPayment(callback) {
-        Transfer.find({})
+        Transfer.find({'project':{ $exists: true }})
             .populate('source country project')
             .deepPopulate('source.source_type_id')
             .exec(function (err, transfers) {
