@@ -64,16 +64,20 @@ findCompanyDuplicates = function(action_id, fnCallback) {
 
                   //check if searchstring is in aliases
                   var aliases = _.pluck(originalCompany.item.company_aliases, 'alias')
+
                   //if not in aliases then mark as duplicate
-                  if(!_.contains(aliases, searchString)) {
+                  if(!_.contains(aliases, searchString) ) {
+
                     duplicate_count++;
                     var newDuplicate = makeNewDuplicate(action_id, originalCompany.item._id, new_company.obj._id, "company", notes, originalCompany.score);
                     Duplicate.create(newDuplicate, null);
+
                   }
+
                 }
-              }
+              } //end for
             }
-          }
+          } // end for
         }
         console.log("Searching for company duplicates completed. " + duplicate_count + ' duplicate(s) found.');
         fnCallback(null, duplicate_count + ' company duplicate(s) found.');
@@ -128,14 +132,18 @@ findProjectDuplicates = function(action_id, fnCallback) {
                   var aliases = _.pluck(originalProject.item.proj_aliases, 'alias')
                   //if not in aliases then mark as duplicate
                   if(!_.contains(aliases, searchString)) {
+
                     duplicate_count++;
                     var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
                     Duplicate.create(newDuplicate, null);
+
                   }
+
                 }
-              }
+
+              } // end for
             }
-          }
+          } // end for
         }
         console.log("Searching for project duplicates completed. " + duplicate_count + ' duplicate(s) found.');
         fnCallback(null, duplicate_count + ' project duplicate(s) found.');
