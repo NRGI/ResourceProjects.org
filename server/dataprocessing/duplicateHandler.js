@@ -60,7 +60,19 @@ findCompanyDuplicates = function(action_id, fnCallback) {
               //console.log(notes);
               for (var originalCompany of searchResult) {
 
-                if (originalCompany.item.company_name != searchString) {
+                var new_company_country, original_company_country;
+                if(new_company.obj.country_of_incorporation && new_company.obj.country_of_incorporation.length > 0 && new_company.obj.country_of_incorporation[0].country) {
+                  new_company_country = new_company.obj.country_of_incorporation[0].country;
+                }
+                if(originalCompany.item.country_of_incorporation && originalCompany.item.country_of_incorporation.length > 0 && originalCompany.item.country_of_incorporation[0].country) {
+                  original_company_country = originalCompany.item.country_of_incorporation[0].country;
+                }
+                var identical_countries = false;
+                if(new_company_country === original_company_country) {
+                  identical_countries = true;
+                }
+
+                if (originalCompany.item.company_name != searchString && identical_countries) {
 
                   //check if searchstring is in aliases
                   var aliases = _.pluck(originalCompany.item.company_aliases, 'alias')
@@ -126,7 +138,19 @@ findProjectDuplicates = function(action_id, fnCallback) {
               //console.log(notes);
               for (var originalProject of searchResult) {
 
-                if (originalProject.item.proj_name != searchString) {
+                var new_project_country, original_project_country;
+                if(new_project.obj.project_country && new_project.obj.project_country.length > 0 && new_project.obj.project_country[0].country) {
+                  new_project_country = new_project.obj.project_country[0].country;
+                }
+                if(originalProject.item.project_country && originalProject.item.project_country.length > 0 && originalProject.item.project_country[0].country) {
+                  original_project_country = originalProject.item.project_country[0].country;
+                }
+                var identical_countries = false;
+                if(new_project_country === original_project_country) {
+                  identical_countries = true;
+                }
+
+                if (originalProject.item.proj_name != searchString && identical_countries) {
 
                   //check if searchstring is in aliases
                   var aliases = _.pluck(originalProject.item.proj_aliases, 'alias')
