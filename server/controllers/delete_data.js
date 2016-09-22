@@ -29,7 +29,6 @@ exports.destroy = function(req, res) {
         {name: 'Concession'},
         {name: 'Company'},
         {name: 'CompanyGroup'},
-        {name: 'Dataset'},
         {name: 'Duplicate'},
         {name: 'ImportSource'},
         {name: 'Action'},
