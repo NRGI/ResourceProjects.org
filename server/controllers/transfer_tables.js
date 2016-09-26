@@ -264,7 +264,8 @@ exports.getTransferTable = function(req, res){
         if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
             Transfer.find(query)
-                .populate('company country project site source')
+                .populate('company country project site')
+                .populate('source', '_id source_name source_url source_date source_type_id')
                 .exec(function (err, transfers) {
                     transfers_counter = 0;
                     transfers_len = transfers.length;

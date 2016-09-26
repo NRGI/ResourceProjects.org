@@ -42,7 +42,7 @@ exports.getTransfers = function(req, res) {
             .populate('company', ' _id company_name')
             .populate('project', ' _id proj_name proj_id')
             .populate('site', ' _id site_name field')
-            .populate('source source', '_id source_name source_url source_date source_type_id')
+            .populate('source', '_id source_name source_url source_date source_type_id')
             .lean()
             .exec(function(err, transfers) {
                 transfers_counter = 0;
