@@ -187,8 +187,6 @@ exports.resolveDuplicates = function(req, res) {
 
         case 'company':
         Company.findById(result.original)
-        .populate('original')
-        .populate('duplicate')
         .exec(function (err, company) {
           if (err) {
             callback(err);
@@ -208,8 +206,6 @@ exports.resolveDuplicates = function(req, res) {
 
         case 'project':
         Project.findById(result.original)
-        .populate('original')
-        .populate('duplicate')
         .exec(function (err, project) {
           if (err) {
             callback(err);

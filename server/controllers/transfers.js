@@ -64,7 +64,6 @@ exports.getTransfers = function(req, res) {
                         }
                         ++transfers_counter;
                         if (!project_transfers.hasOwnProperty(transfer._id)) {
-                            console.log(proj_site,Object.keys(proj_site).length)
                             if(Object.keys(proj_site).length != 0) {
                                 project_transfers.push({
                                     _id: transfer._id,
