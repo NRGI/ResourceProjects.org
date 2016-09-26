@@ -114,17 +114,21 @@ exports.resolveDuplicates = function(req, res) {
   });
 
   function getEntity(id, action, callback) {
-    Duplicate.findOne({_id: id, resolved: false}, function (err, result) {
-      if (err) {
-        callback(err);
-      }
-      else if (result && result.entity) {
-        callback(null, result, action);
-      }
-      else {
-        callback("no duplicate found with id " + id);
-      }
-    });
+    if(action!='resolve_all') {
+      Duplicate.findOne({_id: id, resolved: false}, function (err, result) {
+        if (err) {
+          callback(err);
+        }
+        else if (result && result.entity) {
+          callback(null, result, action);
+        }
+        else {
+          callback("no duplicate found with id " + id);
+        }
+      });
+    } else{
+      callback(null, {}, action);
+    }
   };
 
   function getCompanyOrProject(result, action, callback) {
@@ -358,6 +362,26 @@ exports.resolveDuplicates = function(req, res) {
         });
         break;
 
+      case 'resolve_all':
+        console.log("== reconcile - resolve_all");
+        Duplicate.find({resolved: false}, function (err, result) {
+          if (err) {
+            callback(err);
+          }
+          else if(result) {
+            _.each(result, function (duplicate) {
+              duplicate.resolved = true;
+              duplicate.resolved_date = Date.now();
+              duplicate.save(function (err) {
+              });
+            });
+            callback(null, 'company duplicate resolved, just deleted');
+          }
+          else {
+            callback(err);
+          }
+        });
+        break;
       case 'update':
         console.log("updating document with duplicate information");
         console.log("removing duplicate object.");
@@ -734,3 +758,42 @@ exports.getDuplicateByID = function(req, res) {
   }
 
 };
+
+
+exports.resolveAllDuplicates = function(req, res) {
+  var type = req.params.type;
+
+  async.waterfall([
+    resolveEntity
+  ], function (err, result) {
+    if (err) {
+      res.send(err);
+    }
+    else {
+      res.send(result);
+    }
+  });
+
+  function resolveEntity(callback) {
+    console.log("== reconcile - resolve_all");
+    Duplicate.find({resolved: false, entity:type}, function (err, result) {
+          if (err) {
+            callback(err);
+          }
+          else if(result) {
+            _.each(result, function (duplicate) {
+              duplicate.resolved = true;
+              duplicate.resolved_date = Date.now();
+              duplicate.save(function (err) {
+              });
+            });
+            callback(null, {'data':'company duplicate resolved, just deleted'});
+          }
+          else {
+            callback(err);
+          }
+        });
+  };
+
+};
+

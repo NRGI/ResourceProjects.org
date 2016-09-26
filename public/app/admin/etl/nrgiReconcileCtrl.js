@@ -2,7 +2,8 @@ angular.module('app')
     .controller('nrgiReconcileCtrl', function(
             $scope,
             $route,
-            nrgiDuplicatesSrvc
+            nrgiDuplicatesSrvc,
+            nrgiResolveSrvc
         ) {
 
         var limit = 50,
@@ -49,6 +50,15 @@ angular.module('app')
                 });
             }
         };
+        $scope.resolve_all = function(action) {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            nrgiResolveSrvc.query({type:$scope.type_filter}, function (response) {
+                console.log(response)
+                loadData();
+                $scope.busy = false;
+            });
+        }
         $scope.changeTypeFilter = function(type) {
             currentPage = 0;
             totalPages = 0;

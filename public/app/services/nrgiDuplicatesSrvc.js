@@ -7,4 +7,11 @@ angular.module('app')
         });
 
         return DuplicateResource;
+    })
+    .factory('nrgiResolveSrvc', function($resource) {
+        var DuplicateResource = $resource('/api/resolve/:type', {type: "@type"}, {
+            query:  {method: 'GET', isArray: false}
+        });
+
+        return DuplicateResource;
     });
