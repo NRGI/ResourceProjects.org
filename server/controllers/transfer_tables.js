@@ -264,7 +264,7 @@ exports.getTransferTable = function(req, res){
         if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
         if (projects.transfers_query != null) {
             Transfer.find(query)
-                .populate('company country project site')
+                .populate('company country project site source')
                 .exec(function (err, transfers) {
                     transfers_counter = 0;
                     transfers_len = transfers.length;
@@ -296,6 +296,8 @@ exports.getTransferTable = function(req, res){
                                         transfer_value: transfer.transfer_value,
                                         transfer_level: transfer.transfer_level,
                                         transfer_audit_type: transfer.transfer_audit_type,
+                                        transfer_gov_entity: transfer.transfer_gov_entity,
+                                        source: transfer.source,
                                         proj_site: proj_site
                                     });
                                 }
