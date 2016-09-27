@@ -19,7 +19,13 @@
                             li.nav-item
                                 a.nav-link(href='/projects') Projects
                             li.nav-item
-                                a.nav-link(href='/transfers') Payments
+                                a.nav-link.dropdown-toggle(data-toggle="dropdown") Payments
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/transfers').dropdown-item Payments
+                                    li
+                                        a(href='/transfers_by_gov').dropdown-item Payments By Government
                             li.nav-item
                                 a.nav-link.dropdown-toggle(data-toggle="dropdown") Other Data
                                     b.caret

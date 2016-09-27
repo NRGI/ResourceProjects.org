@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('app')
-    .controller('nrgiTransferListCtrl', function (
+    .controller('nrgiTransferByGovListCtrl', function (
         $scope,
         $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiTransfersSrvc
+        nrgiTransfersByGovSrvc
     ) {
         var limit = 3000,
             currentPage = 0,
@@ -23,7 +23,7 @@ angular.module('app')
         $scope.currency = '';
         $scope.year = '';
         $scope.load = function(searchOptions) {
-            nrgiTransfersSrvc.query(searchOptions, function (response) {
+            nrgiTransfersByGovSrvc.query(searchOptions, function (response) {
                 var companies = [],
                     countries = [];
                 $scope.count = response.count;
@@ -86,7 +86,7 @@ angular.module('app')
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
-                nrgiTransfersSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+                nrgiTransfersByGovSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
                     $scope.transfers = _.union($scope.transfers, response.data);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
@@ -98,9 +98,8 @@ angular.module('app')
             {name: 'Year', status: true, field: 'transfer_year'},
             {name: 'Paid by', status: true, field: 'company'},
             {name: 'Paid to', status: true, field: 'country'},
-            {name: 'Project', status: true, field: 'proj_site'},
-            {name: 'Project ID', status: true, field: 'proj_id'},
-            {name: 'Level ', status: true, field: 'transfer_gov_entity'},
+            {name: 'Gov entity', status: true, field: 'transfer_gov_entity'},
+            {name: 'Level ', status: true, field: 'transfer_level'},
             {name: 'Payment Type', status: true, field: 'transfer_type'},
             {name: 'Currency', status: true, field: 'transfer_unit'},
             {name: 'Value ', status: true, field: 'transfer_value'}];
@@ -117,7 +116,7 @@ angular.module('app')
         $scope.load_all = function(){
             if ($scope.busy) return;
             $scope.busy = true;
-           nrgiTransfersSrvc.query({skip: 0, limit: 0}, function (response) {
+            nrgiTransfersByGovSrvc.query({skip: 0, limit: 0}, function (response) {
                 $scope.csv_transfers = [];
                 angular.forEach(response.data, function (transfer, key) {
                     $scope.csv_transfers[key] = [];
@@ -138,21 +137,7 @@ angular.module('app')
                             }
                             $scope.csv_transfers[key].push(company_name);
                         }
-                        if (field == 'proj_site') {
-                            name = '';
-                            if (transfer[field] != undefined && transfer[field].name != undefined) {
-                                var name = transfer[field].name.toString();
-                            }
-                            $scope.csv_transfers[key].push(name)
-                        }
-                        if (field == 'proj_id') {
-                            id = '';
-                            if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.proj_site.type == 'project') {
-                               var id = transfer.proj_site._id.toString();
-                            }
-                            $scope.csv_transfers[key].push(id);
-                        }
-                        if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_id') {
+                        if (field != 'company' && field != 'country') {
                             $scope.csv_transfers[key].push(transfer[field])
                         }
                     })

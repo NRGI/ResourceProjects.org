@@ -84,6 +84,7 @@ module.exports	= function(app) {
 	///// TRANSFERS CRUD ////////
 	/////////////////////////////
 	app.get('/api/transfers/:limit/:skip', transfers.getTransfers);
+	app.get('/api/transfersGov/:limit/:skip', transfers.getTransfersByGov);
 	// app.get('/api/transfers/:id', transfers.getPaymentByID);
 	// // POST
 	// app.post('/api/transfers',auth.requiresApiLogin, auth.requiresRole('admin'),  transfers.createProject);

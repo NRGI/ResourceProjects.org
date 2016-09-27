@@ -82,7 +82,7 @@ exports.getTransfers = function(req, res) {
                                 });
                             }
                         }
-                        if (transfer.company && transfer.company!=undefined) {
+                        if (transfer.company && transfer.company!=undefined&&_.last(project_transfers)) {
                             _.last(project_transfers).company = {
                                 _id: transfer.company._id,
                                 company_name: transfer.company.company_name
@@ -184,7 +184,7 @@ exports.getTransfersByGov = function(req, res) {
                                 });
                             }
                         }
-                        if (transfer.company && transfer.company!=undefined) {
+                        if (transfer.company && transfer.company!=undefined&&_.last(project_transfers)) {
                             _.last(project_transfers).company = {
                                 _id: transfer.company._id,
                                 company_name: transfer.company.company_name

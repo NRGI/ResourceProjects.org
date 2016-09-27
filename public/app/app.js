@@ -313,6 +313,10 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/transfers/transfer-list',
                 controller: 'nrgiTransferListCtrl'
             })
+            .when('/transfers_by_gov', {
+                templateUrl: '/partials/dynamic/transfersByGovEntity/transferByGov-list',
+                controller: 'nrgiTransferByGovListCtrl'
+            })
             /////////////////////
             ////Helper groups////
             /////////////////////

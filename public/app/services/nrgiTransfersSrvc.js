@@ -9,4 +9,13 @@ angular.module('app')
         });
 
         return TransferResource;
+    })
+    .factory('nrgiTransfersByGovSrvc', function($resource) {
+        var TransferResource = $resource('/api/transfersGov/:limit/:skip', {limit: "@limit", skip: "@skip"}, {
+            query:  {method:'GET', isArray: false},
+            // queryCached: {method:'GET', isArray: false, cache: true},
+            update: {method: 'PUT', isArray: false}
+        });
+
+        return TransferResource;
     });
