@@ -1,7 +1,7 @@
 .container
     .row.pagetitle
-        .col-md-4
-            h1 Payments
+        .col-md-6
+            h1 Payments by Recipient
                 = ' '
                 small(ng-if="count") {{count}}
 
@@ -16,7 +16,7 @@
                         select.form-control(ng-model="year_filter")
                             option(value="") Show all years
                             option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}: {{value}} records
-        .col-md-2
+        .col-md-8
             .row: b Currency
             .row
                 form.form-inline
@@ -24,6 +24,13 @@
                         select.form-control(ng-model="currency_filter")
                             option(value="") Show all currency
                             option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}: {{value}} records
+        .col-md-2
+            .row
+                br
+            .row
+                form.form-inline
+                    .form-group
+                        a(href='/transfers').btn.btn-secondary.pull-xs-right(type='button') See payments by project
 
     .row.top-padding-med
         table#payments.table.table-striped.table-fixed-header(
@@ -34,7 +41,7 @@
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Year
                     th.tablesort-sortable-th(ts-criteria='company.company_name') Paid By
                     th.tablesort-sortable-th(ts-criteria='country.name') Paid To
-                    th.tablesort-sortable-th(ts-criteria='transfer_gov_entity') Gov entity
+                    th.tablesort-sortable-th(ts-criteria='transfer_gov_entity') Government entity
                     th.tablesort-sortable-th(ts-criteria='transfer_level') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                     th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
@@ -44,7 +51,7 @@
                     th.tablesort-sortable-th(ts-criteria='transfer_year') Year
                     th.tablesort-sortable-th(ts-criteria='company.company_name') Paid By
                     th.tablesort-sortable-th(ts-criteria='country.name') Paid To
-                    th.tablesort-sortable-th(ts-criteria='transfer_gov_entity') Gov entity
+                    th.tablesort-sortable-th(ts-criteria='transfer_gov_entity') Government entity
                     th.tablesort-sortable-th(ts-criteria='transfer_level') Level
                     th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                     th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
@@ -74,4 +81,4 @@
                 href=""
                 ng-csv="csv_transfers"
                 csv-header="getHeaderTransfers()"
-                filename="transfers.csv") Payments CSV
+                filename="transfers.csv") Payments by Recipient CSV
