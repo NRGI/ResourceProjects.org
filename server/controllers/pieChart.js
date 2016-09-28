@@ -5,8 +5,9 @@ var Source	 		= require('mongoose').model('Source'),
     request         = require('request');
 
 exports.getPayments = function(req, res) {
-    var sunburst_new = [], counter = 0,sunburst=[];
+    var sunburst_new = [], counter = 0,sunburst=[], payments_filter={};
     async.waterfall([
+        getAllPayment,
         getPayment
     ], function (err, result) {
         if (err) {
@@ -19,7 +20,17 @@ exports.getPayments = function(req, res) {
             }
         }
     });
-    function getPayment(callback) {
+    function getAllPayment(callback) {
+        Transfer.find({})
+            .populate('country')
+            .exec(function (err, transfers) {
+                var transfer = _.filter(transfers, function(transfer){ return transfer.transfer_level!='country'; });
+                payments_filter.year_selector=_.countBy(transfer, "transfer_year");
+                payments_filter.currency_selector=_.countBy(transfer, "transfer_unit");
+                callback(null, payments_filter);
+            })
+    }
+    function getPayment(payments_filter,callback) {
         Transfer.find(req.query)
             .populate('country')
             .exec(function (err, transfers) {
@@ -32,11 +43,11 @@ exports.getPayments = function(req, res) {
                     size: transfers.length
                 });
                 if(transfers.length) {
-                    var transfers_data = _.map(_.groupBy(transfers, function (doc) {if(doc.project!=undefined||doc.site!=undefined) {return doc;}}), function (grouped) {return grouped})
+                    var len = _.filter(transfers, function(transfer){ return transfer.transfer_level!='country'; });
                     _.map(_.groupBy(transfers, function (doc) {
-                        if(doc.project!=undefined||doc.site!=undefined) {return doc.country.iso2;}
+                        if(doc.transfer_level!='country') {return doc.country.iso2;}
                     }), function (grouped) {
-                        if(grouped[0].project!=undefined||grouped[0].site!=undefined){
+                        if(grouped[0].transfer_level!='country'){
                             _.each(grouped, function (group) {
                                 value = value + group.transfer_value
                             })
@@ -45,18 +56,17 @@ exports.getPayments = function(req, res) {
                             }
                             sunburst_new[0].children.push({
                                 key: grouped[0].country.name,
-                                y: ((grouped.length * 100) / transfers_data.length),
+                                y: ((grouped.length * 100) / len.length),
                                 value: transfers_value
                             });
                             ++counter;
-
                             return sunburst_new;
                         }
                     });
                     sunburst = sunburst_new;
-                    callback(null, {data:sunburst,transfers:transfers})
+                    callback(null, {data:sunburst,transfers:transfers,filters:payments_filter})
                 }else{
-                    callback(null, {data:'',transfers:''})
+                    callback(null, {data:'',transfers:'',filters:payments_filter})
                 }
             });
     }
