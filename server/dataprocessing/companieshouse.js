@@ -26,7 +26,7 @@ var countries;
 
 function makeProjId (countryIso, name) {
 	var pid = countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
-	console.log(pid + ": " + countryIso);
+	//console.log(pid + ": " + countryIso);
 	return pid;
 }
 
@@ -86,7 +86,7 @@ exports.importData = function(finalcallback) {
 											return fcallback(err);
 										}
 										reporter.add('Successfully handled report data for year ' + year + '\n');
-										fcallback(null);
+										async.nextTick(function(){ fcallback(null); });
 
 									}
 
@@ -142,14 +142,14 @@ function loadChReport(chData, year, report, loadcallback) {
 			if (err) {
 				if (err === "source exists") {
 					report.add("Done. Not importing data for existing source.\n");
-					return loadcallback(null, report);
+					return async.nextTick(function(){ loadcallback(null, report); });
 				}
 				else {
 					report.add("LOAD DATA: Got an error\n");
-					return loadcallback(err, report);
+					return async.nextTick(function(){ loadcallback(err, report); });
 				}
 			}
-			loadcallback(null, report);
+			return async.nextTick(function(){ loadcallback(null, report); });
 		}
 	);
 
@@ -191,7 +191,7 @@ function loadChReport(chData, year, report, loadcallback) {
 							}
 							createdOrAffectedEntities[model._id] = {entity: "source", obj: model._id};
 							source = model;
-							return callback(null,report, source, currency);
+							return async.nextTick(function(){ callback(null,report, source, currency); });
 						})
 					);
 				}
@@ -199,7 +199,7 @@ function loadChReport(chData, year, report, loadcallback) {
 	}
 
 
-	// checks if the company of this report already exists in the DB, creates a new one otherwise and then checks for potential duplicates
+	// checks if the company of this report already exists in the DB, creates a new one otherwise
 	function loadCompany(report, source, currency, callback) {
 
 		Company.findOne(
@@ -216,7 +216,7 @@ function loadChReport(chData, year, report, loadcallback) {
 					company = doc;
 					//projects[company._id] = {}
 					report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (CH ID match), not adding.\n');
-					return callback(null, report, source, company, currency);
+					return async.nextTick(function(){ callback(null, report, source, company, currency); });
 				}
 				else {
 					Company.findOne(
@@ -237,17 +237,17 @@ function loadChReport(chData, year, report, loadcallback) {
 									Company.findByIdAndUpdate(doc._id, {open_corporates_id: "gb/" + chData.reportDetails.companyNumber}, {}, function (err) {
 										if (err) {
 											report.add('Encountered an error (' + err + ') while updating the DB. Aborting.\n');
-											return callback(err,report, null, null);
+											return async.nextTick(function(){ callback(err,report, null, null); });
 										}
 										else {
 											report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-											return callback(null, report, source, company, currency);
+											return async.nextTick(function(){ callback(null, report, source, company, currency); });
 										}
 									});
 							    }
                                 else {
 									report.add('company ' + chData.reportDetails.companyName + ' already exists in the DB (name match), not adding.\n');
-									return callback(null, report, source, company, currency);
+									return async.nextTick(function(){ callback(null, report, source, company, currency); });
 								}
 								// TODO: add aliases in comment if aliases are considered
 							}
@@ -272,8 +272,7 @@ function loadChReport(chData, year, report, loadcallback) {
 										report.add('Added company ' + chData.reportDetails.companyName + ' to the DB.\n');
 										createdOrAffectedEntities[cmodel._id] = {entity: "company", obj: cmodel._id};
 										company = cmodel;
-
-										callback(null, report, source, company, currency);
+                                        async.nextTick(function(){ callback(null, report, source, company, currency); });
 									}
 								);
 
@@ -344,10 +343,10 @@ function loadChReport(chData, year, report, loadcallback) {
 									return ucallback(err);
 							}
 							else if (!cresult || cresult.length === 0) {
-									return ucallback(null, project_id, projectName, null, newProj);
+									return async.nextTick(function(){ ucallback(null, project_id, projectName, null, newProj); });
 							}
 							else {
-									return ucallback(null, model._id, projectName, cresult, newProj);
+									return async.nextTick(function(){ ucallback(null, model._id, projectName, cresult, newProj); });
 							}
 					});
 
@@ -371,7 +370,7 @@ function loadChReport(chData, year, report, loadcallback) {
 					else if (doc) {
 						createdOrAffectedEntities[doc._id] = {entity: "link", obj: doc._id};
 						report.add('Company is already linked with project ' + projectName + ', not adding\n');
-						return lcallback(null, projectsList, projectName, project_id, newProj);
+						return async.nextTick(function(){ lcallback(null, projectsList, projectName, project_id, newProj); });
 					}
 					else {
 						var newCompanyLink = {
@@ -389,7 +388,7 @@ function loadChReport(chData, year, report, loadcallback) {
 								}
 								createdOrAffectedEntities[lmodel._id] = {entity: "link", obj: lmodel._id};
 								report.add('Linked company with project in the DB.\n');
-								return lcallback(null, projectsList, projectName, project_id, newProj);
+								return async.nextTick(function(){ lcallback(null, projectsList, projectName, project_id, newProj); });
 							}
 						);
 					}
@@ -493,7 +492,7 @@ function loadChReport(chData, year, report, loadcallback) {
 											// search potential duplicates for this project
 											//handleProjectDuplicates,
 										], function () {
-											return forcallback(null);
+											return async.nextTick(function(){ forcallback(null); });
 										});
 										// TODO: End Move into function
 									}
@@ -507,7 +506,7 @@ function loadChReport(chData, year, report, loadcallback) {
 											// search potential duplicates for this project
 											//handleProjectDuplicates,
 										], function () {
-											return forcallback(null);
+											return async.nextTick(function(){ forcallback(null); });
 										});
 										// TODO: End Move into function
 									}
@@ -524,7 +523,7 @@ function loadChReport(chData, year, report, loadcallback) {
 								// search potential duplicates for this project
 								//handleProjectDuplicates,
 							], function () {
-								return forcallback(null);
+								return async.nextTick(function(){ forcallback(null); });
 							});
 						}
 					//}
@@ -534,7 +533,7 @@ function loadChReport(chData, year, report, loadcallback) {
 			if (err) {
 				return callback(err, report, projects, company, currency);
 			}
-			return callback(null, report, projects, company, currency);
+			return async.nextTick(function(){ callback(null, report, projects, company, currency); });
 		});
 	}
 
@@ -567,7 +566,7 @@ function loadChReport(chData, year, report, loadcallback) {
 			var newTransfer = makeNewTransfer(governmentPaymentsEntry, projects, company, currency, transfer_audit_type, "country", year, country_id);
 			if (!newTransfer) {
 				report.add('Invalid or missing data for new transfer. Aborting.\n');
-				return fcallback(null);
+				return async.nextTick(function(){ fcallback(null); });
 			}
 
 			Transfer.create(
@@ -580,7 +579,7 @@ function loadChReport(chData, year, report, loadcallback) {
 					else {
 						createdOrAffectedEntities[tmodel._id] = {entity: "transfer", obj: tmodel._id};
 						report.add('Added transfer for government ' + transfer_gov_entity + '\n');
-						fcallback(null);
+						return async.nextTick(function(){ fcallback(null); });
 					}
 				}
 			);
@@ -591,7 +590,7 @@ function loadChReport(chData, year, report, loadcallback) {
 			if (err) {
 				return callback(err,report);
 			}
-			callback(null, report);
+			return async.nextTick(function(){ callback(null, report); });
 
 		});
 
@@ -651,7 +650,7 @@ function loadChReport(chData, year, report, loadcallback) {
 					else {
 						createdOrAffectedEntities[tmodel._id] = {entity: "transfer", obj: tmodel._id};
 						report.add('Added transfer for project ' + projectPaymentEntry.projectName + '\n');
-						forcallback(null);
+						async.nextTick(function(){ forcallback(null); });
 					}
 				}
 			);
@@ -659,7 +658,7 @@ function loadChReport(chData, year, report, loadcallback) {
 			if (err) {
 				return callback(err,report);
 			}
-			callback(null, report);
+			async.nextTick(function(){ callback(null, report); });
 
 		});
 	}

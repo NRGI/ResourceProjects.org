@@ -92,7 +92,7 @@ findCompanyDuplicates = function(action_id, fnCallback) {
           } // end for
         }
         console.log("Searching for company duplicates completed. " + duplicate_count + ' duplicate(s) found.');
-        fnCallback(null, duplicate_count + ' company duplicate(s) found.');
+        async.nextTick(function(){ fnCallback(null, duplicate_count + ' company duplicate(s) found.'); });
       });
     }
     else {
@@ -137,40 +137,41 @@ findProjectDuplicates = function(action_id, fnCallback) {
               var notes = 'Found  ' + numberOfResults + ' potentially matching project name(s) for project ' + new_project.obj.proj_name + ' after import. Date: ' + moment(Date.now()).format('LLL');
               //console.log(notes);
               for (var originalProject of searchResult) {
-
-                var new_project_country, original_project_country;
-                if(new_project.obj.project_country && new_project.obj.project_country.length > 0 && new_project.obj.project_country[0].country) {
-                  new_project_country = new_project.obj.project_country[0].country;
-                }
-                if(originalProject.item.project_country && originalProject.item.project_country.length > 0 && originalProject.item.project_country[0].country) {
-                  original_project_country = originalProject.item.project_country[0].country;
-                }
-                var identical_countries = false;
-                if(new_project_country === original_project_country) {
-                  identical_countries = true;
-                }
-
-                if (originalProject.item.proj_name != searchString && identical_countries) {
-
-                  //check if searchstring is in aliases
-                  var aliases = _.pluck(originalProject.item.proj_aliases, 'alias')
-                  //if not in aliases then mark as duplicate
-                  if(!_.contains(aliases, searchString)) {
-
-                    duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
-                    Duplicate.create(newDuplicate, null);
-
+                async.nextTick(function(){
+                  var new_project_country, original_project_country;
+                  if(new_project.obj.project_country && new_project.obj.project_country.length > 0 && new_project.obj.project_country[0].country) {
+                    new_project_country = new_project.obj.project_country[0].country;
+                  }
+                  if(originalProject.item.project_country && originalProject.item.project_country.length > 0 && originalProject.item.project_country[0].country) {
+                    original_project_country = originalProject.item.project_country[0].country;
+                  }
+                  var identical_countries = false;
+                  if(new_project_country === original_project_country) {
+                    identical_countries = true;
                   }
 
-                }
+                  if (originalProject.item.proj_name != searchString && identical_countries) {
+
+                    //check if searchstring is in aliases
+                    var aliases = _.pluck(originalProject.item.proj_aliases, 'alias')
+                    //if not in aliases then mark as duplicate
+                    if(!_.contains(aliases, searchString)) {
+
+                      duplicate_count++;
+                      var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
+                      Duplicate.create(newDuplicate, null);
+
+                    }
+
+                  }
+                });
 
               } // end for
             }
           } // end for
         }
         console.log("Searching for project duplicates completed. " + duplicate_count + ' duplicate(s) found.');
-        fnCallback(null, duplicate_count + ' project duplicate(s) found.');
+        return async.nextTick(function(){ fnCallback(null, duplicate_count + ' project duplicate(s) found.'); });
       });
     }
     else {

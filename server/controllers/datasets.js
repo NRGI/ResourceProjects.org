@@ -5,7 +5,7 @@ var Dataset 		= require('mongoose').model('Dataset'),
     async           = require('async'),
     _               = require('underscore'),
     googlesheets    = require('../dataprocessing/googlesheets.js');
-	companieshouse  = require('../dataprocessing/companieshouse.js');
+	  companieshouse  = require('../dataprocessing/companieshouse.js');
     duplicateHandler= require('../dataprocessing/duplicateHandler.js');
     unloader        = require('../dataprocessing/unloader.js');
     util            = require('util');
@@ -52,14 +52,14 @@ exports.getDatasets = function(req, res) {
                 if(datasets) {
                     async.each(datasets, function (dataset, ecallback) {
                         var action_ids = _.pluck(dataset.actions, '_id');
-                        Duplicate.find(
+                        Duplicate.findOne( //One's enough!
                             {
                                 created_from: { $in: action_ids },
                                 resolved: false
                             }, //Should be just a list of IDs because not populated
-                            function (err, duplicates) {
+                            function (err, duplicate) {
                                 if (err) ecallback(err);
-                                else if (duplicates.length > 0) {
+                                else if (duplicate) {
                                     dataset.isLoaded = true; //Must have been loaded
                                     dataset.canBeUnloaded = true; //TODO: suboptimal
                                     dataset.hasDuplicates = true;
@@ -200,7 +200,6 @@ exports.createAction = function(req, res) {
                                     value.action = amodel._id;
                                     importSources.push(value);
                                 });
-                                console.log("There were " + affectedEntities.length + " affected entities ");
                                 console.log("There were " + importSources.length + " import sources ");
                                 async.eachSeries(
                                     importSources,
