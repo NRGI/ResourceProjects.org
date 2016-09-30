@@ -379,6 +379,9 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/pieChart/pie-chart',
                 controller: 'nrgiPieChartCtrl'
             })
+            .when('/sunburst-chart', {
+                templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart'
+            })
             //.when('/model', {
             //    templateUrl: '/partials/main/dataModel'
             //})

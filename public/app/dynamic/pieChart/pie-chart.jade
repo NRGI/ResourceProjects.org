@@ -10,13 +10,13 @@
                     form.form-inline
                         .form-group
                             select.form-control(ng-model="year_filter")
-                                option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}: {{value}} records
+                                option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
             .col-md-8
                 .row: b Currency
                 .row
                     form.form-inline
                         .form-group
                             select.form-control(ng-model="currency_filter")
-                                option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}: {{value}} records
+                                option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
 
         nvd3(options="options" data="data")
