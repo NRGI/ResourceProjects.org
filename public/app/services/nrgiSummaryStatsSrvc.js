@@ -32,4 +32,11 @@ angular.module('app')
         });
 
         return TransferResource;
+    })
+    .factory('nrgiPaymentsByGovSrvc', function($resource) {
+        var PaymentsByGov = $resource('/api/transfers_by_gov', {}, {
+            query: {method: 'GET', isArray: false}
+        });
+
+        return PaymentsByGov;
     });

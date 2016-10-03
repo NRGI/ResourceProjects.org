@@ -272,6 +272,7 @@ module.exports	= function(app) {
 
 	//Payments
 	app.get('/api/transfers', sunburst.getPayments);
+	app.get('/api/transfers_by_gov', sunburst.getPaymentsByGov);
 
 
 	//Payments pie chart

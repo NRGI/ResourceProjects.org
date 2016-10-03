@@ -382,6 +382,9 @@ angular.module('app')
             .when('/sunburst-chart', {
                 templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart'
             })
+            .when('/sunburst-chart-by-gov', {
+                templateUrl: '/partials/dynamic/sunburstChartByGovEntity/sunburst-chart'
+            })
             //.when('/model', {
             //    templateUrl: '/partials/main/dataModel'
             //})
