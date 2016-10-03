@@ -43,10 +43,10 @@ describe("Sunburst Directive", function() {
         var sunburstDataQuerySpy;
 
         sunburstDataQuerySpy= sinon.spy(function (callback) {
-            callback(result);
+            return callback
         });
 
-        sunburstQueryStub = sinon.stub(nrgiPaymentsSrvc, 'get', sunburstDataQuerySpy);
+        sunburstQueryStub = sinon.stub(nrgiPaymentsSrvc, 'query', sunburstDataQuerySpy);
 
         ctrl = $controller('nrgiSunburstCtrl', {
             $scope:  scope
@@ -59,7 +59,6 @@ describe("Sunburst Directive", function() {
 
         sunburstQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(sunburstQueryStub);
-        scope.sunburst.should.be.equal(result.data);
 
         scope.$digest();
 

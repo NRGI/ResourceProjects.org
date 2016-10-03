@@ -11,13 +11,14 @@ angular.module('app')
 
         $scope.load = function(searchOptions) {
             nrgiPieChartSrvc.query(searchOptions, function (response) {
-                $scope.data=[];
+                $scope.data = [];
+                $scope.total = 0;
                 if (response.data) {
                     $scope.data = response.data[0].children;
+                    $scope.total = response.data[0].total_value;
                 }
                 $scope.year_selector = response.filters.year_selector;
                 $scope.currency_selector = response.filters.currency_selector;
-
             });
         }
         $scope.load(searchOptions);
@@ -31,7 +32,15 @@ angular.module('app')
                 duration: 500,
                 labelThreshold: 0.01,
                 labelSunbeamLayout: true,
-                showLegend:false
+                showLegend:false,
+                tooltip:{
+                    valueFormatter:function (d, i) {
+                        return d.toFixed(3) + '%';
+                    },
+                    keyFormatter: function(d,i){
+                        return d + ' $ million'
+                    }
+                }
             }
         };
 

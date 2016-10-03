@@ -37,12 +37,19 @@ exports.getPayments = function(req, res) {
                 var counter = 0;
                 var value=0;
                 var transfers_value=0;
+                _.each(transfers, function (transfer) {
+                    value = value + transfer.transfer_value
+                })
+                if (value > 0) {
+                    transfers_value = (value / 1000000).toFixed(3)
+                }
                 sunburst_new.push({
                     name:'payments',
                     children:[],
-                    size: transfers.length
+                    total_value: transfers_value
                 });
                 if(transfers.length) {
+                    value = 0; transfers_value = 0;
                     var len = _.filter(transfers, function(transfer){ return transfer.transfer_level!='country'; });
                     _.map(_.groupBy(transfers, function (doc) {
                         if(doc.transfer_level!='country') {return doc.country.iso2;}
@@ -64,9 +71,9 @@ exports.getPayments = function(req, res) {
                         }
                     });
                     sunburst = sunburst_new;
-                    callback(null, {data:sunburst,transfers:transfers,filters:payments_filter})
+                    callback(null, {data:sunburst,filters:payments_filter})
                 }else{
-                    callback(null, {data:'',transfers:'',filters:payments_filter})
+                    callback(null, {data:'',filters:payments_filter})
                 }
             });
     }
