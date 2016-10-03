@@ -16,7 +16,7 @@
                         select.form-control(ng-model="year_filter")
                             option(value="") Show all years
                             option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}: {{value}} records
-        .col-md-8
+        .col-md-6
             .row: b Currency
             .row
                 form.form-inline
@@ -24,6 +24,13 @@
                         select.form-control(ng-model="currency_filter")
                             option(value="") Show all currency
                             option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}: {{value}} records
+        .col-md-2
+            .row
+                br
+            .row
+                form.form-inline
+                    .form-group
+                        a(href='/sunburst-chart').btn.btn-secondary.pull-xs-right(type='button') See sunburst chart
         .col-md-2
             .row
                 br
