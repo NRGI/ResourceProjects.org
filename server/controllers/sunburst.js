@@ -27,13 +27,33 @@ exports.getPayments = function(req, res) {
         Transfer.find({'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]}})
             .populate('country')
             .exec(function (err, transfers) {
+                var value=0;
+                var currency_value=[];
+                var transfers_value=0;
+                _.map(_.groupBy(transfers, function (doc) {
+                    return doc.transfer_unit;
+                }), function (grouped) {
+                    value=0;
+                    transfers_value=0;
+                    _.each(grouped, function (group) {
+                        value = value + group.transfer_value
+                    })
+                    if (value > 0) {
+                        transfers_value = (value / 1000000).toFixed(3)
+                    }
+                    currency_value.push({
+                        currency:grouped[0].transfer_unit,
+                        total_value:transfers_value
+                    });
+                    return currency_value;
+                });
                 payments_filter.year_selector=_.countBy(transfers, "transfer_year");
                 payments_filter.currency_selector=_.countBy(transfers, "transfer_unit");
                 payments_filter.type_selector=_.countBy(transfers, "transfer_type");
-                callback(null, payments_filter);
+                callback(null, currency_value,payments_filter);
             })
     }
-    function getPayment(payments_filter,callback) {
+    function getPayment(currency_value,payments_filter,callback) {
         Transfer.find(req.query)
             .populate('source country project')
             .deepPopulate('source.source_type_id')
@@ -91,9 +111,9 @@ exports.getPayments = function(req, res) {
                         return sunburst_new;
                     });
                     sunburst = sunburst_new;
-                    callback(null, {data:sunburst,filters:payments_filter})
+                    callback(null, {data:sunburst,total:currency_value,filters:payments_filter})
                 }else{
-                    callback(null, {data:'',filters:payments_filter})
+                    callback(null, {data:'',total:'',filters:payments_filter})
                 }
             });
     }
@@ -121,13 +141,33 @@ exports.getPaymentsByGov = function(req, res) {
         Transfer.find({'transfer_level':[ 'country' ],'company':{ $exists: true,$nin: [ null ]}})
             .populate('country')
             .exec(function (err, transfers) {
+                var value=0;
+                var currency_value=[];
+                var transfers_value=0;
+                _.map(_.groupBy(transfers, function (doc) {
+                    return doc.transfer_unit;
+                }), function (grouped) {
+                    value=0;
+                    transfers_value=0;
+                    _.each(grouped, function (group) {
+                        value = value + group.transfer_value
+                    })
+                    if (value > 0) {
+                        transfers_value = (value / 1000000).toFixed(3)
+                    }
+                    currency_value.push({
+                        currency:grouped[0].transfer_unit,
+                        total_value:transfers_value
+                    });
+                    return currency_value;
+                });
                 payments_filter.year_selector=_.countBy(transfers, "transfer_year");
                 payments_filter.currency_selector=_.countBy(transfers, "transfer_unit");
                 payments_filter.type_selector=_.countBy(transfers, "transfer_type");
-                callback(null, payments_filter);
+                callback(null, currency_value,payments_filter);
             })
     }
-    function getPayment(payments_filter,callback) {
+    function getPayment(currency_value,payments_filter,callback) {
         Transfer.find(req.query)
             .populate('source country project')
             .deepPopulate('source.source_type_id')
@@ -183,9 +223,9 @@ exports.getPaymentsByGov = function(req, res) {
                         return sunburst_new;
                     });
                     sunburst = sunburst_new;
-                    callback(null, {data:sunburst,filters:payments_filter})
+                    callback(null, {data:sunburst,total:currency_value,filters:payments_filter})
                 }else{
-                    callback(null, {data:'',filters:payments_filter})
+                    callback(null, {data:'',total:'',filters:payments_filter})
                 }
             });
     }

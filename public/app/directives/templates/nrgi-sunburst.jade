@@ -1,5 +1,9 @@
 div
-    h3(class="text-center") Total: {{total}} million $
+    h3(class="text-center")
+        span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
+        span(ng-if="currency_filter=='Show all currency'") Total:
+            = ' '
+            text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
     .row.top-padding-med
         .right-padding-lg: b Filter by:
     .row.top-padding-med

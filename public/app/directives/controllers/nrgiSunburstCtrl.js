@@ -28,6 +28,7 @@ angular
                 if(response.data) {
                     $scope.sunburst = response.data;
                     $scope.total = response.data[0].total_value;
+                    $scope.all_currency_value = response.total;
                 }
                 $scope.year_selector = response.filters.year_selector;
                 $scope.currency_selector = response.filters.currency_selector;

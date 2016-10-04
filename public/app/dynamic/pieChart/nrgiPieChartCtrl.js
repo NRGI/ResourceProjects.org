@@ -38,7 +38,7 @@ angular.module('app')
                         return d.toFixed(3) + '%';
                     },
                     keyFormatter: function(d,i){
-                        return d + ' $ million'
+                        return d + ' million ' + $scope.currency_filter
                     }
                 }
             }
