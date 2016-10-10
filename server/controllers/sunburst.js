@@ -135,6 +135,7 @@ exports.getPaymentsByGov = function(req, res) {
     }
     req.query.transfer_level= 'country';
     req.query.transfer_gov_entity={ $exists: true, $nin: [ null ]};
+    req.query.project={ $exists: true, $nin: [ null ]};
     async.waterfall([
         getAllPayment,
         getPayment
@@ -150,7 +151,7 @@ exports.getPaymentsByGov = function(req, res) {
         }
     });
     function getAllPayment(callback) {
-        Transfer.find({'transfer_level':[ 'country' ],'company':{ $exists: true,$nin: [ null ]}})
+        Transfer.find({'transfer_level':'country','company':{ $exists: true,$nin: [ null ]},'project':{ $exists: true, $nin: [ null ]}})
             .populate('country company')
             .exec(function (err, transfers) {
                 var value=0;
@@ -202,6 +203,7 @@ exports.getPaymentsByGov = function(req, res) {
                 });
                 if(transfers.length) {
                     _.map(_.groupBy(transfers, function (doc) {
+                        console.log(doc.country.iso2)
                         return doc.country.iso2;
                     }), function (grouped) {
                         value=0;
@@ -224,19 +226,17 @@ exports.getPaymentsByGov = function(req, res) {
                             size: parseInt(value)
                         });
                         _.each(groups, function (transfer, key) {
-                            if (transfer.project != undefined) {
-                                transfers_value = (transfer.transfer_value / 1000000).toFixed(3)
-                                sunburst_new[0].children[counter].children.push({
-                                    name:'<b>Payment to</b><br>'+transfer.transfer_gov_entity+'<br>'+transfers_value+' Million',
-                                    'size': parseInt(transfer.transfer_value)
-                                })
-                            }
+                            transfers_value = (transfer.transfer_value / 1000000).toFixed(3)
+                            sunburst_new[0].children[counter].children.push({
+                                name:'<b>Payment to</b><br>'+transfer.transfer_gov_entity+'<br>'+transfers_value+' Million',
+                                'size': parseInt(transfer.transfer_value)
+                            })
                         })
                         ++counter;
                         return sunburst_new;
                     });
                     sunburst = sunburst_new;
-                    callback(null, {data:sunburst,total:currency_value,filters:payments_filter})
+                    callback(null, {data:sunburst,total:currency_value,filters:payments_filter,transfer:groups})
                 }else{
                     callback(null, {data:'',total:'',filters:payments_filter})
                 }
