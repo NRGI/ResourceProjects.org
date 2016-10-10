@@ -8,11 +8,12 @@ angular.module('app')
         nrgiIdentitySrvc,
         nrgiTransfersByGovSrvc
     ) {
-        var limit = 3000,
-            currentPage = 0,
+        var currentPage = 0,
             totalPages = 0;
+        $scope.limit = 500;
+        $scope.skip = currentPage * $scope.limit;
 
-        var searchOptions = {skip: currentPage * limit, limit: limit};
+        var searchOptions = {skip: $scope.skip, limit: $scope.limit};
         $scope.count =0;
         $scope.busy = false;
         $scope.transfers=[];
@@ -24,21 +25,16 @@ angular.module('app')
         $scope.year = '';
         $scope.load = function(searchOptions) {
             nrgiTransfersByGovSrvc.query(searchOptions, function (response) {
-                var companies = [],
-                    countries = [];
                 $scope.count = response.count;
-                $scope.transfers = response.data;
-                totalPages = Math.ceil(response.count / limit);
+                $scope.transfers = _.union($scope.transfers, response.data);
+                $scope.transfer_count = response.data.length;
+                totalPages = Math.ceil(response.count / $scope.limit);
                 currentPage = currentPage + 1;
+                $scope.skip = currentPage * $scope.limit;
                 $scope.year_selector = _.countBy(response.data, "transfer_year");
                 $scope.currency_selector = _.countBy(response.data, "transfer_unit");
-                _.each(response.data, function (transfer) {
-                    companies.push(transfer.company);
-                    countries.push(transfer.country);
+                $scope.busy = false;
                 });
-                $scope.company_selector = _.countBy(companies, "company_name");
-                $scope.country_selector = _.countBy(countries, "name");
-            });
         }
 
         $scope.load(searchOptions);
@@ -46,8 +42,6 @@ angular.module('app')
         $scope.$watch('year_filter', function(year) {
             $scope.year = year;
             if(year) {
-                searchOptions.skip=0;
-                searchOptions.limit= 0;
                 searchOptions.transfer_year = year;
                 if($scope.currency) {
                     searchOptions.transfer_unit = $scope.currency;
@@ -55,10 +49,10 @@ angular.module('app')
                 $scope.load(searchOptions);
             }
             if($scope.year=='' && $scope.currency){
-                searchOptions = {skip:0, limit:0, transfer_unit:searchOptions.transfer_unit }
+                searchOptions = {skip: currentPage * $scope.limit, limit: $scope.limit, transfer_unit:searchOptions.transfer_unit }
                 $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
-                searchOptions = {skip:0, limit:0}
+                searchOptions = {skip: currentPage * $scope.limit, limit: $scope.limit}
                 $scope.load(searchOptions);
             }
         });
@@ -86,11 +80,7 @@ angular.module('app')
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
-                nrgiTransfersByGovSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.transfers = _.union($scope.transfers, response.data);
-                    currentPage = currentPage + 1;
-                    $scope.busy = false;
-                });
+                $scope.load(searchOptions);
             }
         };
 

@@ -77,7 +77,8 @@
                     td.transfer_type {{transfer.transfer_type}}
                     td.transfer_currency {{transfer.transfer_unit}}
                     td.transfer_value {{transfer.transfer_value}}
-    div(ng-if='transfers.length>0' infinite-scroll='load_all()' infinite-scroll-distance='3')
+    div(ng-if='transfer_count>499' infinite-scroll='loadMore()' infinite-scroll-distance='3')
+    div(ng-if='transfer_count<499' infinite-scroll='load_all()' infinite-scroll-distance='3')
     div(ng-if="transfers.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')

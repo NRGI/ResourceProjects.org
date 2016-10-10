@@ -7,6 +7,7 @@ exports.getTransfers = function(req, res) {
     var transfers_len, transfers_counter,
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
+    req.query.transfer_level={ $nin: [ 'country' ] };
 
     async.waterfall([
         TransferCount,
@@ -23,7 +24,7 @@ exports.getTransfers = function(req, res) {
         }
     });
     function TransferCount(callback) {
-        Transfer.find({}).count().exec(function(err, transfer_count) {
+        Transfer.find({transfer_level:{ $nin: [ 'country' ] }}).count().exec(function(err, transfer_count) {
             if(transfer_count) {
                 callback(null, transfer_count);
             } else {
@@ -109,6 +110,7 @@ exports.getTransfersByGov = function(req, res) {
     var transfers_len, transfers_counter,
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
+    req.query.transfer_level='country';
 
     async.waterfall([
         TransferCount,
@@ -125,7 +127,7 @@ exports.getTransfersByGov = function(req, res) {
         }
     });
     function TransferCount(callback) {
-        Transfer.find({}).count().exec(function(err, transfer_count) {
+        Transfer.find({transfer_level:'country'}).count().exec(function(err, transfer_count) {
             if(transfer_count) {
                 callback(null, transfer_count);
             } else {
