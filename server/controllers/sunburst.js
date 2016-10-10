@@ -6,7 +6,13 @@ var Source	 		= require('mongoose').model('Source'),
 
 exports.getPayments = function(req, res) {
     var sunburst_new = [],count=[], counter = 0,sunburst=[], payments_filter={};
-    req.query.company={ $exists: true, $nin: [ null ] };
+    var company = req.query.company;
+    if(company){
+        req.query.company=company;
+    }else {
+        req.query.company = {$exists: true, $nin: [null]};
+    }
+    console.log(company)
     req.query.transfer_level={ $nin: [ 'country' ] };
     req.query.project={ $exists: true, $nin: [ null ]};
     async.waterfall([
@@ -25,7 +31,7 @@ exports.getPayments = function(req, res) {
     });
     function getAllPayment(callback) {
         Transfer.find({'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]}})
-            .populate('country')
+            .populate('country company')
             .exec(function (err, transfers) {
                 var value=0;
                 var currency_value=[];
@@ -50,6 +56,7 @@ exports.getPayments = function(req, res) {
                 payments_filter.year_selector=_.countBy(transfers, "transfer_year");
                 payments_filter.currency_selector=_.countBy(transfers, "transfer_unit");
                 payments_filter.type_selector=_.countBy(transfers, "transfer_type");
+                payments_filter.company_selector=_.groupBy(transfers, function (doc) {return doc.company._id;});
                 callback(null, currency_value,payments_filter);
             })
     }
@@ -120,7 +127,12 @@ exports.getPayments = function(req, res) {
 };
 exports.getPaymentsByGov = function(req, res) {
     var sunburst_new = [],count=[], counter = 0,sunburst=[], payments_filter={};
-    req.query.company={ $exists: true, $nin: [ null ] };
+    var company = req.query.company;
+    if(company){
+        req.query.company=company;
+    }else {
+        req.query.company = {$exists: true, $nin: [null]};
+    }
     req.query.transfer_level= 'country';
     req.query.transfer_gov_entity={ $exists: true, $nin: [ null ]};
     async.waterfall([
@@ -139,7 +151,7 @@ exports.getPaymentsByGov = function(req, res) {
     });
     function getAllPayment(callback) {
         Transfer.find({'transfer_level':[ 'country' ],'company':{ $exists: true,$nin: [ null ]}})
-            .populate('country')
+            .populate('country company')
             .exec(function (err, transfers) {
                 var value=0;
                 var currency_value=[];
@@ -164,6 +176,7 @@ exports.getPaymentsByGov = function(req, res) {
                 payments_filter.year_selector=_.countBy(transfers, "transfer_year");
                 payments_filter.currency_selector=_.countBy(transfers, "transfer_unit");
                 payments_filter.type_selector=_.countBy(transfers, "transfer_type");
+                payments_filter.company_selector=_.groupBy(transfers, function (doc) {return doc.company._id;});
                 callback(null, currency_value,payments_filter);
             })
     }

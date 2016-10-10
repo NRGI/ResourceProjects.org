@@ -20,7 +20,7 @@ angular
 
         };
 
-        $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types';
+        $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
         var searchOptions = {};
         $scope.load = function(searchOptions) {
             nrgiPaymentsByGovSrvc.query(searchOptions,function (response) {
@@ -34,6 +34,7 @@ angular
                 $scope.year_selector = response.filters.year_selector;
                 $scope.currency_selector = response.filters.currency_selector;
                 $scope.type_selector = response.filters.type_selector;
+                $scope.company_selector = response.filters.company_selector;
             }, function(error) {
 
             });
@@ -65,6 +66,16 @@ angular
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_type&&type=='Show all types'){
                 delete searchOptions.transfer_type;
+                $scope.load(searchOptions);
+            }
+        });
+        $scope.$watch('company_filter', function(company) {
+            $scope.company = company;
+            if(company&&company!='Show all companies') {
+                searchOptions.company = company;
+                $scope.load(searchOptions);
+            }else if(searchOptions.company&&company=='Show all companies'){
+                delete searchOptions.company;
                 $scope.load(searchOptions);
             }
         });
