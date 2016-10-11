@@ -46,6 +46,9 @@ footer {
   background-image: none;
   border-color: #0275d8 !important;
 }
+select {
+  width: 90% !important;
+}
 h1,
 h2,
 h3,

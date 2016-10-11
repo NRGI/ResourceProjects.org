@@ -135,7 +135,6 @@ exports.getPaymentsByGov = function(req, res) {
     }
     req.query.transfer_level= 'country';
     req.query.transfer_gov_entity={ $exists: true, $nin: [ null ]};
-    req.query.project={ $exists: true, $nin: [ null ]};
     async.waterfall([
         getAllPayment,
         getPayment
@@ -151,7 +150,7 @@ exports.getPaymentsByGov = function(req, res) {
         }
     });
     function getAllPayment(callback) {
-        Transfer.find({'transfer_level':'country','company':{ $exists: true,$nin: [ null ]},'project':{ $exists: true, $nin: [ null ]}})
+        Transfer.find({'transfer_level':'country','company':{ $exists: true,$nin: [ null ]}})
             .populate('country company')
             .exec(function (err, transfers) {
                 var value=0;
@@ -203,7 +202,6 @@ exports.getPaymentsByGov = function(req, res) {
                 });
                 if(transfers.length) {
                     _.map(_.groupBy(transfers, function (doc) {
-                        console.log(doc.country.iso2)
                         return doc.country.iso2;
                     }), function (grouped) {
                         value=0;
@@ -236,7 +234,7 @@ exports.getPaymentsByGov = function(req, res) {
                         return sunburst_new;
                     });
                     sunburst = sunburst_new;
-                    callback(null, {data:sunburst,total:currency_value,filters:payments_filter,transfer:groups})
+                    callback(null, {data:sunburst,total:currency_value,filters:payments_filter})
                 }else{
                     callback(null, {data:'',total:'',filters:payments_filter})
                 }
