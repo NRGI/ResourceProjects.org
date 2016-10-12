@@ -40,5 +40,8 @@ div
                             option(value="Show all companies") Show all companies
                             option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{value[0].company.company_name}}
 
-
-    nvd3(options="options" data="sunburst" class="with-3d-shadow with-transitions")
+    span(
+    us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+    spinner-start-active="true"
+    spinner-key="spinner-sunburst-by-gov")
+    nvd3(options="options" data="sunburst" class="with-3d-shadow with-transitions" api='api')

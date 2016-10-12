@@ -49,6 +49,9 @@ footer {
 select {
   width: 90% !important;
 }
+.hidden-nv-text {
+  display: none !important;
+}
 h1,
 h2,
 h3,

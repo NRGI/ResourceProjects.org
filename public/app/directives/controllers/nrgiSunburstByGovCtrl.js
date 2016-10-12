@@ -1,7 +1,7 @@
 'use strict';
 angular
     .module('app')
-    .controller('nrgiSunburstByGovCtrl', function ($scope, nrgiPaymentsByGovSrvc) {
+    .controller('nrgiSunburstByGovCtrl', function ($scope, nrgiPaymentsByGovSrvc,usSpinnerService) {
         $scope.sunburst=[];
 
         $scope.options = {
@@ -11,6 +11,7 @@ angular
                 color: d3.scale.category20c(),
                 duration: 250,
                 mode: 'size',
+                noData: '',
                 tooltip:{
                     valueFormatter:function (d, i) {
                         return '';
@@ -23,20 +24,28 @@ angular
         $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
         var searchOptions = {};
         $scope.load = function(searchOptions) {
+            usSpinnerService.spin('spinner-sunburst-by-gov');
+            $scope.options.chart.noData = '';
+            $scope.sunburst=[];
             nrgiPaymentsByGovSrvc.query(searchOptions,function (response) {
-                $scope.sunburst=[];
                 $scope.total=0;
                 if(response.data) {
                     $scope.sunburst = response.data;
                     $scope.total = response.data[0].total_value;
                     $scope.all_currency_value = response.total;
+                    $scope.options.chart.noData = 'No Data Available.';
+                    usSpinnerService.stop('spinner-sunburst-by-gov');
+
+                }else{
+                    $scope.options.chart.noData = 'No Data Available.';
+                    usSpinnerService.stop('spinner-sunburst-by-gov');
                 }
                 $scope.year_selector = response.filters.year_selector;
                 $scope.currency_selector = response.filters.currency_selector;
                 $scope.type_selector = response.filters.type_selector;
                 $scope.company_selector = response.filters.company_selector;
             }, function(error) {
-
+                usSpinnerService.stop('spinner-sunburst-by-gov');
             });
         }
 
@@ -78,5 +87,11 @@ angular
                 delete searchOptions.company;
                 $scope.load(searchOptions);
             }
+        });
+        $scope.$watch('sunburst', function(sunburst) {
+            if($scope.api!=undefined) {
+                $scope.api.refresh();
+                console.log($scope.api)
+            }else { }
         });
     });

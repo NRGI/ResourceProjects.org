@@ -12,7 +12,6 @@ exports.getPayments = function(req, res) {
     }else {
         req.query.company = {$exists: true, $nin: [null]};
     }
-    console.log(company)
     req.query.transfer_level={ $nin: [ 'country' ] };
     req.query.project={ $exists: true, $nin: [ null ]};
     async.waterfall([
