@@ -4,6 +4,12 @@ angular
     .controller('nrgiSunburstByGovCtrl', function ($scope, nrgiPaymentsByGovSrvc,usSpinnerService) {
         $scope.sunburst=[];
 
+        $scope.csv_transfers = [];
+        var header_transfer = [];
+        var fields = [];
+        var country_name = '';
+        var company_name = '';
+
         $scope.options = {
             chart: {
                 type: 'sunburstChart',
@@ -27,6 +33,26 @@ angular
             }
 
         };
+        ;
+
+        var headers = [
+            {name: 'Year', status: true, field: 'transfer_year'},
+            {name: 'Paid by', status: true, field: 'company'},
+            {name: 'Paid to', status: true, field: 'country'},
+            {name: 'Gov entity', status: true, field: 'transfer_gov_entity'},
+            {name: 'Level ', status: true, field: 'transfer_level'},
+            {name: 'Payment Type', status: true, field: 'transfer_type'},
+            {name: 'Currency', status: true, field: 'transfer_unit'},
+            {name: 'Value ', status: true, field: 'transfer_value'}];
+        angular.forEach(headers, function (header) {
+            if (header.status != false && header.status != undefined) {
+                header_transfer.push(header.name);
+                fields.push(header.field);
+            }
+        });
+        $scope.getHeaderTransfers = function () {
+            return header_transfer
+        };
 
         $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
         var searchOptions = {};
@@ -42,6 +68,31 @@ angular
                     $scope.all_currency_value = response.total;
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-sunburst-by-gov');
+                    $scope.csv_transfers = [];
+                    angular.forEach(response.transfers, function (transfer, key) {
+                        $scope.csv_transfers[key] = [];
+                        angular.forEach(fields, function (field) {
+                            if (field == 'country') {
+                                country_name = '';
+                                if (transfer[field] != undefined) {
+                                    country_name = transfer[field].name.toString();
+                                    country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                }
+                                $scope.csv_transfers[key].push(country_name);
+                            }
+                            if (field == 'company') {
+                                company_name = '';
+                                if (transfer[field] != undefined) {
+                                    company_name = transfer[field].company_name.toString();
+                                    company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
+                                }
+                                $scope.csv_transfers[key].push(company_name);
+                            }
+                            if (field != 'company' && field != 'country') {
+                                $scope.csv_transfers[key].push(transfer[field])
+                            }
+                        })
+                    });
 
                 }else{
                     $scope.options.chart.noData = 'No Data Available.';
@@ -98,7 +149,6 @@ angular
         $scope.$watch('sunburst', function(sunburst) {
             if($scope.api!=undefined) {
                 $scope.api.refresh();
-                console.log($scope.api)
             }else { }
         });
     });

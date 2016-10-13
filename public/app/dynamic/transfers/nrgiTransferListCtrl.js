@@ -130,6 +130,20 @@ angular.module('app')
                             }
                             $scope.csv_transfers[key].push(company_name);
                         }
+                        if (field == 'transfer_gov_entity') {
+                            if (transfer[field]){
+                                name = transfer[field];
+                            }
+                            if (!transfer[field])
+                            {
+                                if (transfer.proj_site != undefined) {
+                                    name = transfer.proj_site.type;
+                                }else{
+                                    name='';
+                                }
+                            }
+                            $scope.csv_transfers[key].push(name)
+                        }
                         if (field == 'proj_site') {
                             name = '';
                             if (transfer[field] != undefined && transfer[field].name != undefined) {
@@ -144,7 +158,7 @@ angular.module('app')
                             }
                             $scope.csv_transfers[key].push(id);
                         }
-                        if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_id') {
+                        if (field != 'company' && field != 'transfer_gov_entity'&& field != 'country' && field != 'proj_site' && field != 'proj_id') {
                             $scope.csv_transfers[key].push(transfer[field])
                         }
                     })

@@ -1,5 +1,6 @@
 div
-    h3(class="text-center") Sunburst Chart on Payments by Project
+    .page-header
+        h3(class="text-center") Sunburst Chart on Payments by Project
     .row.top-padding-med
         .right-padding-lg: b Filter by:
     .row.top-padding-med
@@ -40,8 +41,20 @@ div
     spinner-start-active="true"
     spinner-key="spinner-sunburst")
     nvd3(options="options" data="sunburst" api='api' class="with-3d-shadow with-transitions")
-    h5(class="text-center")
-        span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
-        span(ng-if="currency_filter=='Show all currency'") Total:
-        = ' '
-            text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
+    div(ng-if="sunburst.length>0")
+        .download.text-center
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+                | Download:
+                =' '
+                a(
+                href=""
+                ng-csv="csv_transfers"
+                csv-header="getHeaderTransfers()"
+                filename="transfers.csv") Payments by Project CSV
+    .row.top-padding-med
+        h5(class="text-center")
+            span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
+            span(ng-if="currency_filter=='Show all currency'") Total:
+                = ' '
+                text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}

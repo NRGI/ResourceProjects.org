@@ -3,6 +3,13 @@ angular
     .module('app')
     .controller('nrgiSunburstCtrl', function ($scope, nrgiPaymentsSrvc, usSpinnerService) {
         $scope.sunburst=[];
+        $scope.csv_transfers = [];
+        var header_transfer = [];
+        var fields = [];
+        var country_name = '';
+        var company_name = '';
+        $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
+        var searchOptions = {};
 
         $scope.options = {
             chart: {
@@ -25,10 +32,30 @@ angular
                     }
                 }
             }
-
         };
-        $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
-        var searchOptions = {};
+
+        var headers = [
+            {name: 'Year', status: true, field: 'transfer_year'},
+            {name: 'Paid by', status: true, field: 'company'},
+            {name: 'Paid to', status: true, field: 'country'},
+            {name: 'Project', status: true, field: 'proj_site'},
+            {name: 'Project ID', status: true, field: 'proj_id'},
+            {name: 'Level ', status: true, field: 'transfer_gov_entity'},
+            {name: 'Payment Type', status: true, field: 'transfer_type'},
+            {name: 'Currency', status: true, field: 'transfer_unit'},
+            {name: 'Value ', status: true, field: 'transfer_value'}];
+
+        angular.forEach(headers, function (header) {
+            if (header.status != false && header.status != undefined) {
+                header_transfer.push(header.name);
+                fields.push(header.field);
+            }
+        });
+
+        $scope.getHeaderTransfers = function () {
+            return header_transfer
+        };
+
         $scope.load = function(searchOptions) {
             usSpinnerService.spin('spinner-sunburst');
             $scope.options.chart.noData = '';
@@ -42,6 +69,60 @@ angular
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-sunburst');
 
+                    $scope.csv_transfers = [];
+
+                    angular.forEach(response.transfers, function (transfer, key) {
+                        $scope.csv_transfers[key] = [];
+                        angular.forEach(fields, function (field) {
+                            if (field == 'country') {
+                                country_name = '';
+                                if (transfer[field] != undefined) {
+                                    country_name = transfer[field].name.toString();
+                                    country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                }
+                                $scope.csv_transfers[key].push(country_name);
+                            }
+                            if (field == 'company') {
+                                company_name = '';
+                                if (transfer[field] != undefined) {
+                                    company_name = transfer[field].company_name.toString();
+                                    company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
+                                }
+                                $scope.csv_transfers[key].push(company_name);
+                            }
+                            if (field == 'proj_site') {
+                                name = '';
+                                if (transfer[field] != undefined && transfer[field].name != undefined) {
+                                    var name = transfer[field].name.toString();
+                                }
+                                $scope.csv_transfers[key].push(name)
+                            }
+                            if (field == 'transfer_gov_entity') {
+                                if (transfer[field]){
+                                    name = transfer[field];
+                                }
+                                if (!transfer[field])
+                                {
+                                    if (transfer.proj_site != undefined) {
+                                        name = transfer.proj_site.type;
+                                    }else{
+                                        name='';
+                                    }
+                                }
+                                $scope.csv_transfers[key].push(name)
+                            }
+                            if (field == 'proj_id') {
+                                id = '';
+                                if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.proj_site.type == 'project') {
+                                    var id = transfer.proj_site._id.toString();
+                                }
+                                $scope.csv_transfers[key].push(id);
+                            }
+                            if (field != 'company' && field != 'transfer_gov_entity'&& field != 'country' && field != 'proj_site' && field != 'proj_id') {
+                                $scope.csv_transfers[key].push(transfer[field])
+                            }
+                        })
+                    });
                 }else{
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-sunburst');
@@ -98,7 +179,6 @@ angular
         $scope.$watch('sunburst', function(sunburst) {
             if($scope.api!=undefined) {
                 $scope.api.refresh();
-                console.log($scope.api)
             }else { }
         });
     });
