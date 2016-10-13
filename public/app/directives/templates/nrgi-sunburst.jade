@@ -1,9 +1,5 @@
 div
-    h3(class="text-center")
-        span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
-        span(ng-if="currency_filter=='Show all currency'") Total:
-            = ' '
-            text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
+    h3(class="text-center") Sunburst Chart on Payments by Project
     .row.top-padding-med
         .right-padding-lg: b Filter by:
     .row.top-padding-med
@@ -28,7 +24,7 @@ div
             .row
                 form.form-inline
                     .form-group
-                        select.form-control(ng-model="type_filter")
+                        select.type_filter.form-control(ng-model="type_filter")
                             option(value="Show all types") Show all types
                             option(ng-repeat="(key, value) in type_selector" value="{{key}}") {{key}}
         .col-md-3
@@ -36,7 +32,7 @@ div
             .row
                 form.form-inline
                     .form-group
-                        select.form-control(ng-model="company_filter")
+                        select.company_filter.form-control(ng-model="company_filter")
                             option(value="Show all companies") Show all companies
                             option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{value[0].company.company_name}}
     span(
@@ -44,3 +40,8 @@ div
     spinner-start-active="true"
     spinner-key="spinner-sunburst")
     nvd3(options="options" data="sunburst" api='api' class="with-3d-shadow with-transitions")
+    h5(class="text-center")
+        span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
+        span(ng-if="currency_filter=='Show all currency'") Total:
+        = ' '
+            text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
