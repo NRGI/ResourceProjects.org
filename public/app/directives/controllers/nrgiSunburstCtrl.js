@@ -12,9 +12,16 @@ angular
                 duration: 250,
                 mode: 'size',
                 noData: '',
-                tooltip:{
-                    valueFormatter:function (d, i) {
+                tooltip: {
+                    valueFormatter: function (d, i) {
                         return '';
+                    },
+                    keyFormatter: function (d, i) {
+                        if ($scope.currency_filter && $scope.currency_filter != 'Show all currency') {
+                            return d + ' ' + $scope.currency_filter
+                        } else {
+                            return d
+                        }
                     }
                 }
             }
@@ -49,6 +56,7 @@ angular
         }
 
         $scope.load(searchOptions);
+
         $scope.$watch('year_filter', function(year) {
             if(year&&year!='Show all years') {
                 searchOptions.transfer_year = year;

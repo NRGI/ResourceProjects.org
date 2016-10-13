@@ -44,7 +44,7 @@ exports.getPayments = function(req, res) {
                         value = value + group.transfer_value
                     })
                     if (value > 0) {
-                        transfers_value = (value / 1000000).toFixed(3)
+                        transfers_value = (value / 1000000).toFixed(1)
                     }
                     currency_value.push({
                         currency:grouped[0].transfer_unit,
@@ -71,7 +71,7 @@ exports.getPayments = function(req, res) {
                     value = value + transfer.transfer_value
                 })
                 if (value > 0) {
-                    transfers_value = (value / 1000000).toFixed(3)
+                    transfers_value = (value / 1000000).toFixed(1)
                 }
                 sunburst_new.push({
                     name:'<b>Payment to</b><br>Payments<br>'+transfers_value+' Million',
@@ -97,7 +97,7 @@ exports.getPayments = function(req, res) {
                             value = value + group.transfer_value
                         })
                         if (value > 0) {
-                            transfers_value =  (value / 1000000).toFixed(3)
+                            transfers_value =  (value / 1000000).toFixed(1)
                         }
                         sunburst_new[0].children.push({
                             name:'<b>Payment to</b><br>'+grouped[0].country.name+'<br>'+transfers_value+' Million',
@@ -106,7 +106,7 @@ exports.getPayments = function(req, res) {
                         });
                         _.each(groups, function (transfer, key) {
                             if (transfer.project != undefined) {
-                                transfers_value = (transfer.transfer_value / 1000000).toFixed(3)
+                                transfers_value = (transfer.transfer_value / 1000000).toFixed(1)
                                 sunburst_new[0].children[counter].children.push({
                                     name:'<b>Payment to</b><br>'+transfer.project.proj_name+'<br>'+transfers_value+' Million',
                                     'size': parseInt(transfer.transfer_value)
@@ -164,7 +164,7 @@ exports.getPaymentsByGov = function(req, res) {
                         value = value + group.transfer_value
                     })
                     if (value > 0) {
-                        transfers_value = (value / 1000000).toFixed(3)
+                        transfers_value = (value / 1000000).toFixed(1)
                     }
                     currency_value.push({
                         currency:grouped[0].transfer_unit,
@@ -191,7 +191,7 @@ exports.getPaymentsByGov = function(req, res) {
                     value = value + transfer.transfer_value
                 })
                 if (value > 0) {
-                    transfers_value = (value / 1000000).toFixed(3)
+                    transfers_value = (value / 1000000).toFixed(1)
                 }
                 sunburst_new.push({
                     name:'<b>Payment to</b><br>Payments<br>'+transfers_value+' Million',
@@ -223,7 +223,7 @@ exports.getPaymentsByGov = function(req, res) {
                             size: parseInt(value)
                         });
                         _.each(groups, function (transfer, key) {
-                            transfers_value = (transfer.transfer_value / 1000000).toFixed(3)
+                            transfers_value = (transfer.transfer_value / 1000000).toFixed(1)
                             sunburst_new[0].children[counter].children.push({
                                 name:'<b>Payment to</b><br>'+transfer.transfer_gov_entity+'<br>'+transfers_value+' Million',
                                 'size': parseInt(transfer.transfer_value)

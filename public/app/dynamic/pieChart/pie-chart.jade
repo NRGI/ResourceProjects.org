@@ -18,5 +18,9 @@
                         .form-group
                             select.form-control(ng-model="currency_filter")
                                 option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
-        h3(class="text-center") Total: {{total}} $ million
-        nvd3(options="options" data="data")
+        h3(class="text-center") Total: {{total}} million {{currency_filter}}
+        span(
+        us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+        spinner-start-active="true"
+        spinner-key="spinner-pie-chart")
+        nvd3(options="options" data="pie" api='api')

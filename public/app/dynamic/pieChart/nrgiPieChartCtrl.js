@@ -3,25 +3,12 @@
 angular.module('app')
     .controller('nrgiPieChartCtrl', function (
         $scope,
-        nrgiPieChartSrvc
+        nrgiPieChartSrvc,
+        usSpinnerService
     ) {
 
         $scope.currency_filter='USD'; $scope.year_filter='2015';
         var searchOptions = {transfer_unit: $scope.currency_filter,transfer_year: $scope.year_filter};
-
-        $scope.load = function(searchOptions) {
-            nrgiPieChartSrvc.query(searchOptions, function (response) {
-                $scope.data = [];
-                $scope.total = 0;
-                if (response.data) {
-                    $scope.data = response.data[0].children;
-                    $scope.total = response.data[0].total_value;
-                }
-                $scope.year_selector = response.filters.year_selector;
-                $scope.currency_selector = response.filters.currency_selector;
-            });
-        }
-        $scope.load(searchOptions);
         $scope.options = {
             chart: {
                 type: 'pieChart',
@@ -32,10 +19,11 @@ angular.module('app')
                 duration: 500,
                 labelThreshold: 0.01,
                 labelSunbeamLayout: true,
+                noData: '',
                 showLegend:false,
                 tooltip:{
                     valueFormatter:function (d, i) {
-                        return d.toFixed(3) + '%';
+                        return d.toFixed(1) + '%';
                     },
                     keyFormatter: function(d,i){
                         return d + ' million ' + $scope.currency_filter
@@ -43,6 +31,27 @@ angular.module('app')
                 }
             }
         };
+        $scope.load = function(searchOptions) {
+            usSpinnerService.spin('spinner-pie-chart');
+            $scope.options.chart.noData = '';
+            $scope.pie = [];
+            nrgiPieChartSrvc.query(searchOptions, function (response) {
+                $scope.total = 0;
+                if (response.data) {
+                    $scope.pie = response.data[0].children;
+                    $scope.total = response.data[0].total_value;
+                    $scope.options.chart.noData = 'No Data Available.';
+                    usSpinnerService.stop('spinner-pie-chart');
+                }else{
+                    $scope.options.chart.noData = 'No Data Available.';
+                    usSpinnerService.stop('spinner-pie-chart');
+                }
+                $scope.year_selector = response.filters.year_selector;
+                $scope.currency_selector = response.filters.currency_selector;
+            });
+        }
+
+        $scope.load(searchOptions);
 
         $scope.$watch('year_filter', function(year) {
             $scope.year = year;
@@ -63,6 +72,11 @@ angular.module('app')
                 }
                 $scope.load(searchOptions);
             }
+        });
+        $scope.$watch('pie', function(pie) {
+            if($scope.api!=undefined) {
+                $scope.api.refresh();
+            }else { }
         });
     });
 
