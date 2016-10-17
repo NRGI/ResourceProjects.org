@@ -23,8 +23,10 @@ script:
   - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run --reporters coverage
 
 after_success:
-  - sudo docker build -t nrgi/resourceprojects.org:$BRANCH .
   - sudo docker build -t nrgi/resourceprojects.org:$BRANCH.$COMMIT .
+  # Create the `latest` tag
+  - sudo docker tag nrgi/resourceprojects.org:$BRANCH.$COMMIT nrgi/resourceprojects.org:$BRANCH
+  
   - sudo docker push nrgi/resourceprojects.org:$BRANCH
   - sudo docker push nrgi/resourceprojects.org:$BRANCH.$COMMIT
 
