@@ -352,14 +352,14 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/sources/source-detail',
                 controller: 'nrgiSourceDetailCtrl'
             })
-            .when('/source_types', {
-                templateUrl: '/partials/dynamic/sourceTypes/sourceType-list',
-                controller: 'nrgiSourceTypeListCtrl'
-            })
-            .when('/source_type/:id', {
-                templateUrl: '/partials/dynamic/sourceTypes/sourceType-detail',
-                controller: 'nrgiSourceTypeDetailCtrl'
-            })
+            //.when('/source_types', {
+            //    templateUrl: '/partials/dynamic/sourceTypes/sourceType-list',
+            //    controller: 'nrgiSourceTypeListCtrl'
+            //})
+            //.when('/source_type/:id', {
+            //    templateUrl: '/partials/dynamic/sourceTypes/sourceType-detail',
+            //    controller: 'nrgiSourceTypeDetailCtrl'
+            //})
 
             /////////////
             ////Other////
