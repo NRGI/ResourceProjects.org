@@ -25,6 +25,9 @@ after_success:
   - sudo docker build -t nrgi/resourceprojects.org:$BRANCH.$COMMIT .
   # Create the `latest` tag
   - sudo docker tag -f nrgi/resourceprojects.org:$BRANCH.$COMMIT nrgi/resourceprojects.org:$BRANCH
+
+  - echo $BRANCH
+  - sudo docker images
   
   - sudo docker push nrgi/resourceprojects.org:$BRANCH
   - sudo docker push nrgi/resourceprojects.org:$BRANCH.$COMMIT
