@@ -518,7 +518,6 @@ exports.getSitesMap = function(req, res) {
                 if(sites) {
                     sites.forEach(function (site) {
                         ++site_counter;
-                        console.log(site.site_coordinates)
                         if(site.site_coordinates && site.site_coordinates.length>0) {
                             site.site_coordinates.forEach(function (loc) {
                                 if (field == true) {

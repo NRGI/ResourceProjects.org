@@ -186,7 +186,6 @@ exports.getProjectTable = function(req, res){
                                     project.companies_count = links.length;
                                     link_counter = links.length;
                                 } else{
-                                    console.log(links.length)
                                     _.each(links, function (link) {
                                         project.companies.push(link.company);
                                         project.companies_count = links.length;
