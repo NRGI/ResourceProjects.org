@@ -8,6 +8,7 @@ branches:
     - staging
     - master
     - dev
+    - feature-203-version-images-with-commit-sha
 
 before_script:
   - npm install --dev
