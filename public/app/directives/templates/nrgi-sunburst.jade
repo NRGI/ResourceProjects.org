@@ -52,7 +52,7 @@ div
                 ng-csv="csv_transfers"
                 csv-header="getHeaderTransfers()"
                 filename="transfers.csv") Payments by Project CSV
-    .row.top-padding-med
+    .row.top-padding-med(ng-if="sunburst.length>0")
         h5(class="text-center")
             span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
             span(ng-if="currency_filter=='Show all currency'") Total:

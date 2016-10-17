@@ -50,6 +50,7 @@ exports.getPayments = function(req, res) {
                 var transfers_counter = 0;
                 var proj_site = {}, project_transfers = [];
                 var transfers_len = transfers.length;
+                var total_transfer_value = 0;
                 if (transfers_len > 0) {
                     transfers.forEach(function (transfer) {
                         proj_site = {};
@@ -112,7 +113,9 @@ exports.getPayments = function(req, res) {
                                 value=0;
                                 transfers_value=0;
                                 _.each(grouped, function (group) {
-                                    value = value + parseInt(group.transfer_value)
+                                    if(group.transfer_value>0) {
+                                        value = value +group.transfer_value
+                                    }
                                 })
                                 if (value > 0) {
                                     transfers_value = (value / 1000000).toFixed(1)
@@ -123,16 +126,22 @@ exports.getPayments = function(req, res) {
                                 });
                                 return currency_value;
                             });
+                            value =0;
                             _.each(transfers, function (transfer) {
-                                value = value + transfer.transfer_value
+                                if(transfer.transfer_value>0){
+                                    value = value + transfer.transfer_value
+                                }
                             })
-                            if (value > 0) {
+                            if(value<1000000){
+                                transfers_value = (value / 1000000).toFixed(3)
+                            }else if(value>0){
+                                total_transfer_value = value;
                                 transfers_value = (value / 1000000).toFixed(1)
                             }
                             sunburst_new.push({
                                 name: '<b>Payment to</b><br>Payments<br>' + transfers_value + ' Million',
                                 children: [],
-                                size: parseInt(value),
+                                size: transfers_value,
                                 total_value: transfers_value
                             });
                             if (transfers.length) {
@@ -143,33 +152,52 @@ exports.getPayments = function(req, res) {
                                     transfers_value = 0;
 
                                     groups = _.map(_.groupBy(grouped, function (doc) {
-                                        if (doc.project != undefined) {
-                                            return doc.project._id;
-                                        }
+                                        return doc.proj_site._id;
                                     }), function (grouped_) {
+                                        value = 0;
+                                        _.each(grouped_, function (group) {
+                                            if(group.transfer_value>0) {
+                                                value = value + group.transfer_value
+                                            }
+                                        })
+                                        grouped_[0].values = value;
                                         return grouped_[0];
                                     });
+                                    value = 0;
                                     _.each(groups, function (group) {
-                                        value = value + parseInt(group.transfer_value)
-                                    })
-                                    if (value > 0) {
-                                        transfers_value = (value / 1000000).toFixed(1)
-                                    }
-                                    sunburst_new[0].children.push({
-                                        name: '<b>Payment to</b><br>' + grouped[0].country.name + '<br>' + transfers_value + ' Million',
-                                        children: [],
-                                        size: parseInt(value)
-                                    });
-                                    _.each(groups, function (transfer, key) {
-                                        if (transfer.proj_site != undefined) {
-                                            transfers_value = (transfer.transfer_value / 1000000).toFixed(1)
-                                            sunburst_new[0].children[counter].children.push({
-                                                name: '<b>Payment to</b><br>' + transfer.proj_site.name + '<br>' + transfers_value + ' Million',
-                                                'size': parseInt(transfer.transfer_value)
-                                            })
+                                        if(group.values>0) {
+                                            value = value + group.values
                                         }
                                     })
-                                    ++counter;
+                                    if (value > 0) {
+                                        if(value<1000000){
+                                            transfers_value = (value / 1000000).toFixed(3)
+                                        }else{
+                                            transfers_value = (value / 1000000).toFixed(1)
+                                        }
+                                        sunburst_new[0].children.push({
+                                            name: '<b>Payment to</b><br>' + grouped[0].country.name + '<br>' + transfers_value + ' Million',
+                                            children: []
+                                        });
+                                        _.each(groups, function (transfer, key) {
+                                            if (transfer.proj_site != undefined) {
+                                                var size = 0;
+                                                if (transfer.values > 0) {
+                                                    size = transfer.values
+                                                    if(size<1000000){
+                                                        transfers_value = (size / 1000000).toFixed(3)
+                                                    }else {
+                                                        transfers_value = (size / 1000000).toFixed(1)
+                                                    }
+                                                    sunburst_new[0].children[counter].children.push({
+                                                        name: '<b>Payment to</b><br>' + transfer.proj_site.name + '<br>' + transfers_value + ' Million',
+                                                        'size': transfer.values
+                                                    })
+                                                }
+                                            }
+                                        })
+                                        ++counter;
+                                    }
                                     return sunburst_new;
                                 });
                                 sunburst = sunburst_new;
@@ -299,14 +327,16 @@ exports.getPaymentsByGov = function(req, res) {
                                 value=0;
                                 transfers_value=0;
                                 _.each(grouped, function (group) {
-                                    value = value + parseInt(group.transfer_value)
+                                    if(group.transfer_value>0) {
+                                        value = value + group.transfer_value
+                                    }
                                 })
                                 if (value > 0) {
                                     transfers_value = (value / 1000000).toFixed(1)
                                 }
                                 currency_value.push({
-                                    currency:grouped[0].transfer_unit,
-                                    total_value:transfers_value
+                                    currency: grouped[0].transfer_unit,
+                                    total_value: transfers_value
                                 });
                                 return currency_value;
                             });
@@ -314,15 +344,21 @@ exports.getPaymentsByGov = function(req, res) {
                             value = 0;
                             transfers_value=0;
                             _.each(transfers, function (transfer) {
-                                value = value + parseInt(transfer.transfer_value)
+                                if(transfer.transfer_value>0) {
+                                    value = value + transfer.transfer_value
+                                }
                             })
                             if (value > 0) {
-                                transfers_value = (value / 1000000).toFixed(1)
+                                if (value < 1000000) {
+                                    transfers_value = (value / 1000000).toFixed(3)
+                                } else {
+                                    transfers_value = (value / 1000000).toFixed(1)
+                                }
                             }
                             sunburst_new.push({
                                 name: '<b>Payment to</b><br>Payments<br>' + transfers_value + ' Million',
                                 children: [],
-                                size: parseInt(value),
+                                size: value,
                                 total_value: transfers_value
                             });
                             if (transfers.length) {
@@ -334,27 +370,50 @@ exports.getPaymentsByGov = function(req, res) {
                                     groups = _.map(_.groupBy(grouped, function (doc) {
                                         return doc.transfer_gov_entity;
                                     }), function (grouped_) {
+                                        value = 0;
+                                        _.each(grouped_, function (group) {
+                                            if(group.transfer_value>0) {
+                                                value = value + group.transfer_value
+                                            }
+                                        })
+                                        grouped_[0].values = value;
                                         return grouped_[0];
                                     });
+                                    value = 0;
                                     _.each(groups, function (group) {
-                                        value = value + group.transfer_value
+                                        if(group.values>0) {
+                                            value = value + group.values
+                                        }
                                     })
                                     if (value > 0) {
-                                        transfers_value = (value / 1000000).toFixed(1)
-                                    }
-                                    sunburst_new[0].children.push({
-                                        name: '<b>Payment to</b><br>' + grouped[0].country.name + '<br>' + transfers_value + ' Million',
-                                        children: [],
-                                        size: parseInt(value)
-                                    });
-                                    _.each(groups, function (transfer, key) {
-                                        transfers_value = (transfer.transfer_value / 1000000).toFixed(1)
-                                        sunburst_new[0].children[counter].children.push({
-                                            name: '<b>Payment to</b><br>' + transfer.transfer_gov_entity + '<br>' + transfers_value + ' Million',
-                                            'size': parseInt(transfer.transfer_value)
+                                        if (value < 1000000) {
+                                            transfers_value = (value / 1000000).toFixed(3)
+                                        } else {
+                                            transfers_value = (value / 1000000).toFixed(1)
+                                        }
+                                        sunburst_new[0].children.push({
+                                            name: '<b>Payment to</b><br>' + grouped[0].country.name + '<br>' + transfers_value + ' Million',
+                                            children: [],
+                                            size: value
+                                        });
+                                        _.each(groups, function (transfer, key) {
+
+                                            var size = 0;
+                                            if (transfer.values > 0) {
+                                                size = transfer.values
+                                                if (size < 1000000) {
+                                                    transfers_value = (size / 1000000).toFixed(3)
+                                                } else {
+                                                    transfers_value = (size / 1000000).toFixed(1)
+                                                }
+                                                sunburst_new[0].children[counter].children.push({
+                                                    name: '<b>Payment to</b><br>' + transfer.transfer_gov_entity + '<br>' + transfers_value + ' Million',
+                                                    'size': transfer.values
+                                                })
+                                            }
                                         })
-                                    })
-                                    ++counter;
+                                        ++counter;
+                                    }
                                     return sunburst_new;
                                 });
                                 sunburst = sunburst_new;
