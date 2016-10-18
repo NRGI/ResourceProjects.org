@@ -289,6 +289,10 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/projects/project-list',
                 controller: 'nrgiProjectListCtrl'
             })
+            .when('/all-projects', {
+                templateUrl: '/partials/dynamic/projects/all-project-list',
+                controller: 'nrgiAllProjectListCtrl'
+            })
             .when('/project/:id', {
                 templateUrl: '/partials/dynamic/projects/project-detail',
                 controller: 'nrgiProjectDetailCtrl'
@@ -378,6 +382,10 @@ angular.module('app')
             .when('/pie-chart', {
                 templateUrl: '/partials/dynamic/pieChart/pie-chart',
                 controller: 'nrgiPieChartCtrl'
+            })
+            .when('/treemap', {
+                templateUrl: '/partials/dynamic/treemap/tree-map',
+                controller: 'nrgiTreeMapCtrl'
             })
             .when('/sunburst-chart', {
                 templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart'

@@ -1100,3 +1100,92 @@ exports.getProjectsWithIso = function(req, res) {
         });
     }
 };
+
+exports.getAllProjects = function(req, res) {
+    var project_len, link_len, project_counter, link_counter,
+        limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
+
+    async.waterfall([
+        projectCount,
+        getProjectSet,
+        getProjectLinks,
+        unionProjectAndCompany
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
+        }
+    });
+    function projectCount(callback) {
+        Project.find({}).count().exec(function(err, project_count) {
+            if(project_count) {
+                callback(null, project_count);
+            } else {
+                return res.send(err);
+            }
+        });
+    }
+    function getProjectSet(project_count, callback) {
+        Project.find({})
+            .sort({
+                proj_name: 'asc'
+            })
+            .skip(skip)
+            .limit(limit)
+            .populate('proj_country.country', '_id iso2 name')
+            .lean()
+            .exec(function(err, projects) {
+                if(projects.length>0) {
+                    callback(null, project_count, projects);
+                } else {
+                    return res.send(err);
+                }
+            });
+    }
+    function getProjectLinks(project_count, projects, callback) {
+        Link.find({'project':{ $exists: true,$nin: [ null ]},'company':{ $exists: true,$nin: [ null ]}})
+            .populate('company project')
+            .exec(function (err, links) {
+                var companies =[];
+                _.each(links, function (link) {
+                    if(link.project && link.project._id) {
+                        companies.push({'_id':link.project._id,
+                        'company':link.company})
+                     }
+                })
+                callback(null,  project_count, projects, companies);
+            })
+    }
+    function unionProjectAndCompany(project_count, projects, companies, callback) {
+        var companies_len = companies.length;
+        var counter;
+        _.map(projects, function(item){
+            item.companies = [];
+            counter = 0;
+            _.each(companies, function(i){
+                if(i._id.toString() == item._id.toString()){
+                    item.companies.push(i.company)
+                }
+                counter++;
+                if(counter == companies_len){
+                    return item;
+                }
+            });
+        });
+        callback(null, {data: projects, count: project_count});
+    }
+};
+
+
+
+
+
+
+
+
