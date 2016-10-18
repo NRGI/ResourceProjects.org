@@ -1102,8 +1102,7 @@ exports.getProjectsWithIso = function(req, res) {
 };
 
 exports.getAllProjects = function(req, res) {
-    var project_len, link_len, project_counter, link_counter,
-        limit = Number(req.params.limit),
+    var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
     async.waterfall([
@@ -1150,33 +1149,19 @@ exports.getAllProjects = function(req, res) {
     }
     function getProjectLinks(project_count, projects, callback) {
         Link.find({'project':{ $exists: true,$nin: [ null ]},'company':{ $exists: true,$nin: [ null ]}})
-            .populate('company project')
+            .populate('company', '_id company_name')
             .exec(function (err, links) {
-                var companies =[];
-                _.each(links, function (link) {
-                    if(link.project && link.project._id) {
-                        companies.push({'_id':link.project._id,
-                        'company':link.company})
-                     }
-                })
-                callback(null,  project_count, projects, companies);
+                callback(null,  project_count, projects, links);
             })
     }
-    function unionProjectAndCompany(project_count, projects, companies, callback) {
-        var companies_len = companies.length;
-        var counter;
+    function unionProjectAndCompany(project_count, projects, links, callback) {
         _.map(projects, function(item){
             item.companies = [];
-            counter = 0;
-            _.each(companies, function(i){
-                if(i._id.toString() == item._id.toString()){
-                    item.companies.push(i.company)
-                }
-                counter++;
-                if(counter == companies_len){
-                    return item;
-                }
-            });
+            var company = _.filter(links, function(i){
+                return i.project.toString() == item._id.toString()
+            })
+            item.companies = company
+            return item;
         });
         callback(null, {data: projects, count: project_count});
     }

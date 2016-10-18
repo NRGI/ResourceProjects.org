@@ -52,8 +52,8 @@ angular.module('app')
                             str = '';
                             angular.forEach(project[field], function (proj, i) {
                                 company_name = '';
-                                if (proj != undefined) {
-                                    company_name = proj.company_name.toString();
+                                if (proj != undefined &&  proj.company &&  proj.company.company_name) {
+                                    company_name = proj.company.company_name.toString();
                                     company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
                                 }
                                 if (i != project[field].length - 1 && company_name != '') {
