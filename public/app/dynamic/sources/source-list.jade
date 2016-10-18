@@ -19,7 +19,7 @@
 					.form-group
 						select.form-control(ng-model="source_type_filter")
 							option(value="") Show all source type
-							option(ng-repeat="(key, value) in source_type_id" value="{{key}}") {{key}}: {{value}} records
+							option(ng-repeat="(key, value) in source_type_id" value="{{key}}") {{key}}
 	.row.top-padding-med
 		table.table.table-striped.table-fixed-header(
 		about='http://resourceprojects.org/source'
@@ -28,14 +28,16 @@
 				tr
 					th.tablesort-sortable-th(ts-criteria='source_name') Source
 					th.tablesort-sortable-th(ts-criteria='source_type') Source type
+					th.tablesort-sortable-th(ts-criteria='source_url') Access source
 					th.tablesort-sortable-th(ts-criteria='source_date') Source date
-					th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+					th.tablesort-sortable-th(ts-criteria='retrieve_date') Retrieved date
 			thead.header-copy.header.hide
 				tr
 					th.tablesort-sortable-th(ts-criteria='source_name') Source
 					th.tablesort-sortable-th(ts-criteria='source_type') Source type
+					th.tablesort-sortable-th(ts-criteria='source_url') Access source
 					th.tablesort-sortable-th(ts-criteria='source_date') Source date
-					th.tablesort-sortable-th(ts-criteria='projects|parseInt') No. Projects
+					th.tablesort-sortable-th(ts-criteria='retrieve_date') Retrieved date
 			tbody
 				tr(
 				ng-repeat="source in sources | unique: '_id'"
@@ -44,8 +46,10 @@
 						a(href='source/{{ source._id }}')
 							span(ng-bind-html="source.source_name|sanitize")
 					td.source_type {{source.source_type_id.source_type_name}}
+					td.source_url
+						a(href='{{ source.source_url }}' target='_blank') Link
 					td.source_date {{source.source_date| date:'yyyy-MM-dd'}}
-					td.source_projects {{source.projects}}
+					td.retrieve_date {{source.retrieve_date| date:'yyyy-MM-dd'}}
 
 	div(ng-if='sources.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
 	div(ng-if="sources.length>0")

@@ -62,7 +62,7 @@ angular
             $scope.sunburst=[];
             nrgiPaymentsByGovSrvc.query(searchOptions,function (response) {
                 $scope.total=0;
-                if(response.data) {
+                if(response.data && response.data[0].children) {
                     $scope.sunburst = response.data;
                     $scope.total = response.data[0].total_value;
                     $scope.all_currency_value = response.total;

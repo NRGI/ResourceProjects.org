@@ -55,23 +55,24 @@ angular.module('app')
             totalPages = 0;
             var searchOptions = {skip: currentPage, limit: limit};
             if(source_type) {
-                _.each($scope.types, function(type) {
-                    if(type && type.source_type_name.toString() == source_type.toString()) {
+                _.each($scope.types, function (type) {
+                    if (type && type.source_type_name.toString() == source_type.toString()) {
                         searchOptions.source_type_id = type._id;
                     }
                 });
+
+                nrgiSourcesSrvc.query(searchOptions, function (response) {
+                    if (response.reason) {
+                        nrgiNotifier.error('Load document data failure');
+                    } else {
+                        $scope.count = response.count;
+                        $scope.sources = response.data;
+                        totalPages = Math.ceil(response.count / limit);
+                        currentPage = currentPage + 1;
+                        $scope.createDownloadList($scope.sources);
+                    }
+                });
             }
-            nrgiSourcesSrvc.query(searchOptions, function (response) {
-                if(response.reason) {
-                    rgiNotifier.error('Load document data failure');
-                } else {
-                    $scope.count = response.count;
-                    $scope.sources = response.data;
-                    totalPages = Math.ceil(response.count / limit);
-                    currentPage = currentPage + 1;
-                    $scope.createDownloadList($scope.sources);
-                }
-            });
         });
         $scope.loadMore = function() {
             if ($scope.busy) return;
