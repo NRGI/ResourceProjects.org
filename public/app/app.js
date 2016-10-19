@@ -384,8 +384,7 @@ angular.module('app')
                 controller: 'nrgiPieChartCtrl'
             })
             .when('/treemap', {
-                templateUrl: '/partials/dynamic/treemap/tree-map',
-                controller: 'nrgiTreeMapCtrl'
+                templateUrl: '/partials/dynamic/treemap/tree-map'
             })
             .when('/sunburst-chart', {
                 templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart'

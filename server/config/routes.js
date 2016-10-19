@@ -30,6 +30,7 @@ var auth 				= require('./auth'),
 	main_map 			= require('../controllers/main_map'),
 	pie_chart 			= require('../controllers/pieChart'),
 	destroy 			= require('../controllers/delete_data'),
+	treemap 			= require('../controllers/treemap'),
 	cors 				= require('cors'),
   duplicates = require('../controllers/duplicates');
 
@@ -274,6 +275,9 @@ module.exports	= function(app) {
 	//Payments
 	app.get('/api/transfers', sunburst.getPayments);
 	app.get('/api/transfers_by_gov', sunburst.getPaymentsByGov);
+
+	//Treemap
+	app.get('/api/treemap', treemap.getPayments);
 
 
 	//Payments pie chart

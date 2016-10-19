@@ -931,3 +931,20 @@ svg {
 .onoffswitch-proj-checkbox:checked + .onoffswitch-proj-label .onoffswitch-proj-switch {
   right: 0px;
 }
+.tree-map-data {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: auto;
+  position: relative;
+  width: 100%;
+}
+.node {
+  padding-left: 0;
+  padding-right: 0;
+  border: solid 1px #fff;
+  font: 10px sans-serif;
+  line-height: 12px;
+  overflow: hidden;
+  position: absolute;
+  text-indent: 2px;
+  text-align: center;
+}

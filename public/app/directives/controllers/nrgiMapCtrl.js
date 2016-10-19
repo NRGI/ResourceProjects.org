@@ -2,10 +2,10 @@
 
 angular
     .module('app')
-    .controller('nrgiMapCtrl', function ($scope,$rootScope, nrgiMainMaprvc, $http,usSpinnerService) {
+    .controller('nrgiMapCtrl', function ($scope,$rootScope, nrgiMainMapSrvc, $http,usSpinnerService) {
 
         usSpinnerService.spin('spinner-map');
-        nrgiMainMaprvc.get({ }, function (success) {
+        nrgiMainMapSrvc.get({ }, function (success) {
             $scope.resourceproject = success.data;
             $scope.world = success.world;
             $scope.subunits = topojson.feature($scope.world,$scope.world.objects.world_subunits).features;
