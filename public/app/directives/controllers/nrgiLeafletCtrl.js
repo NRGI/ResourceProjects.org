@@ -75,17 +75,8 @@ angular
             var lat = [];
             var lng = [];
             angular.forEach(response, function (data) {
-                console.log(data)
                 counter++;
-                if ($scope.project == true && data.type == 'project') {
-                    $scope.location.push({lat: data.lat, lng: data.lng, message: data.message});
-                } else if ($scope.project != true && data.type == 'project') {
-                    $scope.location.push({
-                        lat: data.lat,
-                        lng: data.lng,
-                        message: "<a href='project/" + data.id + "'>" + data.message + "</a></br>" + data.message
-                    });
-                } else if (data.type == 'site') {
+               if (data.type == 'site') {
                     $scope.location.push({
                         lat: data.lat,
                         lng: data.lng,
@@ -102,20 +93,12 @@ angular
                         $scope.location.push(data.coordinates[0]);
                     }
                 } else {
-                    if (data.type == 'project') {
-                        $scope.location.push({
-                            lat: data.lat,
-                            lng: data.lng,
-                            message: "<a href='project/" + data.id + "'>" + data.message + "</a></br>" + data.message
-                        });
-                    } else {
                         $scope.location.push({
                             lat: data.lat,
                             lng: data.lng,
                             message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
                         });
-                    }
-                }
+               }
                 lat.push(data.lat);
                 lng.push(data.lng);
                 if (len == counter && $scope.map == true) {

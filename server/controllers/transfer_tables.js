@@ -22,19 +22,12 @@ exports.getTransferTable = function(req, res){
     if(type=='site') {  queries={site:req.params.id};projects.transfers_query = [req.params.id];}
     if(type=='group') { query={company_group: req.params.id, entities: "company"};projects.transfers_query = [req.params.id];}
     if(type=='source_type') {  query={source_type_id:req.params.id};}
-    var models = [
-        {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
-        {name:'Company',field:{'countries_of_operation.country':req.params.id},params:'country'},
-        {name:'Company',field:{'country_of_incorporation.country':req.params.id},params:'country'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Project',field:{'proj_country.country':req.params.id},params:'project'}
-    ];
-    var models_len,models_counter=0,counter=0;
+    var models =[], models_len,models_counter=0,counter=0;
     async.waterfall([
         getLinks,
         getGroupCompany,
         getGroupLinks,
+        getCountryID,
         getCountryLinks,
         getSource,
         getTransfers
@@ -42,7 +35,11 @@ exports.getTransferTable = function(req, res){
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getLinks(callback) {
@@ -82,7 +79,7 @@ exports.getTransferTable = function(req, res){
                                     }
                                     break;
                                 case 'company':
-                                    if (link.company._id != undefined) {
+                                    if (link.company && link.company._id != undefined) {
                                         if (!_.contains(projects.transfers_query, link.company._id)) {
                                             projects.transfers_query.push(link.company._id);
                                         }
@@ -152,7 +149,7 @@ exports.getTransferTable = function(req, res){
                                     var entity = _.without(link.entities, 'company')[0];
                                     switch (entity) {
                                         case 'project':
-                                            if (link.project._id != undefined) {
+                                            if (link.project && link.project._id != undefined && link.project!=null) {
                                                 if (!_.contains(projects.transfers_query, link.project._id)) {
                                                     projects.transfers_query.push(link.project._id);
                                                 }
@@ -187,6 +184,25 @@ exports.getTransferTable = function(req, res){
             }else {
                 callback(null, projects);
             }
+        }else {
+            callback(null, projects);
+        }
+    }
+    function getCountryID(projects,callback) {
+        if(type=='country') {
+            Country.find({'iso2':req.params.id})
+                .exec(function (err, country) {
+                    if(country.length>0) {
+                        models = [
+                            {name:'Site',field:{'site_country.country':country[0]._id},params:'site'},
+                            {name:'Company',field:{'countries_of_operation.country':country[0]._id},params:'country'},
+                            {name:'Company',field:{'country_of_incorporation.country':country[0]._id},params:'country'},
+                            {name:'Concession',field:{'concession_country.country':country[0]._id},params:'concession'},
+                            {name:'Project',field:{'proj_country.country':country[0]._id},params:'project'}
+                        ];
+                    }
+                    callback(null, projects);
+                });
         }else {
             callback(null, projects);
         }
@@ -239,7 +255,7 @@ exports.getTransferTable = function(req, res){
         var query = '';var proj_site={};
         projects.transfers = [];
         if (type == 'concession') { query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
-        if (type == 'company') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
+        if (type == 'company') {query = {company: {$in: projects.transfers_query}}}
         if (type == 'contract') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
         if (type == 'commodity') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
         if (type == 'project' || type == 'site') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
@@ -249,11 +265,13 @@ exports.getTransferTable = function(req, res){
         if (projects.transfers_query != null) {
             Transfer.find(query)
                 .populate('company country project site')
+                .populate('source', '_id source_name source_url source_date source_type_id')
                 .exec(function (err, transfers) {
                     transfers_counter = 0;
                     transfers_len = transfers.length;
                     if (transfers_len > 0) {
                         transfers.forEach(function (transfer) {
+                            proj_site={};
                             if(transfer.project!=undefined){
                                 proj_site =  {name:transfer.project.proj_name,_id:transfer.project.proj_id,type:'project'}
                             }
@@ -267,21 +285,25 @@ exports.getTransferTable = function(req, res){
                             }
                             ++transfers_counter;
                             if (!project_transfers.hasOwnProperty(transfer._id)) {
-                                project_transfers.push({
-                                    _id: transfer._id,
-                                    transfer_year: transfer.transfer_year,
-                                    country: {
-                                        name: transfer.country.name,
-                                        iso2: transfer.country.iso2},
-                                    transfer_type: transfer.transfer_type,
-                                    transfer_unit: transfer.transfer_unit,
-                                    transfer_value: transfer.transfer_value,
-                                    transfer_level: transfer.transfer_level,
-                                    transfer_audit_type: transfer.transfer_audit_type,
-                                    proj_site: proj_site
-                                });
+                                if(Object.keys(proj_site).length != 0) {
+                                    project_transfers.push({
+                                        _id: transfer._id,
+                                        transfer_year: transfer.transfer_year,
+                                        country: {
+                                            name: transfer.country.name,
+                                            iso2: transfer.country.iso2},
+                                        transfer_type: transfer.transfer_type,
+                                        transfer_unit: transfer.transfer_unit,
+                                        transfer_value: transfer.transfer_value,
+                                        transfer_level: transfer.transfer_level,
+                                        transfer_audit_type: transfer.transfer_audit_type,
+                                        transfer_gov_entity: transfer.transfer_gov_entity,
+                                        source: transfer.source,
+                                        proj_site: proj_site
+                                    });
+                                }
                             }
-                            if (transfer.company !== null) {
+                            if (transfer.company && transfer.company!=undefined&&Object.keys(proj_site).length != 0) {
                                 _.last(project_transfers).company = {
                                     _id: transfer.company._id,
                                     company_name: transfer.company.company_name

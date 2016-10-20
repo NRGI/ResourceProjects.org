@@ -2,8 +2,8 @@
 script(type="text/javascript", src="/vendor/jquery/dist/jquery.js")
 script(type="text/javascript", src="/vendor/angular/angular.js")
 
-script(type="text/javascript", src="/vendor/tether/js/utils.js")
-script(type="text/javascript", src="/vendor/tether/js/tether.js")
+script(type="text/javascript", src="/vendor/tether/src/js/utils.js")
+script(type="text/javascript", src="/vendor/tether/dist/js/tether.js")
 script(type="text/javascript", src="/vendor/toastr/toastr.js")
 script(type="text/javascript", src="/vendor/bootstrap/dist/js/bootstrap.js")
 script(type="text/javascript", src="/vendor/angular-resource/angular-resource.js")
@@ -26,8 +26,10 @@ script(type="text/javascript", src="/vendor/spin.js/spin.js")
 script(type="text/javascript", src="/vendor/angular-spinner/angular-spinner.js")
 script(type="text/javascript", src="/vendor/plotlyjs/plotly.js")
 script(type="text/javascript", src="/vendor/d3/d3.min.js")
+script(type="text/javascript", src="/vendor/topojson/topojson.min.js")
 script(type="text/javascript", src="/vendor/nvd3/build/nv.d3.min.js")
 script(type="text/javascript", src="/vendor/angular-nvd3/dist/angular-nvd3.min.js")
+script(type="text/javascript", src="/vendor/bootstrap-select/dist/js/bootstrap-select.js")
 
 script(type="text/javascript", src="/vendor/textAngular/dist/textAngular-rangy.min.js")
 script(type="text/javascript", src="/vendor/textAngular/dist/textAngular-sanitize.min.js")
@@ -45,6 +47,22 @@ script(type="text/javascript", src="/vendor/angular-google-analytics/dist/angula
 script(type="text/javascript", src="/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js")
 script(type='text/javascript').
     $(document).ready(function () {
+        var row = $('table > tbody > tr:first');
+        var table = $('table > tbody');
+        for (i=0; i<100; i++) {
+            table.append(row.clone());
+        }
+        var oldURL = "";
+        function checkURLchange(currentURL) {
+            if (currentURL != oldURL) {
+                oldURL = currentURL;
+            }
+        }
+        oldURL = window.location.href;
+        setInterval(function () {
+            $('.table-fixed-header').fixedHeader();
+            checkURLchange(window.location.href);
+        }, 1000);
         setTimeout(function(){
             $('.typeahead').typeahead({
                 source: function (query, process) {
@@ -72,8 +90,69 @@ script(type='text/javascript').
                 }
             });
         },100)
-
     });
+    (function ($) {
+        $(document).on('click', '.dropdown', function (e) {
+            e.stopPropagation();
+        });
+        $.fn.fixedHeader = function (options) {
+            var config = {
+                topOffset: 50
+            };
+            if (options) {
+                $.extend(config, options);
+            }
+            return this.each(function () {
+                var o = $(this);
+                var $win = $(window);
+                var $head = $('thead.header', o);
+                var isFixed = 0;
+                var headTop = $head.length && $head.offset().top - config.topOffset;
+
+                function processScroll() {
+                    if (!o.is(':visible')) {
+                        return;
+                    }
+                    if ($('thead.header-copy').size()) {
+                        $('thead.header-copy').width($('thead.header').width());
+                    }
+                    var i;
+                    var scrollTop = $win.scrollTop();
+                    var t = $head.length && $head.offset().top - config.topOffset;
+                    if (!isFixed && headTop !== t) {
+                        headTop = t;
+                    }
+                    if (scrollTop >= headTop && !isFixed) {
+                        isFixed = 1;
+                    } else if (scrollTop <= headTop && isFixed) {
+                        isFixed = 0;
+                    }
+                    isFixed ? $('thead.header-copy', o).offset({
+                    }).removeClass('hide') : $('thead.header-copy', o).addClass('hide');
+                }
+                $win.on('scroll', processScroll);
+                $head.on('click', function () {
+                    if (!isFixed) {
+                        setTimeout(function () {
+                            $win.scrollTop($win.scrollTop() - 47);
+                        }, 10);
+                    }
+                });
+                $('.header-copy').removeClass('header').addClass('header-copy table-header-fixed').appendTo(o);
+                var header_width = $head.width();
+                o.find('thead.header-copy').width(header_width);
+                o.find('thead.header > tr:first > th').each(function (i, h) {
+                    var w = $(h).width();
+                    o.find('thead.header-copy> tr > th:eq(' + i + ')').width(w);
+                });
+                $head.css({
+                    margin: '0 auto',
+                    width: o.width()
+                });
+                processScroll();
+            });
+        };
+    })(jQuery);
 //- MAIN APP
 script(type="text/javascript", src="/app/app.js")
 script(type="text/javascript", src="/app/common/nrgiNotifier.js")
@@ -96,10 +175,12 @@ script(type="text/javascript", src="/app/dynamic/contracts/nrgiContractDetailCtr
 script(type="text/javascript", src="/app/dynamic/countries/nrgiCountryListCtrl.js")
 script(type="text/javascript", src="/app/dynamic/countries/nrgiCountryDetailCtrl.js")
 //payments
-
+script(type="text/javascript", src="/app/dynamic/transfers/nrgiTransferListCtrl.js")
+script(type="text/javascript", src="/app/dynamic/transfersByGovEntity/nrgiTransferByGovListCtrl.js")
 //projects
 script(type="text/javascript", src="/app/dynamic/projects/nrgiProjectListCtrl.js")
 script(type="text/javascript", src="/app/dynamic/projects/nrgiProjectDetailCtrl.js")
+script(type="text/javascript", src="/app/dynamic/projects/nrgiAllProjectListCtrl.js")
 //sources
 script(type="text/javascript", src="/app/dynamic/sources/nrgiSourceListCtrl.js")
 script(type="text/javascript", src="/app/dynamic/sources/nrgiSourceDetailCtrl.js")
@@ -110,15 +191,18 @@ script(type="text/javascript", src="/app/dynamic/commodities/nrgiCommodityDetail
 script(type="text/javascript", src="/app/dynamic/sites/nrgiSiteListCtrl.js")
 script(type="text/javascript", src="/app/dynamic/sites/nrgiSiteDetailCtrl.js")
 script(type="text/javascript", src="/app/dynamic/sites/nrgiMapSiteCtrl.js")
-script(type="text/javascript", src="/app/dynamic/projects/nrgiMapCtrl.js")
 script(type="text/javascript", src="/app/dynamic/sourceTypes/nrgiSourceTypeDetailCtrl.js")
 script(type="text/javascript", src="/app/dynamic/sourceTypes/nrgiSourceTypeListCtrl.js")
+
+//pieChart
+script(type="text/javascript", src="/app/dynamic/pieChart/nrgiPieChartCtrl.js")
 
 //about page
 script(type="text/javascript", src="/app/static/about/nrgiAboutCtrl.js")
 
 //glossary page
 script(type="text/javascript", src="/app/static/glossary/nrgiGlossaryCtrl.js")
+
 
 //- DIRECTIVES
 //  tables
@@ -138,6 +222,9 @@ script(type="text/javascript", src="/app/directives/directives/nrgi-leaflet.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-summary-stats.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-last-added.js")
 script(type="text/javascript", src="/app/directives/directives/nrgi-sunburst.js")
+script(type="text/javascript", src="/app/directives/directives/nrgi-sunburst-by-gov.js")
+script(type ="text/javascript",src= "/app/directives/directives/nrgi-map.js")
+script(type ="text/javascript",src= "/app/directives/directives/nrgi-tree-map.js")
 
 //- DIRECTIVE CTRLS
 //  tables
@@ -156,6 +243,9 @@ script(type="text/javascript", src="/app/directives/controllers/nrgiLeafletCtrl.
 script(type="text/javascript", src="/app/directives/controllers/nrgiSummaryStatsCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiLastAddedCtrl.js")
 script(type="text/javascript", src="/app/directives/controllers/nrgiSunburstCtrl.js")
+script(type="text/javascript", src="/app/directives/controllers/nrgiSunburstByGovCtrl.js")
+script(type="text/javascript", src="/app/directives/controllers/nrgiMapCtrl.js")
+script(type="text/javascript", src="/app/directives/controllers/nrgiTreeMapCtrl.js")
 
 
 //- SERVICES
@@ -169,6 +259,7 @@ script(type="text/javascript", src="/app/services/nrgiSummaryStatsSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiLastAddedSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiContentSrvc.js")
 script(type="text/javascript", src="/app/services/nrgiProjectsSrvc.js")
+script(type="text/javascript", src="/app/services/nrgiTransfersSrvc.js")
 
 //- METHODS
 script(type="text/javascript", src="/app/services/methods/nrgiCommoditiesMethodSrvc.js")
@@ -176,6 +267,7 @@ script(type="text/javascript", src="/app/services/methods/nrgiCompaniesMethodSrv
 script(type="text/javascript", src="/app/services/methods/nrgiConcessionsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiCountriesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiDatasetActionMethodSrvc.js")
+script(type="text/javascript", src="/app/services/nrgiDuplicatesSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiDatasetMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiGroupsMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiProjectsMethodSrvc.js")
@@ -184,6 +276,12 @@ script(type="text/javascript", src="/app/services/methods/nrgiSourcesMethodSrvc.
 script(type="text/javascript", src="/app/services/methods/nrgiSourceTypesMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiUserMethodSrvc.js")
 script(type="text/javascript", src="/app/services/methods/nrgiContentMethodSrvc.js")
+
+
+// DO NOT MERGE TO PRODUCTION! FOR STAGING USE ONLY!
+script(type="text/javascript", src="/app/services/nrgiDestroySrvc.js")
+
+
 
 //- ACCT CTRLS
 script(type="text/javascript", src="/app/account/nrgiLoginCtrl.js")

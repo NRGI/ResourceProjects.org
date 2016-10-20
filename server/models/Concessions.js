@@ -9,6 +9,7 @@ var concessionSchema, Concession,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
+    alias           = require("./Aliases"),
     ObjectId        = Schema.Types.ObjectId,
     mixedSchema     = Schema.Types.Mixed,
     source          = {type: ObjectId, ref: 'Source'},
@@ -32,9 +33,7 @@ var concessionSchema, Concession,
 concessionSchema = new Schema ({
     //Metadata
     concession_name: String,
-    concession_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}],
+    concession_aliases: [alias],
     concession_established_source: source,
     description: htmlSettings,
     concession_country: [fact],

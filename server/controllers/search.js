@@ -22,6 +22,12 @@ exports.searchText = function(req, res) {
 	], function (err, result) {
 		if (err) {
 			res.send(err);
+		}else{
+			if (req.query && req.query.callback) {
+				return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+			} else {
+				return res.send(result);
+			}
 		}
 	});
 	function search(callback) {
@@ -49,7 +55,7 @@ exports.searchText = function(req, res) {
 					};
 				});
 				if(models_counter==models_len){
-					res.send(result);
+					callback(result);
 				}
 			});
 		});

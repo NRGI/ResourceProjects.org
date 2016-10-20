@@ -9,6 +9,11 @@ branches:
     - master
     - dev
 
+env:
+  global:
+    # Shippable API token used to trigger deploy
+    - secure: iko/DzcHdEtSsH1r1oEe1B6R+y+x66kUNu3K1t69t6sN+I5BrFNFX9Nns+/vFd/6Q7zoT8oVWC4KBIvle9ZOz/oxQ4SbRjEQrTmVGTWoMKz8AUb5+nAfgmEZKZvEUsAUXeH98oMynt0J8wqSIjQMjpi62NxsfPCT6B2VUbAhGBc4sEalx8Zkk0L8TbIKc1dVaKcFOpj/Lonh8+VbYgRrp3zIIoZyPlh3U4tI2tD32IRiUzQKlOwYEt+tsTyg/r27YwTOHmSWbId7mUBD0nbZQ4h72vo4lVGmUmQBXOMavtWmg2FNEaOiKGMEGlg5dGewUwKpxG6V7JZCMkR5LkimKA==
+
 before_script:
   - npm install --dev
   - npm install -g bower
@@ -22,10 +27,14 @@ script:
   - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run --reporters coverage
 
 after_success:
-  - sudo docker build -t nrgi/resourceprojects.org:$BRANCH .
-  - sudo docker build -t nrgi/resourceprojects.org:$BRANCH.$BUILD_NUMBER .
+  - sudo docker build -t nrgi/resourceprojects.org:$BRANCH.$COMMIT .
+  # Create the `latest` tag and force it in case the tag is already there from a previous build
+  - sudo docker tag -f nrgi/resourceprojects.org:$BRANCH.$COMMIT nrgi/resourceprojects.org:$BRANCH
+
   - sudo docker push nrgi/resourceprojects.org:$BRANCH
-  - sudo docker push nrgi/resourceprojects.org:$BRANCH.$BUILD_NUMBER
+  - sudo docker push nrgi/resourceprojects.org:$BRANCH.$COMMIT
+
+  - ./deploy.sh
 
 integrations:
     hub:

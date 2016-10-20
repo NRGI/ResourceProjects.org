@@ -39,7 +39,11 @@ exports.getContractTable = function(req, res){
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getLinks(callback) {
@@ -264,28 +268,35 @@ exports.getContractTable = function(req, res){
             var contract_counter = 0;
             if (contract_len > 0) {
                 company.contracts.forEach(function (contract) {
-                    contract.commodity = [];
-                    var commodity_len = contract.contract_commodity.length;
-                    if (commodity_len > 0) {
-                        contract.contract_commodity.forEach(function (commodity_name) {
-                            if (commodity_name != undefined) {
-                                Commodity.find({commodity_name: commodity_name})
-                                    .exec(function (err, commodity) {
-                                        ++contract_counter;
-                                        commodity.map(function (name) {
-                                            return contract.commodity.push({
-                                                commodity_name: commodity_name,
-                                                _id: name._id,
-                                                commodity_id: name.commodity_id
+                    if(contract.contract_commodity) {
+                        contract.commodity = [];
+                        var commodity_len = contract.contract_commodity.length;
+                        if (commodity_len > 0) {
+                            contract.contract_commodity.forEach(function (commodity_name) {
+                                if (commodity_name != undefined) {
+                                    Commodity.find({commodity_name: commodity_name})
+                                        .exec(function (err, commodity) {
+                                            ++contract_counter;
+                                            commodity.map(function (name) {
+                                                return contract.commodity.push({
+                                                    commodity_name: commodity_name,
+                                                    _id: name._id,
+                                                    commodity_id: name.commodity_id
+                                                });
                                             });
+                                            if (contract_counter == contract_len) {
+                                                callback(null, company);
+                                            }
                                         });
-                                        if (contract_counter == contract_len) {
-                                            callback(null, company);
-                                        }
-                                    });
+                                }
+                            })
+                        } else {
+                            if (contract_counter == contract_len) {
+                                callback(null, company);
                             }
-                        })
+                        }
                     } else{
+                        ++contract_counter;
                         if (contract_counter == contract_len) {
                             callback(null, company);
                         }

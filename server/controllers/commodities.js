@@ -8,19 +8,22 @@ var Commodity 		=   require('mongoose').model('Commodity'),
     encrypt 		=   require('../utilities/encryption');
 
 exports.getCommodities = function(req, res) {
-    var commodity_len, link_len, commodity_counter, link_counter,
+    var commodity_len, models_len, commodity_counter, models_counter,
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     async.waterfall([
         commodityCount,
         getCommoditySet,
         getCommodityLinks
-        //getContractCount
     ], function (err, result) {
         if (err) {
             res.send(err);
         } else{
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -29,12 +32,12 @@ exports.getCommodities = function(req, res) {
             if(commodity_count) {
                 callback(null, commodity_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
     function getCommoditySet(commodity_count, callback) {
-        Commodity.find(req.query, {commodity_name: 1, commodity_id: 1, commodity_type: 1})
+        Commodity.find({}, {commodity_name: 1, commodity_id: 1, commodity_type: 1})
             .sort({
                 commodity_name: 'asc'
             })
@@ -45,7 +48,7 @@ exports.getCommodities = function(req, res) {
                 if(commodities) {
                     callback(null, commodity_count, commodities);
                 } else {
-                    callback(err);
+                    return res.send(err);
                 }
             });
     }
@@ -117,8 +120,6 @@ exports.getCommodities = function(req, res) {
 };
 
 exports.getCommodityByID = function(req, res) {
-    var link_counter, link_len,
-        commodity={};
 
     async.waterfall([
         getCommodity
@@ -126,7 +127,11 @@ exports.getCommodityByID = function(req, res) {
         if (err) {
             res.send(err);
         } else{
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 

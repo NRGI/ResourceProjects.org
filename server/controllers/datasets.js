@@ -1,13 +1,19 @@
 var Dataset 		= require('mongoose').model('Dataset'),
     Duplicate		= require('mongoose').model('Duplicate'),
     Action 		    = require('mongoose').model('Action'),
+    ImportSource    = require('mongoose').model('ImportSource'),
     async           = require('async'),
-    _               = require("underscore"),
+    _               = require('underscore'),
     googlesheets    = require('../dataprocessing/googlesheets.js');
-	companieshouse  = require('../dataprocessing/companieshouse.js');
+	  companieshouse  = require('../dataprocessing/companieshouse.js');
+    duplicateHandler= require('../dataprocessing/duplicateHandler.js');
+    unloader        = require('../dataprocessing/unloader.js');
+    util            = require('util');
+var fs 		= require('fs');
+var duplicateHandler =  require('../dataprocessing/duplicateHandler.js');
 
 exports.getDatasets = function(req, res) {
-    var dataset_len, limit = null, skip = 0;
+    var limit = null, skip = 0;
 
     if (req.params.limit) limit = Number(req.params.limit);
     if (req.params.skip) skip = Number(req.params.skip);
@@ -15,7 +21,7 @@ exports.getDatasets = function(req, res) {
     async.waterfall([
         datasetCount,
         getAllDatasets
-    ], function (err, result) {
+    ], function (err) {
         if (err) {
             res.send(err);
         }
@@ -38,31 +44,82 @@ exports.getDatasets = function(req, res) {
             })
             .skip(skip)
             .limit(limit)
-            .populate('created_by')
             .populate('actions', '-details')
+            .populate('created_by')
             .lean()
             .exec(function(err, datasets) {
+                if(err) callback(err);
                 if(datasets) {
                     async.each(datasets, function (dataset, ecallback) {
-                        var action_ids = [];
-                        var action_id;
-                        //for (action_id of dataset.actions) {
-                        //  action_ids.push(action_id);
-                        //}
-                      Duplicate.find(
-                            { created_from: { $in: action_ids } },
-                            function (err, duplicates) {
-                                if (duplicates.length > 0) {
+                        var action_ids = _.pluck(dataset.actions, '_id');
+                        Duplicate.findOne( //One's enough!
+                            {
+                                created_from: { $in: action_ids },
+                                resolved: false
+                            }, //Should be just a list of IDs because not populated
+                            function (err, duplicate) {
+                                if (err) ecallback(err);
+                                else if (duplicate) {
+                                    dataset.isLoaded = true; //Must have been loaded
+                                    dataset.canBeUnloaded = true; //TODO: suboptimal
                                     dataset.hasDuplicates = true;
-                                }
-                                else dataset.hasDuplicates = false;
+                                    dataset.readyForCleaning = false; //Can't be marked cleaned because of duplicates
+                                    dataset.canReLoad = false; //First deal with duplicates
                                     ecallback(null); //This one finished
+                                }
+                                else {
+                                    //TODO: It would be good if after reconciliation is complete/started, unload is no longer possible
+                                    dataset.hasDuplicates = false; //No duplicates... need to figure out what stage its at
+                                    //Figure out if ready for cleaning
+                                    Action.find({dataset: dataset._id}) //TODO: only doing this to get actions in date sorted order, even though we could already have them - bad
+                                        .sort({started: 'desc'}).lean()
+                                        .exec(function(err, actions)
+                                        {
+                                            if(err) ecallback(err);
+                                            else {
+                                                var action;
+                                                dataset.isLoaded = false;
+                                                dataset.readyForCleaning = false;
+                                                dataset.canBeUnloaded = false;
+                                                dataset.canReLoad = false;
+                                                if (dataset.type == "Incremental API") dataset.canReLoad = true;
+                                                for (action of actions) { //Remember these are in reverse date order, so we are grabbing the last import/mark cleaned
+                                                    if (action.status == 'Started') {
+                                                        dataset.isLoaded = true; //Prevent import
+                                                        break;
+                                                    }
+                                                    if ((action.name == 'Unload last import') && (action.status == 'Success')) {
+                                                        break;
+                                                    }
+                                                    if ((action.name == 'Mark as cleaned') && (action.status == 'Success')) {
+                                                        dataset.isLoaded = true;
+                                                        if (dataset.type === "Incremental API") dataset.canReLoad = true;
+                                                        break;
+                                                    }
+                                                    if ((action.name.indexOf('Import') != -1) && (action.status == 'Success')) {
+                                                        dataset.isLoaded = true;
+                                                        dataset.readyForCleaning = true;
+                                                        dataset.canBeUnloaded = true;
+                                                        break;
+                                                    }
+                                                    if ((action.name.indexOf('Import') != -1) && (action.status == 'Failed')) {
+                                                        dataset.isLoaded = true;
+                                                        dataset.canBeUnloaded = true; //Only option: unload!
+                                                        dataset.canReLoad = false; //Even for CH: if last import failed, force unload first
+                                                        break;
+                                                    }
+                                                }
+                                                ecallback(null); //Done with this one
+                                            }
+                                        });
+                                    }
                                 }
                             );
                         },
                         function (err) {
                            if (err) callback(err);
                            else {
+                            
                                res.send({data:datasets, count:dataset_count});
                            }
                         }
@@ -82,8 +139,6 @@ exports.getDatasetByID = function(req, res) {
         .populate('actions.started_by')
         .lean()
         .exec(function(err, dataset) {
-
-			console.log(dataset)
             if(dataset) {
                 res.send(dataset);
             } else {
@@ -92,20 +147,20 @@ exports.getDatasetByID = function(req, res) {
     });
 };
 
-exports.createDataset = function(req, res, next) {
+exports.createDataset = function(req, res) {
 	var datasetData = req.body;
 	//TODO: uncomment once working //datasetData.created_by = req.user._id;
 
-	Dataset.create(datasetData, function(err, dataset) {
+	Dataset.create(datasetData, function(err) {
 		if(err){
-			res.status(400)
-			return res.send({reason:err.toString()})
+			res.status(400);
+			return res.send({reason:err.toString()});
 		}
 	});
 	res.send();
 };
 
-exports.createAction = function(req, res, next) {
+exports.createAction = function(req, res) {
     var user_id;
     if (!req.user) {
         user_id = null;
@@ -113,79 +168,229 @@ exports.createAction = function(req, res, next) {
     else {
         user_id = req.user._id;
     }
-    console.log("Starting an action for dataset " + req.params['id']);
+    console.log("Starting an action for dataset " + req.params.id);
     //Create the action and set status "running"
     Action.create(
-        {name: req.body.name, started: Date.now(), status: "Started", started_by: user_id},
-        function(err, amodel) {        	        	        
+        {name: req.body.name, started: Date.now(), status: "Started", started_by: user_id, dataset: req.params.id},
+        function(err, amodel) {
             if (err) {
                 res.status(400);
                 console.log(err);
-	            return res.send({reason:err.toString()})
+	            return res.send({reason:err.toString()});
             }
             Dataset.findByIdAndUpdate(
-                req.params['id'],
+                req.params.id,
                 {$push: {"actions": amodel._id}},
                 {safe: true, upsert: false, new: true},
                 function(err, dmodel) {
                     if (!err && dmodel) {
                         if (req.body.name == "Import from Google Sheets") {
-                            console.log("Starting import from " + dmodel.name);
+                            console.log("Starting import from " + dmodel.name + '...');
                             res.status(200);
                             res.send();
-                            console.log("Triggered, res sent\n");
-                            googlesheets.processData(dmodel.source_url, function(status, report) {
-
-                                console.log("process finished");
+                            googlesheets.processData(dmodel.source_url, amodel._id, function(status, report, affectedEntities) {
+                                console.log("Action finished...");
                                 console.log("Status: " + status + "\n");
-                                console.log("Report: " + report + "\n");
-                                Action.findByIdAndUpdate(
-                                    amodel._id,
-                                    {finished: Date.now(), status: status, details: report},
-                                    {safe: true, upsert: false, new: true},
-                                    function(err, ramodel) {
-                                        if (err) console.log("Failed to update an action: " + err);
+                                //console.log("Report: " + report + "\n");
+                                
+                                //Save affected entities (for unloading)
+                                //TODO move to function, below is identical
+                                var importSources = [];
+                                _.each(affectedEntities, function(value) {
+                                    value.action = amodel._id;
+                                    importSources.push(value);
+                                });
+                                console.log("There were " + importSources.length + " import sources ");
+                                async.eachSeries(
+                                    importSources,
+                                    function(importSource, icallback) {
+                                        ImportSource.findOneAndUpdate(
+                                            {obj: importSource.obj},
+                                            {$push: {actions: amodel._id}, entity: importSource.entity},
+                                            {upsert: true},
+                                            function (err) {
+                                                if (err) icallback("Failed to log an importsource");
+                                                else icallback(null);
+                                            }
+                                        );
+                                    },
+                                    function (err) {
+                                        if (err) console.log(err);
+                                        else {                                            
+                                            //TODO: duplicates detector should only look at the entites of the last things that were inserted
+                                            //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
+                                            if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
+                                                duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                     if (err) {
+                                                         status = "Failed";
+                                                         report += "\nDuplicate detection failed with error: " + err;
+                                                     }
+                                                     else report += "\nDuplicate detection completed.";
+                                                     //TODO move to function
+                                                     Action.findByIdAndUpdate(
+                                                         amodel._id,
+                                                         {finished: Date.now(), status: status, details: report},
+                                                         {safe: true, upsert: false},
+                                                         function(err) {
+                                                             if (err) console.log("Failed to update an action: " + err);
+                                                         }
+                                                     );
+                                                 });
+                                            }
+                                            else { //TODO dedup code
+                                                Action.findByIdAndUpdate(
+                                                         amodel._id,
+                                                         {finished: Date.now(), status: status, details: report},
+                                                         {safe: true, upsert: false},
+                                                         function(err) {
+                                                             if (err) console.log("Failed to update an action: " + err);
+                                                         }
+                                                );
+                                            }
+                                        }
                                     }
                                 );
                             });
                         }
-                        else {
-                        	if (req.body.name == "Import from Companies House API") {
-		                        console.log("Starting import from " + dmodel.name);
-		                        res.status(200);
-		                        res.send();
-		                        console.log("Triggered, res sent\n");
-		                        companieshouse.importData(amodel._id,function(status, report) {
-		                        	console.log("process finished");
-		                            console.log("Status: " + status + "\n");
-		                            console.log("Report: " + report + "\n");
-		                            Action.findByIdAndUpdate(
-		        	                    amodel._id,
-		        	                    {finished: Date.now(), status: status, details: report},
-		        	                    {safe: true, upsert: false},
-		        	                    function(err, amodel) {
-		        	                    	if (err) console.log("Failed to update an action: " + err);
-		        	                    }
-		                            );
-		                        });
-	                        }
+                        else if (req.body.name == "Import from Companies House API") {
+                            console.log("Starting import from " + dmodel.name);
+                            res.status(200);
+                            res.send();
+                            console.log("Triggered, res sent\n");
+                            companieshouse.importData(function(status, report, affectedEntities) {
+                                //TODO: affected entries!
+                                console.log("Process finished");
+                                console.log("Status: " + status + "\n");
+                                //console.log("Report: " + report + "\n");
+                                
+                                //Save affected entities (for unloading)
+                                var importSources = [];
+                                _.each(affectedEntities, function(value) {
+                                    value.action = amodel._id;
+                                    importSources.push(value);
+                                });
+                                async.eachSeries(
+                                    importSources,
+                                    function(importSource, icallback) {
+                                        ImportSource.findOneAndUpdate(
+                                            {obj: importSource.obj},
+                                            {$push: {actions: amodel._id}, entity: importSource.entity},
+                                            {upsert: true},
+                                            function (err) {
+                                                if (err) icallback("Failed to log an importsource");
+                                                else icallback(null);
+                                            }
+                                        );
+                                    },
+                                    function (err) {
+                                        if (err) console.log(err); //TODO: close the action properly
+                                        else {
+                                
+                                            console.log("Searching for duplicates...");
+                                            if (status == "Success") {
+                                                duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                    if (err) {
+                                                        status = "Failed";
+                                                        report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
+                                                    }
+                                                    else report += "\nDuplicate detection completed.";
+                                                    Action.findByIdAndUpdate(
+                                                        amodel._id,
+                                                        {finished: Date.now(), status: status, details: report},
+                                                        {safe: true, upsert: false},
+                                                        function(err) {
+                                                            if (err) console.log("Failed to update an action: " + err);
+                                                        }
+                                                    );
+                                                });
+                                            }
+                                            else { //TODO dedup code
+                                                Action.findByIdAndUpdate(
+                                                    amodel._id,
+                                                    {finished: Date.now(), status: status, details: report},
+                                                    {safe: true, upsert: false},
+                                                    function(err) {
+                                                        if (err) console.log("Failed to update an action: " + err);
+                                                    }
+                                                );
+                                            }
+                                        }
+                                    }
+                                );
+                            });
+	                    }
+                        else if (req.body.name == "Mark as cleaned") {
+                            console.log(dmodel.name + " marked as cleaned");
+                            res.status(200);
+                            res.send();
+                            Action.findByIdAndUpdate(
+                                amodel._id,
+                                {finished: Date.now(), status: "Success", details: "Cleaned."},
+                                {safe: true, upsert: false},
+                                function(err) {
+                                    if (err) console.log("Failed to update an action: " + err);
+                                }
+                            );
+	                    }
+                        else if (req.body.name == "Unload last import") {
+                            console.log("Starting unload for " + dmodel.name);
+
+                            Action.find({dataset: dmodel._id}) //TODO: only doing this to get actions in date sorted order, even though we could already have them - bad
+                                .sort({started: 'desc'}).lean()
+                                .exec(function(err, actions)
+                                {
+                                    var action_id = null;
+                                    if (err) {
+                                        res.status(400);
+                                        return res.send({reason: err.toString()});
+                                    }
+                                    else {
+                                        var action;
+                                        for (action of actions) { //Remember these are in reverse date order, so we are grabbing the last import/mark cleaned
+                                            if (action.name.indexOf('Import') != -1) {
+                                                action_id = action._id;
+                                                break;
+                                            }
+                                        }
+                                        if (action_id) {
+                                            res.status(200);
+                                            res.send();
+                                            unloader.unloadActionData(action_id, function(error, status, report) {
+                                                console.log("Process finished");
+                                                console.log("Status: " + status + "\n");
+                                                Action.findByIdAndUpdate(
+                                                    amodel._id,
+                                                    {finished: Date.now(), status: status, details: report},
+                                                    {safe: true, upsert: false},
+                                                    function(err) {
+                                                        if (err) console.log("Failed to update an action: " + err);
+                                                    }
+                                                );
+                                            });
+                                        }
+                                        else {
+                                            res.status(400);
+                                            return res.send({reason:"No import to unload"});
+                                        }
+                                    }
+                                });
 	                    }
                     }
-                    else {  
+                    else {
                         if (err) {
                             res.status(400);
-                            return res.send({reason:err.toString()})
+                            return res.send({reason:err.toString()});
                         }
-                        else {                        	
+                        else {
                             res.status(404);
-                            res.send();
+                            res.send({reason:"Couldn't find dataset"});
                         }
-                    }  
+                    }
                 }
             );
         }
-    ); 
-    
+    );
+
 };
 
 exports.getActionReport = function(req, res, next) {
@@ -194,17 +399,23 @@ exports.getActionReport = function(req, res, next) {
                         if (err) {
                             return next(err);
                         }
-                        else req.report = action.details;
+                        else if (action) {
+                            req.report = action.details;
+                        }
+                        else {
+                            res.status(404);
+                            return res.send({reason:"Couldn't find dataset"});
+                        }
                         next();
                    });
-}
+};
 
-    
-    
+
+
 
 // simulates the Companies House Extractives API. Dummy controller for not yet existing CH Extractives API data
 exports.getTestdata = function(req, res, next) {
-	
+
 	var test = [{
 		   "ReportDetails"    : {
 		        notes           : "",
@@ -218,7 +429,7 @@ exports.getTestdata = function(req, res, next) {
 		        dateAdded       : "2015/11/11"
 		     }
 		   ,
-		   "projectTotals"           :  [{ projectTotal : {	
+		   "projectTotals"           :  [{ projectTotal : {
 		        notes       : "",
 		        amount      : "10,000,000",
 		        projectCode : "tose",
@@ -227,7 +438,7 @@ exports.getTestdata = function(req, res, next) {
 		   }],
 		   "governmentPaymentTotals" :  [{ PaymentTotals : {
 		        notes           : "",
-		        amount          : "12,000,000",						// take only payments (not totals). Totals calculated by controller. Check afterwards if sum matches totals
+		        amount          : "12,000,000",						// take only transfers (not totals). Totals calculated by controller. Check afterwards if sum matches totals
 		        government      : "USA",
 		        countryCodeList : "US",
 		     }
@@ -325,6 +536,20 @@ exports.getTestdata = function(req, res, next) {
 			     }
 			   }]
 			}]
-			
+
 	res.send(test)
+};
+
+// simulates the Companies House Extractives API. Dummy for duplicate entries (companies, projects)
+exports.getDuplicatesTestData = function(req, res, next) {
+  var file = 'files/ch_duplicates.json';
+  var obj = JSON.parse(fs.readFileSync(file, 'utf8'));
+  res.send(obj);
+};
+
+exports.identifyDuplicates = function(req, res, next) {
+  var callback = function(message) {
+    res.send(message);
+  };
+  duplicateHandler.findAndHandleDuplicates(req.params.action_id, callback);
 };

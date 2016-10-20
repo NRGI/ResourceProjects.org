@@ -2,62 +2,70 @@ angular.module('app')
     .controller('nrgiReconcileCtrl', function(
             $scope,
             $route,
-            nrgiDatasetSrvc,
-            nrgiDatasetActionMethodSrvc,
-            nrgiNotifier
+            nrgiDuplicatesSrvc,
+            nrgiResolveSrvc
         ) {
-        console.log("When I create a dataset controller, I get all datasets...");
-        nrgiDatasetSrvc.query({}, function (success) {
-            for(var i=0;i<success.data.length;i++) {
-                success.data[i].status = getStatus(success.data[i]);
-            }
-            $scope.datasets=success.data;
-        });
-        function getStatus(dataset) {
-            var isReadyForChecked = false;
-            var isLoaded = false;
-            var isChecked = false;
-            for(var i=0;i<dataset.actions.length;i++) {
-                if ((dataset.actions[i].name.indexOf('Import') != -1) && (dataset.actions[i].status == 'Success')) isLoaded = true;
-                if ((dataset.actions[i].name == 'Mark as cleaned') && (dataset.actions[i].status == 'Success')) isChecked = true;
-            }
-            if (isLoaded && !isChecked) isReadyForChecked = true;
-            return {isLoaded: isLoaded, isChecked: isChecked, isReadyForChecked: isReadyForChecked};
+
+        var limit = 50,
+            currentPage = 0,
+            totalPages = 0;
+
+        $scope.count =0;
+        $scope.busy = false;
+        $scope.duplicate_companies=[];
+        $scope.duplicate_projects=[];
+        $scope.duplicates = [];
+        $scope.types = [
+            {name:'company'},
+            {name:'project'}
+        ]
+        $scope.type_filter = $scope.types[0].name;
+        var loadData = function(){
+            nrgiDuplicatesSrvc.query({type: $scope.type_filter, skip: currentPage, limit: limit}, function (response) {
+                currentPage = 0;
+                $scope.duplicates = [];
+                $scope.duplicates = response.data;
+                $scope.count = response.count;
+                totalPages = Math.ceil(response.count / limit);
+                currentPage = currentPage + 1;
+            });
         }
-        $scope.sort_options = 	[
-            {value: "name", text: "Sort by Name"},
-            {value: "created", text: "Sort by Date Created"}
-        ];
-        $scope.sort_order = $scope.sort_options[1].value;
-        $scope.startAction = function(action, dataset_id) {
-            var name = null;
+        loadData();
+        $scope.resolve_duplicate = function (id, action) {
+            currentPage = 0;
+            totalPages = 0;
+            nrgiDuplicatesSrvc.query({id:id,action:action}, function (response) {
+                loadData();
+            });
+        }
 
-            switch (action) {
-                case "import":
-                    name = "Import from Google Sheets";
-                    break;
-                case "cleaned":
-                    name = "Mark as cleaned";
+        $scope.loadMore = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            if(currentPage < totalPages) {
+                nrgiDuplicatesSrvc.query({type:$scope.type_filter,skip: currentPage, limit: limit}, function (response) {
+                    $scope.duplicates = _.union($scope.duplicates, response.data);
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                });
             }
-
-            if (name == null) {
-                nrgiNotifier.error("Invalid dataset action requested!");
-                return;
-            }
-
-            var new_action_data = {
-                id: dataset_id,
-                name: name,
-                //Everything else handled by backend
-            };
-
-            nrgiDatasetActionMethodSrvc.createAction(new_action_data).then(function() {
-                nrgiNotifier.notify('Action "' + name + '" started');
-                //This makes the page jump but has the advantage of tying it to data; alternative: optimistic update or making a fully fledged actions service
-                $route.reload();
-            }, function(reason) {
-                nrgiNotifier.error(reason);
-            })
         };
-
+        $scope.resolve_all = function(action) {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            nrgiResolveSrvc.query({type:$scope.type_filter}, function (response) {
+                console.log(response)
+                loadData();
+                $scope.busy = false;
+            });
+        }
+        $scope.changeTypeFilter = function(type) {
+            currentPage = 0;
+            totalPages = 0;
+            if(type) {
+                $scope.duplicates = [];
+                $scope.type_filter = type;
+                loadData();
+            }
+        };
     });

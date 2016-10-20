@@ -9,7 +9,10 @@
             | &nbsp;
             a.btn.block.btn-primary-outline(
             target="_new"
-            href="https://docs.google.com/spreadsheets/d/16vuQCT92gYsMGGNGgX-j12-giCmO3SrUak6cG8oulMM/copy") Create New Dataset
+            href="https://docs.google.com/spreadsheets/d/1fwKl9SSAaPwSGqk4aM30MKbl76s_3XL1Y4riOiESZZQ/copy") Create New Dataset
+            | &nbsp;
+            button.btn.block.btn-danger.btn-warning-outline(type='button' ng-click = 'dalete_all_data()'
+            ) Delete all data
         div.col-md-4
         div.col-md-3
             form.form-inline
@@ -55,22 +58,22 @@
                         target="_new") Failed
                 td
                     .row
-                        span(ng-if="!dataset.status.isReadyForChecked && dataset.actions[dataset.actions.length-1].status!=='Started'")
+                        span(ng-if="!dataset.isLoaded || dataset.canReLoad")
                             a.btn.center-block.btn-primary-outline(ng-click="startAction('import', dataset._id)") Import
-                        span(ng-if="dataset.status.isReadyForChecked || dataset.actions[dataset.actions.length-1].status==='Started'")
+                        span(ng-if="dataset.isLoaded")
                             a.btn.center-block.btn-secondary.disabled() Import
                     .row
-                        span(ng-if="dataset.status.isReadyForChecked")
-                            a.btn.center-block.btn-secondary.disabled(ng-click="startAction('unload', dataset._id)") Unload (not implemented yet)
-                        span(ng-if="!dataset.status.isReadyForChecked")
-                            a.btn.center-block.btn-secondary.disabled() Unload (not implemented yet)
+                        span(ng-if="dataset.canBeUnloaded")
+                            a.btn.center-block.btn-primary-outline(ng-click="startAction('unload', dataset._id)") Unload
+                        span(ng-if="!dataset.canBeUnloaded")
+                            a.btn.center-block.btn-secondary.disabled() Unload
                     .row
                         span(ng-if="dataset.hasDuplicates")
                             a.btn.center-block.btn-primary-outline(href="/admin/reconcile") Reconcile
                         span(ng-if="!dataset.hasDuplicates")
                             a.btn.center-block.btn-secondary.disabled() Reconcile
                     .row
-                        span(ng-if="dataset.status.isReadyForChecked")
+                        span(ng-if="dataset.readyForCleaning")
                             a.btn.center-block.btn-primary-outline(ng-click="startAction('cleaned', dataset._id)") Mark as cleaned
-                        span(ng-if="!dataset.status.isReadyForChecked")
+                        span(ng-if="!dataset.readyForCleaning")
                             a.btn.center-block.btn-secondary.disabled() Mark as cleaned

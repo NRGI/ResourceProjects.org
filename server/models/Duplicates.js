@@ -18,17 +18,19 @@ var duplicateSchema, Duplicate,
 duplicateSchema = new Schema({
     original: {type: ObjectId},
     duplicate: {type: ObjectId},
-    resolved: {type: Boolean},
-    isDuplicate: {type: Boolean, default: true},
+    resolved: {type: Boolean, default: false},
+    isDuplicate: {type: Boolean, default: null},
     resolved_by: {type: ObjectId, ref: 'User'},
     created_date: {type: Date, default: Date.now},
     created_from: {type: ObjectId, ref: 'Action'},
     resolved_date: {type: Date, default: Date.now},
     notes: {type: String},
+    score: {type: Number},
     entity: {
         type: String,
         required:'{PATH} is required!',
-        enum: entity_enu}
+        enum: entity_enu
+    }
 });
 
 duplicateSchema.plugin(deepPopulate);

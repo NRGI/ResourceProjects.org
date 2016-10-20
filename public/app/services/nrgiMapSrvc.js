@@ -8,8 +8,15 @@ angular.module('app')
 
         return CountriesResource;
     })
-    .factory('nrgiProjectsCoordinateSrvc', function($resource) {
-        var CountriesResource = $resource('/api/projects/', {}, {
+    .factory('nrgiMainMapSrvc', function($resource) {
+        var CountriesResource = $resource('/api/main_map/', {}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return CountriesResource;
+    })
+    .factory('nrgiTreeMapSrvc', function($resource) {
+        var CountriesResource = $resource('/api/treemap/', {}, {
             query:  {method:'GET', isArray: false}
         });
 

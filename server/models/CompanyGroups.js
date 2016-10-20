@@ -10,6 +10,8 @@ var companyGroupSchema, CompanyGroup,
     Schema          = mongoose.Schema,
     ObjectId        = mongoose.Schema.Types.ObjectId,
     HTML            = mongoose.Types.Html,
+    alias           = require("./Aliases"),
+    fact            = require("./Facts"),
     htmlSettings    = {
         type: HTML,
         setting: {
@@ -23,12 +25,12 @@ var companyGroupSchema, CompanyGroup,
 companyGroupSchema = new Schema({
     //Metadata
     company_group_name: String,
-    company_group_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}],
+    company_group_aliases: [alias],
     company_group_record_established: {
         type: ObjectId,
         ref: 'Source'},
+    country_of_incorporation: [fact],
+    company_group_website: fact,
     description: htmlSettings,
     open_corporates_group_ID: String
 });

@@ -1,0 +1,33 @@
+div
+    .page-header
+        h3(class="text-center") Treemap on Payments by Project
+    .row.top-padding-med
+        .right-padding-lg: b Filter by:
+    .row.top-padding-med
+        .col-md-2
+            .row: b Year
+            .row
+                form.form-inline
+                    .form-group
+                        select.form-control(ng-model="year_filter")
+                            option(value="Show all years") Show all years
+                            option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
+        .col-md-2
+            .row: b Currency
+            .row
+                form.form-inline
+                    .form-group
+                        select.form-control(ng-model="currency_filter")
+                            option(value="Show all currency") Show all currency
+                            option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
+    span(
+    us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+    spinner-start-active="true"
+    spinner-key="spinner-treemap")
+    div.tree-map-data
+    .row.top-padding-med(ng-if="show_total")
+        h5(class="text-center")
+            span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
+            span(ng-if="currency_filter=='Show all currency'") Total:
+                = ' '
+                text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}

@@ -18,6 +18,7 @@ var assert              = require('assert'),
     sourceModel 	    = require('../models/Sources'),
     userModel 		    = require('../models/Users'),
     actionModel 		= require('../models/Actions'),
+    importSourceModel   = require('../models/ImportSources'),
     datasetModel 		= require('../models/Datasets'),
     duplicateModel 		= require('../models/Duplicates'),
     companyModel        = require('../models/Companies'),
@@ -83,7 +84,7 @@ module.exports = function(app, config, user, pass, env) {
     });
     // import default data
     actionModel.createDefaultActions();
-    aliasModel.getInitAliasCount();
+    //aliasModel.getInitAliasCount(); //Aliases moved to nested document
     commodityModel.createDefaultCommodities();
     companyModel.getInitCompanyCount();
     companyGroupModel.getInitCompanyGroupsCount();

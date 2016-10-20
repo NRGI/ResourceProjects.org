@@ -3,16 +3,21 @@
         h1 Disclosures & Context
 
     .row
-        nrgi-sunburst
-    .row.top-padding-med
-        table.table.table-striped(
+        .col-md-5: nrgi-sunburst
+        .col-md-7: table.table.table-striped.table-fixed-header(
         ts-wrapper)
-            thead
+            thead.header
                 tr
-                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source
-                    th Type
-                    th Projects
-                    th Countries
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source Type
+                    th.tablesort-sortable-th(ts-default ts-criteria='source_type_authority') Category
+                    th.tablesort-sortable-th(ts-criteria='project_count') Number of projects
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Number of countries
+            thead.header-copy.header.hide
+                tr
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Source Type
+                    th.tablesort-sortable-th(ts-criteria='source_type_authority') Category
+                    th.tablesort-sortable-th(ts-criteria='project_count') Number of projects
+                    th.tablesort-sortable-th(ts-criteria='source_type_name') Number of countries
             tbody
                 tr(
                 ng-repeat="type in sourceTypes | unique: '_id'"
@@ -22,6 +27,7 @@
                             span(ng-bind-html="type.source_type_name|sanitize")
                     td.source_type_type {{type.source_type_authority|ucfirst}}
                     td {{type.project_count}}
+                    td {{type.country_count}}
 
     div(ng-if='sourceTypes.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
     div(ng-if="sourceTypes.length>0")

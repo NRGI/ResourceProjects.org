@@ -5,10 +5,18 @@
                 = ' '
                 small(ng-if="count") {{count}}
 
-    table#countries.table.table-striped(
+    table#countries.table.table-striped.table-fixed-header(
     about='http://resourceprojects.org/country'
     ts-wrapper)
-        thead
+        thead.header
+            tr
+                th(ts-criteria='name') Country
+                th.text-center(ts-criteria='project_count|parseInt') Projects
+                th.text-center(ts-criteria='site_count|parseInt') Sites
+                th.text-center(ts-criteria='field_count|parseInt') Fields
+                th.text-center(ts-criteria='concession_count|parseInt') Concessions
+                th.text-center(ts-criteria='transfer_count|parseInt') Payments
+        thead.header-copy.header.hide
             tr
                 th(ts-criteria='name') Country
                 th.text-center(ts-criteria='project_count|parseInt') Projects

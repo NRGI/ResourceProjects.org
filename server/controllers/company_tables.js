@@ -14,7 +14,7 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request');
 
 exports.getCompanyTable = function(req, res){
-    var link_counter, link_len, companies_len, companies_counter;
+    var link_counter, link_len, companies_len, companies_counter, company_len, company_counter;
     var type = req.params.type;
     var query='';
     if(type=='project') { query = {project:req.params.id, entities:"company"}}
@@ -43,7 +43,11 @@ exports.getCompanyTable = function(req, res){
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getProjectLinks(callback) {
@@ -57,11 +61,17 @@ exports.getCompanyTable = function(req, res){
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
-                            companies.companies.push({
-                                company_name: link.company.company_name,
-                                _id: link.company._id,
-                                company_groups: []
-                            });
+                            var name = '';
+                            if(link.company) {
+                                if (link.company.company_name) {
+                                    name = link.company.company_name;
+                                }
+                                companies.companies.push({
+                                    company_name: name,
+                                    _id: link.company._id,
+                                    company_groups: []
+                                });
+                            }
                             companies.companies = _.map(_.groupBy(companies.companies,function(doc){
                                 return doc._id;
                             }),function(grouped){

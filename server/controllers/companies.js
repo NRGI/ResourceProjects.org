@@ -20,6 +20,12 @@ exports.getCompanies = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        }else{
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -28,12 +34,12 @@ exports.getCompanies = function(req, res) {
             if(company_count) {
                 callback(null, company_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
     function getCompanySet(company_count, callback) {
-        Company.find(req.query)
+        Company.find({})
             .sort({
                 company_name: 'asc'
             })
@@ -46,7 +52,7 @@ exports.getCompanies = function(req, res) {
                 if(companies) {
                     callback(null, company_count, companies);
                 } else {
-                    callback(err);
+                    return res.send(err);
                 }
             });
     }
@@ -79,10 +85,12 @@ exports.getCompanies = function(req, res) {
                                 var entity = _.without(link.entities, 'company')[0]
                                 switch (entity) {
                                     case 'company_group':
-                                        company.company_groups.push({
-                                            _id: link.company_group._id,
-                                            company_group_name: link.company_group.company_group_name
-                                        });
+                                        if(link.company_group) {
+                                            company.company_groups.push({
+                                                _id: link.company_group._id,
+                                                company_group_name: link.company_group.company_group_name
+                                            });
+                                        }
                                         break;
                                     case 'project':
                                         projects.push(link.project);
@@ -156,21 +164,22 @@ exports.getCompanies = function(req, res) {
     function getTransfersCount(company_count, companies, callback) {
         company_len = companies.length;
         company_counter = 0;
-        _.each(companies, function(company) {
-            Transfer.find({$or: [
-                    {project:{$in: company.transfers_query}},
-                    {site:{$in: company.transfers_query}},
-                    {concession:{$in: company.transfers_query}}]})
-                .count()
-                .exec(function (err, transfer_count) {
-                    ++company_counter;
-                    company.transfer_count = transfer_count;
-                    if (company_counter === company_len) {
-                        res.send({data:companies, count:company_count});
-                    }
-                });
+        if (company_len>0) {
+            _.each(companies, function (company) {
+                Transfer.find({company: {$in: company.transfers_query}})
+                    .count()
+                    .exec(function (err, transfer_count) {
+                        ++company_counter;
+                        company.transfer_count = transfer_count;
+                        if (company_counter === company_len) {
+                            callback(null, {data: companies, count: company_count});
+                        }
+                    });
 
-        });
+            });
+        } else {
+            callback(null, company_count, companies);
+        }
     }
 };
 
@@ -182,7 +191,11 @@ exports.getCompanyID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getCompany(callback) {
@@ -210,7 +223,11 @@ exports.getCompanyByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function getCompanyLinks(callback) {
@@ -241,7 +258,7 @@ exports.getCompanyByID = function(req, res) {
                                 }
                                 break;
                             case 'project':
-                                if (link.project.proj_commodity.length > 0) {
+                                if (link.project && link.project.proj_commodity.length > 0) {
                                     if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length < 1) {
                                         company.company_commodity.push({
                                             _id: _.last(link.project.proj_commodity).commodity._id,

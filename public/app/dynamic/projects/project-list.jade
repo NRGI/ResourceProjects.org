@@ -4,30 +4,41 @@
             h1 Projects
                 = ' '
                 small(ng-if="count") {{count}}
-        .col-md-5
-        .col-md-3
-            .btn-group(
-            role='group'
-            aria-label='...')
-                button.btn.btn-secondary.pull-xs-right(type='button')
-                    a(href='/projects/map') Map View
+        //.col-md-5
+        //.col-md-3
+        //    .btn-group(
+        //    role='group'
+        //    aria-label='...')
+        //        button.btn.btn-secondary.pull-xs-right(type='button')
+        //            a(href='/projects/map') Map View
 
     .row.top-padding-med
-        table#projects.table.table-striped(
+        table#projects.table.table-striped.table-fixed-header(
         about='http://resourceprojects.org/project'
         ts-wrapper)
-            thead
+            thead.header
                 tr
                     th.tablesort-sortable-th(ts-criteria='proj_name') Name
                     th.tablesort-sortable-th(ts-criteria='verified') Verified Project
                     th.tablesort-sortable-th(ts-criteria='proj_country[proj_country.length - 1].country.name') Country
                     th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_type') Type
                     th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length-1].commodity.commodity_name') Commodity
-                    th.tablesort-sortable-th(ts-criteria='proj_status[proj_status.length-1].string') Status
+                    th.tablesort-sortable-th(ts-criteria='proj_status.string') Status
                     th.text-center.tablesort-sortable-th(ts-criteria="company_count | parseInt")  Companies
                     th.text-center.tablesort-sortable-th(ts-criteria="transfer_count | parseInt")  Payments
                     th.text-center.tablesort-sortable-th(ts-criteria="production_count | parseInt")  Production
                     //th.col-md-1.text-center.tablesort-sortable-th(ts-criteria="site_transfers|parseInt")  Associated Payments
+            thead.header-copy.header.hide
+                tr
+                    th.tablesort-sortable-th(ts-criteria='proj_name') Name
+                    th.tablesort-sortable-th(ts-criteria='verified') Verified Project
+                    th.tablesort-sortable-th(ts-criteria='proj_country[proj_country.length - 1].country.name') Country
+                    th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length - 1].commodity.commodity_type') Type
+                    th.tablesort-sortable-th(ts-criteria='proj_commodity[proj_commodity.length-1].commodity.commodity_name') Commodity
+                    th.tablesort-sortable-th(ts-criteria='proj_status.string') Status
+                    th.text-center.tablesort-sortable-th(ts-criteria="company_count | parseInt")  Companies
+                    th.text-center.tablesort-sortable-th(ts-criteria="transfer_count | parseInt")  Payments
+                    th.text-center.tablesort-sortable-th(ts-criteria="production_count | parseInt")  Production
             tbody
                 tr(
                 ng-repeat="project in projects | unique: '_id'"
@@ -54,11 +65,9 @@
                     td.proj_status
                         em(ng-if="project.proj_status.length<1") ..
                         text(
-                        ng-if="project.proj_status.length>0"
-                        ng-repeat="status in project.proj_status")
-                            text(ng-if="$last")
-                                | {{status.string | ucfirst}}
-                                text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+                        ng-if="project.proj_status")
+                            | {{project.proj_status.string | ucfirst | addSpaces}}
+                            text.small(ng-if="status.timestamp")  (true at {{project.proj_status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                     td.text-center.proj_company_count {{project.company_count}}
                     td.text-center.proj_transfer_count {{project.transfer_count}}
                     td.text-center.proj_transfer_count {{project.production_count}}

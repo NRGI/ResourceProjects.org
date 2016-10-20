@@ -26,7 +26,7 @@ var productionSchema, Production,
     concession      = {type: ObjectId, ref: 'Concession'},
     transfer_level_enu      = {
         values: 'country project site field concession'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select country, site, field or project.'
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select concession, country, site, field or project.'
     },
     //HTML            = mongoose.Types.Html,
     //htmlSettings    = {

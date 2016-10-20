@@ -4,26 +4,13 @@ angular.module('app')
             $route,
             nrgiDatasetSrvc,
             nrgiDatasetActionMethodSrvc,
-            nrgiNotifier
+            nrgiNotifier,
+            nrgiDestroySrvc,
+            $window
         ) {
-        console.log("When I create a dataset controller, I get all datasets...");
         nrgiDatasetSrvc.query({}, function (success) {
-            for(var i=0;i<success.data.length;i++) {
-                success.data[i].status = getStatus(success.data[i]);
-            }
             $scope.datasets=success.data;
         });
-        function getStatus(dataset) {
-            var isReadyForChecked = false;
-            var isLoaded = false;
-            var isChecked = false;
-            for(var i=0;i<dataset.actions.length;i++) {
-                if ((dataset.actions[i].name.indexOf('Import') != -1) && (dataset.actions[i].status == 'Success')) isLoaded = true;
-                if ((dataset.actions[i].name == 'Mark as cleaned') && (dataset.actions[i].status == 'Success')) isChecked = true;
-            }
-            if (isLoaded && !isChecked) isReadyForChecked = true;
-            return {isLoaded: isLoaded, isChecked: isChecked, isReadyForChecked: isReadyForChecked};
-        }
         $scope.sort_options = 	[
             {value: "name", text: "Sort by Name"},
             {value: "created", text: "Sort by Date Created"}
@@ -32,20 +19,22 @@ angular.module('app')
         $scope.startAction = function(action, dataset_id) {
             var name = null;
 
-            if (dataset_id == "56737e170e8cc07115211ee4") { //See server/models/Datasets.js
+            switch (action) {
+                case "import":
+                    name = "Import from Google Sheets";
+                    break;
+                case "unload":
+                    name = "Unload last import";
+                    break;
+                case "cleaned":
+                    name = "Mark as cleaned";
+            }
+            
+            if ((dataset_id === "56737e170e8cc07115211ee4") && (action === "import")) { //See server/models/Datasets.js
                 name = "Import from Companies House API";
             }
-            else {
-                switch (action) {
-                    case "import":
-                        name = "Import from Google Sheets";
-                        break;
-                    case "cleaned":
-                        name = "Mark as cleaned";
-                }
-            }
 
-            if (name == null) {
+            if (name === null) {
                 nrgiNotifier.error("Invalid dataset action requested!");
                 return;
             }
@@ -63,6 +52,18 @@ angular.module('app')
             }, function(reason) {
                 nrgiNotifier.error(reason);
             })
+        };
+
+
+
+        // DO NOT MERGE TO PRODUCTION! FOR STAGING USE ONLY!
+        $scope.dalete_all_data = function() {
+            if($window.confirm('are you sure?')) {
+                nrgiDestroySrvc.query({}, function (response) {
+                    console.log(response)
+                });
+            } else {
+            }
         };
 
     });

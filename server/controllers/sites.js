@@ -25,7 +25,11 @@ exports.getSites = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function siteCount(callback) {
@@ -33,7 +37,7 @@ exports.getSites = function(req, res) {
             if(site_count) {
                 callback(null, site_count);
             } else {
-                callback(null, 0);
+                return res.send(err);
             }
         });
     }
@@ -52,7 +56,7 @@ exports.getSites = function(req, res) {
                     //TODO clean up returned data if we see performance lags
                     callback(null, site_count, sites);
                 } else {
-                    callback(null, [], sites);
+                    return res.send(err);
                 }
             });
     }
@@ -63,7 +67,7 @@ exports.getSites = function(req, res) {
             sites.forEach(function (site) {
                 var commodity = site.site_commodity;
                 site.site_commodity = [];
-                if (commodity.length>0) {
+                if (commodity && commodity.length>0) {
                     if (_.where(commodity, {_id: _.last(commodity).commodity._id}).length<1) {
                         site.site_commodity.push({
                             _id: _.last(commodity).commodity._id,
@@ -205,8 +209,6 @@ exports.getSites = function(req, res) {
                     ++site_counter;
                     site.production_count = production_count;
                     if (site_counter === site_len) {
-                        // callback(null, site_count, sites);
-                        // res.send({data: sites, count: site_count});
                         callback(null, {data: sites, count: site_count});
                     }
                 });
@@ -216,7 +218,7 @@ exports.getSites = function(req, res) {
 };
 
 exports.getSiteByID = function(req, res) {
-    var proj_len, proj_counter, link_counter, link_len, companies_len, companies_counter, transfers_counter, transfers_len, production_counter, production_len;
+    var proj_len, proj_counter, link_counter, link_len;
 
     async.waterfall([
         getSite,
@@ -226,7 +228,11 @@ exports.getSiteByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result)
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 	function getSite(callback) {
@@ -251,32 +257,36 @@ exports.getSiteByID = function(req, res) {
         site.proj_coordinates=[];
         site.coordinates=[];
         site.source_type = {p: false, c: false};
-        if (site.field && site.site_coordinates.length>0) {
+        if (site.field && site.site_coordinates && site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
-                site.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': site.site_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'field',
-                    'id': site._id
-                });
+                if(loc && loc.loc) {
+                    site.coordinates.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': site.site_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'field',
+                        'id': site._id
+                    });
+                }
             });
-        } else if (!site.field && site.site_coordinates.length>0) {
+        } else if (!site.field && site.site_coordinates && site.site_coordinates.length>0) {
             site.site_coordinates.forEach(function (loc) {
-                site.coordinates.push({
-                    'lat': loc.loc[0],
-                    'lng': loc.loc[1],
-                    'message': site.site_name,
-                    'timestamp': loc.timestamp,
-                    'type': 'site',
-                    'id': site._id
-                });
+                if(loc && loc.loc) {
+                    site.coordinates.push({
+                        'lat': loc.loc[0],
+                        'lng': loc.loc[1],
+                        'message': site.site_name,
+                        'timestamp': loc.timestamp,
+                        'type': 'site',
+                        'id': site._id
+                    });
+                }
             });
         }
         var commodity = site.site_commodity;
         site.site_commodity = [];
-        if (commodity.length>0) {
+        if (commodity && commodity.length>0) {
             if (_.where(commodity, {_id: _.last(commodity).commodity._id}).length<1) {
                 site.site_commodity.push({
                     _id: _.last(commodity).commodity._id,
@@ -314,17 +324,6 @@ exports.getSiteByID = function(req, res) {
                                     proj_id: link.project.proj_id,
                                     proj_name: link.project.proj_name
                                 });
-                                //site.projects.push(link.project);
-                                link.project.proj_coordinates.forEach(function (loc) {
-                                    site.coordinates.push({
-                                        'lat': loc.loc[0],
-                                        'lng': loc.loc[1],
-                                        'message': link.project.proj_name,
-                                        'timestamp': loc.timestamp,
-                                        'type': 'project',
-                                        'id': link.project.proj_id
-                                    });
-                                });
                                 if (link.project.proj_commodity.length>0) {
                                     if (_.where(site.site_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length<1) {
                                         site.site_commodity.push({
@@ -344,25 +343,29 @@ exports.getSiteByID = function(req, res) {
                                 });
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        site.proj_coordinates.fields.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            site.proj_coordinates.fields.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        site.proj_coordinates.sites.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            site.proj_coordinates.sites.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'site',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 }
                                 if (link.site.site_commodity.length>0) {
@@ -475,7 +478,7 @@ exports.getSiteByID = function(req, res) {
                                     callback(null, site);
                                 }
                             });
-                        } else {
+                           } else {
                             if(proj_counter == proj_len && link_counter == link_len) {
                                 callback(null, site);
                             }
@@ -496,6 +499,12 @@ exports.getSitesMap = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+        } else{
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -509,21 +518,25 @@ exports.getSitesMap = function(req, res) {
                 if(sites) {
                     sites.forEach(function (site) {
                         ++site_counter;
-                        site.site_coordinates.forEach(function (loc) {
-                            if(field==true){
-                                site_type ='field';
-                            }else{
-                                site_type='site';
-                            }
-                            data.push({
-                                'lat': loc.loc[0],
-                                'lng': loc.loc[1],
-                                'message': site.site_name,
-                                'timestamp': loc.timestamp,
-                                'type': site_type,
-                                'id': site._id
+                        if(site.site_coordinates && site.site_coordinates.length>0) {
+                            site.site_coordinates.forEach(function (loc) {
+                                if (field == true) {
+                                    site_type = 'field';
+                                } else {
+                                    site_type = 'site';
+                                }
+                                if (loc && loc.loc) {
+                                    data.push({
+                                        'lat': loc.loc[0],
+                                        'lng': loc.loc[1],
+                                        'message': site.site_name,
+                                        'timestamp': loc.timestamp,
+                                        'type': site_type,
+                                        'id': site._id
+                                    })
+                                }
                             })
-                        })
+                        }
                     });
                     if(site_counter == site_len) {
                         res.send({data:data});}

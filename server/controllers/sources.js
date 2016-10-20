@@ -5,7 +5,7 @@ var Source 		= require('mongoose').model('Source'),
 	_               = require("underscore"),
 	request         = require('request'),
 	encrypt 	= require('../utilities/encryption');
-//.populate('comments.author', 'firstName lastName role')
+
 exports.getSources = function(req, res) {
 	var source_len, link_len, source_counter, link_counter,
 		limit = Number(req.params.limit),
@@ -18,6 +18,12 @@ exports.getSources = function(req, res) {
 	], function (err, result) {
 		if (err) {
 			res.send(err);
+		} else{
+			if (req.query && req.query.callback) {
+				return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+			} else {
+				return res.send(result);
+			}
 		}
 	});
 
@@ -35,6 +41,7 @@ exports.getSources = function(req, res) {
 			.sort({
 				source_name: 'asc'
 			})
+			.populate('source_type_id')
 			.skip(skip)
 			.limit(limit)
 			.lean()
@@ -64,7 +71,7 @@ exports.getSources = function(req, res) {
 						}
 					});
 					if(source_counter == source_len && link_counter == link_len) {
-						res.send({data:sources, count:source_count});
+						callback(null, {data:sources, count:source_count});
 					}
 				});
 		});
@@ -77,6 +84,12 @@ exports.getSourceByID = function(req, res) {
 	], function (err, result) {
 		if (err) {
 			res.send(err);
+		} else{
+			if (req.query && req.query.callback) {
+				return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+			} else {
+				return res.send(result);
+			}
 		}
 	});
 
@@ -87,7 +100,6 @@ exports.getSourceByID = function(req, res) {
 			.exec(function(err, source) {
 				if(source) {
 					callback(null, source);
-					res.send(source);
 				} else {
 					callback(err);
 				}

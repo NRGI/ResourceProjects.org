@@ -1,7 +1,6 @@
 var Contract 		= require('mongoose').model('Contract'),
     Country 		= require('mongoose').model('Country'),
     Source 			= require('mongoose').model('Source'),
-    Alias 			= require('mongoose').model('Alias'),
     Link 	        = require('mongoose').model('Link'),
     Company 		= require('mongoose').model('Company'),
     Commodity 		= require('mongoose').model('Commodity'),
@@ -27,7 +26,11 @@ exports.getContracts = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
     function contractCount(callback) {
@@ -35,12 +38,12 @@ exports.getContracts = function(req, res) {
             if(contract_count) {
                 callback(null, contract_count);
             } else {
-                callback(err);
+                return res.send(err);
             }
         });
     }
     function getContractSet(contract_count, callback) {
-        Contract.find(req.query)
+        Contract.find({})
             .sort({
                 contract_id: 'asc'
             })
@@ -51,7 +54,7 @@ exports.getContracts = function(req, res) {
                 if(contracts) {
                     callback(null, contract_count, contracts);
                 } else {
-                    callback(err);
+                    return res.send(err);
                 }
             });
     }
@@ -73,7 +76,7 @@ exports.getContracts = function(req, res) {
                         open_contracting_id: body.open_contracting_id
                     });
                     if(body.resource!=undefined){
-                        var commodity =body.resource;
+                        var commodity = body.resource;
                         commodity.map(function(name){return contract.commodities.push(name);});
                     }
                     if (contract_counter == contract_len) {
@@ -88,70 +91,82 @@ exports.getContracts = function(req, res) {
     function getCommodity(contract_count, contracts, callback) {
         contract_len = contracts.length;
         contract_counter = 0;
-        contracts.forEach(function (contract) {
-            ++contract_counter;
-            contract.commodity=[];
-            if(contract.commodities.length>0) {
-                contract.commodities.forEach(function (commodity_name) {
-                    if (commodity_name != undefined) {
-                        Commodity.find({commodity_name: commodity_name})
-                            .exec(function (err, commodity) {
-                                commodity.map(function (name) {
-                                    return contract.commodity.push({
-                                        commodity_name: commodity_name,
-                                        commodity_type: name.commodity_type,
-                                        _id: name._id,
-                                        commodity_id: name.commodity_id
+        if(contract_len>0) {
+            contracts.forEach(function (contract) {
+                ++contract_counter;
+                contract.commodity = [];
+                if (contract.commodities.length > 0) {
+                    contract.commodities.forEach(function (commodity_name) {
+                        if (commodity_name != undefined) {
+                            Commodity.find({commodity_name: commodity_name})
+                                .exec(function (err, commodity) {
+                                    commodity.map(function (name) {
+                                        return contract.commodity.push({
+                                            commodity_name: commodity_name,
+                                            commodity_type: name.commodity_type,
+                                            _id: name._id,
+                                            commodity_id: name.commodity_id
+                                        });
                                     });
+                                    if (contract_counter == contract_len) {
+                                        callback(null, contract_count, contracts);
+                                    }
                                 });
-                                if (contract_counter == contract_len) {
-                                    callback(null, contract_count, contracts);
-                                }
-                            });
-                    }
-                })
-            }else if(contract_counter == contract_len) {callback(null, contract_count, contracts);}
-        })
+                        }
+                    })
+                } else if (contract_counter == contract_len) {
+                    callback(null, contract_count, contracts);
+                }
+            })
+        } else{
+            callback(null, contract_count, contracts);
+        }
     }
     function getContractLinks(contract_count, contracts, callback) {
         contract_len = contracts.length;
         contract_counter = 0;
-        contracts.forEach(function (c) {
-            Link.find({contract: c._id,  $or:[ {entities:'site'}, {entities:'project'} ] })
-                .exec(function(err, links) {
-                    ++contract_counter;
-                    link_len = links.length;
-                    link_counter = 0;
-                    c.projects = 0;
-                    c.sites = 0;
-                    c.fields = 0;
-                    if(link_len>0) {
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'contract')[0]
-                            switch (entity) {
-                                case 'project':
-                                    c.projects += 1;
-                                    break;
-                                case 'site':
-                                    if(link.field){
-                                        c.fields += 1;
-                                    }else{
-                                        c.sites += 1;
-                                    }
-                                    break;
-                                default:
-                                    console.log(entity, 'link skipped...');
-                            } if (contract_counter == contract_len && link_counter == link_len) {
-                                callback(null, {data: contracts, count: contract_count});
-                            }
 
-                        });
-                    } else if (contract_counter == contract_len) {
-                        callback(null, {data: contracts, count: contract_count});
-                    }
-                });
-        });
+        if(contract_len>0) {
+            contracts.forEach(function (c) {
+                Link.find({contract: c._id, $or: [{entities: 'site'}, {entities: 'project'}]})
+                    .exec(function (err, links) {
+                        ++contract_counter;
+                        link_len = links.length;
+                        link_counter = 0;
+                        c.projects = 0;
+                        c.sites = 0;
+                        c.fields = 0;
+                        if (link_len > 0) {
+                            links.forEach(function (link) {
+                                ++link_counter;
+                                var entity = _.without(link.entities, 'contract')[0]
+                                switch (entity) {
+                                    case 'project':
+                                        c.projects += 1;
+                                        break;
+                                    case 'site':
+                                        if (link.field) {
+                                            c.fields += 1;
+                                        } else {
+                                            c.sites += 1;
+                                        }
+                                        break;
+                                    default:
+                                        console.log(entity, 'link skipped...');
+                                }
+                                if (contract_counter == contract_len && link_counter == link_len) {
+                                    callback(null, {data: contracts, count: contract_count});
+                                }
+
+                            });
+                        } else if (contract_counter == contract_len) {
+                            callback(null, {data: contracts, count: contract_count});
+                        }
+                    });
+            });
+        }else{
+            callback(null, contract_count, contracts);
+        }
     }
 };
 
@@ -168,7 +183,11 @@ exports.getContractByID = function(req, res) {
         if (err) {
             res.send(err);
         } else {
-            res.send(result);
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
         }
     });
 
@@ -250,25 +269,29 @@ exports.getContractByID = function(req, res) {
                             case 'site':
                                 if (link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        contract.location.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            contract.location.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'field',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 } else if (!link.site.field && link.site.site_coordinates.length>0) {
                                     link.site.site_coordinates.forEach(function (loc) {
-                                        contract.location.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': link.site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': link.site._id
-                                        });
+                                        if(loc && loc.loc) {
+                                            contract.location.push({
+                                                'lat': loc.loc[0],
+                                                'lng': loc.loc[1],
+                                                'message': link.site.site_name,
+                                                'timestamp': loc.timestamp,
+                                                'type': 'site',
+                                                'id': link.site._id
+                                            });
+                                        }
                                     });
                                 }
                                 break;
@@ -284,19 +307,6 @@ exports.getContractByID = function(req, res) {
                                         concession_polygon: link.concession.concession_polygon
                                     });
                                 }
-                                break;
-                            case 'project':
-                                //TODO clean up data returned if laggy
-                                link.project.proj_coordinates.forEach(function (loc) {
-                                    contract.location.push({
-                                        'lat': loc.loc[0],
-                                        'lng': loc.loc[1],
-                                        'message': link.project.proj_name,
-                                        'timestamp': loc.timestamp,
-                                        'type': 'project',
-                                        'id': link.project.proj_id
-                                    });
-                                });
                                 break;
                             default:
                                 console.log(entity, 'link skipped...');

@@ -61,7 +61,7 @@ data-target="#contracts")
                     target="_blank"
                     href='http://www.resourcecontracts.org/contract/{{contract.contract_id}}') {{contract.contract_id}}
                 td.contract_companies(ng-if="companies==true") {{contract.companies}}
-    div(ng-if="contracts.length>0")
+    div(ng-if="contracts.length>0 && _.isEmpty(contracts[0])")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
             span

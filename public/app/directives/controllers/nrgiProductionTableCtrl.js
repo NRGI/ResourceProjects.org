@@ -9,6 +9,7 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
     var fields = [];
     var commodity='';
     var name='';
+    var id='';
     usSpinnerService.spin('spinner-production');
     $scope.$watch('id', function(value) {
         if(value!=undefined){
@@ -40,7 +41,8 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                             {name: 'Price', status: true, field: 'production_price'},
                             {name: 'Price unit', status: true, field: 'production_price_unit'},
                             {name: 'Level ', status: true, field: 'production_level'},
-                            {name: 'Projects and Sites ', status: $scope.projectlink, field: 'proj_site'}];
+                            {name: 'Project ID', status: $scope.projectlink, field: 'proj_id'},
+                            {name: 'Project / Site ', status: $scope.projectlink, field: 'proj_site'}];
                         angular.forEach(headers, function (header) {
                             if (header.status != false && header.status != undefined) {
                                 header_transfer.push(header.name);
@@ -60,14 +62,21 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                                     }
                                     $scope.csv_production[key].push(commodity);
                                 }
+                                if (field == 'proj_id') {
+                                    id = '';
+                                    if (p.proj_site != undefined && p.proj_site._id != undefined && p.production_level =='project') {
+                                        id = p.proj_site._id.toString();
+                                    }
+                                    $scope.csv_production[key].push(id);
+                                }
                                 if (field == 'proj_site') {
                                     name = '';
-                                    if (p[field] != undefined) {
+                                    if (p[field] != undefined && p[field].name != undefined) {
                                         name = p[field].name.toString();
                                     }
                                     $scope.csv_production[key].push(name);
                                 }
-                                if (field != 'commodity' && field != 'proj_site') {
+                                if (field != 'commodity' && field != 'proj_site' && field != 'proj_id') {
                                     $scope.csv_production[key].push(p[field])
                                 }
                             })

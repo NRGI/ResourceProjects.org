@@ -11,6 +11,7 @@ var projectSchema, Project,
     deepPopulate    = require('mongoose-deep-populate')(mongoose),
     Schema          = mongoose.Schema,
     fact            = require("./Facts"),
+    alias           = require("./Aliases"),
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Source'},
     HTML            = mongoose.Types.Html,
@@ -27,7 +28,7 @@ var projectSchema, Project,
     hst_options     = {customCollectionName: 'proj_hst'},
     status_enu  = {
         values: 'exploration development production on_hold inactive unknown'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on hold, inactive or unknown.'
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select exploration, development, production, on_hold, inactive or unknown.'
     };
 
 
@@ -35,16 +36,11 @@ projectSchema = new Schema({
     //TODO add regex validator
     proj_id: String,
     proj_name: String,
-    proj_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}],
+    proj_aliases: [alias],
     proj_established_source: source,
     proj_country: [fact],
     proj_commodity: [fact],
-    proj_address: [fact],
-    proj_coordinates: [fact],
-    proj_operated_by: [fact],
-    proj_company_share: [fact],
+    
     proj_status: [{
         source: source,
         string: {
@@ -53,7 +49,12 @@ projectSchema = new Schema({
             default: 'unknown'},
         timestamp: {
             type: Date,
-            default: Date.now()}}],
+            default: Date.now()},
+        startTimestamp: {
+            type: Date},
+        endTimestamp: {
+            type: Date}
+        }],
     description: htmlSettings
 });
 //
@@ -85,7 +86,6 @@ function createDefaultProjects() {
                 proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}],
                 proj_address: [{source: '56747e060e8cc07115200ee3', string: '123 main st'}],
-                proj_coordinates: [{source: '56747e060e8cc07115200ee3', loc: [11.15392307, 17.50168983]}],
                 proj_status: [{source: '56747e060e8cc07115200ee3', string: 'exploration'}],
                 description: '<p>yes</p><p>no</p>'
             });
@@ -97,7 +97,6 @@ function createDefaultProjects() {
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: [{source: '56747e060e8cc07115200ee3', country: '56a7e6c02302369318e16bb8'}],
                 proj_commodity: [{source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9e8'}, {source: '56747e060e8cc07115200ee3', commodity: '56a13e9942c8bef50ec2e9eb'},{source: '56747e060e8cc07115200ee6', commodity: '56a13e9942c8bef50ec2e9eb'}],
-                proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [79.22885591,  -44.84381911]}],
                 proj_status: [{source: '56747e060e8cc07115200ee6', string: 'development'}],
                 description: '<p>yes</p><p>no</p>',
             });
@@ -108,7 +107,6 @@ function createDefaultProjects() {
                 proj_aliases: ['56a939e649434cfc1354d64e'],
                 proj_established_source: '56747e060e8cc07115200ee5',
                 proj_country: [{source: '56747e060e8cc07115200ee5', country: '56a8d7d08e7079da05d6b542'}],
-                proj_coordinates: [{source: '56747e060e8cc07115200ee5', loc: [25.17521251, -13.32094082]}],
                 proj_status: [{source: '56747e060e8cc07115200ee5', string: 'on_hold'}],
                 description: '<p>yes</p><p>no</p>'
             });
@@ -118,7 +116,6 @@ function createDefaultProjects() {
                 proj_name: 'Alpamarca Rio Pallanga',
                 proj_established_source: '56747e060e8cc07115200ee6',
                 proj_country: [{source: '56747e060e8cc07115200ee6', country: '56a7e6c02302369318e16bb9'}],
-                proj_coordinates: [{source: '56747e060e8cc07115200ee6', loc: [-154.09667961, -43.52395855]}],
                 proj_status: [{source: '56747e060e8cc07115200ee6', string: 'production'}],
                 description: '<p>yes</p><p>no</p>'
             });

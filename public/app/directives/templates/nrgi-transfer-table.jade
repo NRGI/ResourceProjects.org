@@ -14,49 +14,32 @@ data-target="#transfers")
     height="100%")#transfer-info
         thead
             tr
-                th.tablesort-sortable-th(ts-criteria='transfer_year|parseInt') Year
-                th.tablesort-sortable-th(
-                ng-if="project==true"
-                ts-criteria='project.project_name') Project / Site
-                th.tablesort-sortable-th(ts-criteria='company.company_name') Paid by
-                th.tablesort-sortable-th(
-                ng-if="project!=true"
-                ts-criteria='country.name') Paid to
+                th.tablesort-sortable-th(ts-criteria='transfer_year') Year
+                th.tablesort-sortable-th(ts-criteria='company.company_name') Paid By
+                th.tablesort-sortable-th(ts-criteria='country.name') Paid To
+                th.tablesort-sortable-th(ts-criteria='proj_site.name') Project
+                th.tablesort-sortable-th(ts-criteria='proj_site.type') Level
                 th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                 th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
-                th.text-center.tablesort-sortable-th(ts-criteria='transfer_value|parseInt') Value
-                th.tablesort-sortable-th(ts-criteria='transfer_level') Level
-                th.tablesort-sortable-th(ts-criteria='transfer_audit_type') Payment or receipt?
-                th.tablesort-sortable-th(
-                ng-if="projectlink==true"
-                ts-criteria='transfer_links.name') Projects and Sites
+                th.tablesort-sortable-th(ts-criteria='transfer_value') Value
         tbody
             span(
             us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
             spinner-start-active="true"
-            spinner-key="spinner-payments")
+            spinner-key="spinner-transfers")
             tr(
-            ng-repeat="transfer in transfers"
-            ts-repeat ng-class="expression")
+            ng-repeat="transfer in transfers | unique: '_id'"
+            ts-repeat)
                 td.transfer_year {{transfer.transfer_year}}
-                td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.proj_site._id}}")
-                    span(ng-bind-html="transfer.proj_site.name|sanitize")
-                td.transfer_company: a(href="company/{{transfer.company._id}}")
+                td.transfer_company: a(href='company/{{transfer.company._id}}')
                     span(ng-bind-html="transfer.company.company_name|sanitize")
-                //td.transfer_project(ng-if="project==true"): a(href="project/{{transfer.transfer_company._id}}")
-                //    span(ng-bind-html="transfer.transfer_company.company_name|sanitize")
-                td.transfer_country(ng-if="project!=true"): a(href="country/{{transfer.country.iso2}}")
+                td.transfer_country: a(href='country/{{transfer.country.iso2}}')
                     span(ng-bind-html="transfer.country.name|sanitize")
+                td.transfer_type: a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}
+                td.transfer_level {{transfer.proj_site.type}}
                 td.transfer_type {{transfer.transfer_type}}
-                td.transfer_unit {{transfer.transfer_unit}}
-                td.text-right.transfer_value {{transfer.transfer_value | number}}
-                td.transfer_level {{transfer.transfer_level}}
-                td.transfer_audit_type {{transfer.transfer_audit_type | addSpaces}}
-                td.project_links(ng-if="projectlink===true")
-                    //: span(ng-repeat="link in transfer.transfer_links | unique: '_id'")
-                    a(href="{{transfer.proj_site.type}}/{{transfer.proj_site._id}}")
-                        span(ng-bind-html="transfer.proj_site.name|sanitize")
-                    //| {{$last ? '' : ', '}}
+                td.transfer_currency {{transfer.transfer_unit}}
+                td.transfer_value {{transfer.transfer_value}}
     div(ng-if="transfers.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -67,5 +50,5 @@ data-target="#transfers")
                 href=""
                 ng-csv="csv_transfers"
                 csv-header="getHeaderTransfers()"
-                filename="payments.csv") Payments CSV
+                filename="transfers.csv") Payments CSV
 

@@ -2,56 +2,55 @@
     .row.top-padding-med.bottom-padding-med
         h1 Reconciliation (De-duplification) Management
         p This page shows all unresolved duplicates. Duplicates are "removed" by marking them as resolved and the course of action taken. Hence, when new data comes in and matches the data in a duplicate rather than the intended original, you will not need to perform the reconciliation process again.
-    .row.bottom-padding-lg
-        div.col-md-9
-        div.col-md-3
-            form.form-inline
-                .form-group
-                    input.form-control(
-                    ng-model="search_text"
-                    placeholder="Filter")
-    table#reconcile.table(ts-wrapper)
-        thead
-            tr
-                th.tablesort-sortable-th(ts-criteria='name') Identifier
-                th Creation
-                th Available Actions
-                th Reviewer Notes
+        div.col-md-6
+            .row.top-padding-med
+                .right-padding-lg: b Filter by:
+                    .right-padding-lg: b Type
+                    .right-padding-lg
+                        form.form-inline
+                            .form-group
+                                select.form-control(ng-model="type_filter" ng-change='changeTypeFilter(type_filter)')
+                                    option(ng-repeat="type in types" value="{{type.name}}") {{type.name}}
+        div.col-md-6
+            button.resolve-btn.btn.btn-secondary.pull-xs-right(type='button' ng-click="resolve_all('resolve_all')") Resolve All
 
+    .row.top-padding-med
+        .col-md-12
+            table#reconcile.table(ts-wrapper)
+                thead
+                    tr
+                        th.tablesort-sortable-th(ng-if="type_filter =='company'",ts-criteria='original.company_name') Identifier
+                        th.tablesort-sortable-th(ng-if="type_filter =='project'",ts-criteria='original.proj_name') Identifier
+                        th Category
+                        th Notes
+                        th Available Actions
 
-        tbody
-            tr(ng-repeat="dataset in datasets | filter:search_text" ts-repeat)
-                //td(ng-repeat="action in dataset.actions")
-                //    span(ng-if="$last") {{action.name}}
-                td
-                    | Original: {{dataset.name}}
-                    //br
-                    //| Duplicate: {{dataset.name}}
-                td
-                    | Created by
-                    span(ng-if="dataset.created_by")  dataset.created_by
-                    em(ng-if="!dataset.created_by")  N/A
-                    |  on {{dataset.created | date}} in
-                    span(ng-repeat="action in dataset.actions"): span(ng-if="$last")  {{action.name}}
-                    td
-                        a.btn.btn-danger.disabled(
-                        data-toggle="tooltip"
-                        title="If there is no new information in the duplicate, simply remove it and move all linked data to the original entity.")
-                            span(class="glyphicon glyphicon-remove")
-                        | &nbsp;
-                        a.btn.btn-warning.disabled(
-                        data-toggle="tooltip"
-                        title="If the name of the entity represents an alias, store its name as such, then remove it and move all linked data to the original entity.")
-                            span(class="glyphicon glyphicon-paste")
-                        | &nbsp;
-                        a.btn.btn-warning.disabled(
-                        data-toggle="tooltip"
-                        title="Move all linked data to the original entity and copy this entity's details into the original. You will then be redirected to the edit page for the original entity to clean up.")
-                            span(class="glyphicon glyphicon-transfer")
-                        | &nbsp;
-                        a.btn.btn-success.disabled(
-                        data-toggle="tooltip"
-                        title="Mark this entity as a fully-fledged independent entity. No changes to the suspected original are made.")
-                            span(class="glyphicon glyphicon-check")
-                    td
-                        textarea(placeholder="Space for notes")
+                tbody
+                    tr(ng-repeat="duplicate in duplicates | filter:search_text" ts-repeat)
+                        td
+                            text Original:
+                                text(ng-if='duplicate.original.company_name') {{duplicate.original.company_name}}
+                                text(ng-if='duplicate.original.proj_name') {{duplicate.original.proj_name}}
+                            br
+                            text Duplicate:
+                                text(ng-if='duplicate.duplicate.company_name') {{duplicate.duplicate.company_name}}
+                                text(ng-if='duplicate.duplicate.proj_name') {{duplicate.duplicate.proj_name}}
+                        td
+                            | {{duplicate.entity}}
+
+                        td
+                            | {{duplicate.notes}}
+                        td
+                            a.btn.btn-danger.resolve(
+                            data-toggle="tooltip"
+                            ng-click="resolve_duplicate(duplicate._id,'resolve')"
+                            title="Resolve")
+                                span(class="fa fa-1x fa-code-fork")
+                            | &nbsp;
+                            a.btn.btn-warning.update(
+                            data-toggle="tooltip"
+                            ng-click="resolve_duplicate(duplicate._id,'setasalias')"
+                            title="Update")
+                                span(class="glyphicon glyphicon-transfer")
+    div(ng-if='duplicates.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
+

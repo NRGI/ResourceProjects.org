@@ -21,7 +21,7 @@ data-target="#productions")
                 th.text-center.tablesort-sortable-th(ts-criteria='production_level') Level
                 th.tablesort-sortable-th(
                 ng-if="projectlink==true"
-                ts-criteria='production_links.name') Projects and Sites
+                ts-criteria='production_links.name') Project / Site
         tbody
             span(
             us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
@@ -45,6 +45,7 @@ data-target="#productions")
                 td.text-center.production_level {{prod.production_level}}
                 td.project_links(ng-if="projectlink===true")
                     //: span(ng-repeat="link in prod.production_links | unique: '_id'")
+
                     a(href="{{prod.proj_site.type}}/{{prod.proj_site._id}}")
                         span(ng-bind-html="prod.proj_site.name|sanitize")
                     //| {{$last ? '' : ', '}}

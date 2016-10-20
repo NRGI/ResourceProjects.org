@@ -18,10 +18,25 @@ angular.module('app')
 
     })
     .factory('nrgiPaymentsSrvc', function($resource) {
-        var PaymentsResource = $resource('/api/payments', {}, {
+        var PaymentsResource = $resource('/api/transfers', {}, {
             query:  {method:'GET', isArray: false}
         });
 
         return PaymentsResource;
 
+    })
+
+    .factory('nrgiPieChartSrvc', function($resource) {
+        var TransferResource = $resource('/api/pie_chart', {}, {
+            query: {method: 'GET', isArray: false}
+        });
+
+        return TransferResource;
+    })
+    .factory('nrgiPaymentsByGovSrvc', function($resource) {
+        var PaymentsByGov = $resource('/api/transfers_by_gov', {}, {
+            query: {method: 'GET', isArray: false}
+        });
+
+        return PaymentsByGov;
     });

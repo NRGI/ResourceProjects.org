@@ -18,32 +18,36 @@
                         ul.topnav.nav.list-inline.left-padding-lg
                             li.nav-item
                                 a.nav-link(href='/projects') Projects
-                            //li.nav-item
-                            //    a.nav-link(href='/') Payments
-                            //li.nav-item
-                            //    a.nav-link(href='/projects/map') Map
+                            li.nav-item
+                                a.nav-link.dropdown-toggle(data-toggle="dropdown") Payments
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/transfers').dropdown-item Payments by Project
+                                    li
+                                        a(href='/transfers_by_gov').dropdown-item Payments by Recipient
                             li.nav-item
                                 a.nav-link.dropdown-toggle(data-toggle="dropdown") Other Data
                                     b.caret
                                 ul.dropdown-menu
                                     li
-                                        a(href='/sites').dropdown-item Sites
-                                    li
-                                        a(href='/fields').dropdown-item Fields
-                                    li
-                                        a(href='/concessions').dropdown-item Concessions
+                                        a(href='/countries').dropdown-item Countries
                                     li
                                         a(href='/companies').dropdown-item Companies
                                     li
-                                        a(href='/groups').dropdown-item Company Groups
+                                        a(href='/commodities').dropdown-item Commodities
                                     li
                                         a(href='/contracts').dropdown-item Contracts
                                     li
-                                        a(href='/countries').dropdown-item Countries
+                                        a(href='/concessions').dropdown-item Concessions
+                                    li
+                                        a(href='/sites').dropdown-item Sites
+                                    li
+                                        a(href='/fields').dropdown-item Fields
+                                    //li
+                                    //    a(href='/groups').dropdown-item Company Groups
                                     //li
                                     //    a(href='/source_types').dropdown-item Disclosures & Context
-                                    li
-                                        a(href='/commodities').dropdown-item Commodities
                             li.nav-item
                                 a.nav-link.dropdown-toggle(data-toggle="dropdown") About
                                     b.caret
@@ -54,8 +58,8 @@
                                     li
                                         a(href='/glossary'
                                         target='_blank').dropdown-item Glossary
-                                    //li
-                                    //    a(href='/sources').dropdown-item Sources
+                                    li
+                                        a(href='/sources').dropdown-item Sources
                             li.nav-item(ng-hide="!identity.isAuthenticated()")
                                 a.nav-link.dropdown-toggle(data-toggle="dropdown") Admin
                                     b.caret

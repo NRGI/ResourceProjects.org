@@ -11,6 +11,7 @@ var companySchema, Company,
     ObjectId        = Schema.Types.ObjectId,
     source          = {type: ObjectId, ref: 'Source'},
     fact            = require("./Facts"),
+    alias           = require("./Aliases"),
     HTML            = mongoose.Types.Html,
     htmlSettings    = {
         type: HTML,
@@ -27,9 +28,7 @@ var companySchema, Company,
 companySchema = new Schema({
     //Metadata
     company_name: String,
-    company_aliases: [{
-        type: ObjectId,
-        ref: 'Alias'}],
+    company_aliases: [alias],
     company_established_source: source,
     country_of_incorporation: [fact],
     countries_of_operation: [fact],

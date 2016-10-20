@@ -1,6 +1,7 @@
 'use strict';
 angular.module('app', [
     'angular.filter',
+    'angular-underscore',
     'iso-3166-country-codes',
     'angular-google-analytics',
     'leaflet-directive',
@@ -284,13 +285,13 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
             })
-            .when('/payments', {
-                templateUrl: '/partials/dynamic/payments/payment-list',
-                controller: 'nrgiPaymentListCtrl'
-            })
             .when('/projects', {
                 templateUrl: '/partials/dynamic/projects/project-list',
                 controller: 'nrgiProjectListCtrl'
+            })
+            .when('/all-projects', {
+                templateUrl: '/partials/dynamic/projects/all-project-list',
+                controller: 'nrgiAllProjectListCtrl'
             })
             .when('/project/:id', {
                 templateUrl: '/partials/dynamic/projects/project-detail',
@@ -311,6 +312,14 @@ angular.module('app')
             .when('/sites/map', {
                 templateUrl: '/partials/dynamic/sites/mapSiteAndProject',
                 controller: 'nrgiMapSiteCtrl'
+            })
+            .when('/transfers', {
+                templateUrl: '/partials/dynamic/transfers/transfer-list',
+                controller: 'nrgiTransferListCtrl'
+            })
+            .when('/transfers_by_gov', {
+                templateUrl: '/partials/dynamic/transfersByGovEntity/transferByGov-list',
+                controller: 'nrgiTransferByGovListCtrl'
             })
             /////////////////////
             ////Helper groups////
@@ -347,14 +356,14 @@ angular.module('app')
                 templateUrl: '/partials/dynamic/sources/source-detail',
                 controller: 'nrgiSourceDetailCtrl'
             })
-            .when('/source_types', {
-                templateUrl: '/partials/dynamic/sourceTypes/sourceType-list',
-                controller: 'nrgiSourceTypeListCtrl'
-            })
-            .when('/source_type/:id', {
-                templateUrl: '/partials/dynamic/sourceTypes/sourceType-detail',
-                controller: 'nrgiSourceTypeDetailCtrl'
-            })
+            //.when('/source_types', {
+            //    templateUrl: '/partials/dynamic/sourceTypes/sourceType-list',
+            //    controller: 'nrgiSourceTypeListCtrl'
+            //})
+            //.when('/source_type/:id', {
+            //    templateUrl: '/partials/dynamic/sourceTypes/sourceType-detail',
+            //    controller: 'nrgiSourceTypeDetailCtrl'
+            //})
 
             /////////////
             ////Other////
@@ -369,6 +378,19 @@ angular.module('app')
             .when('/about', {
                 templateUrl: '/partials/static/about/about',
                 controller: 'nrgiAboutCtrl'
+            })
+            .when('/pie-chart', {
+                templateUrl: '/partials/dynamic/pieChart/pie-chart',
+                controller: 'nrgiPieChartCtrl'
+            })
+            .when('/treemap', {
+                templateUrl: '/partials/dynamic/treemap/tree-map'
+            })
+            .when('/sunburst-chart', {
+                templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart'
+            })
+            .when('/sunburst-chart-by-gov', {
+                templateUrl: '/partials/dynamic/sunburstChartByGovEntity/sunburst-chart'
             })
             //.when('/model', {
             //    templateUrl: '/partials/main/dataModel'
@@ -406,6 +428,8 @@ angular.module('app')
         nrgiNotifier
     ) {
         $rootScope._ = _;
+        $rootScope.Object = Object;
+        $rootScope.keys = $rootScope.Object.keys;
         $rootScope.$on('$routeChangeError', function(evt, current, previous, rejection) {
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             if(rejection === 'not authorized') {
@@ -420,7 +444,7 @@ angular.module('app')
             });
             output=output.substr(0,output.length-1);
 
-            console.log(output);
+            //console.log(output);
             $window.ga(['_trackPageview', output]);
         });
     });

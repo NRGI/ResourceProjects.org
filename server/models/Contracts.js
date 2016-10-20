@@ -11,6 +11,7 @@ var contractSchema, Contract,
 
 
 contractSchema = new Schema ({
+    contract_title: String, //Used in extreme cases where we just want to link things together that are working together but have no contract details
     contract_id: String, //from rc.org
     oo_contract_id: String, //from open oil repository
     contract_url: String //for tracking non-RC contracts
