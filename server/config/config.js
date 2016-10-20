@@ -10,15 +10,13 @@ module.exports 	= {
     },
     staging : {
         baseUrl: 'http://staging.resourceprojects.org',
-        //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
         db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_dev?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
     },
     production : {
         baseUrl: 'http://resourceprojects.org',
-        //db: '@aws-us-east-1-portal.14.dblayer.com:10669/rp_dev?ssl=true',
-        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_prod?ssl=true',
+        db: '@aws-us-east-1-portal.14.dblayer.com:10669,aws-us-east-1-portal.13.dblayer.com:10499/rp_prod_shadow?ssl=true',
         rootPath: rootPath,
         port: process.env.PORT || 80
     },
