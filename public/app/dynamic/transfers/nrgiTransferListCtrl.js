@@ -6,7 +6,8 @@ angular.module('app')
         $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiTransfersSrvc
+        nrgiTransfersSrvc,
+        $filter
     ) {
 
         var currentPage = 0,
@@ -22,6 +23,7 @@ angular.module('app')
         var fields = [];
         var country_name = '';
         var company_name = '';
+        var transfer_value = '';
         $scope.currency = '';
         $scope.year = '';
         $scope.load = function(searchOptions) {
@@ -114,6 +116,11 @@ angular.module('app')
                 angular.forEach(response.data, function (transfer, key) {
                     $scope.csv_transfers[key] = [];
                     angular.forEach(fields, function (field) {
+                        if(field =='transfer_value'){
+                            transfer_value = '';
+                            transfer_value = $filter('currency')(transfer[field], '', 0)
+                            $scope.csv_transfers[key].push(transfer_value);
+                        }
                         if (field == 'country') {
                             country_name = '';
                             if (transfer[field] != undefined) {
@@ -158,10 +165,11 @@ angular.module('app')
                             }
                             $scope.csv_transfers[key].push(id);
                         }
-                        if (field != 'company' && field != 'transfer_gov_entity'&& field != 'country' && field != 'proj_site' && field != 'proj_id') {
+                        if (field != 'company' && field != 'transfer_gov_entity'&& field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transfer_value') {
                             $scope.csv_transfers[key].push(transfer[field])
                         }
                     })
+                    console.log($scope.csv_transfers)
                 });
             });
         }
