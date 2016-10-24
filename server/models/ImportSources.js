@@ -23,3 +23,13 @@ importSourceSchema = new Schema({
 });
 
 ImportSource = mongoose.model('ImportSource', importSourceSchema);
+
+function getInitImportSourceCount() {
+    ImportSource.find({}).count().exec(function(err, is_count) {
+        console.log(String(is_count), 'import source(s) exist...')
+    });
+};
+
+exports.getInitImportSourceCount = getInitImportSourceCount;
+
+

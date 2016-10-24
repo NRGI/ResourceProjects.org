@@ -93,6 +93,7 @@ module.exports = function(app, config, user, pass, env) {
     countryModel.createDefaultCountries();
     datasetModel.createDefaultDatasets();
     duplicateModel.getInitDuplicateCount();
+    importSourceModel.getInitImportSourceCount();
     linkModel.getInitLinkCount();
     productionModel.getInitProductionCount();
     projectModel.getInitProjectCount();

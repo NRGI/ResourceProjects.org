@@ -1,6 +1,8 @@
 // DO NOT MERGE TO PRODUCTION! FOR STAGING USE ONLY!
 
 var Project 		= require('mongoose').model('Project'),
+    //Uncomment if we wish to reset dataset list
+    //Dataset = require('mongoose').model('Dataset'),
     Source	 		= require('mongoose').model('Source'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
@@ -32,7 +34,8 @@ exports.destroy = function(req, res) {
         {name: 'Duplicate'},
         {name: 'ImportSource'},
         {name: 'Action'},
-        {name: 'Project'}
+        {name: 'Project'}//, // (Uncomment if wanting to reset dataset list)
+        //{name: 'Dataset'}
     ];
 
     var companies = {};
