@@ -71,9 +71,10 @@ exports.getPayments = function(req, res) {
                         transfers_value = (value / 1000000).toFixed(1)
                     }
                     sunburst_new.push({
-                        name: '<b>Payment to</b><br>Payments<br>' + transfers_value + ' Million',
+                        name: 'Payments',
                         children: [],
                         size: value,
+                        value: transfers_value,
                         total_value: transfers_value
                     });
                     if (transfers.length>0) {
@@ -113,9 +114,10 @@ exports.getPayments = function(req, res) {
                                 }
                                 if(grouped[0].company && grouped[0].company.company_name) {
                                     sunburst_new[0].children.push({
-                                        name: '<b>Payment to</b><br>' + grouped[0].company.company_name + '<br>' + transfers_value + ' Million',
+                                        name:  grouped[0].company.company_name,
                                         children: [],
-                                        size:value
+                                        size:value,
+                                        value:transfers_value
                                     });
                                     _.each(groups, function (transfer, key) {
                                         if (transfer.project) {
@@ -128,8 +130,9 @@ exports.getPayments = function(req, res) {
                                                     transfers_value = (size / 1000000).toFixed(1)
                                                 }
                                                 sunburst_new[0].children[counter].children.push({
-                                                    name: '<b>Payment to</b><br>' + transfer.project.proj_name + '<br>' + transfers_value + ' Million',
-                                                    'size': transfer.values
+                                                    name:  transfer.project.proj_name,
+                                                    'size': transfer.values,
+                                                    'value': transfers_value
                                                 })
                                             }
                                         }

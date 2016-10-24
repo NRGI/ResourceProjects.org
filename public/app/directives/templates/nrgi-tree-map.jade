@@ -24,10 +24,13 @@ div
     us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
     spinner-start-active="true"
     spinner-key="spinner-treemap")
-    div.tree-map-data
+    .row.top-padding-med
+        p.tree-map-data
+        #tooltip
     .row.top-padding-med(ng-if="show_total")
         h5(class="text-center")
             span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
             span(ng-if="currency_filter=='Show all currency'") Total:
                 = ' '
                 text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
+
