@@ -24,6 +24,11 @@ var sourceTypeId = '56e8736944442a3824141429';
 //Data needed for inter-entity reference
 var countries;
 
+function generate_source_url(companyNumber, referenceNumber) {
+	if (companyNumber) return "https://extractives.companieshouse.gov.uk/company/" + companyNumber;
+	else return "https://extractives.companieshouse.gov.uk/company/" + referenceNumber.substr(0, 8);
+}
+
 function makeProjId (countryIso, name) {
 	var pid = countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
 	//console.log(pid + ": " + countryIso);
@@ -74,6 +79,7 @@ exports.importData = function(finalcallback) {
 							else {
 
 								// get all reports for this year and handle them one after another
+								console.log(res.body);
 								async.eachSeries(res.body, function (chReportData, icallback) {
 										//Set currency for this report
 										loadChReport(chReportData, year, reporter, icallback);
@@ -160,11 +166,10 @@ function loadChReport(chData, year, report, loadcallback) {
 		var version = chData.reportDetails.version;
 		var source_company = chData.reportDetails.companyName;
 		var currency = chData.reportDetails.currency;
-
-		Source.findOne(
-			{source_url: 'https://extractives.companieshouse.gov.uk',
-
-				// Source name identifies the new source and is used for this combination of year, report version and company
+        Source.findOne(
+			{
+				source_url: generate_source_url(chData.reportDetails.companyNumber, chData.reportDetails.referenceNumber),
+                // Source name identifies the new source and is used for this combination of year, report version and company
 				source_name: 'Companies House Extractives Disclosure of ' + source_company + ' for ' + year + ', Version ' + version},
 			null, // return everything
 			function(err, doc) {
@@ -202,9 +207,9 @@ function loadChReport(chData, year, report, loadcallback) {
 	// checks if the company of this report already exists in the DB, creates a new one otherwise
 	function loadCompany(report, source, currency, callback) {
 
-		Company.findOne(
+	    Company.findOne(
 			{
-				companies_house_id: chData.reportDetails.companyNumber
+				 open_corporates_id: "gb/" + chData.reportDetails.companyNumber
 			},
 
 			function(err, doc) {
@@ -693,6 +698,7 @@ function makeNewCompany (newData) {
 	if (newData.reportDetails.companyNumber !== "") {
 		company.open_corporates_id = "gb/" + newData.reportDetails.companyNumber;
 	}
+	else console.log("WARNING! No company number for " + newData.reportDetails.companyName);
 
 	company.country_of_incorporation = [{country: countries['GBR']._id}]; // Only have UK companies
 
