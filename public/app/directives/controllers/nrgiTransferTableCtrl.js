@@ -2,7 +2,7 @@
 
 angular
     .module('app')
-    .controller('nrgiTransferTableCtrl', function ($scope,nrgiTransferTablesSrvc,usSpinnerService) {
+    .controller('nrgiTransferTableCtrl', function ($scope,nrgiTransferTablesSrvc,usSpinnerService, $filter) {
         $scope.transfers=[];
         $scope.loading=false;
         $scope.openClose=true;
@@ -11,6 +11,7 @@ angular
         $scope.expression='';
         var fields = [];
         var country_name = '';
+        var transfer_value = '';
         var company_name = '';
         usSpinnerService.spin('spinner-transfers');
         $scope.$watch('id', function(value) {
@@ -56,6 +57,11 @@ angular
                             angular.forEach($scope.transfers, function (transfer, key) {
                                 $scope.csv_transfers[key] = [];
                                 angular.forEach(fields, function (field) {
+                                    if(field =='transfer_value'){
+                                        transfer_value = '';
+                                        transfer_value = $filter('currency')(transfer[field], '', 0)
+                                        $scope.csv_transfers[key].push(transfer_value);
+                                    }
                                     if (field == 'country') {
                                         country_name = '';
                                         if (transfer[field] != undefined) {
@@ -93,7 +99,7 @@ angular
                                         }
                                         $scope.csv_transfers[key].push(id);
                                     }
-                                    if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_type' && field != 'proj_id') {
+                                    if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_type' && field != 'proj_id' && field != 'transfer_value') {
                                         $scope.csv_transfers[key].push(transfer[field])
                                     }
                                 })

@@ -166,9 +166,10 @@ function loadChReport(chData, year, report, loadcallback) {
 		var version = chData.reportDetails.version;
 		var source_company = chData.reportDetails.companyName;
 		var currency = chData.reportDetails.currency;
+                var companyNumber = chData.reportDetails.companyNumber; 
+                var referenceNumber = chData.reportDetails.referenceNumber;
         Source.findOne(
 			{
-				source_url: generate_source_url(chData.reportDetails.companyNumber, chData.reportDetails.referenceNumber),
                 // Source name identifies the new source and is used for this combination of year, report version and company
 				source_name: 'Companies House Extractives Disclosure of ' + source_company + ' for ' + year + ', Version ' + version},
 			null, // return everything
@@ -186,7 +187,7 @@ function loadChReport(chData, year, report, loadcallback) {
 				else {
 
 					report.add('Source not found in the DB, creating\n');
-					var newSource = makeNewSource(source_company, year, version);
+					var newSource = makeNewSource(source_company, year, version, companyNumber, referenceNumber);
 					Source.create(
 						newSource,
 						(function(err, model) {
@@ -237,8 +238,8 @@ function loadChReport(chData, year, report, loadcallback) {
 								// company with this exact name is found. use this and create no duplicate.
 								company = doc;
 								createdOrAffectedEntities[doc._id] = {entity: "company", obj: doc._id};
-								//Update OC id if not present
-								if (!doc.open_corporates_id) {
+								//Update OC id if not present and exists in report
+								if (!doc.open_corporates_id && chData.reportDetails.companyNumber) {
 									Company.findByIdAndUpdate(doc._id, {open_corporates_id: "gb/" + chData.reportDetails.companyNumber}, {}, function (err) {
 										if (err) {
 											report.add('Encountered an error (' + err + ') while updating the DB. Aborting.\n');
@@ -673,12 +674,12 @@ function loadChReport(chData, year, report, loadcallback) {
 
 
 
-function makeNewSource(company, year, version) {
+function makeNewSource(company, year, version, companyNumber, referenceNumber) {
 
 	var source = {
 		source_name: 'Companies House Extractives Disclosure of ' + company + ' for ' + year + ', Version ' + version,
 		source_type_id: sourceTypeId,
-		source_url: 'https://extractives.companieshouse.gov.uk',
+		source_url: generate_source_url(companyNumber, referenceNumber),
 		source_notes: 'Source for Companies House Extractive API Import',
 		source_date: Date.now(),
 		retrieve_date: Date.now()
@@ -695,7 +696,7 @@ function makeNewCompany (newData) {
 		company_name: newData.reportDetails.companyName
 	};
 
-	if (newData.reportDetails.companyNumber !== "") {
+	if (newData.reportDetails.companyNumber) {
 		company.open_corporates_id = "gb/" + newData.reportDetails.companyNumber;
 	}
 	else console.log("WARNING! No company number for " + newData.reportDetails.companyName);

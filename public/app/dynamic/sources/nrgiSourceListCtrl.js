@@ -17,8 +17,8 @@ angular.module('app')
         $scope.busy = false;
 
         $scope.csv_sources = [];
-        var fields = ['source_name', 'source_type', 'source_date', 'projects'];
-        var header_projects = ['Source', 'Source type', 'Source date', 'No. Projects'];
+        var fields = ['source_name', 'source_type_id', 'source_url', 'source_date', 'retrieve_date'];
+        var header_projects = ['Source', 'Source type', 'Access source', 'Source date', 'Retrieved date'];
         $scope.getHeaderSources = function () {
             return header_projects
         };
@@ -27,11 +27,18 @@ angular.module('app')
             angular.forEach(sources, function (source, key) {
                 $scope.csv_sources[key] = [];
                 angular.forEach(fields, function (field) {
-                    if (field == 'source_date') {
+                    if(field == 'source_type_id' ){
+                        if(source[field] && source[field].source_type_name) {
+                            $scope.csv_sources[key].push(source[field].source_type_name)
+                        }else{
+                            $scope.csv_sources[key].push('')
+                        }
+                    }
+                    if (field == 'source_date' || field == 'retrieve_date') {
                         source[field] = $filter('date')(source[field],'yyyy-MM-dd');
                         $scope.csv_sources[key].push(source[field])
                     }
-                    if (field != 'source_date') {
+                    if (field != 'source_date' && field != 'retrieve_date' && field != 'source_type_id') {
                         $scope.csv_sources[key].push(source[field])
                     }
                 })
