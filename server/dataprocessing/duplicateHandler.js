@@ -32,7 +32,6 @@ findCompanyDuplicates = function(action_id, fnCallback) {
   Company.find({})
   .exec(function (err, all_companies) {
     if (err) {
-      console.log(6);
       fnCallback(err);
     }
     else if(all_companies) {
@@ -45,58 +44,70 @@ findCompanyDuplicates = function(action_id, fnCallback) {
       .populate({path: 'obj', model: Company})
       .exec(function(err, new_companies) {
         if(err) {
-          console.log(3);
           fnCallback(err);
         }
         else if(new_companies) {
-          for(new_company of new_companies) {
-            var searchString = preprocessString(new_company.obj.company_name);
-            var searchResult = fuse.search(searchString);
-            if (!searchResult || searchResult == []) {
-            }
-            else {
-              var numberOfResults = searchResult.length-1;
-              var notes = 'Found  ' + numberOfResults + ' potentially matching company name(s) for company ' + new_company.obj.company_name + ' after import. Date: ' + moment(Date.now()).format('LLL');
-              //console.log(notes);
-              for (var originalCompany of searchResult) {
-
-                var new_company_country, original_company_country;
-                if(new_company.obj.country_of_incorporation && new_company.obj.country_of_incorporation.length > 0 && new_company.obj.country_of_incorporation[0].country) {
-                  new_company_country = new_company.obj.country_of_incorporation[0].country;
-                }
-                if(originalCompany.item.country_of_incorporation && originalCompany.item.country_of_incorporation.length > 0 && originalCompany.item.country_of_incorporation[0].country) {
-                  original_company_country = originalCompany.item.country_of_incorporation[0].country;
-                }
-                var identical_countries = false;
-                if(new_company_country === original_company_country) {
-                  identical_countries = true;
-                }
-
-                if (originalCompany.item.company_name != searchString && identical_countries) {
-
-                  //check if searchstring is in aliases
-                  var aliases = _.pluck(originalCompany.item.company_aliases, 'alias')
-
-                  //if not in aliases then mark as duplicate
-                  if(!_.contains(aliases, searchString) ) {
-
-                    duplicate_count++;
-                    var newDuplicate = makeNewDuplicate(action_id, originalCompany.item._id, new_company.obj._id, "company", notes, originalCompany.score);
-                    Duplicate.create(newDuplicate, null);
-
+          async.each(new_companies,
+            function(new_company, dcallback) {
+              var searchString = preprocessString(new_company.obj.company_name);
+              var searchResult = fuse.search(searchString);
+              if (!searchResult || searchResult == []) {
+                dcallback(null);
+              }
+              else {
+                var numberOfResults = searchResult.length-1;
+                var notes = 'Found  ' + numberOfResults + ' potentially matching company name(s) for company ' + new_company.obj.company_name + ' after import. Date: ' + moment(Date.now()).format('LLL');
+                //console.log(notes);
+                async.each(searchResult,
+                  function(originalCompany, ocallback) {
+                    var new_company_country, original_company_country;
+                    if(new_company.obj.country_of_incorporation && new_company.obj.country_of_incorporation.length > 0 && new_company.obj.country_of_incorporation[0].country) {
+                      new_company_country = new_company.obj.country_of_incorporation[0].country;
+                    }
+                    if(originalCompany.item.country_of_incorporation && originalCompany.item.country_of_incorporation.length > 0 && originalCompany.item.country_of_incorporation[0].country) {
+                      original_company_country = originalCompany.item.country_of_incorporation[0].country;
+                    }
+                    var identical_countries = false;
+                    if(new_company_country === original_company_country) {
+                      identical_countries = true;
+                    }
+    
+                    if (originalCompany.item.company_name != searchString && identical_countries) {
+    
+                      //check if searchstring is in aliases
+                      var aliases = _.pluck(originalCompany.item.company_aliases, 'alias');
+    
+                      //if not in aliases then mark as duplicate
+                      if(!_.contains(aliases, searchString) ) {
+    
+                        duplicate_count++;
+                        var newDuplicate = makeNewDuplicate(action_id, originalCompany.item._id, new_company.obj._id, "company", notes, originalCompany.score);
+                        Duplicate.create(newDuplicate,
+                          function(err) {
+                            return ocallback(err);
+                          }
+                        );
+    
+                      }
+                    }
+                    return ocallback(null);
+                  },
+                  function(err) {
+                    dcallback(err);
                   }
-
-                }
-              } //end for
+                );
+              }
+            },
+            function(err) {
+              console.log("Searching for company duplicates completed. " + duplicate_count + ' duplicate(s) found.');
+              async.nextTick(function(){ fnCallback(err, duplicate_count + ' company duplicate(s) found.'); });
             }
-          } // end for
+          );
         }
-        console.log("Searching for company duplicates completed. " + duplicate_count + ' duplicate(s) found.');
-        async.nextTick(function(){ fnCallback(null, duplicate_count + ' company duplicate(s) found.'); });
+        
       });
     }
     else {
-      console.log(4);
       fnCallback(err);
     }
   });
@@ -110,7 +121,6 @@ findProjectDuplicates = function(action_id, fnCallback) {
   Project.find({})
   .exec(function (err, all_projects) {
     if (err) {
-      console.log(5);
       fnCallback(err);
     }
     else if(all_projects) {
@@ -123,59 +133,68 @@ findProjectDuplicates = function(action_id, fnCallback) {
       .populate({path: 'obj', model: Project})
       .exec(function(err, new_projects) {
         if(err) {
-          console.log(1);
           fnCallback(err);
         }
         else if(new_projects) {
-          for(new_project of new_projects) {
-            var searchString = preprocessString(new_project.obj.proj_name);
-            var searchResult = fuse.search(searchString);
-            if (!searchResult || searchResult == []) {
-            }
-            else {
-              var numberOfResults = searchResult.length-1;
-              var notes = 'Found  ' + numberOfResults + ' potentially matching project name(s) for project ' + new_project.obj.proj_name + ' after import. Date: ' + moment(Date.now()).format('LLL');
-              //console.log(notes);
-              for (var originalProject of searchResult) {
-                async.nextTick(function(){
-                  var new_project_country, original_project_country;
-                  if(new_project.obj.project_country && new_project.obj.project_country.length > 0 && new_project.obj.project_country[0].country) {
-                    new_project_country = new_project.obj.project_country[0].country;
-                  }
-                  if(originalProject.item.project_country && originalProject.item.project_country.length > 0 && originalProject.item.project_country[0].country) {
-                    original_project_country = originalProject.item.project_country[0].country;
-                  }
-                  var identical_countries = false;
-                  if(new_project_country === original_project_country) {
-                    identical_countries = true;
-                  }
-
-                  if (originalProject.item.proj_name != searchString && identical_countries) {
-
-                    //check if searchstring is in aliases
-                    var aliases = _.pluck(originalProject.item.proj_aliases, 'alias')
-                    //if not in aliases then mark as duplicate
-                    if(!_.contains(aliases, searchString)) {
-
-                      duplicate_count++;
-                      var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
-                      Duplicate.create(newDuplicate, null);
-
+          async.each(new_projects,
+            function(new_project, pcallback) {
+              var searchString = preprocessString(new_project.obj.proj_name);
+              var searchResult = fuse.search(searchString);
+              if (!searchResult || searchResult == []) {
+                 pcallback(null);
+              }
+              else {
+                var numberOfResults = searchResult.length-1;
+                var notes = 'Found  ' + numberOfResults + ' potentially matching project name(s) for project ' + new_project.obj.proj_name + ' after import. Date: ' + moment(Date.now()).format('LLL');
+                //console.log(notes);
+                async.each(searchResult,
+                  function(originalProject, kcallback) {
+  
+                    var new_project_country, original_project_country;
+                    if(new_project.obj.project_country && new_project.obj.project_country.length > 0 && new_project.obj.project_country[0].country) {
+                      new_project_country = new_project.obj.project_country[0].country;
                     }
-
+                    if(originalProject.item.project_country && originalProject.item.project_country.length > 0 && originalProject.item.project_country[0].country) {
+                      original_project_country = originalProject.item.project_country[0].country;
+                    }
+                    var identical_countries = false;
+                    if(new_project_country === original_project_country) {
+                      identical_countries = true;
+                    }
+  
+                    if (originalProject.item.proj_name != searchString && identical_countries) {
+  
+                      //check if searchstring is in aliases
+                      var aliases = _.pluck(originalProject.item.proj_aliases, 'alias');
+                      //if not in aliases then mark as duplicate
+                      if(!_.contains(aliases, searchString)) {
+  
+                        duplicate_count++;
+                        var newDuplicate = makeNewDuplicate(action_id, originalProject.item._id, new_project.obj._id, "project", notes, originalProject.score);
+                        Duplicate.create(newDuplicate,
+                          function(err) {
+                            return kcallback(err);
+                          }
+                        );
+                      }
+                    }
+                    return kcallback(null);
+                  },
+                  function(err) {
+                    pcallback(err);
                   }
-                });
-
-              } // end for
+                );
+              }
+            },
+            function(err) {
+             console.log("Searching for project duplicates completed. " + duplicate_count + ' duplicate(s) found.');
+             return async.nextTick(function(){ fnCallback(err, duplicate_count + ' project duplicate(s) found.'); });
             }
-          } // end for
+          );
         }
-        console.log("Searching for project duplicates completed. " + duplicate_count + ' duplicate(s) found.');
-        return async.nextTick(function(){ fnCallback(null, duplicate_count + ' project duplicate(s) found.'); });
       });
     }
     else {
-      console.log(2);
       fnCallback(err);
     }
   });
