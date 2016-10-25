@@ -89,8 +89,9 @@ findCompanyDuplicates = function(action_id, fnCallback) {
                         );
     
                       }
+                      else return ocallback(null);
                     }
-                    return ocallback(null);
+                    else return ocallback(null);
                   },
                   function(err) {
                     dcallback(err);
@@ -177,8 +178,9 @@ findProjectDuplicates = function(action_id, fnCallback) {
                           }
                         );
                       }
+                      else return kcallback(null);
                     }
-                    return kcallback(null);
+                    else return kcallback(null);
                   },
                   function(err) {
                     pcallback(err);

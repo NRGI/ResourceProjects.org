@@ -79,7 +79,7 @@ exports.importData = function(finalcallback) {
 							else {
 
 								// get all reports for this year and handle them one after another
-								console.log(res.body);
+								//console.log(res.body);
 								async.eachSeries(res.body, function (chReportData, icallback) {
 										//Set currency for this report
 										loadChReport(chReportData, year, reporter, icallback);
@@ -419,10 +419,10 @@ function loadChReport(chData, year, report, loadcallback) {
 				ckey = projectTotalEntry.projectCode.slice(0,2).toUpperCase().replace("UK", "GB");
 				if (countries_iso2[ckey]) {
 					countryId = countries_iso2[ckey]._id;
-					report.add("2letter");
+					report.add("2letter iso\n");
 				}
 			    else {
-					report.add("missingcountry");
+					report.add("missingcountry iso\n");
 				}
 			
 			}
@@ -461,6 +461,7 @@ function loadChReport(chData, year, report, loadcallback) {
 					else {
 				*/
 			            if (countryId !== null) {
+							//report.add('proj find: ' + util.inspect(projectTotalEntry));
 							Project.findOne( //match case-insensitive
 								{
 									$or:
@@ -613,8 +614,8 @@ function loadChReport(chData, year, report, loadcallback) {
 			
 			// Update project countries and set ID if not set
 			// We assume that every project in the API has transfers. Otherwise it wouldn't make much sense.
-			console.log(projectPaymentEntry);
-			console.log(projectPaymentEntry.countryCodeList);
+			//console.log(projectPaymentEntry);
+			//console.log(projectPaymentEntry.countryCodeList);
 
 			var countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
 			// Only adds the country if not already there

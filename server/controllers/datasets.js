@@ -286,8 +286,9 @@ exports.createAction = function(req, res) {
                                         if (err) console.log(err); //TODO: close the action properly
                                         else {
                                 
-                                            console.log("Searching for duplicates...");
+                                            
                                             if (status == "Success") {
+                                                console.log("Searching for duplicates...");
                                                 duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
                                                     if (err) {
                                                         status = "Failed";
