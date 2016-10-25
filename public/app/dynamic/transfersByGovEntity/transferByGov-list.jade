@@ -30,14 +30,17 @@
             .row
                 form.form-inline
                     .form-group
-                        a(href='/sunburst-chart-by-gov' target='_blank').btn.btn-secondary.pull-xs-right(type='button') See sunburst chart
+                        a(href='/sunburst-chart-by-gov'
+                        target='_blank')
+                            .btn.btn-secondary.pull-xs-right(type='button') See sunburst chart
         .col-md-2
             .row
                 br
             .row
                 form.form-inline
                     .form-group
-                        a(href='/transfers').btn.btn-secondary.pull-xs-right(type='button') See payments by project
+                        a(href='/transfers')
+                            .btn.btn-secondary.pull-xs-right(type='button') See payments by project
 
     .row.top-padding-med
         table#payments.table.table-striped.table-fixed-header(
@@ -76,7 +79,7 @@
                     td.transfer_level {{transfer.transfer_level}}
                     td.transfer_type {{transfer.transfer_type}}
                     td.transfer_currency {{transfer.transfer_unit}}
-                    td.transfer_value {{transfer.transfer_value}}
+                    td.transfer_value {{transfer.transfer_value | currency:"":0}}
     div(ng-if='transfer_count>499' infinite-scroll='loadMore()' infinite-scroll-distance='3')
     div(ng-if='transfer_count<499' infinite-scroll='load_all()' infinite-scroll-distance='3')
     div(ng-if="transfers.length>0")

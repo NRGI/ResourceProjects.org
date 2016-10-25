@@ -852,11 +852,8 @@ svg {
 .onoffswitch,
 .onoffswitch-proj {
   margin: 0 10px 0 0;
-  position: relative;
-  width: 40px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  position: relative width 40px;
+  -webkit-user-select: none -moz-user-select none -ms-user-select none;
 }
 .onoffswitch-checkbox,
 .onoffswitch-proj-checkbox {
@@ -864,71 +861,50 @@ svg {
 }
 .onoffswitch-label,
 .onoffswitch-proj-label {
-  display: block;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid #999;
-  border-radius: 20px;
+  display: block overflow hidden cursor pointer;
+  border: 2px solid #999 border-radius 20px;
 }
 .onoffswitch-inner,
 .onoffswitch-proj-inner {
-  display: block;
-  width: 200%;
-  margin-left: -100%;
+  display: block width 200% margin-left -100%;
   transition: margin 0.3s ease-in 0s;
 }
-.onoffswitch-inner:before,
-.onoffswitch-inner:after,
-.onoffswitch-proj-inner:before,
-.onoffswitch-proj-inner:after {
-  display: block;
-  float: left;
-  width: 50%;
-  height: 12px;
-  padding: 0;
-  line-height: 12px;
-  font-size: 12px;
-  color: #fff;
-  font-family: Trebuchet, Arial, sans-serif;
-  font-weight: bold;
+.onoffswitch-inner before,
+.onoffswitch-inner after,
+.onoffswitch-proj-inner before,
+.onoffswitch-proj-inner after {
+  display: block float left width 50% height 12px padding 0 line-height 12px;
+  font-size: 12px color #fff font-family Trebuchet, Arial, sans-serif font-weight bold;
   box-sizing: border-box;
 }
-.onoffswitch-inner:before,
-.onoffswitch-proj-inner:before {
+.onoffswitch-inner before,
+.onoffswitch-proj-inner before {
   content: "";
   padding-left: 9px;
-  background-color: #34a7c1;
-  color: #fff;
+  background-color: #34a7c1 color #fff;
 }
-.onoffswitch-inner:after,
-.onoffswitch-proj-inner:after {
+.onoffswitch-inner after,
+.onoffswitch-proj-inner after {
   content: "";
   padding-right: 9px;
-  background-color: #eee;
-  color: #999;
+  background-color: #eee color #999;
   text-align: right;
 }
 .onoffswitch-switch,
 .onoffswitch-proj-switch {
-  display: block;
-  width: 12px;
-  height: 12px;
-  margin: 2px;
+  display: block width 12px height 12px margin 2px;
   background: #fff;
-  position: absolute;
-  top: 0;
-  bottom: 0;
+  position: absolute top 0 bottom 0;
   right: 24px;
-  border: 2px solid #999;
-  border-radius: 20px;
+  border: 2px solid #999 border-radius 20px;
   transition: all 0.3s ease-in 0s;
 }
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner,
-.onoffswitch-proj-checkbox:checked + .onoffswitch-proj-label .onoffswitch-proj-inner {
+.onoffswitch-checkbox checked + .onoffswitch-label .onoffswitch-inner,
+.onoffswitch-proj-checkbox checked + .onoffswitch-proj-label .onoffswitch-proj-inner {
   margin-left: 0;
 }
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch,
-.onoffswitch-proj-checkbox:checked + .onoffswitch-proj-label .onoffswitch-proj-switch {
+.onoffswitch-checkbox checked + .onoffswitch-label .onoffswitch-switch,
+.onoffswitch-proj-checkbox checked + .onoffswitch-proj-label .onoffswitch-proj-switch {
   right: 0px;
 }
 .tree-map-data {
@@ -937,14 +913,77 @@ svg {
   position: relative;
   width: 100%;
 }
-.node {
-  padding-left: 0;
-  padding-right: 0;
-  border: solid 1px #fff;
-  font: 10px sans-serif;
-  line-height: 12px;
+#chart {
+  width: 820px;
+  height: 700px;
+  background: #bbb;
+  margin: 1px auto;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+text {
+  pointer-events: none;
+}
+.grandparent text {
+  font-weight: bold;
+  font-size: medium;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+}
+title,
+.foreignobj,
+.parent {
   overflow: hidden;
+}
+rect {
+  fill: none;
+  stroke: #fff;
+}
+rect.parent,
+.grandparent rect {
+  stroke-width: 2px;
+}
+.grandparent rect {
+  fill: #fff;
+}
+.children rect.parent,
+.grandparent rect {
+  cursor: pointer;
+}
+rect.parent {
+  pointer-events: all;
+}
+.children hover rect.child,
+.grandparent hover rect {
+  fill: #aaa;
+}
+.textdiv {
+  font-size: x-small;
+  padding: 5px;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+#tooltip {
   position: absolute;
-  text-indent: 2px;
-  text-align: center;
+  width: 220px;
+  height: auto;
+  padding: 10px;
+  background-color: #fff;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+#tooltip.hidden {
+  display: none;
+}
+#tooltip p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 20px;
 }

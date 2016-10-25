@@ -39,7 +39,7 @@ data-target="#transfers")
                 td.transfer_level {{transfer.proj_site.type}}
                 td.transfer_type {{transfer.transfer_type}}
                 td.transfer_currency {{transfer.transfer_unit}}
-                td.transfer_value {{transfer.transfer_value}}
+                td.transfer_value {{transfer.transfer_value | currency:"":0}}
     div(ng-if="transfers.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')

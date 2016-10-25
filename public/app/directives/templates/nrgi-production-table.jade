@@ -31,7 +31,7 @@ data-target="#productions")
             ng-repeat="prod in production"
             ts-repeat ng-class="expression")
                 td.production_year {{prod.production_year}}
-                td.text-right.production_volume  {{prod.production_volume | number}}
+                td.text-right.production_volume  {{prod.production_volume | currency:"":0}}
                 td.production_unit {{prod.production_unit}}
                 td.production_commodity
                     a(href='commodity/{{prod.production_commodity.commodity_id}}')

@@ -6,7 +6,8 @@ angular.module('app')
         $rootScope,
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
-        nrgiTransfersByGovSrvc
+        nrgiTransfersByGovSrvc,
+        $filter
     ) {
         var currentPage = 0,
             totalPages = 0;
@@ -20,6 +21,7 @@ angular.module('app')
         var header_transfer = [];
         var fields = [];
         var country_name = '';
+        var transfer_value = '';
         var company_name = '';
         $scope.currency = '';
         $scope.year = '';
@@ -111,6 +113,11 @@ angular.module('app')
                 angular.forEach(response.data, function (transfer, key) {
                     $scope.csv_transfers[key] = [];
                     angular.forEach(fields, function (field) {
+                        if(field =='transfer_value'){
+                            transfer_value='';
+                            transfer_value = $filter('currency')(transfer[field], '', 0)
+                            $scope.csv_transfers[key].push(transfer_value);
+                        }
                         if (field == 'country') {
                             country_name = '';
                             if (transfer[field] != undefined) {
@@ -127,7 +134,7 @@ angular.module('app')
                             }
                             $scope.csv_transfers[key].push(company_name);
                         }
-                        if (field != 'company' && field != 'country') {
+                        if (field != 'company' && field != 'country' && field != 'transfer_value') {
                             $scope.csv_transfers[key].push(transfer[field])
                         }
                     })
