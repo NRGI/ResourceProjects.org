@@ -68,7 +68,12 @@ module.exports = function(app, config, user, pass, env) {
             mongos: {
                 ssl: true,
                 sslValidate: true,
-                sslCA: ca
+                sslCA: ca,
+                poolSize: 50,
+                socketOptions: {
+                    connectTimeoutMS: 10000,
+                    socketTimeoutMS: 15000
+                }
             }
         };
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
