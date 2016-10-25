@@ -240,7 +240,6 @@ angular
 
 
         var mousemove = function(d) {
-            console.log(d)
             var xPosition = d3.event.pageX + 5;
             var yPosition = d3.event.pageY + 5;
 
