@@ -613,6 +613,9 @@ function loadChReport(chData, year, report, loadcallback) {
 			
 			// Update project countries and set ID if not set
 			// We assume that every project in the API has transfers. Otherwise it wouldn't make much sense.
+			console.log(projectPaymentEntry);
+			console.log(projectPaymentEntry.countryCodeList);
+
 			var countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
 			// Only adds the country if not already there
 			var update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
@@ -630,36 +633,37 @@ function loadChReport(chData, year, report, loadcallback) {
 				}
 				else {
 					projects[projectPaymentEntry.projectName] = uproject;
+					var transfer_audit_type = "company_payment";
+
+					var country = countries[projectPaymentEntry.countryCodeList]._id;
+		
+					// TODO: transfer year = year of report date?
+					// query.transfer_year = year;
+		
+					var newTransfer = makeNewTransfer(projectPaymentEntry, projects, company, currency, transfer_audit_type, "project", year, country);
+					if (!newTransfer) {
+		
+						report.add('Invalid or missing data for new transfer. Aborting.\n');
+						return forcallback(err);
+					}
+					Transfer.create(
+						newTransfer,
+						function(err, tmodel) {
+							if (err) {
+								report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
+								return forcallback(err);
+							}
+							else {
+								createdOrAffectedEntities[tmodel._id] = {entity: "transfer", obj: tmodel._id};
+								report.add('Added transfer for project ' + projectPaymentEntry.projectName + '\n');
+								async.nextTick(function(){ forcallback(null); });
+							}
+						}
+					);
 				}
  			});
  
-			var transfer_audit_type = "company_payment";
-
-			var country = countries[projectPaymentEntry.countryCodeList]._id;
-
-			// TODO: transfer year = year of report date?
-			// query.transfer_year = year;
-
-			var newTransfer = makeNewTransfer(projectPaymentEntry, projects, company, currency, transfer_audit_type, "project", year, country);
-			if (!newTransfer) {
-
-				report.add('Invalid or missing data for new transfer. Aborting.\n');
-				return forcallback(err);
-			}
-			Transfer.create(
-				newTransfer,
-				function(err, tmodel) {
-					if (err) {
-						report.add('Encountered an error while updating the DB: ' + err + '. Aborting.\n');
-						return forcallback(err);
-					}
-					else {
-						createdOrAffectedEntities[tmodel._id] = {entity: "transfer", obj: tmodel._id};
-						report.add('Added transfer for project ' + projectPaymentEntry.projectName + '\n');
-						async.nextTick(function(){ forcallback(null); });
-					}
-				}
-			);
+			
 		},   function (err) {
 			if (err) {
 				return callback(err,report);
