@@ -515,7 +515,7 @@ exports.resolveDuplicates = function(req, res) {
         callback(null, "no need to update any element.");
       }
       else {
-        async.each(listOfEntityIds, function (entity_id, callback) {
+        async.eachLimit(listOfEntityIds, 5, function (entity_id, callback) {
           if(object_entity == 'company') {
             entity.findByIdAndUpdate(entity_id, { company: new_id }, function (err, results) {
               if (err) {
@@ -594,7 +594,7 @@ function update_concession_operated_by(old_company_id, new_company_id, callback)
       callback(err);
     }
     else if(results && results.length > 0) {
-      async.each(results, function(item, fcallback) {
+      async.eachLimit(results, 5, function(item, fcallback) {
         for(var index in item.concession_operated_by) {
           Concession.update(
             { _id: item._id },
@@ -630,7 +630,7 @@ function update_concession_company_share(old_company_id, new_company_id, callbac
       callback(err);
     }
     else if(results && results.length > 0) {
-      async.each(results, function(item, fcallback) {
+      async.eachLimit(results, 5, function(item, fcallback) {
         for(var index in item.concession_operated_by.company) {
           Concession.update(
             { _id: item._id },
@@ -666,7 +666,7 @@ function update_site_operated_by(old_company_id, new_company_id, callback) {
       callback(err);
     }
     else if(results && results.length > 0) {
-      async.each(results, function(item, fcallback) {
+      async.eachLimit(results, 5, function(item, fcallback) {
         for(var index in item.concession_operated_by.company) {
           Site.update(
             { _id: item._id },
@@ -702,7 +702,7 @@ function update_site_company_share(old_company_id, new_company_id, callback) {
       callback(err);
     }
     else if(results && results.length > 0) {
-      async.each(results, function(item, fcallback) {
+      async.eachLimit(results, 5, function(item, fcallback) {
         for(var index in item.concession_operated_by.company) {
           Site.update(
             { _id: item._id },
