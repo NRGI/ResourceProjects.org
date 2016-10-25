@@ -50,7 +50,7 @@ exports.getDatasets = function(req, res) {
             .exec(function(err, datasets) {
                 if(err) callback(err);
                 if(datasets) {
-                    async.eachLimit(datasets, 1, function (dataset, ecallback) {
+                    async.each(datasets, function (dataset, ecallback) {
                         var action_ids = _.pluck(dataset.actions, '_id');
                         Duplicate.findOne( //One's enough!
                             {

@@ -605,7 +605,7 @@ function loadChReport(chData, year, report, loadcallback) {
 		async.eachSeries(chData.projectPayments.projectPayment, function (projectPaymentEntry, forcallback) {
 
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
-			if (!projects[projectPaymentEntry.projectName]) {
+			if (!projects[projectPaymentEntry.projectName] || (projectPaymentEntry.projectName == '0')) { //Include weird data bug
 
 				report.add('Invalid or missing project data. Aborting.\n');
 				return forcallback(null);
@@ -614,8 +614,8 @@ function loadChReport(chData, year, report, loadcallback) {
 			
 			// Update project countries and set ID if not set
 			// We assume that every project in the API has transfers. Otherwise it wouldn't make much sense.
-			//console.log(projectPaymentEntry);
-			//console.log(projectPaymentEntry.countryCodeList);
+			console.log(util.inspect(projectPaymentEntry));
+			console.log(projectPaymentEntry.countryCodeList);
 
 			var countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
 			// Only adds the country if not already there
