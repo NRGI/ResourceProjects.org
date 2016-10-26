@@ -8,6 +8,7 @@ angular.module('app')
             nrgiDestroySrvc,
             $window
         ) {
+
         nrgiDatasetSrvc.query({}, function (success) {
             $scope.datasets=success.data;
         });
@@ -64,6 +65,12 @@ angular.module('app')
                 });
             } else {
             }
+        };
+        $scope.refresh_data = function() {
+            nrgiDatasetSrvc.query({}, function (success) {
+                nrgiNotifier.notify('Refresh');
+                $scope.datasets=success.data;
+            });
         };
 
     });

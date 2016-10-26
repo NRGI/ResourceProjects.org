@@ -4,7 +4,7 @@
             h1 Dataset Import Management
 
     .row.bottom-padding-lg
-        div.col-md-5
+        div.col-md-7
             a.btn.block.btn-primary-outline(href="/admin/etl/datasets/new") Create New Import
             | &nbsp;
             a.btn.block.btn-primary-outline(
@@ -13,7 +13,10 @@
             | &nbsp;
             button.btn.block.btn-danger.btn-warning-outline(type='button' ng-click = 'dalete_all_data()'
             ) Delete all data
-        div.col-md-4
+            | &nbsp;
+            a.btn.block.btn-primary-outline(ng-click = 'refresh_data()') Refresh
+            | &nbsp;
+        div.col-md-2
         div.col-md-3
             form.form-inline
                 .form-group
