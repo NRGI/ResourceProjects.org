@@ -8,7 +8,7 @@ angular
         var fields = [];
         var country_name = '';
         var company_name = '';
-        $scope.currency_filter='Show all currency'; $scope.year_filter='Show all years'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
+        $scope.currency_filter='USD'; $scope.year_filter='2015'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
         var searchOptions = {};
 
         $scope.options = {
