@@ -9,8 +9,7 @@ angular
         var country_name = '';
         var company_name = '';
         $scope.currency_filter='USD'; $scope.year_filter='2015'; $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
-        var searchOptions = {};
-
+        var searchOptions = {transfer_unit:'USD',transfer_year:'2015'};
         $scope.options = {
             chart: {
                 type: 'sunburstChart',
@@ -139,7 +138,7 @@ angular
         $scope.load(searchOptions);
 
         $scope.$watch('year_filter', function(year) {
-            if(year&&year!='Show all years') {
+            if(searchOptions.transfer_year!=year&&year&&year!='Show all years') {
                 searchOptions.transfer_year = year;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_year&&year=='Show all years'){
@@ -148,7 +147,7 @@ angular
             }
         });
         $scope.$watch('currency_filter', function(currency) {
-            if(currency&&currency!='Show all currency') {
+            if(searchOptions.transfer_unit!=currency&&currency&&currency!='Show all currency') {
                 searchOptions.transfer_unit = currency;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_unit&&currency=='Show all currency'){
