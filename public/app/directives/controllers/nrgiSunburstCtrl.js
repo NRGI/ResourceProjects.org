@@ -157,7 +157,7 @@ angular
         });
         $scope.$watch('type_filter', function(type) {
             $scope.type = type;
-            if(type&&type!='Show all types') {
+            if(type && type!='Show all types') {
                 searchOptions.transfer_type = type;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_type&&type=='Show all types'){
