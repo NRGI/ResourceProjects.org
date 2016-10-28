@@ -14,8 +14,11 @@ angular.module('app')
             totalPages = 0;
         $scope.limit = 500;
         $scope.skip = currentPage * $scope.limit;
-
-        var searchOptions = {skip: $scope.skip, limit: $scope.limit};
+        $scope.year_filter = '2015';
+        $scope.currency_filter = 'USD';
+        $scope.year_selector = {2015: 0};
+        $scope.currency_selector = {USD: 0};
+        var searchOptions = {skip: $scope.skip, limit: $scope.limit,transfer_year:'2015',transfer_unit:'USD'};
         $scope.count =0;
         $scope.busy = false;
         $scope.transfers=[];
@@ -45,9 +48,10 @@ angular.module('app')
 
         $scope.$watch('year_filter', function(year) {
             $scope.year = year;
-            if(year) {
+            if(year && year!=searchOptions.transfer_year) {
+                $scope.skip=0;
                 searchOptions.skip=0;
-                searchOptions.limit= 0;
+                searchOptions.limit= 0;currentPage = 0;
                 searchOptions.transfer_year = year;
                 if($scope.currency) {
                     searchOptions.transfer_unit = $scope.currency;
@@ -55,26 +59,32 @@ angular.module('app')
                 $scope.load(searchOptions);
             }
             if($scope.year=='' && $scope.currency){
+                $scope.skip=0;
                 searchOptions = {skip:0, limit:0, transfer_unit:searchOptions.transfer_unit }
                 $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
+                $scope.skip=0;
                 searchOptions = {skip:0, limit:0}
                 $scope.load(searchOptions);
             }
         });
         $scope.$watch('currency_filter', function(currency) {
             $scope.currency = currency;
-            if(currency) {
+            if(currency && currency!=searchOptions.transfer_unit) {
                 searchOptions.transfer_unit = currency;
+                $scope.skip=0;
+                currentPage = 0;
                 if($scope.year) {
                     searchOptions.transfer_year = $scope.year;
                 }
                 $scope.load(searchOptions);
             }
             if($scope.currency=='' && $scope.year){
+                $scope.skip=0;
                 searchOptions = {skip:0, limit:0, transfer_year:searchOptions.transfer_year }
                 $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
+                $scope.skip=0;
                 searchOptions = {skip: 0, limit: 0};
                 $scope.load(searchOptions);
             }
