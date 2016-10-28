@@ -30,7 +30,7 @@
                 th.text-center.tablesort-sortable-th(ts-criteria='fields|parseInt') Fields
         tbody
             tr(
-            ng-repeat="contract in contracts | unique: '_id'"
+            ng-repeat="contract in contracts | unique: '_id' |filter:{contract_id: '!!'}"
             ts-repeat)
                 td.contract_id: a(href='contract/{{ contract.contract_id }}')
                     span(ng-bind-html="contract.contract_id | sanitize")
