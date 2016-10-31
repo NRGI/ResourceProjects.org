@@ -62,12 +62,14 @@ exports.getSourceTypes = function(req, res) {
                                     count.push(group.proj_country[0].country.toString())
                                     if (len - 1 == key) {
                                         var country_count = _.uniq(count);
-                                        sources.push({
-                                            '_id': id,
-                                            'source_id': grouped[0].proj_country[0].source._id,
-                                            'count': len,
-                                            'country_count': country_count.length
-                                        })
+                                        if(grouped[0] && grouped[0].proj_country[0] && grouped[0].proj_country[0].source) {
+                                            sources.push({
+                                                '_id': id,
+                                                'source_id': grouped[0].proj_country[0].source._id,
+                                                'count': len,
+                                                'country_count': country_count.length
+                                            })
+                                        }
                                     }
                                 }
                             })
