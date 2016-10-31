@@ -85,6 +85,7 @@ module.exports	= function(app) {
 	/////////////////////////////
 	///// TRANSFERS CRUD ////////
 	/////////////////////////////
+	app.get('/api/transfer_filters/:country', transfers.getTransferFilters);
 	app.get('/api/transfers/:limit/:skip', transfers.getTransfers);
 	app.get('/api/transfersGov/:limit/:skip', transfers.getTransfersByGov);
 	// app.get('/api/transfers/:id', transfers.getPaymentByID);

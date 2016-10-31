@@ -7,47 +7,64 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiTransfersByGovSrvc,
+        nrgiTransferFilters,
         $filter
     ) {
-        var currentPage = 0,
-            totalPages = 0;
+        var currentPage = 0, totalPages = 0, searchOptions ={}, header_transfer = [], fields = [], country_name = '', transfer_value = '', company_name = '';
         $scope.limit = 500;
         $scope.skip = currentPage * $scope.limit;
-
-        var searchOptions = {skip: $scope.skip, limit: $scope.limit,transfer_year:'2015',transfer_unit:'USD'};
+        $scope.new =true;
         $scope.count =0;
         $scope.busy = false;
         $scope.transfers=[];
-        var header_transfer = [];
-        var fields = [];
-        var country_name = '';
-        var transfer_value = '';
-        var company_name = '';
         $scope.currency = '';
         $scope.year = '';
-        $scope.year_filter = '2015';
-        $scope.year_selector = {2015: 0};
-        $scope.currency_selector = {USD: 0};
-        $scope.currency_filter = 'USD';
         $scope.load = function(searchOptions) {
+            searchOptions.skip = $scope.skip;
             nrgiTransfersByGovSrvc.query(searchOptions, function (response) {
                 if(response.data) {
                     $scope.count = response.count;
-                    $scope.transfers = _.union($scope.transfers, response.data);
+                    if($scope.new){ $scope.transfers = response.data; }else { $scope.transfers = _.union($scope.transfers, response.data);}
                     $scope.transfer_count = response.data.length;
                     totalPages = Math.ceil(response.count / $scope.limit);
                     currentPage = currentPage + 1;
                     $scope.skip = currentPage * $scope.limit;
-                    $scope.year_selector = _.countBy(response.data, "transfer_year");
-                    $scope.currency_selector = _.countBy(response.data, "transfer_unit");
                     $scope.busy = false;
                 }
             });
         }
 
-        $scope.load(searchOptions);
+        nrgiTransferFilters.query({country:true}, function (response) {
+            if(response.filters) {
+                $scope.year_selector = response.filters.year_selector;
+                $scope.currency_selector = response.filters.currency_selector;
+                if (_.has($scope.currency_selector, "USD")) {
+                    $scope.currency_filter = 'USD';
+                } else if (Object.keys($scope.currency_selector)[0]) {
+                    $scope.currency_filter = Object.keys($scope.currency_selector)[0];
+                }
+                if (_.has($scope.year_selector, "2015")) {
+                    $scope.year_filter = '2015';
+                } else if (Object.keys($scope.year_selector)[0]) {
+                    $scope.year_filter = Object.keys($scope.year_selector)[0];
+                }
+                searchOptions = {
+                    skip: $scope.skip,
+                    limit: $scope.limit,
+                    transfer_year: $scope.year_filter,
+                    transfer_unit: $scope.currency_filter
+                };
+            } else{
+                searchOptions = {
+                    skip: $scope.skip,
+                    limit: $scope.limit
+                };
+            }
+            $scope.load(searchOptions);
+        })
 
         $scope.$watch('year_filter', function(year) {
+            $scope.new =true;
             $scope.year = year;
             if(year && year!=searchOptions.transfer_year) {
                 $scope.skip=0;
@@ -68,6 +85,7 @@ angular.module('app')
             }
         });
         $scope.$watch('currency_filter', function(currency) {
+            $scope.new =true;
             $scope.currency = currency;
             if(currency && currency!=searchOptions.transfer_unit) {
                 $scope.skip=0;
@@ -94,6 +112,7 @@ angular.module('app')
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
+                $scope.new =false;
                 $scope.load(searchOptions);
             }
         };

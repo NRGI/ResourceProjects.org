@@ -18,4 +18,11 @@ angular.module('app')
         });
 
         return TransferResource;
+    })
+    .factory('nrgiTransferFilters', function($resource) {
+        var TransferResource = $resource('/api/transfer_filters/:country', {country: "@country"}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return TransferResource;
     });

@@ -3,6 +3,40 @@ var Transfer 		= require('mongoose').model('Transfer'),
     _               = require("underscore"),
     request         = require('request');
 
+exports.getTransferFilters = function(req, res) {
+    var payments_filter={}, country;
+    if(req.params.country == 'false'){
+       country = {transfer_level:{ $nin: [ 'country' ] }}
+    } else {
+        country = {transfer_level: 'country' }
+    }
+    async.waterfall([
+        getFilters
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
+        }
+    });
+    function getFilters(callback) {
+        Transfer.find(country)
+            .exec(function (err, transfers) {
+                if(transfers.length>0) {
+                    payments_filter.year_selector = _.countBy(transfers, "transfer_year");
+                    payments_filter.currency_selector = _.countBy(transfers, "transfer_unit");
+                    callback(null, {filters: payments_filter});
+                } else {
+                    callback(null, {});
+                }
+            })
+    }
+}
+
 exports.getTransfers = function(req, res) {
     var transfers_len, transfers_counter,
         limit = Number(req.params.limit),
@@ -135,7 +169,7 @@ exports.getTransfersByGov = function(req, res) {
             }
         });
     }
-    function getTransferSet(transfer_count, callback) {
+    function getTransferSet(transfer_count,  callback) {
         Transfer.find(req.query)
             .sort({
                 proj_name: 'asc'
