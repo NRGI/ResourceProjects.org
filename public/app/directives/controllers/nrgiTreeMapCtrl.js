@@ -12,6 +12,7 @@ angular
             usSpinnerService.spin('spinner-treemap');
             $('.tree-map-data').empty()
             nrgiTreeMapSrvc.query(searchOptions, function (success) {
+                console.log(success.data[0])
                 if(success.data && success.data[0].children && success.data[0].children.length>0) {
                     $scope.show_total = true;
                     $scope.treemapData = success.data[0];
@@ -111,22 +112,35 @@ angular
             root.dy = height;
         }
         function accumulate(d) {
+
             return d.children
                 ? d.size = d.children.reduce(function(p, v) { return p + accumulate(v); }, 0)
-                : d.size;
+                        : d.size;
         }
 
         function layout(d) {
             if (d.children) {
-                $scope.treemap.nodes({children: d.children});
-                d.children.forEach(function(c) {
-                    c.x = d.x + c.x * d.dx;
-                    c.y = d.y + c.y * d.dy;
-                    c.dx *= d.dx;
-                    c.dy *= d.dy;
-                    c.parent = d;
-                    layout(c);
+                var uniques = _.map(_.groupBy(d.children,function(doc){
+                    if(doc.name!='') {
+                        return doc.name;
+                    }
+                }),function(grouped){
+                    var sum = _.reduce(grouped, function(memo, num){
+                        return memo + num.value; }, 0);
+                    grouped[0].value =sum;
+                    return grouped[0];
                 });
+                if(uniques.length>0) {
+                    $scope.treemap.nodes({children: uniques});
+                    uniques.forEach(function (c) {
+                        c.x = d.x + c.x * d.dx;
+                        c.y = d.y + c.y * d.dy;
+                        c.dx *= d.dx;
+                        c.dy *= d.dy;
+                        c.parent = d;
+                        layout(c);
+                    });
+                }
             }
         }
 
@@ -170,7 +184,7 @@ angular
                 .attr("class","foreignobj")
                 .append("xhtml:div")
                 .attr("dy", ".75em")
-                .html(function(d) { return 'Payment to <b>' + d.name +'</b> '+ d.value.toFixed(1)+' Million'; })
+                .html(function(d) { return 'Payment to <b>' + d.name +'</b> '+ (d.value / 1000000).toFixed(1)+' Million'; })
                 .attr("class","textdiv");
 
             function transition(d) {
@@ -247,7 +261,7 @@ angular
                 .style("left", xPosition + "px")
                 .style("top", yPosition + "px");
             d3.select("#tooltip")
-                .html('<span class="text-center">Payment to </br><b>' + d.name +'</b></br> '+ d.value.toFixed(1)+' Million</p>');
+                .html('<span class="text-center">Payment to </br><b>' + d.name +'</b></br> '+ (d.value / 1000000).toFixed(1)+' Million</p>');
             d3.select("#tooltip").classed("hidden", false);
         };
 
