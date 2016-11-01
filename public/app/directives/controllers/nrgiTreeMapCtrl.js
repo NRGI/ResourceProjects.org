@@ -12,7 +12,6 @@ angular
             usSpinnerService.spin('spinner-treemap');
             $('.tree-map-data').empty()
             nrgiTreeMapSrvc.query(searchOptions, function (success) {
-                console.log(success.data[0])
                 if(success.data && success.data[0].children && success.data[0].children.length>0) {
                     $scope.show_total = true;
                     $scope.treemapData = success.data[0];
