@@ -4,12 +4,16 @@ var Transfer 		= require('mongoose').model('Transfer'),
     request         = require('request');
 
 exports.getTransferFilters = function(req, res) {
-    var payments_filter={}, country;
+    var payments_filter={}, country={};
+
+    country.company = {$exists: true, $nin: [null]};
+    country.transfer_type = {$exists: true, $nin: [null]};
     if(req.params.country == 'false'){
-       country = {transfer_level:{ $nin: [ 'country' ] }}
+       country.transfer_level={ $nin: [ 'country' ] };
     } else {
-        country = {transfer_level: 'country' }
+        country.transfer_level= 'country';
     }
+
     async.waterfall([
         getFilters
     ], function (err, result) {
@@ -25,10 +29,13 @@ exports.getTransferFilters = function(req, res) {
     });
     function getFilters(callback) {
         Transfer.find(country)
+            .populate('country company')
             .exec(function (err, transfers) {
                 if(transfers.length>0) {
                     payments_filter.year_selector = _.countBy(transfers, "transfer_year");
                     payments_filter.currency_selector = _.countBy(transfers, "transfer_unit");
+                    payments_filter.type_selector=_.countBy(transfers, "transfer_type");
+                    payments_filter.company_selector=_.groupBy(transfers, function (doc) {return doc.company._id;});
                     callback(null, {filters: payments_filter});
                 } else {
                     callback(null, {});
@@ -42,6 +49,7 @@ exports.getTransfers = function(req, res) {
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     req.query.transfer_level={ $nin: [ 'country' ] };
+    if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
 
     async.waterfall([
         TransferCount,
@@ -145,6 +153,7 @@ exports.getTransfersByGov = function(req, res) {
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     req.query.transfer_level='country';
+    if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
 
     async.waterfall([
         TransferCount,

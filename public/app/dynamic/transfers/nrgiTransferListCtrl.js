@@ -19,6 +19,8 @@ angular.module('app')
         $scope.transfers=[];
         $scope.currency = '';
         $scope.year = '';
+        $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
+
         $scope.load = function(searchOptions) {
             searchOptions.skip = $scope.skip;
             nrgiTransfersSrvc.query(searchOptions, function (response) {
@@ -35,6 +37,8 @@ angular.module('app')
             if(response.filters) {
                 $scope.year_selector = response.filters.year_selector;
                 $scope.currency_selector = response.filters.currency_selector;
+                $scope.type_selector = response.filters.type_selector;
+                $scope.company_selector = response.filters.company_selector;
                 if (_.has($scope.currency_selector, "USD")) {
                     $scope.currency_filter = 'USD';
                 } else if (Object.keys($scope.currency_selector)[0]) {
@@ -105,7 +109,30 @@ angular.module('app')
                 $scope.load(searchOptions);
             }
         });
-
+        $scope.$watch('type_filter', function(type) {
+            $scope.type = type;
+            if(type && type!='Show all types') {
+                $scope.skip=0;
+                searchOptions.transfer_type = type;
+                $scope.load(searchOptions);
+            }else if(searchOptions.transfer_type&&type=='Show all types'){
+                $scope.skip=0;
+                delete searchOptions.transfer_type;
+                $scope.load(searchOptions);
+            }
+        });
+        $scope.$watch('company_filter', function(company) {
+            $scope.company = company;
+            if(company&&company!='Show all companies') {
+                $scope.skip=0;
+                searchOptions.company = company;
+                $scope.load(searchOptions);
+            }else if(searchOptions.company&&company=='Show all companies'){
+                $scope.skip=0;
+                delete searchOptions.company;
+                $scope.load(searchOptions);
+            }
+        });
         $scope.loadMore = function() {
             if ($scope.busy) return;
             $scope.busy = true;
