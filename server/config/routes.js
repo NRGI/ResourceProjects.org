@@ -73,7 +73,7 @@ module.exports	= function(app) {
 	app.get('/api/all_projects/:limit/:skip', projects.getAllProjects);
 	app.get('/api/projects/:id', projects.getProjectByID);
 	app.get('/api/projects/', projects.getProjectsMap);
-	app.get('/api/projects/:iso2/:limit/:skip', projects.getProjectsWithIso);
+	//app.get('/api/projects/:iso2/:limit/:skip', projects.getProjectsWithIso);
 	app.get('/api/projects/:limit/:skip', projects.getProjects);
 	// POST
 	app.post('/api/projects',auth.requiresApiLogin, auth.requiresRole('admin'),  projects.createProject);
