@@ -33,6 +33,3 @@ SUMMARY CONTENT
 ```
 $ npm test
 ```
-
-##TODO
-***
