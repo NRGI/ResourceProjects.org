@@ -529,6 +529,9 @@ table .table-header-fixed {
   text-align: justify;
   direction: rtl;
 }
+.not_found {
+  padding: 15%;
+}
 @-moz-keyframes sk-bounce {
   0%, 100% {
     transform: scale(0);
