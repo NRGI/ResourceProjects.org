@@ -200,7 +200,7 @@ exports.getSourceTable = function(req, res){
             var i =0;
             companies_counter = 0;
             if (companies_len > 0) {
-                project.queries.forEach(function (queries) {
+                async.eachLimit(project.queries, 100, function (queries) {
                     Link.find({$or: [queries.query]})
                         .populate('source project company concession')
                         .deepPopulate('source.source_type_id company.company_established_source.source_type_id project.proj_established_source.source_type_id concession.concession_established_source.source_type_id site.site_established_source.source_type_id')
@@ -220,7 +220,9 @@ exports.getSourceTable = function(req, res){
                                     }
                                 });
                             } else{
-                                ++link_counter;
+                                //++link_counter;
+                                project.sources = [];
+                                return callback(null, project);
                             }
                             if (link_len == link_counter && companies_counter == companies_len) {
                                 var uniques = _.map(_.groupBy(source,function(doc){
