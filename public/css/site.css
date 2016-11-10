@@ -774,7 +774,7 @@ svg {
   border-radius: 4px;
   border: 1px solid #999;
 }
-.layer-selector-box a.layers {
+a.layers {
   float: left;
   width: 126px;
   padding: 6px 8px;
