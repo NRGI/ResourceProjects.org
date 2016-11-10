@@ -47,23 +47,7 @@ script(type="text/javascript", src="/vendor/angular-google-analytics/dist/angula
 script(type="text/javascript", src="/vendor/ngInfiniteScroll/build/ng-infinite-scroll.min.js")
 script(type='text/javascript').
     $(document).ready(function () {
-        var row = $('table > tbody > tr:first');
-        var table = $('table > tbody');
-        for (i=0; i<100; i++) {
-            table.append(row.clone());
-        }
-        var oldURL = "";
-        function checkURLchange(currentURL) {
-            if (currentURL != oldURL) {
-                oldURL = currentURL;
-            }
-        }
-        oldURL = window.location.href;
-        setInterval(function () {
-            $('.table-fixed-header').fixedHeader();
-            checkURLchange(window.location.href);
-        }, 1000);
-        setTimeout(function(){
+        setTimeout(function () {
             $('.typeahead').typeahead({
                 source: function (query, process) {
                     $('.typeahead').addClass('wait');
@@ -89,7 +73,23 @@ script(type='text/javascript').
                     return item.name;
                 }
             });
-        },100)
+        }, 400)
+        var row = $('table > tbody > tr:first');
+        var table = $('table > tbody');
+        for (i=0; i<100; i++) {
+            table.append(row.clone());
+        }
+        var oldURL = "";
+        function checkURLchange(currentURL) {
+            if (currentURL != oldURL) {
+                oldURL = currentURL;
+            }
+        }
+        oldURL = window.location.href;
+        setInterval(function () {
+            $('.table-fixed-header').fixedHeader();
+            checkURLchange(window.location.href);
+        }, 1000);
     });
     (function ($) {
         $(document).on('click', '.dropdown', function (e) {

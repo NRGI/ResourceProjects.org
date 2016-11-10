@@ -11,7 +11,6 @@ div
                     .form-group
                         select.form-control(ng-model="year_filter")
                             option(value="Show all years") Show all years
-                            option(value="2015") 2015
                             option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
         .col-md-2
             .row: b Currency
@@ -20,7 +19,6 @@ div
                     .form-group
                         select.form-control(ng-model="currency_filter")
                             option(value="Show all currency") Show all currency
-                            option(value="USD") USD
                             option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
         .col-md-2
             .row: b Type

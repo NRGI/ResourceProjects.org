@@ -81,20 +81,22 @@ exports.getSourceTable = function(req, res){
                         .populate('source')
                         .deepPopulate('source.source_type_id site_established_source.source_type_id company_group_record_established.source_type_id company_established_source.source_type_id proj_established_source.source_type_id concession_established_source.source_type_id')
                         .exec(function (err, responce) {
-                            if (type == 'project') {
-                                project.sources.push(responce[0].proj_established_source);
-                            }
-                            if (type == 'company') {
-                                project.sources.push(responce[0].company_established_source);
-                            }
-                            if (type == 'concession') {
-                                project.sources.push(responce[0].concession_established_source);
-                            }
-                            if (type == 'site') {
-                                project.sources.push(responce[0].site_established_source);
-                            }
-                            if (type == 'group') {
-                                project.sources.push(responce[0].company_group_record_established);
+                            if(responce && responce[0]) {
+                                if (type == 'project') {
+                                    project.sources.push(responce[0].proj_established_source);
+                                }
+                                if (type == 'company') {
+                                    project.sources.push(responce[0].company_established_source);
+                                }
+                                if (type == 'concession') {
+                                    project.sources.push(responce[0].concession_established_source);
+                                }
+                                if (type == 'site') {
+                                    project.sources.push(responce[0].site_established_source);
+                                }
+                                if (type == 'group') {
+                                    project.sources.push(responce[0].company_group_record_established);
+                                }
                             }
                             callback(null, project);
                         });

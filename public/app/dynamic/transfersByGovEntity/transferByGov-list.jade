@@ -15,15 +15,31 @@
                     .form-group
                         select.form-control(ng-model="year_filter")
                             option(value="") Show all years
-                            option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}: {{value}} records
-        .col-md-6
+                            option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
+        .col-md-2
             .row: b Currency
             .row
                 form.form-inline
                     .form-group
                         select.form-control(ng-model="currency_filter")
                             option(value="") Show all currency
-                            option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}: {{value}} records
+                            option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
+        .col-md-2
+            .row: b Type
+            .row
+                form.form-inline
+                    .form-group
+                        select.type_filter.form-control(ng-model="type_filter")
+                            option(value="Show all types") Show all types
+                            option(ng-repeat="(key, value) in type_selector" value="{{key}}") {{key}}
+        .col-md-2
+            .row: b Paid by
+            .row
+                form.form-inline
+                    .form-group
+                        select.type_filter.form-control(ng-model="company_filter")
+                            option(value="Show all companies") Show all companies
+                            option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{value[0].company.company_name}}
         .col-md-2
             .row
                 br

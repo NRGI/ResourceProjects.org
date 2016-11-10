@@ -5,11 +5,15 @@ var Source	 		= require('mongoose').model('Source'),
     request         = require('request');
 
 exports.getPayments = function(req, res) {
-    var sunburst_new = [],count=[], counter = 0,sunburst=[], payments_filter={};
+    var sunburst_new = [],count=[], counter = 0,sunburst=[], payments_filter={},  currency_value = [], transfers_value, value;
     req.query.transfer_level = {$nin: ['country']};
     req.query.project = {$exists: true, $nin: [null]};
+    req.query.company = {$exists: true, $nin: [null]};
+    req.query.transfer_value = {$gt: 1};
+    if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
     async.waterfall([
         getAllPayment,
+        getCurrency,
         getPayment
     ], function (err, result) {
         if (err) {
@@ -23,140 +27,115 @@ exports.getPayments = function(req, res) {
         }
     });
     function getAllPayment(callback) {
-        Transfer.find({'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]}})
+        Transfer.find({'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]},'project':{$exists: true, $nin: [null]},'transfer_value':{$gt: 1}})
             .exec(function (err, transfers) {
-                payments_filter.year_selector=_.countBy(transfers, "transfer_year");
-                payments_filter.currency_selector=_.countBy(transfers, "transfer_unit");
+                if(transfers.length>0) {
+                    payments_filter.year_selector = _.countBy(transfers, "transfer_year");
+                    payments_filter.currency_selector = _.countBy(transfers, "transfer_unit");
+                }
                 callback(null, payments_filter);
             })
     }
-    function getPayment(payments_filter,callback) {
+    function getCurrency(payments_filter,callback) {
         Transfer.find(req.query)
-            .populate('company', ' _id company_name')
-            .populate('project', ' _id proj_name proj_id')
             .exec(function (err, transfers) {
-                if (transfers.length>0) {
-                    var value = 0;
-                    var groups;
-                    var transfers_value = 0;
-                    var currency_value=[];
+                if(transfers.length>0) {
                     _.map(_.groupBy(transfers, function (doc) {
                         return doc.transfer_unit;
                     }), function (grouped) {
-                        value=0;
-                        transfers_value=0;
-                        _.each(grouped, function (group) {
-                            if(group.transfer_value>0) {
-                                value = value +group.transfer_value
-                            }
-                        })
+                        value = 0;
+                        transfers_value = 0;
+                        value = _.reduce(grouped, function (memo, num) {
+                            return memo + num.transfer_value;
+                        }, 0);
                         if (value > 0) {
                             transfers_value = (value / 1000000).toFixed(1)
                         }
                         currency_value.push({
-                            currency:grouped[0].transfer_unit,
-                            total_value:transfers_value
+                            currency: grouped[0].transfer_unit,
+                            total_value: transfers_value
                         });
                         return currency_value;
                     });
-                    value =0;
-                    _.each(transfers, function (transfer) {
-                        if(transfer.transfer_value>0){
-                            value = value + transfer.transfer_value
-                        }
-                    })
-                    if(value<1000000){
-                        transfers_value = (value / 1000000).toFixed(3)
-                    }else if(value>0){
-                        transfers_value = (value / 1000000).toFixed(1)
-                    }
+                }
+                callback(null, payments_filter, currency_value);
+            })
+    }
+    function getPayment(payments_filter,currency_value,callback) {
+        Transfer.aggregate([
+            { $match : req.query},
+            { $lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+            { $lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+            { $project :
+                {
+                    'company.company_name':1,
+                    'company._id':1,
+                    project:{_id:1, name:'$project.proj_name', transfer_type:'$transfer_type', transfer_value:'$transfer_value'},
+                    total_value:1,
+                    name:'$transfer_type',
+                    size:'$transfer_value',
+                    transfer_value:1
+                }
+            },
+            { $group:
+                {
+                    "_id": "$project._id",
+                    "project":{
+                        $first:"$project"
+                    },
+                    'type':{$push:{name:'$name',size:'$size',value:'$size'}},
+                    "company":{
+                        $first:"$company"
+                    },
+                    "size":{ $sum: '$transfer_value' }
+
+                }
+            },
+            { $project :
+                {
+                    'company.company_name':1,
+                    'company._id':1,
+                    project:{_id:1, name:1, children:'$type', transfer_value:'$size', size:'$size', value:'$size'},
+                    total_value:1,
+                    transfer_value:1
+                }
+            },
+            { $unwind : "$project" },
+            { $unwind : "$project.name" },
+            { $group: {
+                    "_id": "$company._id",
+                    "company": {
+                        $first: "$company"
+                    },
+                    "project": {$push: "$project"},
+                    "transfer_type": {$addToSet: "$transfer_type"},
+                    "total_value": {$sum: '$project.transfer_value'}
+                }
+            },
+            { $unwind : "$company" },
+            { $project :
+                {
+                    name:'$company.company_name', size:'$total_value',value:'$total_value', children:'$project' ,
+                    _id:0
+
+                }
+            }
+            ]).exec(function (err, transfers) {
+                if(transfers) {
+                    var sum = _.reduce(transfers, function(memo, num){
+                        return memo + num.size; }, 0);
                     sunburst_new.push({
                         name: 'Payments',
-                        children: [],
-                        size: value,
-                        value: transfers_value,
-                        total_value: transfers_value
+                        children: transfers,
+                        size: sum,
+                        value: (sum / 1000000).toFixed(1),
+                        total_value: (sum / 1000000).toFixed(1)
+
                     });
-                    if (transfers.length>0) {
-                        _.map(_.groupBy(transfers, function (doc) {
-                            if(doc.company && doc.company.company_name) {
-                                return doc.company._id;
-                            }
-                        }), function (grouped) {
-                            value = 0;
-                            transfers_value = 0;
-
-                            groups = _.map(_.groupBy(grouped, function (doc) {
-                                if(doc.project && doc.project._id) {
-                                    return doc.project._id;
-                                }
-                            }), function (grouped_) {
-                                value = 0;
-                                _.each(grouped_, function (group) {
-                                    if(group.transfer_value>0) {
-                                        value = value + group.transfer_value
-                                    }
-                                })
-                                grouped_[0].values = value;
-                                return grouped_[0];
-                            });
-                            value = 0;
-                            _.each(groups, function (group) {
-                                if(group.values>0) {
-                                    value = value + group.values
-                                }
-                            })
-                            if (value > 0) {
-                                if(value<1000000){
-                                    transfers_value = (value / 1000000).toFixed(3)
-                                }else{
-                                    transfers_value = (value / 1000000).toFixed(1)
-                                }
-                                if(grouped[0].company && grouped[0].company.company_name) {
-                                    sunburst_new[0].children.push({
-                                        name:  grouped[0].company.company_name,
-                                        children: [],
-                                        size:value,
-                                        value:transfers_value
-                                    });
-                                    _.each(groups, function (transfer, key) {
-                                        if (transfer.project) {
-                                            var size = 0;
-                                            if (transfer.values > 0) {
-                                                size = transfer.values
-                                                if (size < 1000000) {
-                                                    transfers_value = (size / 1000000).toFixed(3)
-                                                } else {
-                                                    transfers_value = (size / 1000000).toFixed(1)
-                                                }
-                                                sunburst_new[0].children[counter].children.push({
-                                                    name:  transfer.project.proj_name,
-                                                    'size': transfer.values,
-                                                    'value': transfers_value
-                                                })
-                                            }
-                                        }
-                                    })
-                                    ++counter;
-                                }
-                            }
-                            return sunburst_new;
-                        });
-                        sunburst = sunburst_new;
-
-                        callback(null, {
-                            data: sunburst,
-                            total: currency_value,
-                            filters: payments_filter,
-                            transfers: transfers
-                        })
-                    } else {
-                        callback(null, {data: '', total: '', filters: payments_filter, transfers: ''})
-                    }
+                    callback(null, {data: sunburst_new, total:currency_value, filters: payments_filter})
                 } else {
-                    callback(null, {data: '', total: '', filters: payments_filter, transfers: ''})
+                    callback(null, {data: '', total:currency_value, filters: payments_filter})
                 }
-
             })
     }
 };
