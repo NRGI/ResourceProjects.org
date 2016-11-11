@@ -71,12 +71,28 @@ module.exports = function(app, config, user, pass, env) {
                 sslCA: ca,
                 poolSize: 10000,
                 socketOptions: {
+                    keepAlive: 120,
                     connectTimeoutMS: 10000,
-                    socketTimeoutMS: 15000
+                    socketTimeoutMS: 60000
                 }
             }
         };
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
+
+        mongoose.connection.on('connecting', function() {
+           console.log('Mongo connection connecting.');
+        });
+        mongoose.connection.on('connected', function() {
+            console.log('Mongo connection connected.');
+        });
+        mongoose.connection.on('close', function() {
+            console.log('Mongo connection closed.');
+        });
+        mongoose.connection.on('disconnected', function() {
+            console.log('Mongo connection disconnected.Triggering manual reconnect.');
+
+            mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
+        });
     }
     var db = mongoose.connection;
 
