@@ -10,9 +10,11 @@ var Country 		= require('mongoose').model('Country'),
     Production 		= require('mongoose').model('Production'),
     Commodity 		= require('mongoose').model('Commodity'),
     async           = require('async'),
+    mongoose 		= require('mongoose'),
     _               = require("underscore"),
     request         = require('request');
 exports.getCoordinateCountryByID = function(req, res) {
+    var _id = mongoose.Types.ObjectId(req.params.id);
     var country={}, site_counter, site_len;
     var type = req.params.type;
     async.waterfall([
@@ -35,51 +37,22 @@ exports.getCoordinateCountryByID = function(req, res) {
         country.proj_coordinates = [];
         country.location = [];
         if (type == 'country') {
-            Site.find({'site_country.country': req.params.id})
-                .populate('site_commodity.commodity')
-                .exec(function (err, sites) {
-                    site_len = sites.length;
-                    site_counter = 0;
-                    if (site_len > 0) {
-                        _.each(sites, function (site) {
-                            ++site_counter;
-                            if (site.field && site.site_coordinates.length > 0) {
-                                site.site_coordinates.forEach(function (loc) {
-                                    if(loc && loc.loc) {
-                                        country.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'field',
-                                            'id': site._id
-                                        });
-                                    }
-                                });
-                            } else if (!site.field && site.site_coordinates.length > 0) {
-                                site.site_coordinates.forEach(function (loc) {
-                                    if(loc && loc.loc) {
-                                        country.proj_coordinates.push({
-                                            'lat': loc.loc[0],
-                                            'lng': loc.loc[1],
-                                            'message': site.site_name,
-                                            'timestamp': loc.timestamp,
-                                            'type': 'site',
-                                            'id': site._id
-                                        });
-                                    }
-                                });
-                            }
-                            if (site_counter == site_len) {
-                                callback(null, country);
-                            }
-                        });
-                    } else {
-                        if (site_counter == site_len) {
-                            callback(null, country);
-                        }
-                    }
-                });
+            Site.aggregate([
+                {$unwind: '$site_country'},
+                {$match:{'site_country.country':_id,"site_coordinates":{ $exists: true,$nin: [ null ]}}},
+                {$unwind:'$site_coordinates'},
+                {$project:{
+                    'lat':  { "$arrayElemAt": [ "$site_coordinates.loc", -2 ] },
+                    'lng': { "$arrayElemAt": [ "$site_coordinates.loc", -1 ] },
+                    'message': "$site_name",
+                    'timestamp': "$site_coordinates.timestamp",
+                    'type': {$cond: { if: { $gte: [ "$field", true ] }, then: 'field', else: 'site' }}
+                }}
+            ]).exec(function (err, sites) {
+                console.log(sites)
+                country.proj_coordinates = sites;
+                callback(null, country)
+            });
         }else {
             callback(null, country);
         }

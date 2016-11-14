@@ -9,22 +9,24 @@ var Project 		= require('mongoose').model('Project'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
     async           = require('async'),
+    mongoose 		= require('mongoose'),
     _               = require("underscore"),
     request         = require('request');
 
 exports.getProjectTable = function(req, res){
+    var _id = mongoose.Types.ObjectId(req.params.id);
     var link_counter, link_len, companies_len, companies_counter;
     var company =[];
     var type = req.params.type;
     var query={};
     var projects = {};
     projects.projects = [];
-    if(type=='concession') { query={concession:req.params.id, entities:"project"}}
-    if(type=='company') { query={company:req.params.id, entities:"project"}}
-    if(type=='contract') { query={contract:req.params.id, entities:"project"}}
-    if(type=='commodity') { query={'proj_commodity.commodity':req.params.id}}
-    if(type=='group') { query={company_group: req.params.id, entities: "company"}}
-    if(type=='country') { query={'proj_country.country': req.params.id}}
+    if(type=='concession') { query={concession:_id, entities:"project"}}
+    if(type=='company') { query={company:_id, entities:"project"}}
+    if(type=='contract') { query={contract:_id, entities:"project"}}
+    if(type=='commodity') { query={'proj_commodity.commodity':_id}}
+    if(type=='group') { query={company_group: _id, entities: "company"}}
+    if(type=='country') { query={'proj_country.country': _id}}
     async.waterfall([
         getLinkedProjects,
         getCommodityProjects,
@@ -125,83 +127,76 @@ exports.getProjectTable = function(req, res){
     function getCountryProjects(projects, callback) {
         if(type=='country') {
             projects.projects = [];
-            Project.find(query)
-                .sort({
-                    proj_name: 'asc'
-                })
-                .populate('commodity country')
-                .deepPopulate('proj_commodity.commodity proj_country.country')
-                .exec(function (err, proj) {
-                    link_len = proj.length;
-                    link_counter = 0;
-                    if(link_len>0) {
-                        _.each(proj, function (project) {
-                            ++link_counter;
-                            projects.projects.push({
-                                proj_id: project.proj_id,
-                                proj_name: project.proj_name,
-                                proj_country: project.proj_country,
-                                proj_commodity: project.proj_commodity,
-                                proj_status: project.proj_status,
-                                _id: project._id,
-                                companies_count:0,
-                                companies: []
-                            });
-                            if (link_len == link_counter) {
-                                projects.projects = _.map(_.groupBy(projects.projects,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, projects);
-                            }
-                        })
-                    }else{
-                        callback(null, projects);
-                    }
-                });
+            projects.project_id = [];
+            Project.aggregate([
+                { $sort : { proj_name : -1 } },
+                {$unwind: '$proj_country'},
+                {$match:{'proj_country.country':_id}},
+                {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "commodity"}},
+                {$group:{
+                    "_id": "$_id",
+                    "proj_id":{$first:"$proj_id"},
+                    "proj_name":{$first:"$proj_name"},
+                    "proj_country":{$first:"$proj_country"},
+                    "proj_commodity":{$first:"$commodity"},
+                    "proj_status":{$last:"$proj_status"},
+                    "project_id":{$first:"$_id"}
+                }},
+                {$project:{_id:1,proj_id:1,proj_name:1,project_id:1,proj_country:1,proj_commodity:1,proj_status:1,companies_count:{$literal:0},companies:[]}}
+            ]).exec(function (err, proj) {
+                projects.projects = proj
+                projects.project_id = _.pluck(proj, 'project_id');
+                callback(null, projects);
+            });
         } else{
             callback(null, projects);
         }
     }
     function getCompanyCount(projects, callback) {
         if(type!='group') {
-            companies_len = projects.projects.length;
-            companies_counter = 0;
-            if (companies_len > 0) {
-                projects.projects.forEach(function (project) {
-                    Link.find({project: project._id, entities: 'company'})
-                        .populate('company', '_id company_name')
-                        .exec(function (err, links) {
-                            ++companies_counter;
-                            link_counter = 0;
-                            links = _.map(_.groupBy(links,function(doc){
-                                return doc._id;
-                            }),function(grouped){
-                                return grouped[0];
-                            });
-                            link_len = links.length;
-                            if(links.length>0) {
-                                if(links.length>=3){
-                                    project.companies_count = links.length;
-                                    link_counter = links.length;
-                                } else{
-                                    _.each(links, function (link) {
-                                        project.companies.push(link.company);
-                                        project.companies_count = links.length;
-                                        ++link_counter;
-                                    });
-                                }
-                            }
-                            if (link_len == link_counter && companies_counter == companies_len) {
-                                callback(null, projects);
-                            }
-
-                        });
+            Link.aggregate([
+                {$match: {$or: [{project: {$in: projects.project_id}}], entities: 'company'}},
+                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+                {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+                {$unwind: '$project'},
+                {$unwind: '$company'},
+                {$project:{
+                    "_id":"$project._id",
+                    "company":"$company",
+                    "proj_country":"$project.proj_country",
+                    "proj_status":"$project.proj_status",
+                    "proj_commodity":"$project.proj_commodity",
+                    "proj_id":"$project.proj_id",
+                    "proj_name":"$project.proj_name"
+                }},
+                { $sort : { "proj_name" : -1 } },
+                {$match:{'proj_country.country':_id}},
+                {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "commodity"}},
+                {$group:{
+                    "_id": "$_id",
+                    "proj_id":{$first:"$proj_id"},
+                    "proj_name":{$first:"$proj_name"},
+                    "proj_country":{$first:"$proj_country"},
+                    "proj_commodity":{$first:"$commodity"},
+                    "proj_status":{$last:"$proj_status"},
+                    "project_id":{$first:"$_id"},
+                    "companies":{$addToSet:"$company"}
+                }},
+                {$project:{_id:1,companies:1,companies_count:{$size:'$companies'},proj_id:1,proj_name:1,project_id:1,proj_country:1,proj_commodity:1,proj_status:1}}
+            ]).exec(function (err, links) {
+                _.map(projects.projects, function(proj){
+                    var list = _.find(links, function(link){
+                        return link.proj_id == link.proj_id; });
+                    proj.companies = list.companies;
+                    proj.companies_count = list.companies_count;
+                    return proj;
                 });
-            } else {
                 callback(null, projects);
-            }
+            })
         }else {
             callback(null, projects);
         }

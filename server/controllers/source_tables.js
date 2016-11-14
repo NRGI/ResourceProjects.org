@@ -72,7 +72,7 @@ exports.getSourceTable = function(req, res){
         if(type!='commodity'&&type!='country'&&type!='contract') {
             models_counter=0;
             models_len = established_source.length;
-            _.each(established_source, function(model) {
+            async.eachLimit(established_source, 5, function (model) {
                 models_counter++;
                 if(model.params==type) {
                     var name = require('mongoose').model(model.name);
