@@ -141,7 +141,7 @@ module.exports	= function(app) {
 	//////////////////////
 	app.get('/api/countries/:limit/:skip', countries.getCountries);
 	app.get('/api/countries/:id', countries.getCountryByID);
-	app.get('/api/countrycommodity/:id', countries.getAllCommodityCountryByID);
+	//app.get('/api/countrycommodity/:id', countries.getAllCommodityCountryByID);
 	// POST
 	//app.post('/api/countries', auth.requiresApiLogin, auth.requiresRole('admin'), countries.createCountry);
 	// PUT

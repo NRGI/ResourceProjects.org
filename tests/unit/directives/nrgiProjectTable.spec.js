@@ -36,14 +36,12 @@ describe("Project Table Directive", function() {
                             timestamp: "2016-04-14T20:44:33.814Z"
                         }
                     ],
-                    proj_status:[
-                        {
-                            source: "57100211bd08c40100ac0489",
-                            _id: "57100227bd08c40100ac1653",
-                            timestamp: null,
-                            string: "exploration"
-                        }
-                    ],
+                    proj_status: {
+                        source: "57100211bd08c40100ac0489",
+                        _id: "57100227bd08c40100ac1653",
+                        timestamp: null,
+                        string: "exploration"
+                    },
                     companies: 1
                 }
         ]

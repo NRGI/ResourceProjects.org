@@ -2285,7 +2285,9 @@ angular.module('app').controller('nrgiProjectTableCtrl', [
                     if (p[field].length > 0) {
                       str = '';
                       var commodities = _.uniq(p.proj_commodity, function (a) {
-                          return a.commodity._id;
+                          if (a.commodity) {
+                            return a.commodity._id;
+                          }
                         });
                       angular.forEach(commodities, function (commodity, i) {
                         commodity_name = '';
@@ -2305,20 +2307,13 @@ angular.module('app').controller('nrgiProjectTableCtrl', [
                     }
                   }
                   if (field == 'proj_status') {
-                    if (p[field].length > 0) {
+                    if (p[field]) {
                       str = '';
-                      angular.forEach(p[field], function (status, i) {
-                        var date = new Date(status.timestamp);
-                        date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
-                        var status_name = status.string.toString();
-                        status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
-                        if (i != p[field].length - 1) {
-                          str = str + status_name + '(true at ' + date + ')' + com;
-                        } else {
-                          str = str + status_name + '(true at ' + date + ')';
-                          $scope.csv_project[key].push(str);
-                        }
-                      });
+                      var date = new Date(status.timestamp);
+                      date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
+                      var status_name = p[field].string.toString();
+                      status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
+                      str = str + status_name + '(true at ' + date + ')' + com;
                     } else {
                       $scope.csv_project[key].push('');
                     }
@@ -2347,7 +2342,9 @@ angular.module('app').controller('nrgiProjectTableCtrl', [
                     if (p.proj_commodity.length > 0) {
                       str = '';
                       var proj_commodity = _.uniq(p.proj_commodity, function (a) {
-                          return a.commodity.commodity_type;
+                          if (a.commodity) {
+                            return a.commodity.commodity_type;
+                          }
                         });
                       angular.forEach(proj_commodity, function (type, i) {
                         type_name = '';
@@ -4263,22 +4260,14 @@ angular.module('app').controller('nrgiCountryDetailCtrl', [
   'nrgiAuthSrvc',
   'nrgiIdentitySrvc',
   'nrgiCountriesSrvc',
-  'nrgiCountryCommoditiesSrvc',
   '$routeParams',
-  function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiCountriesSrvc, nrgiCountryCommoditiesSrvc, $routeParams) {
+  function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiCountriesSrvc, $routeParams) {
     nrgiCountriesSrvc.get({ _id: $routeParams.id }, function (response) {
-      $scope.country = response;
+      $scope.country = response.country;
       $scope.country.commodities = [];
-    });
-    $scope.$watch('country._id', function (value) {
-      if (value != undefined) {
-        nrgiCountryCommoditiesSrvc.get({ _id: value }, function (response) {
-          angular.forEach(response.commodities, function (value) {
-            $scope.country.commodities.push(value);
-          });
-          $scope.country = $scope.country;
-        });
-      }
+      angular.forEach(response.commodities, function (value) {
+        $scope.country.commodities.push(value);
+      });
     });
   }
 ]);'use strict';
