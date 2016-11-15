@@ -133,7 +133,7 @@ exports.getTransferTable = function(req, res){
             companies_len = companies.length;
             companies_counter = 0;
             if(companies_len>0){
-                _.each(companies, function (c) {
+                async.eachLimit(companies, 5, function (c) {
                     if(c._id!=undefined){
                     query = {company: c._id};
                     projects.transfers_query.push(c._id);

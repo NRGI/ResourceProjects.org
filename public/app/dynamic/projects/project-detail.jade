@@ -1,4 +1,9 @@
-.container
+.container(ng-if="error")
+    .pagetitle
+    .row
+        .col-lg-12.text-center.not_found.
+            Project not found
+.container(ng-if="project")
     .pagetitle
         h1
             span(ng-bind-html="project.proj_name|sanitize")

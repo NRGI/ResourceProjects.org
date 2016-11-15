@@ -69,7 +69,7 @@ module.exports = function(app, config, user, pass, env) {
                 ssl: true,
                 sslValidate: true,
                 sslCA: ca,
-                poolSize: 50,
+                poolSize: 10000,
                 socketOptions: {
                     keepAlive: 120,
                     connectTimeoutMS: 10000,

@@ -250,132 +250,136 @@ exports.getConcessionByID = function(req, res) {
                 if(concession) {
                     callback(null, concession);
                 } else {
-                    callback(err);
+                    callback(null, concession);
                 }
             });
     }
 
     function getConcessionLinks(concession, callback) {
-        concession.contracts = [];
-        concession.source_type = {p: false, c: false};
-        concession.polygon=[];
-        concession.proj_coordinates = [];
-        var commodities=concession.concession_commodity;
-        concession.concession_commodity=[];
-        _.each(commodities,function(commodity){
-            concession.concession_commodity.push({
-                _id: commodity.commodity._id,
-                commodity_name: commodity.commodity.commodity_name,
-                commodity_type: commodity.commodity.commodity_type,
-                commodity_id: commodity.commodity.commodity_id
-            });
-        })
-        if (concession.concession_polygon && concession.concession_polygon.length>0) {
-            var len=concession.concession_polygon.length;
-            var counter=0;
-            var coordinate=[];
-            concession.concession_polygon.forEach(function (con_loc) {
-                ++counter;
-                if(con_loc && con_loc.loc) {
-                    coordinate.push({
-                        'lat': con_loc.loc[0],
-                        'lng': con_loc.loc[1]
-                    });
-                }
-                if(len==counter){
-                    concession.polygon.push({coordinate:coordinate});
-                }
+        if(concession) {
+            concession.contracts = [];
+            concession.source_type = {p: false, c: false};
+            concession.polygon = [];
+            concession.proj_coordinates = [];
+            var commodities = concession.concession_commodity;
+            concession.concession_commodity = [];
+            _.each(commodities, function (commodity) {
+                concession.concession_commodity.push({
+                    _id: commodity.commodity._id,
+                    commodity_name: commodity.commodity.commodity_name,
+                    commodity_type: commodity.commodity.commodity_type,
+                    commodity_id: commodity.commodity.commodity_id
+                });
             })
-        }
-        Link.find({concession: concession._id})
-            .populate('contract company')
-            .deepPopulate('project.proj_country.country project.proj_commodity.commodity site.site_commodity.commodity source.source_type_id')
-            .exec(function(err, links) {
-                link_len = links.length;
-                link_counter = 0;
-                if(link_len>0) {
-                    links.forEach(function (link) {
-                        ++link_counter;
-                        var entity = _.without(link.entities, 'concession')[0];
-                        if (!concession.source_type.p || !concession.source_type.c) {
-                            if(link.source!=null) {
-                                if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                    concession.source_type.c = true;
-                                } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                    concession.source_type.c = true;
-                                } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                    concession.source_type.p = true;
+            if (concession.concession_polygon && concession.concession_polygon.length > 0) {
+                var len = concession.concession_polygon.length;
+                var counter = 0;
+                var coordinate = [];
+                concession.concession_polygon.forEach(function (con_loc) {
+                    ++counter;
+                    if (con_loc && con_loc.loc) {
+                        coordinate.push({
+                            'lat': con_loc.loc[0],
+                            'lng': con_loc.loc[1]
+                        });
+                    }
+                    if (len == counter) {
+                        concession.polygon.push({coordinate: coordinate});
+                    }
+                })
+            }
+            Link.find({concession: concession._id})
+                .populate('contract company')
+                .deepPopulate('project.proj_country.country project.proj_commodity.commodity site.site_commodity.commodity source.source_type_id')
+                .exec(function (err, links) {
+                    link_len = links.length;
+                    link_counter = 0;
+                    if (link_len > 0) {
+                        links.forEach(function (link) {
+                            ++link_counter;
+                            var entity = _.without(link.entities, 'concession')[0];
+                            if (!concession.source_type.p || !concession.source_type.c) {
+                                if (link.source != null) {
+                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
+                                        concession.source_type.c = true;
+                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
+                                        concession.source_type.c = true;
+                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
+                                        concession.source_type.p = true;
+                                    }
                                 }
                             }
-                        }
-                        switch (entity) {
-                            case 'contract':
-                                if (!_.contains(concession.contracts, link.contract.contract_id)) {
-                                    concession.contracts.push(link.contract);
-                                }
-                                break;
-                            case 'project':
-                                if (link.project.proj_commodity.length>0) {
-                                    if (_.where(concession.concession_commodity, {_id:_.last(link.project.proj_commodity).commodity._id}).length<1) {
-                                        concession.concession_commodity.push({
-                                            _id: _.last(link.project.proj_commodity).commodity._id,
-                                            commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
-                                            commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
-                                            commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
-                                        });
+                            switch (entity) {
+                                case 'contract':
+                                    if (!_.contains(concession.contracts, link.contract.contract_id)) {
+                                        concession.contracts.push(link.contract);
                                     }
-                                }
-                                break;
-                            case 'site':
-                                if (link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        if(loc && loc.loc) {
-                                            concession.proj_coordinates.push({
-                                                'lat': loc.loc[0],
-                                                'lng': loc.loc[1],
-                                                'message': link.site.site_name,
-                                                'timestamp': loc.timestamp,
-                                                'type': 'field',
-                                                'id': link.site._id
+                                    break;
+                                case 'project':
+                                    if (link.project.proj_commodity.length > 0) {
+                                        if (_.where(concession.concession_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length < 1) {
+                                            concession.concession_commodity.push({
+                                                _id: _.last(link.project.proj_commodity).commodity._id,
+                                                commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
+                                                commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
+                                                commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
                                             });
                                         }
-                                    });
-                                } else if (!link.site.field && link.site.site_coordinates.length>0) {
-                                    link.site.site_coordinates.forEach(function (loc) {
-                                        if(loc && loc.loc) {
-                                            concession.proj_coordinates.push({
-                                                'lat': loc.loc[0],
-                                                'lng': loc.loc[1],
-                                                'message': link.site.site_name,
-                                                'timestamp': loc.timestamp,
-                                                'type': 'site',
-                                                'id': link.site._id
-                                            });
-                                        }
-                                    });
-                                }
-                                if (link.site.site_commodity.length>0) {
-                                    if (_.where(concession.concession_commodity, {_id:_.last(link.site.site_commodity).commodity._id}).length<1) {
-                                        concession.concession_commodity.push({
-                                            _id: _.last(link.site.site_commodity).commodity._id,
-                                            commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
-                                            commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
-                                            commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
+                                    }
+                                    break;
+                                case 'site':
+                                    if (link.site.field && link.site.site_coordinates.length > 0) {
+                                        link.site.site_coordinates.forEach(function (loc) {
+                                            if (loc && loc.loc) {
+                                                concession.proj_coordinates.push({
+                                                    'lat': loc.loc[0],
+                                                    'lng': loc.loc[1],
+                                                    'message': link.site.site_name,
+                                                    'timestamp': loc.timestamp,
+                                                    'type': 'field',
+                                                    'id': link.site._id
+                                                });
+                                            }
+                                        });
+                                    } else if (!link.site.field && link.site.site_coordinates.length > 0) {
+                                        link.site.site_coordinates.forEach(function (loc) {
+                                            if (loc && loc.loc) {
+                                                concession.proj_coordinates.push({
+                                                    'lat': loc.loc[0],
+                                                    'lng': loc.loc[1],
+                                                    'message': link.site.site_name,
+                                                    'timestamp': loc.timestamp,
+                                                    'type': 'site',
+                                                    'id': link.site._id
+                                                });
+                                            }
                                         });
                                     }
-                                }
-                                break;
-                            default:
-                                console.log(entity, 'link skipped...');
-                        }
-                        if (link_counter == link_len) {
-                            callback(null, concession);
-                        }
-                    });
-                } else{
-                    callback(null, concession);
-                }
-            });
+                                    if (link.site.site_commodity.length > 0) {
+                                        if (_.where(concession.concession_commodity, {_id: _.last(link.site.site_commodity).commodity._id}).length < 1) {
+                                            concession.concession_commodity.push({
+                                                _id: _.last(link.site.site_commodity).commodity._id,
+                                                commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
+                                                commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
+                                                commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
+                                            });
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    console.log(entity, 'link skipped...');
+                            }
+                            if (link_counter == link_len) {
+                                callback(null, concession);
+                            }
+                        });
+                    } else {
+                        callback(null, concession);
+                    }
+                });
+        } else {
+            callback(null, {error:"Error"});
+        }
     }
 };
 

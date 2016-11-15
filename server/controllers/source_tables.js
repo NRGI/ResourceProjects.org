@@ -81,20 +81,22 @@ exports.getSourceTable = function(req, res){
                         .populate('source')
                         .deepPopulate('source.source_type_id site_established_source.source_type_id company_group_record_established.source_type_id company_established_source.source_type_id proj_established_source.source_type_id concession_established_source.source_type_id')
                         .exec(function (err, responce) {
-                            if (type == 'project') {
-                                project.sources.push(responce[0].proj_established_source);
-                            }
-                            if (type == 'company') {
-                                project.sources.push(responce[0].company_established_source);
-                            }
-                            if (type == 'concession') {
-                                project.sources.push(responce[0].concession_established_source);
-                            }
-                            if (type == 'site') {
-                                project.sources.push(responce[0].site_established_source);
-                            }
-                            if (type == 'group') {
-                                project.sources.push(responce[0].company_group_record_established);
+                            if(responce && responce[0]) {
+                                if (type == 'project') {
+                                    project.sources.push(responce[0].proj_established_source);
+                                }
+                                if (type == 'company') {
+                                    project.sources.push(responce[0].company_established_source);
+                                }
+                                if (type == 'concession') {
+                                    project.sources.push(responce[0].concession_established_source);
+                                }
+                                if (type == 'site') {
+                                    project.sources.push(responce[0].site_established_source);
+                                }
+                                if (type == 'group') {
+                                    project.sources.push(responce[0].company_group_record_established);
+                                }
                             }
                             callback(null, project);
                         });
@@ -200,7 +202,7 @@ exports.getSourceTable = function(req, res){
             var i =0;
             companies_counter = 0;
             if (companies_len > 0) {
-                project.queries.forEach(function (queries) {
+                async.eachLimit(project.queries, 100, function (queries) {
                     Link.find({$or: [queries.query]})
                         .populate('source project company concession')
                         .deepPopulate('source.source_type_id company.company_established_source.source_type_id project.proj_established_source.source_type_id concession.concession_established_source.source_type_id site.site_established_source.source_type_id')
@@ -220,7 +222,9 @@ exports.getSourceTable = function(req, res){
                                     }
                                 });
                             } else{
-                                ++link_counter;
+                                //++link_counter;
+                                project.sources = [];
+                                return callback(null, project);
                             }
                             if (link_len == link_counter && companies_counter == companies_len) {
                                 var uniques = _.map(_.groupBy(source,function(doc){

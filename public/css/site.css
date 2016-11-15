@@ -525,6 +525,13 @@ table .table-header-fixed {
   background-color: #fff;
   margin-bottom: 90px !important;
 }
+.transfer_value {
+  text-align: justify;
+  direction: rtl;
+}
+.not_found {
+  padding: 15%;
+}
 @-moz-keyframes sk-bounce {
   0%, 100% {
     transform: scale(0);
@@ -767,7 +774,7 @@ svg {
   border-radius: 4px;
   border: 1px solid #999;
 }
-.layer-selector-box a.layers {
+a.layers {
   float: left;
   width: 126px;
   padding: 6px 8px;

@@ -7,7 +7,7 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiProjectsSrvc,
-        nrgiProjectsWithIsoSrvc,
+        //nrgiProjectsWithIsoSrvc,
         $filter
     ) {
         var limit = 50,

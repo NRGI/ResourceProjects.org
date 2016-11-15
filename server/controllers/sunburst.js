@@ -13,7 +13,7 @@ exports.getPayments = function(req, res) {
         req.query.company = {$exists: true, $nin: [null]};
     }
     req.query.transfer_level={ $nin: [ 'country' ] };
-    req.query.project={ $exists: true, $nin: [ null ]};
+    //req.query.project={ $exists: true, $nin: [ null ]};
     async.waterfall([
         getAllPayment,
         getPayment
@@ -68,6 +68,9 @@ exports.getPayments = function(req, res) {
                             if (!transfer.site.field) {
                                 proj_site = {name: transfer.site.site_name, _id: transfer.site._id, type: 'site'}
                             }
+                        }
+                        if(transfer.project == undefined && transfer.site == undefined){
+                            proj_site = {name: "Corporate", type: 'project'}
                         }
                         ++transfers_counter;
                         if (!project_transfers.hasOwnProperty(transfer._id)) {
