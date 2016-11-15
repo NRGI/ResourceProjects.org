@@ -676,10 +676,36 @@ function parseData(sheets, report, finalcallback) {
                 projectsReport.add('Empty project name in row. Skipping.\n');
                 return callback(null);
             }
-            var countryRow, countryId;
+            var countryRow, countryId, projId;
+            var projQuery = {};
+            var projQueryBase = {
+                                    $or:
+                                        [
+                                            {
+                                                "proj_name":  { $regex : new RegExp(row[rowIndex], "i") } //case insensitive... companies house!
+                                            },
+                                            {
+                                                "proj_aliases.alias": { $regex : new RegExp(row[rowIndex], "i") }
+                                            }
+                                        ],
+                                    "proj_country.country": countryId
+                                };
+            
             try {
                 countryRow = _.findWhere(sheets['1'].data, {"#project": row['#project']});
                 countryId = countries[countryRow['#country+identifier']]._id;
+                projId = countryRow['#project+identifier'];
+                if (projId) {
+                    console.log("Got a project ID: " + projId);
+                    projQuery = {
+                                    $or:
+                                        [
+                                            {"proj_id": projId},
+                                            projQueryBase
+                                        ]
+                                };
+                }
+                else projQuery = projQueryBase;
             }
             catch (error) {
                 projectsReport.add(`Invalid data in referenced sheet 1: \n${util.inspect(countryRow)} referenced from row \n${util.inspect(row)}. Aborting.\n`);
@@ -690,29 +716,19 @@ function parseData(sheets, report, finalcallback) {
                 //Projects - check against name and aliases
                 //TODO: read sheet 1 in properly as the following is inefficient
                 
-                Project.findOne(
-                    {
-                        $or:
-                            [
-                                {
-                                    "proj_name":  { $regex : new RegExp(row[rowIndex], "i") } //case insensitive... companies house!
-                                },
-                                {
-                                    "proj_aliases.alias": { $regex : new RegExp(row[rowIndex], "i") }
-                                }
-                            ],
-                        "proj_country.country": countryId
-                    },
+                Project.findOne(projQuery,
                     function(err, doc) {
                         if (err) {
                             projectsReport.add(`Encountered an error (${err}) while querying the DB. Aborting.\n`);
                             return callback(`Failed: ${projectsReport.report}`);
                         }
                         else if (doc) { //Project already exists,
+                            console.log("Project already exists under query: " + util.inspect(projQuery, {depth: 4}));
                             projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), using\n`);
                             updateOrCreateProject(null, doc, countryId, callback); //NO existing project internally
                         }
                         else {
+                            console.log("Project does not exist under query: " + util.inspect(projQuery, {depth: 4}));
                             projectsReport.add(`Project ${row[rowIndex]} not found in DB. It will be added later.\n`);
                             updateOrCreateProject(null, null, countryId, callback); //NO existing project internally, NO project in DB
                         }
