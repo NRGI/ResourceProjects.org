@@ -13,12 +13,6 @@
                 h2 Country Info
                 table#country-info
                     tbody
-                        //tr
-                        //    td.detail_label.small Commodity type(s):
-                        //    td.country_commodity_types
-                        //        span(ng-repeat="commodity in country.commodities | unique: 'commodity_type'")
-                        //            | {{commodity.commodity_type | ucfirst | addSpaces}}
-                        //            | {{$last ? '' : ', '}}
                         tr
                             td.detail_label.small Commodities:
                             td.country_commodities
@@ -26,72 +20,73 @@
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
-    .row.top-padding-lg
-        .col-md-12
-            nrgi-project-table(
-            id="country._id"
-            type="'country'"
-            country="false"
-            commoditytype="true"
-            companies="true"
-            commodity="true"
-            status="true")
-    //.row.top-padding-lg
-    //    .col-md-12
-    //        nrgi-site-table(
-    //        id="country._id"
-    //        name="'country'"
-    //        country="false"
-    //        commoditytype="true"
-    //        type="false"
-    //        commodity="true"
-    //        company="true"
-    //        status="true")
-    //.row.top-padding-lg
-    //    .col-md-6
-    //        nrgi-company-table(
-    //        id="country._id"
-    //        type="'country_of_incorporation'"
-    //        group="true"
-    //        incorporated="true")
-    //    .col-md-6
-    //        nrgi-company-operation-table(
-    //        id="country._id"
-    //        type="'countries_of_operation'"
-    //        group="true"
-    //        operation="true")
-    //.row.top-padding-lg
-    //    .col-md-6
-    //        nrgi-contract-table(
-    //        id="country.iso2"
-    //        type="'country'"
-    //        companies="true"
-    //        commodity="true"
-    //        country="false")
-    //
-    //    .col-md-6
-    //        nrgi-concession-table(
-    //        id="country._id"
-    //        name="'country'"
-    //        country="false"
-    //        commodity="true"
-    //        status="true"
-    //        projects="true")
-    //.row.top-padding-lg
-    //    .col-md-12
-    //        nrgi-production-table(
-    //        id="country.iso2"
-    //        type="'country'"
-    //        projectlink="true")
-    //.row.top-padding-lg
-    //    .col-md-12
-    //        nrgi-transfer-table(
-    //        id="country.iso2"
-    //        type="'country'"
-    //        project="true"
-    //        projectlink="false")
-    //.row.top-padding-lg
-    //    .col-md-12
-    //        nrgi-sources-table(
-    //        id="country._id"
-    //        type="'country'")
+    .row.top-padding-lg(ng-if="data")
+        .row.top-padding-lg
+            .col-md-12
+                nrgi-project-table(
+                id="data.projects"
+                type="'country'"
+                country="false"
+                commoditytype="true"
+                companies="true"
+                commodity="true"
+                status="true")
+        .row.top-padding-lg
+            .col-md-12
+                nrgi-site-table(
+                id="data.sites"
+                name="'country'"
+                country="false"
+                commoditytype="true"
+                type="false"
+                commodity="true"
+                company="true"
+                status="true")
+        .row.top-padding-lg
+            .col-md-6
+                nrgi-company-table(
+                id="data.companies"
+                type="'country'"
+                group="true"
+                incorporated="true")
+            .col-md-6
+                nrgi-company-operation-table(
+                id="data.companies_of_operation"
+                type="'country'"
+                group="true"
+                operation="true")
+        .row.top-padding-lg
+            .col-md-6
+                nrgi-contract-table(
+                id="country.iso2"
+                type="'country'"
+                companies="true"
+                commodity="true"
+                country="false")
+
+            .col-md-6
+                nrgi-concession-table(
+                id="data.concessions"
+                name="'country'"
+                country="false"
+                commodity="true"
+                status="true"
+                projects="true")
+        .row.top-padding-lg
+            .col-md-12
+                nrgi-production-table(
+                id="data.productions"
+                type="'country'"
+                projectlink="true")
+        .row.top-padding-lg
+            .col-md-12
+                nrgi-transfer-table(
+                id="data.transfers"
+                type="'country'"
+                project="true"
+                projectlink="false")
+        .row.top-padding-lg
+            .col-md-12
+                nrgi-sources-table(
+                id="country._id"
+                type="'country'")

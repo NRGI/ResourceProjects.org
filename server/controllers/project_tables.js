@@ -144,7 +144,9 @@ exports.getProjectTable = function(req, res){
                     "proj_status":{$last:"$proj_status"},
                     "project_id":{$first:"$_id"}
                 }},
-                {$project:{_id:1,proj_id:1,proj_name:1,project_id:1,proj_country:1,proj_commodity:1,proj_status:1,companies_count:{$literal:0},companies:[]}}
+                {$project:{_id:1,proj_id:1,proj_name:1,project_id:1,proj_country:1,proj_commodity:1,proj_status:1,companies_count:{$literal:0},companies:[]}},
+                { $limit : 50 },
+                { $skip : 0}
             ]).exec(function (err, proj) {
                 projects.projects = proj
                 projects.project_id = _.pluck(proj, 'project_id');
@@ -190,9 +192,11 @@ exports.getProjectTable = function(req, res){
             ]).exec(function (err, links) {
                 _.map(projects.projects, function(proj){
                     var list = _.find(links, function(link){
-                        return link.proj_id == link.proj_id; });
-                    proj.companies = list.companies;
-                    proj.companies_count = list.companies_count;
+                        return link.proj_id == proj.proj_id; });
+                    if(list && list.companies) {
+                        proj.companies = list.companies;
+                        proj.companies_count = list.companies_count;
+                    }
                     return proj;
                 });
                 callback(null, projects);

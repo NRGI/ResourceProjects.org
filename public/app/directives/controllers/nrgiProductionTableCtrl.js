@@ -12,7 +12,10 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
     var id='';
     usSpinnerService.spin('spinner-production');
     $scope.$watch('id', function(value) {
-        if(value!=undefined){
+        if($scope.type=='country'&&value!=undefined) {
+            $scope.production = value;
+        }
+        if($scope.type!='country'&&value!=undefined){
             $scope.loading = false;
             $scope.getProduction($scope.id, $scope.type);
         }

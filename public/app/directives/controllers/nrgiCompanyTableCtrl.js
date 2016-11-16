@@ -15,12 +15,14 @@ angular
         usSpinnerService.spin('spinner-company');
         $scope.company_of_operation=[];
         $scope.$watch('id', function(value) {
-            if(value!=undefined){
+            if($scope.type=='country'&&value!=undefined) {
+                $scope.companies = value;
+            }
+            if($scope.type!='country'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getCompany($scope.id, $scope.type);
             }
         });
-        //console.error($scope.id);
         $scope.getCompany=function(id,type) {
             if ($scope.id!=undefined){
                 if ($scope.openClose == true) {

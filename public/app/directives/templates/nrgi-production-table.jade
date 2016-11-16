@@ -23,10 +23,10 @@ data-target="#productions")
                 ng-if="projectlink==true"
                 ts-criteria='production_links.name') Project / Site
         tbody
-            span(
-            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            spinner-start-active="true"
-            spinner-key="spinner-production")
+            //span(
+            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            //spinner-start-active="true"
+            //spinner-key="spinner-production")
             tr(
             ng-repeat="prod in production"
             ts-repeat ng-class="expression")

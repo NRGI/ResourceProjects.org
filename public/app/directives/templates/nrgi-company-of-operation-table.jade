@@ -23,11 +23,11 @@ data-target="#companies_operation")
                 //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
         tbody
-            span(
-            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            spinner-start-active="true"
-            spinner-key="spinner-companyOperation")
-            | {{company_of_operation}}
+            //span(
+            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            //spinner-start-active="true"
+            //spinner-key="spinner-companyOperation")
+            //| {{company_of_operation}}
             tr(
             ng-repeat="company in companies"
             ts-repeat

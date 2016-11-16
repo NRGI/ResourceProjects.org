@@ -14,7 +14,10 @@ angular
         var com = ', ';
         usSpinnerService.spin('spinner-companyOperation');
         $scope.$watch('id', function(value) {
-            if(value!=undefined){
+            if($scope.type=='country'&&value!=undefined){
+                $scope.companies = value;
+            }
+            if($scope.type!='country'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getCompanyOperation($scope.id, $scope.type);
             }

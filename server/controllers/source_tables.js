@@ -8,12 +8,14 @@ var Project 		= require('mongoose').model('Project'),
     Contract 	    = require('mongoose').model('Contract'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
+    mongoose 		= require('mongoose'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
 
 
 exports.getSourceTable = function(req, res){
+    var _id = mongoose.Types.ObjectId(req.params.id);
     var link_counter, link_len,companies_len,companies_counter;
     var type = req.params.type;
     var queries=[];
@@ -198,48 +200,59 @@ exports.getSourceTable = function(req, res){
     function getSource(project, callback) {
         if(type=='commodity'||type=='country') {
             companies_len = project.queries.length;
-            var source =[];
-            var i =0;
-            companies_counter = 0;
-            if (companies_len > 0) {
-                async.eachLimit(project.queries, 100, function (queries) {
-                    Link.find({$or: [queries.query]})
-                        .populate('source project company concession')
-                        .deepPopulate('source.source_type_id company.company_established_source.source_type_id project.proj_established_source.source_type_id concession.concession_established_source.source_type_id site.site_established_source.source_type_id')
-                        .exec(function (err, links) {
-                            ++companies_counter;
-                            link_len = links.length;
-                            link_counter = 0;
-                            if(link_len>0) {
-                                _.each(links, function (link) {
-                                    ++link_counter;
-                                    if(queries.type=='project') {project.sources.push(link.project.proj_established_source);}
-                                    if(queries.type=='company') {project.sources.push(link.company.company_established_source);}
-                                    if(queries.type=='concession') {project.sources.push(link.concession.concession_established_source);}
-                                    if(queries.type=='site') {project.sources.push(link.site.site_established_source);}
-                                    if(link.source!=null) {
-                                        source.push(link.source);
-                                    }
-                                });
-                            } else{
-                                //++link_counter;
-                                project.sources = [];
-                                return callback(null, project);
-                            }
-                            if (link_len == link_counter && companies_counter == companies_len) {
-                                var uniques = _.map(_.groupBy(source,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                project.sources=uniques;
-                                callback(null, project);
-                            }
-                        });
-                });
-            } else {
+            Link.aggregate([
+                {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+                {$lookup: {from: "sources",localField: "source",foreignField: "_id",as: "source"}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company.countries_of_operation", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company.country_of_incorporation", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+
+                {$lookup: {from: "sources",localField: "company.company_established_source",foreignField: "_id",as: "company_established_source"}},
+                {$lookup: {from: "sources",localField: "project.proj_established_source",foreignField: "_id",as: "proj_established_source"}},
+                {$lookup: {from: "sources",localField: "concession.concession_established_source",foreignField: "_id",as: "concession_established_source"}},
+                {$lookup: {from: "sources",localField: "site.site_established_source",foreignField: "_id",as: "site_established_source"}},
+
+                {$unwind: {"path": "$company_established_source", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$proj_established_source", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession_established_source", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site_established_source", "preserveNullAndEmptyArrays": true}},
+
+                {$match:{$or:[{'company.country_of_incorporation.country':_id},
+                    {'company.countries_of_operation.country':_id},
+                    {'project.proj_country.country':_id},
+                    {'site.site_country.country':_id},
+                    {'concession.concession_country.country':_id}
+                ]}},
+                {$project:{ _id:0, source:['$source',"$company_established_source","$proj_established_source",
+                    "$concession_established_source","$site_established_source"]}},
+                {$unwind: "$source"},
+                {$project:{ _id:'$source._id',source_name:"$source.source_name",source_type_id:"$source.source_type_id"}},
+                {$lookup: {from: "sourcetypes",localField: "source_type_id",foreignField: "_id",as: "source_type_id"}},
+                {$unwind: "$source_type_id"},
+                {$group:{
+                    "_id": "$_id",
+                    "source_name":{$first:"$source_name"},
+                    "source_type_id":{$first:"$source_type_id"}
+                }},
+                {$project:{_id:1,source_name:1,
+                    source_type_id: { _id:"$source_type_id._id",
+                        source_type_name:"$source_type_id.source_type_name",
+                        source_type_authority:"$source_type_id.source_type_authority"}
+                }}
+            ]).exec(function (err, links) {
+                project.sources = links;
                 callback(null, project);
-            }
+            })
         } else {
             callback(null, project);
         }

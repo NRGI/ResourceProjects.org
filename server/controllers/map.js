@@ -49,7 +49,6 @@ exports.getCoordinateCountryByID = function(req, res) {
                     'type': {$cond: { if: { $gte: [ "$field", true ] }, then: 'field', else: 'site' }}
                 }}
             ]).exec(function (err, sites) {
-                console.log(sites)
                 country.proj_coordinates = sites;
                 callback(null, country)
             });

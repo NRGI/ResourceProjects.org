@@ -17,7 +17,10 @@ angular
         var com =', ';
         usSpinnerService.spin('spinner-project');
         $scope.$watch('id', function(value) {
-            if(value!=undefined){
+            if($scope.type=='country'&&value!=undefined) {
+                $scope.projects = value;
+            }
+            if($scope.type!='country'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getProjects($scope.id, $scope.type);
             }

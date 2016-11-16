@@ -97,7 +97,6 @@ angular
                     });
 
                 }else{
-                    console.log('')
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-sunburst-by-gov');
                 }

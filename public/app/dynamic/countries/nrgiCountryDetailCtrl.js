@@ -6,13 +6,18 @@ angular.module('app')
         nrgiAuthSrvc,
         nrgiIdentitySrvc,
         nrgiCountriesSrvc,
+        nrgiCountryCommoditiesSrvc,
         $routeParams
     ) {
         nrgiCountriesSrvc.get({_id: $routeParams.id}, function (response) {
             $scope.country=response.country;
-            $scope.country.commodities=[];
-            angular.forEach(response.commodities,function(value) {
-                $scope.country.commodities.push(value);
-            })
+            $scope.country.commodities=response.commodities;
+        });
+        $scope.$watch('country._id', function(value) {
+            if(value!=undefined){
+                nrgiCountryCommoditiesSrvc.get({_id: value}, function (response) {
+                    $scope.data = response;
+                });
+            }
         });
     });
