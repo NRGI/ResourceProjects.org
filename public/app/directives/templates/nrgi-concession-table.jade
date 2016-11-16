@@ -29,10 +29,10 @@ data-target="#concessions")
                 ng-if="projects==true"
                 ts-criteria='projects|parseInt') No. Projects
         tbody
-            span(
-            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            spinner-start-active="true"
-            spinner-key="spinner-concession")
+            //span(
+            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            //spinner-start-active="true"
+            //spinner-key="spinner-concession")
             tr(
             ng-repeat="concession in concessions | unique: '_id'"
             ts-repeat ng-class="expression")
@@ -55,7 +55,7 @@ data-target="#concessions")
                                text(ng-if="$last")
                                    | {{status.string | ucfirst}}
                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.concession_projects {{concession.projects}}
+                td.concession_projects {{concession.projects_count}}
     div(ng-if="concessions.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden="true")

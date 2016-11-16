@@ -4,8 +4,6 @@ data-toggle="collapse"
 ng-click='openClose=!openClose; getProjects(id,type)'
 data-target="#projects")
     h4.text-justify Projects
-//a(data-toggle="collapse" ng-click='openClose=!openClose;getProjects(id,type)' data-target="#projects")
-//    h2 Projects
 #projects.panel-collapse.collapse.in
     table.load_table.table.table-striped.projects(
     ts-wrapper
@@ -31,10 +29,10 @@ data-target="#projects")
                 ng-if="companies==true"
                 ts-criteria='companies_count|parseInt') Companies
         tbody
-            span(
-            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            spinner-start-active="true"
-            spinner-key="spinner-project")
+            //span(
+            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            //spinner-start-active="true"
+            //spinner-key="spinner-project")
             tr(
             ng-repeat="project in projects | unique: '_id'"
             ts-repeat ng-class="expression")
@@ -61,7 +59,7 @@ data-target="#projects")
                     ng-if="project.proj_status")
                         | {{project.proj_status.string | ucfirst | addSpaces}}
                         text.small(ng-if="project.proj_status.timestamp")  (true at {{project.proj_status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.text-center(ng-if="companies==true && project.companies.length>0"): text(ng-repeat="company in project.companies ")
+                td.text-center(ng-if="companies==true && project.companies.length>0 && project.companies_count<3"): text(ng-repeat="company in project.companies ")
                     a(href='company/{{company._id}}')
                         span(ng-bind-html="company.company_name|sanitize")
                     | {{$last ? '' : ', '}}

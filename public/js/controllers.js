@@ -1241,7 +1241,10 @@ angular.module('app').controller('nrgiCompanyOperationTableCtrl', [
     var com = ', ';
     usSpinnerService.spin('spinner-companyOperation');
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.type == 'country' && value != undefined) {
+        $scope.companies = value;
+      }
+      if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getCompanyOperation($scope.id, $scope.type);
       }
@@ -1345,12 +1348,14 @@ angular.module('app').controller('nrgiCompanyTableCtrl', [
     usSpinnerService.spin('spinner-company');
     $scope.company_of_operation = [];
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.type == 'country' && value != undefined) {
+        $scope.companies = value;
+      }
+      if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getCompany($scope.id, $scope.type);
       }
     });
-    //console.error($scope.id);
     $scope.getCompany = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -1451,7 +1456,10 @@ angular.module('app').controller('nrgiConcessionTableCtrl', [
     var com = ', ';
     usSpinnerService.spin('spinner-concession');
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.name == 'country' && value != undefined) {
+        $scope.concessions = value;
+      }
+      if ($scope.name != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getConcessions($scope.id, $scope.name);
       }
@@ -2078,7 +2086,10 @@ angular.module('app').controller('nrgiProductionTableCtrl', [
     var id = '';
     usSpinnerService.spin('spinner-production');
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.type == 'country' && value != undefined) {
+        $scope.production = value;
+      }
+      if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getProduction($scope.id, $scope.type);
       }
@@ -2212,7 +2223,10 @@ angular.module('app').controller('nrgiProjectTableCtrl', [
     var com = ', ';
     usSpinnerService.spin('spinner-project');
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.type == 'country' && value != undefined) {
+        $scope.projects = value;
+      }
+      if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getProjects($scope.id, $scope.type);
       }
@@ -2396,7 +2410,10 @@ angular.module('app').controller('nrgiSiteTableCtrl', [
     var com = ', ';
     usSpinnerService.spin('spinner-site');
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.name == 'country' && value != undefined) {
+        $scope.sites = value;
+      }
+      if ($scope.name != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getSites($scope.id, $scope.name);
       }
@@ -2489,20 +2506,18 @@ angular.module('app').controller('nrgiSiteTableCtrl', [
                     }
                   }
                   if (field == 'site_status') {
-                    if (p[field].length > 0) {
+                    if (p[field]) {
                       str = '';
-                      angular.forEach(p[field], function (status, i) {
-                        var date = new Date(status.timestamp);
-                        date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
-                        var status_name = status.string.toString();
-                        status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
-                        if (i != p[field].length - 1) {
-                          str = str + status_name + '(true at ' + date + ')' + com;
-                        } else {
-                          str = str + status_name + '(true at ' + date + ')';
-                          $scope.csv_site[key].push(str);
-                        }
-                      });
+                      var date = new Date(status.timestamp);
+                      date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
+                      var status_name = p[field].string.toString();
+                      status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
+                      if (i != p[field].length - 1) {
+                        str = str + status_name + '(true at ' + date + ')' + com;
+                      } else {
+                        str = str + status_name + '(true at ' + date + ')';
+                        $scope.csv_site[key].push(str);
+                      }
                     } else {
                       $scope.csv_site[key].push('');
                     }
@@ -2768,7 +2783,6 @@ angular.module('app').controller('nrgiSunburstByGovCtrl', [
             });
           });
         } else {
-          console.log('');
           $scope.options.chart.noData = 'No Data Available.';
           usSpinnerService.stop('spinner-sunburst-by-gov');
         }
@@ -3064,7 +3078,10 @@ angular.module('app').controller('nrgiTransferTableCtrl', [
     var company_name = '';
     usSpinnerService.spin('spinner-transfers');
     $scope.$watch('id', function (value) {
-      if (value != undefined) {
+      if ($scope.type == 'country' && value != undefined) {
+        $scope.transfers = value;
+      }
+      if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getTransfers($scope.id, $scope.type);
       }
@@ -3196,8 +3213,7 @@ angular.module('app').controller('nrgiTransferTableCtrl', [
           }
         }
       }
-    }  //}
-;
+    };
   }
 ]);'use strict';
 angular.module('app').controller('nrgiTreeMapCtrl', [
@@ -4260,14 +4276,19 @@ angular.module('app').controller('nrgiCountryDetailCtrl', [
   'nrgiAuthSrvc',
   'nrgiIdentitySrvc',
   'nrgiCountriesSrvc',
+  'nrgiCountryCommoditiesSrvc',
   '$routeParams',
-  function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiCountriesSrvc, $routeParams) {
+  function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiCountriesSrvc, nrgiCountryCommoditiesSrvc, $routeParams) {
     nrgiCountriesSrvc.get({ _id: $routeParams.id }, function (response) {
       $scope.country = response.country;
-      $scope.country.commodities = [];
-      angular.forEach(response.commodities, function (value) {
-        $scope.country.commodities.push(value);
-      });
+      $scope.country.commodities = response.commodities;
+    });
+    $scope.$watch('country._id', function (value) {
+      if (value != undefined) {
+        nrgiCountryCommoditiesSrvc.get({ _id: value }, function (response) {
+          $scope.data = response;
+        });
+      }
     });
   }
 ]);'use strict';

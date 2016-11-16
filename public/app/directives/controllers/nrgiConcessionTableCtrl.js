@@ -14,7 +14,10 @@ angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$fi
     var com = ', ';
     usSpinnerService.spin('spinner-concession');
     $scope.$watch('id', function(value) {
-        if(value!=undefined){
+        if($scope.name=='country'&&value!=undefined) {
+            $scope.concessions = value;
+        }
+        if($scope.name!='country'&&value!=undefined){
             $scope.loading = false;
             $scope.getConcessions($scope.id, $scope.name);
         }

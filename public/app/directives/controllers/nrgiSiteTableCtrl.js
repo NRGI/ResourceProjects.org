@@ -16,7 +16,10 @@ angular
         var com = ', ';
         usSpinnerService.spin('spinner-site');
         $scope.$watch('id', function(value) {
-            if(value!=undefined){
+            if($scope.name=='country'&&value!=undefined) {
+                $scope.sites = value;
+            }
+            if($scope.name!='country'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getSites($scope.id, $scope.name);
             }
@@ -79,12 +82,11 @@ angular
                                         }
                                     }
                                     if (field == 'site_status') {
-                                        if (p[field].length > 0) {
+                                        if (p[field]) {
                                             str = '';
-                                            angular.forEach(p[field], function (status, i) {
-                                                var date = new Date(status.timestamp);
-                                                date = $filter('date')(date, "MM/dd/yyyy @ h:mma");
-                                                var status_name = status.string.toString();
+                                            var date = new Date(status.timestamp);
+                                            date = $filter('date')(date, "MM/dd/yyyy @ h:mma");
+                                            var status_name = p[field].string.toString();
                                                 status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
                                                 if (i != p[field].length - 1) {
                                                     str = str + status_name + '(true at ' + date + ')' + com;
@@ -92,7 +94,6 @@ angular
                                                     str = str + status_name + '(true at ' + date + ')';
                                                     $scope.csv_site[key].push(str);
                                                 }
-                                            })
                                         } else {
                                             $scope.csv_site[key].push('');
                                         }

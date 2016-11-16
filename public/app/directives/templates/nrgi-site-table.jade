@@ -33,10 +33,10 @@ data-target="#sites")
                 ts-criteria='site_status[site_status.length - 1].string') Companies
 
         tbody
-            span(
-            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            spinner-start-active="true"
-            spinner-key="spinner-site")
+            //span(
+            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            //spinner-start-active="true"
+            //spinner-key="spinner-site")
             tr(
             ng-repeat="site in sites"
             ts-repeat ng-class="expression")
@@ -66,7 +66,12 @@ data-target="#sites")
                 td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
                     text(ng-if="$last") {{status.string | ucfirst}}
                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.site_status(ng-if="company==true") {{site.companies}}
+                td.text-center(ng-if="company==true && site.companies.length>0 && site.companies_count<3"): text(ng-repeat="company in site.companies ")
+                    a(href='company/{{company._id}}')
+                        span(ng-bind-html="company.company_name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.text-center(ng-if="company==true && site.companies_count>=3") ({{site.companies_count}}) "companies"
+                td.text-center(ng-if="company==true && site.companies_count ==0 && site.companies.length==0")
     div(ng-if="sites.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')

@@ -15,7 +15,10 @@ angular
         var company_name = '';
         usSpinnerService.spin('spinner-transfers');
         $scope.$watch('id', function(value) {
-            if(value!=undefined){
+            if($scope.type=='country'&&value!=undefined) {
+                $scope.transfers = value;
+            }
+            if($scope.type!='country'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getTransfers($scope.id, $scope.type);
             }
@@ -29,11 +32,11 @@ angular
                             _id: id,
                             type: type
                         }, function (success) {
-                            $scope.expression='';
+                            $scope.expression = '';
                             if (success.transfers.length == 0 && $scope.transfers.length == 0) {
                                 $scope.expression = 'showLast';
                             }
-                            $scope.transfers=success.transfers;
+                            $scope.transfers = success.transfers;
                             usSpinnerService.stop('spinner-transfers');
                             var headers = [
                                 {name: 'Year', status: true, field: 'transfer_year'},
@@ -57,7 +60,7 @@ angular
                             angular.forEach($scope.transfers, function (transfer, key) {
                                 $scope.csv_transfers[key] = [];
                                 angular.forEach(fields, function (field) {
-                                    if(field =='transfer_value'){
+                                    if (field == 'transfer_value') {
                                         transfer_value = '';
                                         transfer_value = $filter('currency')(transfer[field], '', 0)
                                         $scope.csv_transfers[key].push(transfer_value);
@@ -104,12 +107,11 @@ angular
                                     }
                                 })
                             });
-                        }, function(error){
+                        }, function (error) {
                             usSpinnerService.stop('spinner-transfers');
                         })
                     }
                 }
             }
         }
-        //}
     });
