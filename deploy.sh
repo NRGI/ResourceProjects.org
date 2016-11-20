@@ -29,7 +29,7 @@ DEPLOY_PROJECT_ID=5804f143e8fe021000f9aed1
 STATUS=$(curl -s\
   -H "Authorization: apiToken $API_TOKEN"\
   -H "Content-Type: application/json"\
-  -d "{\"branchName\":\"master\",\"globalEnv\": {\"PROJECT\":\"rp\", \"PROJECT_BRANCH\":\"$BRANCH\", \"PROJECT_COMMIT\":\"$COMMIT\"}}"\
+  -d "{\"branchName\":\"master\",\"globalEnv\": {\"PROJECT\":\"rp\", \"PROJECT_BRANCH\":\"$BRANCH\", \"PROJECT_COMMIT\":\"$COMMIT\", \"PROJECT_REPO_FULL_NAME\":\"$REPO_FULL_NAME\", \"PROJECT_COMMITTER\":\"$COMMITTER\", \"PROJECT_COMPARE_URL\":\"$COMPARE_URL\" }}"\
   "https://api.shippable.com/projects/$DEPLOY_PROJECT_ID/newBuild")
 echo "$STATUS"
 
