@@ -4,8 +4,9 @@ var Dataset 		= require('mongoose').model('Dataset'),
     ImportSource    = require('mongoose').model('ImportSource'),
     async           = require('async'),
     _               = require('underscore'),
+    GoogleSpreadsheet = require('google-spreadsheet');
     googlesheets    = require('../dataprocessing/googlesheets.js');
-	  companieshouse  = require('../dataprocessing/companieshouse.js');
+	companieshouse  = require('../dataprocessing/companieshouse.js');
     duplicateHandler= require('../dataprocessing/duplicateHandler.js');
     unloader        = require('../dataprocessing/unloader.js');
     util            = require('util');
@@ -194,7 +195,7 @@ exports.createAction = function(req, res) {
                                 //console.log("Report: " + report + "\n");
                                 
                                 //Save affected entities (for unloading)
-                                //TODO move to function, below is identical
+                                //TODO move to function, below is almost identical
                                 var importSources = [];
                                 _.each(affectedEntities, function(value) {
                                     value.action = amodel._id;
@@ -204,6 +205,9 @@ exports.createAction = function(req, res) {
                                 async.eachSeries(
                                     importSources,
                                     function(importSource, icallback) {
+                                        if (importSource.entity === 'project' && importSource.newProjId) {
+                                            //TODO: write into sheet 1 where importSource.projName matches #project
+                                        }
                                         ImportSource.findOneAndUpdate(
                                             {obj: importSource.obj},
                                             {$push: {actions: amodel._id}, entity: importSource.entity},
@@ -258,66 +262,92 @@ exports.createAction = function(req, res) {
                             res.send();
                             console.log("Triggered, res sent\n");
                             companieshouse.importData(function(status, report, affectedEntities) {
-                                //TODO: affected entries!
                                 console.log("Process finished");
                                 console.log("Status: " + status + "\n");
                                 //console.log("Report: " + report + "\n");
                                 
-                                //Save affected entities (for unloading)
+                                //Save affected entities (for unloading) and project ids (for reloading)
                                 var importSources = [];
+                                var sheet = null;
                                 _.each(affectedEntities, function(value) {
                                     value.action = amodel._id;
                                     importSources.push(value);
                                 });
-                                async.eachSeries(
-                                    importSources,
-                                    function(importSource, icallback) {
-                                        ImportSource.findOneAndUpdate(
-                                            {obj: importSource.obj},
-                                            {$push: {actions: amodel._id}, entity: importSource.entity},
-                                            {upsert: true},
-                                            function (err) {
-                                                if (err) icallback("Failed to log an importsource");
-                                                else icallback(null);
-                                            }
-                                        );
-                                    },
-                                    function (err) {
-                                        if (err) console.log(err); //TODO: close the action properly
-                                        else {
-                                
-                                            
-                                            if (status == "Success") {
-                                                console.log("Searching for duplicates...");
-                                                duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-                                                    if (err) {
-                                                        status = "Failed";
-                                                        report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
-                                                    }
-                                                    else report += "\nDuplicate detection completed.";
-                                                    Action.findByIdAndUpdate(
-                                                        amodel._id,
-                                                        {finished: Date.now(), status: status, details: report},
-                                                        {safe: true, upsert: false},
-                                                        function(err) {
-                                                            if (err) console.log("Failed to update an action: " + err);
-                                                        }
-                                                    );
-                                                });
-                                            }
-                                            else { //TODO dedup code
-                                                Action.findByIdAndUpdate(
-                                                    amodel._id,
-                                                    {finished: Date.now(), status: status, details: report},
-                                                    {safe: true, upsert: false},
-                                                    function(err) {
-                                                        if (err) console.log("Failed to update an action: " + err);
-                                                    }
-                                                );
-                                            }
-                                        }
-                                    }
-                                );
+                                async.series([
+									function (gscallback) {
+										var doc = new GoogleSpreadsheet('1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto');
+										doc.getInfo(function(err, info) {
+											if (err) {
+												return gscallback("Failed to open Google Sheet for project IDs");
+											}
+											else {
+												console.log('Loaded doc: '+info.title);
+												sheet = info.worksheets[0];
+												return gscallback(null);
+											}
+										});
+									},
+									function (gscallback) {
+										async.eachSeries(
+											importSources,
+											function(importSource, icallback) {
+												if (importSource.entity === 'project' && importSource.newProjId) {
+													//TODO: write into CH sheet: new row, projCountry, projName and projId
+													var newRow = [importSource.projName, importSource.projCountry, importSource.newProjId];
+													//In theory any rows here don't exist yet in the sheet, so just add
+													sheet.appendrow(newRow);
+												}
+												ImportSource.findOneAndUpdate(
+													{obj: importSource.obj},
+													{$push: {actions: amodel._id}, entity: importSource.entity},
+													{upsert: true},
+													function (err) {
+														if (err) icallback("Failed to log an importsource");
+														else icallback(null);
+													}
+												);
+											},
+											function (err) {
+												if (err) return gscallback(err); //TODO: close the action properly
+												else {
+													if (status == "Success") {
+														console.log("Searching for duplicates...");
+														duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+															if (err) {
+																status = "Failed";
+																report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
+															}
+															else report += "\nDuplicate detection completed.";
+															Action.findByIdAndUpdate(
+																amodel._id,
+																{finished: Date.now(), status: status, details: report},
+																{safe: true, upsert: false},
+																function(err) {
+																	if (err) return gscallback(err);
+																	else gscallback(null);
+																}
+															);
+														});
+													}
+													else { //TODO dedup code
+														Action.findByIdAndUpdate(
+															amodel._id,
+															{finished: Date.now(), status: status, details: report},
+															{safe: true, upsert: false},
+															function(err) {
+																if (err) return gscallback(err);
+																else gscallback(null);
+															}
+														);
+													}
+												}
+											}
+										);
+									},
+									function (err) {
+										if (err) console.log("Failure during import POST: " + err);					
+									}
+								]);
                             });
 	                    }
                         else if (req.body.name == "Mark as cleaned") {

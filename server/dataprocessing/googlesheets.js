@@ -622,7 +622,7 @@ function parseData(sheets, report, finalcallback) {
 
     function parseProjects(result, callback) {
         function processProjectRow(projectsReport, destObj, entityName, rowIndex, model, modelKey, makerFunction, row, callback) {
-            function updateOrCreateProject(projDoc, currentDoc, countryId, wcallback) {
+            function updateOrCreateProject(projDoc, currentDoc, countryId, projId, wcallback) {
                 if (!projDoc) {
                     projDoc = makeNewProject(row); //This can sit alongside the existing proj from db for now. Merging happens later.
                     
@@ -631,7 +631,7 @@ function parseData(sheets, report, finalcallback) {
                         return wcallback(`Failed: ${projectsReport.report}`);
                     }
                 }
-                
+                if (projId) projDoc.proj_id = projId; 
                 projDoc.$addToSet.proj_country.$each.push({source: sources[row['#source'].toLowerCase()]._id, country: countryId, timestamp: currentTime});
                 if (row['#project+alias'] !== "") projDoc.$addToSet.proj_aliases.$each.push({alias: row['#project+alias'], source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime});
                 if (row['#commodity'] !== "") projDoc.$addToSet.proj_commodity.$each.push({commodity: commodities[row['#commodity']]._id, source: sources[row['#source'].toLowerCase()]._id, timestamp: currentTime});
@@ -705,7 +705,10 @@ function parseData(sheets, report, finalcallback) {
                                         ]
                                 };
                 }
-                else projQuery = projQueryBase;
+                else {
+                    console.log("Did not got a project ID for project " + row['#project']);
+                    projQuery = projQueryBase;
+                }
             }
             catch (error) {
                 projectsReport.add(`Invalid data in referenced sheet 1: \n${util.inspect(countryRow)} referenced from row \n${util.inspect(row)}. Aborting.\n`);
@@ -725,12 +728,12 @@ function parseData(sheets, report, finalcallback) {
                         else if (doc) { //Project already exists,
                             console.log("Project already exists under query: " + util.inspect(projQuery, {depth: 4}));
                             projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), using\n`);
-                            updateOrCreateProject(null, doc, countryId, callback); //NO existing project internally
+                            updateOrCreateProject(null, doc, countryId, projId, callback); //NO existing project internally
                         }
                         else {
                             console.log("Project does not exist under query: " + util.inspect(projQuery, {depth: 4}));
                             projectsReport.add(`Project ${row[rowIndex]} not found in DB. It will be added later.\n`);
-                            updateOrCreateProject(null, null, countryId, callback); //NO existing project internally, NO project in DB
+                            updateOrCreateProject(null, null, countryId, projId, callback); //NO existing project internally, NO project in DB
                         }
                     }
                 );
@@ -766,17 +769,22 @@ function parseData(sheets, report, finalcallback) {
                                     return ecallback(err);
                                 }
                                 
-                                createdOrAffectedEntities[pmodel._id] = {entity: 'project', obj: pmodel._id};
+                                createdOrAffectedEntities[pmodel._id] = {entity: 'project', obj: pmodel._id, newProjId: null};
                                 
                                 projects[project] = pmodel; //Internal update switching from update format to saved format. Also gets us _id "back"
                                 
                                 if (!pmodel.proj_id) {
-                                    Project.update({_id: pmodel._id}, {proj_id: countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase()}, {},
+                                    var newProjId = countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+                                    console.log("After creation or update, project " + pmodel.proj_name + "did not have an ID: creating one now and updating");
+                                    Project.update({_id: pmodel._id}, {proj_id: newProjId}, {},
                                         function(err) {
                                             if (err) {
                                                 projectsReport.add(`Encountered an error while setting the project ID DB: ${err}. Aborting.\n`);
                                                 return ecallback(err);
                                             }
+                                            //Abuse this object to feedback a mapping of new IDs to names
+                                            createdOrAffectedEntities[pmodel._id].newProjId = newProjId;
+                                            createdOrAffectedEntities[pmodel._id].projName = pmodel.proj_name;
                                             reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
                                             
                                             return ecallback(null);

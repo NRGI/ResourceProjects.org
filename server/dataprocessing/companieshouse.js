@@ -17,6 +17,7 @@ API_KEY = process.env.CHAPIKEY;
 years = _.range(2014, 2016);
 
 var createdOrAffectedEntities = {};
+var existingProjIds = [];
 
 //source type is always 'UK Mandatory payment disclosure'
 var sourceTypeId = '56e8736944442a3824141429';
@@ -30,9 +31,16 @@ function generate_source_url(companyNumber, referenceNumber) {
 }
 
 function makeProjId (countryIso, name) {
-	var pid = countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
-	//console.log(pid + ": " + countryIso);
-	return pid;
+    idRow = _.findWhere(existingProjIds, {projName: name, projCountry: countryIso});
+    if (idRow) { 
+        console.log("Got an ID for project from sheet: " + idRow.projId + " using ISO " + countryIso + " and projName " + name);
+        return {projId: idRow.projId, newIdCreated: false};
+	}
+	else { 
+		var pid = countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+		console.log("Createing a new ID: " + pid + " using ISO " + countryIso);
+		return {projId: pid, newIdCreated: true}; //TODO not always true!
+	}
 }
 
 exports.importData = function(finalcallback) {
@@ -42,98 +50,148 @@ exports.importData = function(finalcallback) {
 	var reporter = {
 		text: reportString,
 		add: function(more) {
+		    console.log(more);
 			this.text += more;
 		}
 	};
-
+	
 	if (!API_KEY || (API_KEY === '')) {
 		reporter.add("API key must be set as environment variable CHAPIKEY! Aborting.");
 		return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
 	}
+	
+	async.series([
+	    //Read in countries from DB
+	    function (scallback) {
+	        reporter.add("Getting countries from database...\n");
+			countries = {};
+			countries_iso2 = {};
+			Country.find({}, function (err, cresult) {
+				if (err) {
+					reporter.add(`Got an error: ${err}\n`);
+					return scallback("Failed", reporter.text, createdOrAffectedEntities);
+				}
+				else {
+					reporter.add(`Found ${cresult.length} countries\n`);
+					var ctry;
+					for (ctry of cresult) {
+						country_iso3 = isocountries.alpha2ToAlpha3(ctry.iso2).toUpperCase();
+						countries[country_iso3] = ctry;
+						countries_iso2[ctry.iso2.toUpperCase()] = ctry;
+					}
+					return scallback(null);
+				}
+			});
+	    },
+	    //Read in persisted project IDs
+	    function(scallback) {
+			console.log("Reading existing project IDs from Google Sheets...");
+	
+			var feedurl = `https://spreadsheets.google.com/feeds/worksheets/1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto/public/full?alt=json`;
 
-	// loop all years in the given range and call the Companies House Extractives API for each of these years
-	var processYears = function() {
-		async.eachSeries(years, function (year, fcallback) {
-				reporter.add('Processing year ' + year + '\n');
-
-				// Call Companies House Extractives API
-
-				request
-					.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
-					// testing with local duplicates
-					//.get('http://localhost:3030/api/duplicatestestdata')
-
-					.auth(API_KEY, '')
-					.end(function(err,res) {
-
-						if (err || !res.ok) {
-							reporter.add('error in retrieving data from Companies House: ' + err);
-							return finalcallback("Failed", reporter.text, createdOrAffectedEntities);	// continue loop
+			request({
+				url: feedurl,
+				json: true
+			}, function (error, response, body) {
+				if (!error && response.statusCode === 200) {
+					for (var j=0; j<body.feed.entry[0].link.length; j++) {
+						if (body.feed.entry[0].link[j].type === "text/csv") {
+							report += `Getting data from sheet "${body.feed.entry[0].title.$t}"...\n`;
+							request({
+								url: body.feed.entry[0].link[j].href
+							}, function (i, error, response, sbody) {
+								if (error) {
+									report += `${body.feed.entry[0].title.$t}: Could not retrieve sheet`;
+									return scallback("Failed", reporter.text, createdOrAffectedEntities);
+								}
+								records = csv(sbody, {trim: true, columns: true});
+								for (var r=0; r<records.length; r++) {
+									var newId = {
+													projName: records[r]['#project'],
+													projCountry: records[r]['#project+country+identifier'],
+													projId: records[r]['#project+identifier']
+												};
+									existingProjIds.push(newId);
+								}
+								return scallback(null);
+							});
 						}
-						else {
+					}
+				}
+				else {
+					report += "Could not get information from GSheets feed - is the sheet shared?\n";
+					return scallback("Failed", reporter.text, createdOrAffectedEntities);
+				}
+			});
+		},
+		// loop all years in the given range and call the Companies House Extractives API for each of these years
+		function (scallback) {
+			async.eachSeries(years, function (year, fcallback) {
+					reporter.add('Processing year ' + year + '\n');
 
-							if (!res.body || res.body == {}) {
-								// no data
-								return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
+					// Call Companies House Extractives API
+
+					request
+						.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
+						// testing with local duplicates
+						//.get('http://localhost:3030/api/duplicatestestdata')
+
+						.auth(API_KEY, '')
+						.end(function(err,res) {
+
+							if (err || !res.ok) {
+								reporter.add('error in retrieving data from Companies House: ' + err);
+								return finalcallback("Failed", reporter.text, createdOrAffectedEntities);	// continue loop
 							}
 							else {
 
-								// get all reports for this year and handle them one after another
-								//console.log(res.body);
-								async.eachSeries(res.body, function (chReportData, icallback) {
-										//Set currency for this report
-										loadChReport(chReportData, year, reporter, icallback);
-									},
+								if (!res.body || res.body == {}) {
+									// no data
+									return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
+								}
+								else {
 
-									function (err) {
+									// get all reports for this year and handle them one after another
+									//console.log(res.body);
+									async.eachSeries(res.body, function (chReportData, icallback) {
+											//Set currency for this report
+											loadChReport(chReportData, year, reporter, icallback);
+										},
 
-										if (err) {
-											reporter.add('Error in one retrieved report for year ' + year + '\n');
-											return fcallback(err);
+										function (err) {
+
+											if (err) {
+												reporter.add('Error in one retrieved report for year ' + year + '\n');
+												return fcallback(err);
+											}
+											reporter.add('Successfully handled report data for year ' + year + '\n');
+											async.nextTick(function(){ fcallback(null); });
+
 										}
-										reporter.add('Successfully handled report data for year ' + year + '\n');
-										async.nextTick(function(){ fcallback(null); });
 
-									}
-
-								);
+									);
+								}
 							}
-						}
 
-					});
-			},
-			function (err) {
+						});
+				},
+				function (err) {
 
-				if (err) {
-					reporter.add('Error in retrieved data from CH API: \n' + err);
-					return finalcallback("Failed",reporter.text);
+					if (err) {
+						reporter.add('Error in retrieved data from CH API: \n' + err);
+						return finalcallback("Failed",reporter.text);
+					}
+					reporter.add('Successfully handled all data from CH API\n');
+					finalcallback("Success", reporter.text, createdOrAffectedEntities);
+
 				}
-				reporter.add('Successfully handled all data from CH API\n');
-				finalcallback("Success", reporter.text, createdOrAffectedEntities);
-
-			}
-		);
-	};
-
-	// Get all countries from the DB
-	reporter.add("Getting countries from database...\n");
-	countries = {};
-	countries_iso2 = {};
-	Country.find({}, function (err, cresult) {
-		if (err) {
-			reporter.add(`Got an error: ${err}\n`);
-			return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
+			);
 		}
-		else {
-			reporter.add(`Found ${cresult.length} countries\n`);
-			var ctry;
-			for (ctry of cresult) {
-				country_iso3 = isocountries.alpha2ToAlpha3(ctry.iso2).toUpperCase();
-				countries[country_iso3] = ctry;
-				countries_iso2[ctry.iso2.toUpperCase()] = ctry;
-			}
-			processYears();
-		}
+	],
+	function (err, reporttext, createdOrAffectedEntities) {
+	    if (err) {
+	        return finalcallback("Failed", reporttext, createdOrAffectedEntities);
+	    }
 	});
 };
 
@@ -620,9 +678,22 @@ function loadChReport(chData, year, report, loadcallback) {
 			var countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
 			// Only adds the country if not already there
 			var update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
+			
+			createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = null;
+
 			if (!projects[projectPaymentEntry.projectName].proj_id) {
 				//console.log("Project ID not set, setting...");
-				update.proj_id = makeProjId( countryIso, projectPaymentEntry.projectName );
+				//Abuse this to note that an ID has been created
+				//Get persisted ID (Google Sheets) or make a new one up
+				var newProjIdObj = makeProjId( countryIso, projectPaymentEntry.projectName );
+				if (newProjIdObj.newIdCreated) {
+					//Write the new ID later
+					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = newProjId;
+					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].projCountry = countryIso;
+					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].projName = projectPaymentEntry.projectName;
+				}
+				
+				update.proj_id = newProjIdObj.projId;
 			}
 			//else console.log("Project ID already set, not setting...");
 
