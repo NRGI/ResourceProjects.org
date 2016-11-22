@@ -27,6 +27,9 @@ script:
   - node_modules/karma/bin/karma start --browsers=PhantomJS --single-run --reporters coverage
 
 after_success:
+  # Create the version file
+  - ./create_version.sh
+    
   - sudo docker build -t nrgi/resourceprojects.org:$BRANCH.$COMMIT .
   # Create the `latest` tag and force it in case the tag is already there from a previous build
   - sudo docker tag -f nrgi/resourceprojects.org:$BRANCH.$COMMIT nrgi/resourceprojects.org:$BRANCH
@@ -37,6 +40,19 @@ after_success:
   - ./deploy.sh
 
 integrations:
-    hub:
-      - integrationName: nrgiDockerHub
-        type: docker
+  hub:
+    - integrationName: nrgiDockerHub
+      type: docker
+  notifications:
+    - integrationName: email
+      type: email
+      recipients:
+        - nrgi@vitaminsoftware.com
+        - kuprina.ks@gmail.com
+        - matthew@smartlane.de
+      branches:
+        only:
+          - master
+          - staging
+      on_success: change
+      on_failure: always      
