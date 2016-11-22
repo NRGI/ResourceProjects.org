@@ -293,9 +293,13 @@ exports.createAction = function(req, res) {
 											function(importSource, icallback) {
 												if (importSource.entity === 'project' && importSource.newProjId) {
 													//TODO: write into CH sheet: new row, projCountry, projName and projId
-													var newRow = [importSource.projName, importSource.projCountry, importSource.newProjId];
+													var newRow = {
+													    '#project': importSource.projName,
+													    '#project+country+identifier': importSource.projCountry,
+													    '#project+identifier': importSource.newProjId
+													};
 													//In theory any rows here don't exist yet in the sheet, so just add
-													sheet.appendrow(newRow);
+													sheet.addRow(newRow);
 												}
 												ImportSource.findOneAndUpdate(
 													{obj: importSource.obj},
