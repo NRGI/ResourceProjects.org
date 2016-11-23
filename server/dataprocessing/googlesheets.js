@@ -785,6 +785,11 @@ function parseData(sheets, report, finalcallback) {
                                             //Abuse this object to feedback a mapping of new IDs to names
                                             createdOrAffectedEntities[pmodel._id].newProjId = newProjId;
                                             createdOrAffectedEntities[pmodel._id].projName = pmodel.proj_name;
+                                            //This is not efficient, but remember it only happens very occasionally in the long run
+                                            //TODO: Use proper read in of projects sheet if that gets done
+                                            var projRowIndex = _.findIndex(sheets['1'].data, function (item) {if (item["#project"] === pmodel.proj_name) return true;});
+                                            console.log("Found project at row " + projRowIndex);
+                                            createdOrAffectedEntities[pmodel._id].rowNum = projRowIndex;
                                             reportSoFar.add('Created or updated project ' + projects[project].proj_name + ' in the DB.\n');
                                             
                                             return ecallback(null);
