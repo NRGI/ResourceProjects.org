@@ -1,8 +1,10 @@
 var async           = require('async'),
 	_               = require("underscore"),
-	request         = require('request'),
-	encrypt 		= require('../utilities/encryption');
+	errors 		    = require('./errorList'),
+	request         = require('request');
 
+
+//Ajax search by models(Project, Source, Commodity, Company, CompanyGroup, Concession, Site)
 exports.searchText = function(req, res) {
 	var models =[];
 	var type='';
@@ -16,7 +18,7 @@ exports.searchText = function(req, res) {
 		{name:'Country',field:'name'},
 		{name:'Site',field:'site_name'}
 	];
-	var models_len,models_counter=0,counter=0,result=[];
+	var modelsLen,modelsCounter=0,counter=0,result=[],errorList=[];
 	async.waterfall([
 		search
 	], function (err, result) {
@@ -31,35 +33,45 @@ exports.searchText = function(req, res) {
 		}
 	});
 	function search(callback) {
-		models_len = models.length;
+		modelsLen = models.length;
 		_.each(models, function(model) {
 			var name = require('mongoose').model(model.name);
 			var $field = model.field;
 			name.find().where( $field ,{$regex: new RegExp((req.query.query).toLowerCase(),'i')}).exec(function (err, responce) {
-				models_counter++;
-				_.each(responce, function(re) {
-					counter++;
-					if(model.name=='Site'&&re.field==true){
-						type = 'field'
-					}else if(model.name=='Site'&&re.field!=true){
-						type = 'site'
+				if(err){
+					modelsCounter++;
+					errorList = errors.errorFunction(err, name);
+					if(modelsCounter==modelsLen) {
+						callback(null, {errorList:errorList});
 					}
-					else{
-						type = model.name.toLowerCase()
+				} else {
+					if(responce){
+						modelsCounter++;
+						_.each(responce, function(re) {
+							counter++;
+							if(model.name=='Site'&&re.field==true){
+								type = 'field'
+							}else if(model.name=='Site'&&re.field!=true){
+								type = 'site'
+							}
+							else{
+								type = model.name.toLowerCase()
+							}
+							result[counter-1]={name:re[$field],
+								type:type,
+								_id: re.id,
+								iso2:re.iso2,
+								commodity_id: re.commodity_id
+							};
+						});
+					}else{
+						modelsCounter++;
 					}
-					result[counter-1]={name:re[$field],
-						type:type,
-						_id: re.id,
-						iso2:re.iso2,
-						commodity_id: re.commodity_id
-					};
-				});
-				if(models_counter==models_len){
-					callback(result);
+					if(modelsCounter==modelsLen){
+						callback(result);
+					}
 				}
 			});
 		});
-
 	}
-
 };

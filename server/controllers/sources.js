@@ -1,20 +1,23 @@
 var Source 		= require('mongoose').model('Source'),
 	User 		= require('mongoose').model('User'),
-	Link 	        = require('mongoose').model('Link'),
-	async           = require('async'),
-	_               = require("underscore"),
-	request         = require('request'),
-	encrypt 	= require('../utilities/encryption');
+	Link 	    = require('mongoose').model('Link'),
+	mongoose 	= require('mongoose'),
+	async       = require('async'),
+	_           = require("underscore"),
+	errors 		= require('./errorList'),
+	request     = require('request');
 
+// Get all sources
 exports.getSources = function(req, res) {
-	var source_len, link_len, source_counter, link_counter,
+	var errorList=[],
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
 
+	if(req.query.source_type_id){req.query.source_type_id =mongoose.Types.ObjectId(req.query.source_type_id)}
+
 	async.waterfall([
 		sourceCount,
-		getSourceSet,
-		getSourceLinks
+		getSourceSet
 	], function (err, result) {
 		if (err) {
 			res.send(err);
@@ -28,57 +31,53 @@ exports.getSources = function(req, res) {
 	});
 
 	function sourceCount(callback) {
-		Source.find({}).count().exec(function(err, source_count) {
-			if(source_count) {
-				callback(null, source_count);
+		Source.find({}).count().exec(function(err, sourcesCount) {
+			if (err) {
+				err = new Error('Error: '+ err);
+				return res.send({reason: err.toString()});
+			} else if (sourcesCount == 0) {
+				return res.send({reason: 'not found'});
 			} else {
-				callback(err);
+				callback(null, sourcesCount);
 			}
 		});
 	}
-	function getSourceSet(source_count, callback) {
-		Source.find(req.query)
-			.sort({
-				source_name: 'asc'
-			})
-			.populate('source_type_id')
-			.skip(skip)
-			.limit(limit)
-			.lean()
-			.exec(function(err, sources) {
-				if(sources) {
-					callback(null, source_count, sources);
-				} else {
-					callback(err);
+	function getSourceSet(sourcesCount, callback) {
+		Source.aggregate([
+			{$match:req.query},
+			{$lookup: {from: "sourcetypes", localField: "source_type_id", foreignField: "_id", as: "source_type_id"}},
+			{$unwind: {"path": "$source_type_id", "preserveNullAndEmptyArrays": true}},
+			{$group:{
+				"_id": "$_id",
+				"source_name":{$first:"$source_name"},
+				"source_url":{$first:"$source_url"},
+				"source_archive_url":{$first:"$source_archive_url"},
+				"retrieve_date":{$first:"$retrieve_date"},
+				"source_date":{$first:"$source_date"},
+				"source_type_id":{$first:"$source_type_id"}
+			}},
+			{$sort: {source_name: -1}},
+			{$skip: skip},
+			{$limit: limit}
+		]).exec(function(err, sources) {
+				if (err) {
+					errorList = errors.errorFunction(err,'Sources');
+					callback(null, {data:sources, count:sourcesCount,errorList:errorList});
+				}
+				else {
+					if (sources.length > 0) {
+						callback(null, {data: sources, count: sourcesCount, errorList: errorList});
+					} else {
+						errorList.push({type: 'Sources', message: 'sources not found'})
+						return res.send({reason: 'sources not found'});
+					}
 				}
 			});
 	}
-	function getSourceLinks(source_count, sources, callback) {
-		source_len = sources.length;
-		source_counter = 0;
-		sources.forEach(function (c) {
-			Link.find({source: c._id})
-				.populate('project')
-				.exec(function(err, links) {
-					++source_counter;
-					link_len = links.length;
-					link_counter = 0;
-					c.projects = 0;
-					links.forEach(function(link) {
-						++link_counter;
-						if(link.entities.indexOf('project')===0){
-							c.projects += 1;
-						}
-					});
-					if(source_counter == source_len && link_counter == link_len) {
-						callback(null, {data:sources, count:source_count});
-					}
-				});
-		});
-	}
 };
-exports.getSourceByID = function(req, res) {
 
+//Get source by ID
+exports.getSourceByID = function(req, res) {
 	async.waterfall([
 		getSource
 	], function (err, result) {
@@ -94,63 +93,50 @@ exports.getSourceByID = function(req, res) {
 	});
 
 	function getSource(callback) {
-		Source.findOne({_id:req.params.id})
-			.populate('create_author', ' _id first_name last_name')
-			.lean()
-			.exec(function(err, source) {
-				if(source) {
-					callback(null, source);
-				} else {
-					callback(err);
+		Source.aggregate([
+			{$match:{_id: mongoose.Types.ObjectId(req.params.id)}},
+			{$unwind: {"path": "$create_author", "preserveNullAndEmptyArrays": true}},
+			{$lookup: {from: "sourcetypes", localField: "source_type_id", foreignField: "_id", as: "source_type_id"}},
+			{$lookup: {from: "users", localField: "create_author", foreignField: "_id", as: "create_author"}},
+			{$unwind: {"path": "$source_type_id", "preserveNullAndEmptyArrays": true}},
+			{$unwind: {"path": "$create_author", "preserveNullAndEmptyArrays": true}},
+			{$group:{
+				"_id": "$_id",
+				"source_name":{$first:"$source_name"},
+				"source_notes":{$first:"$source_notes"},
+				"source_url":{$first:"$source_url"},
+				"source_archive_url":{$first:"$source_archive_url"},
+				"retrieve_date":{$first:"$retrieve_date"},
+				"source_date":{$first:"$source_date"},
+				"create_date":{$first:"$create_date"},
+				"source_type_id":{$first:"$source_type_id"},
+				"create_author":{$first:"$create_author"}
+			}},
+			{
+				$project: {
+					_id: 1, source_name: 1, source_notes: 1, source_url: 1, source_archive_url: 1,
+					retrieve_date: 1, source_date: 1, create_date: 1, source_type_id: 1,
+					create_author: {
+						$cond: {
+							if: {$not: "$create_author"}, then: null,
+							else: {
+								_id: "$create_author._id", first_name: "$create_author.first_name",
+								last_name: "$create_author.last_name"
+							}
+						}
+					}
 				}
-			});
+			}
+		]).exec(function(err, source) {
+			if (err) {
+				err = new Error('Error: '+ err);
+				return res.send({reason: err.toString()});
+			} else if (source.length>0) {
+				callback(null, source[0]);
+			} else {
+				return res.send({reason: 'not found'});
+			}
+		});
 	}
 };
-exports.createSource = function(req, res, next) {
-	var sourceData = req.body;
-	Source.create(sourceData, function(err, source) {
-		if(err){
-			res.status(400);
-			err = new Error('Error');
-			return res.send({ reason: err.toString() })
-		} else{
-			res.send();
-		}
-	});
-};
-exports.updateSource = function(req, res) {
-	var sourceUpdates = req.body;
-	Source.findOne({_id:req.body._id}).exec(function(err, source) {
-		if(err) {
-			res.status(400);
-			err = new Error('Error');
-			return res.send({ reason: err.toString() });
-		}
-		source.source_name= sourceUpdates.source_name;
-		source.source_type= sourceUpdates.source_type;
-		source.source_type_id= sourceUpdates.source_type_id;
-		source.source_url= sourceUpdates.source_url;
-		source.source_archive_url= sourceUpdates.source_archive_url;
-		source.source_notes= sourceUpdates.source_notes;
-		source.create_author= sourceUpdates.create_author;
-		source.retrieve_date= sourceUpdates.retrieve_date;
-		source.save(function(err) {
-			if (err) {
-				err = new Error('Error');
-				return res.send({reason: err.toString()});
-			} else{
-				return res.send();
-			}
-		})
-	});
-};
-exports.deleteSource = function(req, res) {
-	Source.remove({_id: req.params.id}, function(err) {
-		if(!err) {
-			res.send();
-		}else{
-			err = new Error('Error');
-			return res.send({ reason: err.toString() });
-		}
-	});
-};
+

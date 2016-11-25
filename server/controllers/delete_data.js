@@ -1,8 +1,6 @@
 // DO NOT MERGE TO PRODUCTION! FOR STAGING USE ONLY!
 
 var Project 		= require('mongoose').model('Project'),
-    //Uncomment if we wish to reset dataset list
-    //Dataset = require('mongoose').model('Dataset'),
     Source	 		= require('mongoose').model('Source'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
@@ -11,12 +9,13 @@ var Project 		= require('mongoose').model('Project'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
     Company 	    = require('mongoose').model('Company'),
-    CompanyGroup 		= require('mongoose').model('CompanyGroup'),
+    CompanyGroup 	= require('mongoose').model('CompanyGroup'),
     Dataset 		= require('mongoose').model('Dataset'),
     Duplicate		= require('mongoose').model('Duplicate'),
     Action 		    = require('mongoose').model('Action'),
     ImportSource    = require('mongoose').model('ImportSource'),
     async           = require('async'),
+    errors 		    = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
@@ -34,14 +33,14 @@ exports.destroy = function(req, res) {
         {name: 'Duplicate'},
         {name: 'ImportSource'},
         {name: 'Action'},
-        {name: 'Project'}//, // (Uncomment if wanting to reset dataset list)
-        //{name: 'Dataset'}
+        {name: 'Project'}
     ];
 
     var companies = {};
     companies.companies = [];
     companies.query = [];
-    var models_len, models_counter = 0;
+    var models_len, models_counter = 0, errorList=[];
+
     async.waterfall([
         destroyAllData
     ], function (err, result) {
@@ -55,6 +54,7 @@ exports.destroy = function(req, res) {
             }
         }
     });
+
     function destroyAllData(callback){
         models_counter=0;
         models_len = models.length;
@@ -62,10 +62,13 @@ exports.destroy = function(req, res) {
             var name = require('mongoose').model(model.name);
             name.find({}).remove({}, function(err) {
                     if (err) {
-                        console.log(err)
+                        models_counter++;
+                        errorList = errors.errorFunction(err, name);
+                        if(models_counter==models_len) {
+                            callback(null, {errorList:errorList});
+                        }
                     } else {
                         models_counter++;
-
                         if(models_counter==models_len){
                             callback(null, 'success');
                         }

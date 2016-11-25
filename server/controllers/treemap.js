@@ -2,10 +2,12 @@ var Source	 		= require('mongoose').model('Source'),
     Transfer 	    = require('mongoose').model('Transfer'),
     async           = require('async'),
     _               = require("underscore"),
+    errors 	    = require('./errorList'),
     request         = require('request');
 
+//GET TREEMAP
 exports.getPayments = function(req, res) {
-    var sunburst_new = [],count=[], counter = 0,sunburst=[], payments_filter={},  currency_value = [], transfers_value, value;
+    var sunburstNew = [], paymentsFilter={},errorList=[];
     req.query.transfer_level = {$nin: ['country']};
     req.query.project = {$exists: true, $nin: [null]};
     req.query.company = {$exists: true, $nin: [null]};
@@ -26,42 +28,61 @@ exports.getPayments = function(req, res) {
             }
         }
     });
+
+    //Get payment filters
     function getAllPayment(callback) {
-        Transfer.find({'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]},'project':{$exists: true, $nin: [null]},'transfer_value':{$gt: 1}})
-            .exec(function (err, transfers) {
-                if(transfers.length>0) {
-                    payments_filter.year_selector = _.countBy(transfers, "transfer_year");
-                    payments_filter.currency_selector = _.countBy(transfers, "transfer_unit");
+        Transfer.aggregate([
+            { $match : {'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]},
+              'project':{$exists: true, $nin: [null]},'transfer_value':{$gt: 1}
+            }}
+        ]).exec(function (err, transfers) {
+                if (err) {
+                    err = new Error('Error: '+ err);
+                    return res.send({reason: err.toString()});
+                } else if(transfers.length>0) {
+                    paymentsFilter.year_selector = _.countBy(transfers, "transfer_year");
+                    paymentsFilter.currency_selector = _.countBy(transfers, "transfer_unit");
+                    callback(null, paymentsFilter);
+                } else {
+                    return res.send({reason: 'not found'});
                 }
-                callback(null, payments_filter);
             })
     }
-    function getCurrency(payments_filter,callback) {
-        Transfer.find(req.query)
-            .exec(function (err, transfers) {
-                if(transfers.length>0) {
-                    _.map(_.groupBy(transfers, function (doc) {
-                        return doc.transfer_unit;
-                    }), function (grouped) {
-                        value = 0;
-                        transfers_value = 0;
-                        value = _.reduce(grouped, function (memo, num) {
-                            return memo + num.transfer_value;
-                        }, 0);
-                        if (value > 0) {
-                            transfers_value = (value / 1000000).toFixed(1)
-                        }
-                        currency_value.push({
-                            currency: grouped[0].transfer_unit,
-                            total_value: transfers_value
-                        });
-                        return currency_value;
-                    });
+
+    //Grouping of all transfers by transfer_unit field.
+    function getCurrency(paymentsFilter,callback) {
+        Transfer.aggregate([
+            {$match : req.query},
+            {$group:{
+                _id:'$transfer_unit',
+                currency:{$first:'$transfer_unit'},
+                total_value: {$sum:'$transfer_value'}
+            }},
+            {$project: {currency:1, total_value:{$divide:['$total_value',1000000]}}},
+            {$project: {currency:1, total_value:{$divide:[
+            {$subtract:[
+                {$multiply:['$total_value',1000000]},
+                {$mod:[{$multiply:['$total_value',100]}, 1]}
+            ]},
+            100]}}}
+        ]).exec(function (err, currencyValue) {
+            if (err) {
+                errorList = errors.errorFunction(err, 'Transfer units');
+                callback(null, paymentsFilter, currencyValue, errorList);
+            }
+            else {
+                if (currencyValue.length > 0) {
+                    callback(null, paymentsFilter, currencyValue, errorList);
+                } else {
+                    errorList.push({type: 'Transfer units', message: 'transfer units not found'})
+                    return res.send({reason: 'transfer units not found'});
                 }
-                callback(null, payments_filter, currency_value);
-            })
+            }
+        })
     }
-    function getPayment(payments_filter,currency_value,callback) {
+
+    // Get all payments
+    function getPayment(paymentsFilter, currencyValue, errorList, callback) {
         Transfer.aggregate([
             { $match : req.query},
             { $lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
@@ -120,22 +141,34 @@ exports.getPayments = function(req, res) {
 
                 }
             }
-            ]).exec(function (err, transfers) {
-                if(transfers) {
-                    var sum = _.reduce(transfers, function(memo, num){
-                        return memo + num.size; }, 0);
-                    sunburst_new.push({
-                        name: 'Payments',
-                        children: transfers,
-                        size: sum,
-                        value: (sum / 1000000).toFixed(1),
-                        total_value: (sum / 1000000).toFixed(1)
+        ]).exec(function (err, transfers) {
+            if (err) {
+                errorList = errors.errorFunction(err, 'Transfers');
+                callback(null, {data: sunburstNew, total: currencyValue, filters: paymentsFilter, errorList:errorList});
+            }
+            else {
+                if (transfers) {
+                    var sum = _.reduce(transfers, function (memo, num) {
+                        if(num && num.size) {
+                            return memo + num.size;
+                        }
+                    }, 0);
+                    if(sum) {
+                        sunburstNew.push({
+                            name: 'Payments',
+                            children: transfers,
+                            size: sum,
+                            value: (sum / 1000000).toFixed(1),
+                            total_value: (sum / 1000000).toFixed(1)
 
-                    });
-                    callback(null, {data: sunburst_new, total:currency_value, filters: payments_filter})
+                        });
+                    }
+                    callback(null, {data: sunburstNew, total: currencyValue, filters: paymentsFilter, errorList:errorList});
                 } else {
-                    callback(null, {data: '', total:currency_value, filters: payments_filter})
+                    errorList.push({type: 'Transfers', message: 'transfers not found'})
+                    callback(null, {data: sunburstNew, total: currencyValue, filters: paymentsFilter, errorList:errorList});
                 }
-            })
+            }
+        })
     }
 };

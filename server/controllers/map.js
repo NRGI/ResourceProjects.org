@@ -12,16 +12,20 @@ var Country 		= require('mongoose').model('Country'),
     async           = require('async'),
     mongoose 		= require('mongoose'),
     _               = require("underscore"),
+    errors 		    = require('./errorList'),
     request         = require('request');
+
+//Get map
 exports.getCoordinateCountryByID = function(req, res) {
-    var _id = mongoose.Types.ObjectId(req.params.id);
-    var country={}, site_counter, site_len;
+
+    var countryId = mongoose.Types.ObjectId(req.params.id);
+    var country={};
     var type = req.params.type;
+
     async.waterfall([
         getSites,
         getCompanyLinks,
-        getCompanyGroupLinks,
-        getGroupCompanyLinks
+        getCompanyGroupLinks
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -33,13 +37,14 @@ exports.getCoordinateCountryByID = function(req, res) {
             }
         }
     });
+
+    //Get site coordinates
     function getSites(callback) {
         country.proj_coordinates = [];
-        country.location = [];
         if (type == 'country') {
             Site.aggregate([
                 {$unwind: '$site_country'},
-                {$match:{'site_country.country':_id,"site_coordinates":{ $exists: true,$nin: [ null ]}}},
+                {$match:{'site_country.country':countryId,"site_coordinates":{ $exists: true,$nin: [ null ]}}},
                 {$unwind:'$site_coordinates'},
                 {$project:{
                     'lat':  { "$arrayElemAt": [ "$site_coordinates.loc", -2 ] },
@@ -49,184 +54,109 @@ exports.getCoordinateCountryByID = function(req, res) {
                     'type': {$cond: { if: { $gte: [ "$field", true ] }, then: 'field', else: 'site' }}
                 }}
             ]).exec(function (err, sites) {
-                country.proj_coordinates = sites;
-                callback(null, country)
+                if (err) {
+                    err = new Error('Error: '+ err);
+                    return res.send({reason: err.toString()});
+                } else if (sites) {
+                    country.proj_coordinates = sites;
+                    callback(null, country);
+                } else {
+                    return res.send({reason: 'not found'});
+                }
             });
         }else {
             callback(null, country);
         }
     }
+
+    //Get company map coordinates
     function getCompanyLinks(map, callback) {
         if (type == 'company') {
             map.proj_coordinates = [];
-            Link.find({company: req.params.id})
-                .populate('site project')
-                .exec(function (err, links) {
-                    var link_len = links.length;
-                    var link_counter = 0;
-                    if (link_len > 0) {
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'company')[0];
-                            switch (entity) {
-                                case 'site':
-                                    if (link.site.field && link.site.site_coordinates.length > 0) {
-                                        link.site.site_coordinates.forEach(function (loc) {
-                                            if(loc && loc.loc) {
-                                                map.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'field',
-                                                    'id': link.site._id
-                                                });
-                                            }
-                                        });
-                                        map.proj_coordinates = _.map(_.groupBy(map.proj_coordinates, function (doc) {
-                                            return doc._id;
-                                        }), function (grouped) {
-                                            return grouped[0];
-                                        });
-                                    } else if (!link.site.field && link.site.site_coordinates.length > 0) {
-                                        link.site.site_coordinates.forEach(function (loc) {
-                                            if(loc && loc.loc) {
-                                                map.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'site',
-                                                    'id': link.site._id
-                                                });
-                                            }
-                                        });
-                                        map.proj_coordinates = _.map(_.groupBy(map.proj_coordinates, function (doc) {
-                                            return doc._id;
-                                        }), function (grouped) {
-                                            return grouped[0];
-                                        });
-                                    }
-                                    break;
-                                default:
-                                    console.log(entity, 'link skipped...');
-                            }
-                            if (link_counter == link_len) {
-                                callback(null, map);
-                            }
-                        });
-                    } else {
-                        callback(null, map);
-                    }
+            Link.aggregate([
+                {$match:{company: mongoose.Types.ObjectId(req.params.id),entities:'site'}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind:'$site.site_coordinates'},
+                {$project:{
+                    _id:'$site._id',
+                    'lat':  { "$arrayElemAt": [ "$site.site_coordinates.loc", -2 ] },
+                    'lng': { "$arrayElemAt": [ "$site.site_coordinates.loc", -1 ] },
+                    'message': "$site.site_name",
+                    'timestamp': "$site.site_coordinates.timestamp",
+                    'type': {$cond: { if: { $gte: [ "$site.field", true ] }, then: 'field', else: 'site' }}
+                }},
+                {$group:{
+                    _id:'$_id',
+                    lat:{$first:'$lat'},
+                    lng:{$first:'$lng'},
+                    message:{$first:'$message'},
+                    timestamp:{$first:'$timestamp'},
+                    type:{$first:'$type'}
+                }}
+            ]).exec(function (err, links) {
+                if (err) {
+                    err = new Error('Error: '+ err);
+                    return res.send({reason: err.toString()});
+                } else if (links) {
+                    map.proj_coordinates = links;
+                    callback(null, map);
+                } else {
+                    return res.send({reason: 'not found'});
+                }
                 });
         }else {
             callback(null, map);
         }
     }
+
+    //Get group map coordinates
     function getCompanyGroupLinks(map,callback) {
         if(type=='group') {
-            map.companies=[];
             map.proj_coordinates = [];
-            Link.find({company_group: req.params.id})
-                .populate('company', '_id company_name')
-                .populate('commodity')
-                .exec(function (err, links) {
-                    var link_len = links.length;
-                    if (link_len > 0) {
-                        var link_counter = 0;
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'company_group')[0];
-                            switch (entity) {
-                                case 'company':
-                                    if (!map.companies.hasOwnProperty(link.company.company_name)) {
-                                        map.companies.push({
-                                            _id: link.company._id,
-                                            company_name: link.company.company_name
-                                        });
-                                    }
-                                    break;
-                                default:
-                                    console.log(entity, 'link skipped...');
-                            }
-                            if (link_counter == link_len) {
-                                callback(null, map);
-                            }
-                        });
-                    } else {
-                        callback(null, map);
-
-                    }
-                });
+            Link.aggregate([
+                {$match:{entities:'company'}},
+                {$group:{
+                    _id:'$company',
+                    company_group:{$addToSet:{$cond: { if: { $eq:["$company_group", mongoose.Types.ObjectId(req.params.id) ]}, then: '$company_group',
+                        else: []}}},
+                    site:{$addToSet:'$site'}
+                }},
+                {$unwind: "$site"},
+                {$unwind:"$company_group"},
+                {$unwind:"$company_group"},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind:'$site.site_coordinates'},
+                {$project:{
+                    _id:'$site._id',
+                    'lat':  { "$arrayElemAt": [ "$site.site_coordinates.loc", -2 ] },
+                    'lng': { "$arrayElemAt": [ "$site.site_coordinates.loc", -1 ] },
+                    'message': "$site.site_name",
+                    'timestamp': "$site.site_coordinates.timestamp",
+                    'type': {$cond: { if: { $gte: [ "$field", true ] }, then: 'field', else: 'site' }}
+                }},
+                {$group:{
+                    _id:'$_id',
+                    lat:{$first:'$lat'},
+                    lng:{$first:'$lng'},
+                    message:{$first:'$message'},
+                    timestamp:{$first:'$timestamp'},
+                    type:{$first:'$type'}
+                }}
+            ]).exec(function (err, links) {
+                if (err) {
+                    err = new Error('Error: '+ err);
+                    return res.send({reason: err.toString()});
+                } else if (links) {
+                    map.proj_coordinates = links;
+                    callback(null, map);
+                } else {
+                    return res.send({reason: 'not found'});
+                }
+            });
         } else{
             callback(null, map)
-        }
-    }
-    function getGroupCompanyLinks(companyGroup,callback) {
-        if(type == 'group') {
-            var company_counter = 0;
-            var company_len = companyGroup.companies.length;
-            if (company_len > 0) {
-                companyGroup.companies.forEach(function (company) {
-                    Link.find({company: company._id})
-                        .populate('contract')
-                        .deepPopulate('concession.concession_country.country concession.concession_commodity.commodity site.site_country.country site.site_commodity.commodity project.proj_country.country project.proj_commodity.commodity source.source_type_id')
-                        .exec(function (err, links) {
-                            var link_len = links.length;
-                            ++company_counter;
-                            var link_counter = 0;
-                            if (link_len > 0) {
-                                links.forEach(function (link) {
-                                    ++link_counter;
-                                    var entity = _.without(link.entities, 'company')[0];
-                                    switch (entity) {
-                                        case 'site':
-                                            if (link.site.field && link.site.site_coordinates.length > 0) {
-                                                link.site.site_coordinates.forEach(function (loc) {
-                                                    if(loc && loc.loc) {
-                                                        companyGroup.proj_coordinates.push({
-                                                            'lat': loc.loc[0],
-                                                            'lng': loc.loc[1],
-                                                            'message': link.site.site_name,
-                                                            'timestamp': loc.timestamp,
-                                                            'type': 'field',
-                                                            'id': link.site._id
-                                                        });
-                                                    }
-                                                });
-                                            } else if (!link.site.field && link.site.site_coordinates.length > 0) {
-                                                link.site.site_coordinates.forEach(function (loc) {
-                                                    if(loc && loc.loc) {
-                                                        companyGroup.proj_coordinates.push({
-                                                            'lat': loc.loc[0],
-                                                            'lng': loc.loc[1],
-                                                            'message': link.site.site_name,
-                                                            'timestamp': loc.timestamp,
-                                                            'type': 'site',
-                                                            'id': link.site._id
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            break;
-                                        default:
-                                    }
-                                    if (company_counter == company_len && link_counter == link_len) {
-                                        callback(null, companyGroup);
-                                    }
-                                });
-                            } else {
-                                if (company_counter == company_len && link_counter == link_len) {
-                                    callback(null, companyGroup);
-                                }
-                            }
-                        });
-                });
-            } else {
-                callback(null, companyGroup);
-            }
-        } else{
-            callback(null, companyGroup)
         }
     }
 };

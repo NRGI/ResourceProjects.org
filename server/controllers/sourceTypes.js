@@ -5,9 +5,12 @@ var SourceType 		= require('mongoose').model('SourceType'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request'),
-    encrypt 		= require('../utilities/encryption');
+    errors 	        = require('./errorList');
+
+//Get all source types
 exports.getSourceTypes = function(req, res) {
-    var limit = Number(req.params.limit),
+    var errorList=[],
+        limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
     async.waterfall([
@@ -26,31 +29,41 @@ exports.getSourceTypes = function(req, res) {
     });
 
     function sourceTypeCount(callback) {
-        SourceType.find({}).count().exec(function(err, source_type_count) {
-            if(source_type_count) {
-                callback(null, source_type_count);
+        SourceType.find({}).count().exec(function(err, sourceTypesCount) {
+            if (err) {
+                err = new Error('Error: '+ err);
+                return res.send({reason: err.toString()});
+            } else if (sourceTypesCount == 0) {
+                return res.send({reason: 'not found'});
             } else {
-                callback(err);
+                callback(null, sourceTypesCount);
             }
         });
     }
-    function getSourceTypeSet(source_type_count, callback) {
-        SourceType.find({})
-            .sort({
-                source_type_authority: 'asc'
-            })
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .exec(function(err, source_types) {
-                if(source_types.length>0) {
-                    callback(null, {data: source_types, count: source_type_count});
+
+    function getSourceTypeSet(sourceTypesCount, callback) {
+        if(limit == 0){limit = sourceTypesCount}
+        SourceType.aggregate([
+            {$sort: {source_type_authority: -1}},
+            {$skip: skip},
+            {$limit: limit}
+        ]).exec(function(err, sourceTypes) {
+            if (err) {
+                errorList = errors.errorFunction(err,'Source Types');
+                return res.send({error: errorList});
+            } else {
+                if (sourceTypes.length>0) {
+                    callback(null, {data: sourceTypes, count: sourceTypesCount, errorList:errorList} );
                 } else {
-                    callback(err);
+                    errorList.push({type: 'Source Types', message: 'source types not found'})
+                    return res.send({error: errorList});
                 }
-            });
+            }
+        });
     }
 };
+
+//Get source type by ID
 exports.getSourceTypeByID = function(req, res) {
 
     async.waterfall([
@@ -70,17 +83,22 @@ exports.getSourceTypeByID = function(req, res) {
     function getSource(callback) {
         SourceType.findOne({_id:req.params.id})
             .exec(function(err, source) {
-                if(source) {
+                if (err) {
+                    err = new Error('Error: '+ err);
+                    return res.send({reason: err.toString()});
+                } else if (source) {
                     callback(source);
                 } else {
-                    callback(err);
+                    return res.send({reason: 'not found'});
                 }
             });
     }
 };
-exports.createSourceType = function(req, res, next) {
+
+//Create new source type
+exports.createSourceType = function(req, res) {
     var sourceData = req.body;
-    SourceType.create(sourceData, function(err, sourceType) {
+    SourceType.create(sourceData, function(err) {
         if(err){
             res.status(400);
             err = new Error('Error');
@@ -90,21 +108,22 @@ exports.createSourceType = function(req, res, next) {
         }
     });
 };
+
+//Update source type
 exports.updateSourceType = function(req, res) {
-    var sourceUpdates = req.body;
     SourceType.findOne({_id:req.body._id}).exec(function(err, sourceType) {
         if(err) {
             res.status(400);
             err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
-        sourceType.source_type_name=sourceUpdates.source_type_name;
-        sourceType.source_type_id=sourceUpdates.source_type_id;
-        sourceType.source_type_display=sourceUpdates.source_type_display;
-        sourceType.source_type_authority=sourceUpdates.source_type_authority;
-        sourceType.source_type_examples=sourceUpdates.source_type_examples;
-        sourceType.source_type_url_type=sourceUpdates.source_type_url_type;
-        sourceType.source_type_notes=sourceUpdates.source_type_notes;
+        sourceType.source_type_name=req.body.source_type_name;
+        sourceType.source_type_id=req.body.source_type_id;
+        sourceType.source_type_display=req.body.source_type_display;
+        sourceType.source_type_authority=req.body.source_type_authority;
+        sourceType.source_type_examples=req.body.source_type_examples;
+        sourceType.source_type_url_type=req.body.source_type_url_type;
+        sourceType.source_type_notes=req.body.source_type_notes;
         sourceType.save(function(err) {
             if (err) {
                 err = new Error('Error');
@@ -115,6 +134,8 @@ exports.updateSourceType = function(req, res) {
         })
     });
 };
+
+//Delete source type
 exports.deleteSourceType = function(req, res) {
     SourceType.remove({_id: req.params.id}, function(err) {
         if(!err) {
