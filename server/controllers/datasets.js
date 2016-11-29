@@ -1,17 +1,18 @@
-var Dataset 		= require('mongoose').model('Dataset'),
-    Duplicate		= require('mongoose').model('Duplicate'),
-    Action 		    = require('mongoose').model('Action'),
+var Dataset         = require('mongoose').model('Dataset'),
+    Duplicate       = require('mongoose').model('Duplicate'),
+    Action          = require('mongoose').model('Action'),
     ImportSource    = require('mongoose').model('ImportSource'),
     async           = require('async'),
     _               = require('underscore'),
     GoogleSpreadsheet = require('google-spreadsheet');
     googlesheets    = require('../dataprocessing/googlesheets.js');
-	companieshouse  = require('../dataprocessing/companieshouse.js');
+    companieshouse  = require('../dataprocessing/companieshouse.js');
     duplicateHandler= require('../dataprocessing/duplicateHandler.js');
     unloader        = require('../dataprocessing/unloader.js');
     util            = require('util');
-var fs 		= require('fs');
+var fs      = require('fs');
 var duplicateHandler =  require('../dataprocessing/duplicateHandler.js');
+var creds = require('../ResourceProjectsPersistIDs.json');
 
 exports.getDatasets = function(req, res) {
     var limit = null, skip = 0;
@@ -149,16 +150,16 @@ exports.getDatasetByID = function(req, res) {
 };
 
 exports.createDataset = function(req, res) {
-	var datasetData = req.body;
-	//TODO: uncomment once working //datasetData.created_by = req.user._id;
+    var datasetData = req.body;
+    //TODO: uncomment once working //datasetData.created_by = req.user._id;
 
-	Dataset.create(datasetData, function(err) {
-		if(err){
-			res.status(400);
-			return res.send({reason:err.toString()});
-		}
-	});
-	res.send();
+    Dataset.create(datasetData, function(err) {
+        if(err){
+            res.status(400);
+            return res.send({reason:err.toString()});
+        }
+    });
+    res.send();
 };
 
 exports.createAction = function(req, res) {
@@ -177,7 +178,7 @@ exports.createAction = function(req, res) {
             if (err) {
                 res.status(400);
                 console.log(err);
-	            return res.send({reason:err.toString()});
+                return res.send({reason:err.toString()});
             }
             Dataset.findByIdAndUpdate(
                 req.params.id,
@@ -193,67 +194,112 @@ exports.createAction = function(req, res) {
                                 console.log("Action finished...");
                                 console.log("Status: " + status + "\n");
                                 //console.log("Report: " + report + "\n");
-                                
-                                //Save affected entities (for unloading)
-                                //TODO move to function, below is almost identical
+                                //Save affected entities ad persist IDs (for unloading and reloading)
+                                var keytoend =  dmodel.source_url.substr(dmodel.source_url.indexOf("/d/") + 3, dmodel.source_url.length);
+                                var key = keytoend.substr(0, keytoend.indexOf("/"));
+                                var gdoc = new GoogleSpreadsheet(key);
                                 var importSources = [];
                                 _.each(affectedEntities, function(value) {
                                     value.action = amodel._id;
                                     importSources.push(value);
                                 });
                                 console.log("There were " + importSources.length + " import sources ");
-                                async.eachSeries(
-                                    importSources,
-                                    function(importSource, icallback) {
-                                        if (importSource.entity === 'project' && importSource.newProjId) {
-                                            //TODO: write into sheet 1 where importSource.projName matches #project
-                                        }
-                                        ImportSource.findOneAndUpdate(
-                                            {obj: importSource.obj},
-                                            {$push: {actions: amodel._id}, entity: importSource.entity},
-                                            {upsert: true},
+                                async.series([
+                                    function (gscallback) {
+                                        gdoc.useServiceAccountAuth(creds, function(err) {
+                                            if (err) {
+                                                return gscallback("Failed to auth Google Sheet for project IDs");
+                                            }
+                                            else {
+                                                console.log('Authed doc');
+                                                return gscallback(null);
+                                            }
+                                        });
+                                    },
+                                    function (gscallback) {
+                                        gdoc.getInfo(function(err, info) {
+                                            if (err) {
+                                                return gscallback("Failed to open Google Sheet for project IDs");
+                                            }
+                                            else {
+                                                console.log('Loaded doc: '+info.title);
+                                                sheet = info.worksheets[2]; //TODO: Don't hard code this
+                                                console.log("got sheet");
+                                                return gscallback(null);
+                                            }
+                                        });
+                                    },
+                                    function (gscallback) {
+                                        async.eachSeries(
+                                            importSources,
+                                            function(importSource, icallback) {
+                                                if (importSource.entity === 'project' && importSource.newProjId) {
+                                                    sheet.getRows({
+                                                      offset: importSource.rowNum,
+                                                      limit: 1
+                                                    }, function( err, rows ){
+                                                      // the row is an object with keys set by the column headers
+                                                      console.log(util.inspect(rows[0])); //Very curious to see how this works...
+                                                      rows[0][null] = importSource.newProjId; //Designed to fail
+                                                      rows[0].save(function (err) {
+                                                          if (err) console.log("Serious but non-fatal error: could not persist project ID:\n" + err);
+                                                          else {
+                                                              console.log("persisted row to sheet");
+                                                          }
+                                                      });
+                                                    });
+                                                }
+                                                ImportSource.findOneAndUpdate(
+                                                    {obj: importSource.obj},
+                                                    {$push: {actions: amodel._id}, entity: importSource.entity},
+                                                    {upsert: true},
+                                                    function (err) {
+                                                        if (err) icallback("Failed to log an importsource");
+                                                        else icallback(null);
+                                                    }
+                                                );
+                                            },
                                             function (err) {
-                                                if (err) icallback("Failed to log an importsource");
-                                                else icallback(null);
+                                                if (err) console.log(err);
+                                                else {                                            
+                                                    //TODO: duplicates detector should only look at the entites of the last things that were inserted
+                                                    //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
+                                                    if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
+                                                        duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                             if (err) {
+                                                                 status = "Failed";
+                                                                 report += "\nDuplicate detection failed with error: " + err;
+                                                             }
+                                                             else report += "\nDuplicate detection completed.";
+                                                             //TODO move to function
+                                                             Action.findByIdAndUpdate(
+                                                                 amodel._id,
+                                                                 {finished: Date.now(), status: status, details: report},
+                                                                 {safe: true, upsert: false},
+                                                                 function(err) {
+                                                                     if (err) console.log("Failed to update an action: " + err);
+                                                                 }
+                                                             );
+                                                         });
+                                                    }
+                                                    else { //TODO dedup code
+                                                        Action.findByIdAndUpdate(
+                                                                 amodel._id,
+                                                                 {finished: Date.now(), status: status, details: report},
+                                                                 {safe: true, upsert: false},
+                                                                 function(err) {
+                                                                     if (err) console.log("Failed to update an action: " + err);
+                                                                 }
+                                                        );
+                                                    }
+                                                }
                                             }
                                         );
-                                    },
-                                    function (err) {
-                                        if (err) console.log(err);
-                                        else {                                            
-                                            //TODO: duplicates detector should only look at the entites of the last things that were inserted
-                                            //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
-                                            if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
-                                                duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-                                                     if (err) {
-                                                         status = "Failed";
-                                                         report += "\nDuplicate detection failed with error: " + err;
-                                                     }
-                                                     else report += "\nDuplicate detection completed.";
-                                                     //TODO move to function
-                                                     Action.findByIdAndUpdate(
-                                                         amodel._id,
-                                                         {finished: Date.now(), status: status, details: report},
-                                                         {safe: true, upsert: false},
-                                                         function(err) {
-                                                             if (err) console.log("Failed to update an action: " + err);
-                                                         }
-                                                     );
-                                                 });
-                                            }
-                                            else { //TODO dedup code
-                                                Action.findByIdAndUpdate(
-                                                         amodel._id,
-                                                         {finished: Date.now(), status: status, details: report},
-                                                         {safe: true, upsert: false},
-                                                         function(err) {
-                                                             if (err) console.log("Failed to update an action: " + err);
-                                                         }
-                                                );
-                                            }
-                                        }
                                     }
-                                );
+                                ],
+                                function (err) {
+                                    if (err) console.log("Failure during import POST: " + err);
+                                });
                             });
                         }
                         else if (req.body.name == "Import from Companies House API") {
@@ -269,91 +315,109 @@ exports.createAction = function(req, res) {
                                 //Save affected entities (for unloading) and project ids (for reloading)
                                 var importSources = [];
                                 var sheet = null;
+                                var gdoc = new GoogleSpreadsheet('1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto');
                                 _.each(affectedEntities, function(value) {
                                     value.action = amodel._id;
                                     importSources.push(value);
                                 });
                                 async.series([
-									function (gscallback) {
-										var doc = new GoogleSpreadsheet('1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto');
-										doc.getInfo(function(err, info) {
-											if (err) {
-												return gscallback("Failed to open Google Sheet for project IDs");
-											}
-											else {
-												console.log('Loaded doc: '+info.title);
-												sheet = info.worksheets[0];
-												return gscallback(null);
-											}
-										});
-									},
-									function (gscallback) {
-										async.eachSeries(
-											importSources,
-											function(importSource, icallback) {
-												if (importSource.entity === 'project' && importSource.newProjId) {
-													//TODO: write into CH sheet: new row, projCountry, projName and projId
-													var newRow = {
-													    '#project': importSource.projName,
-													    '#project+country+identifier': importSource.projCountry,
-													    '#project+identifier': importSource.newProjId
-													};
-													//In theory any rows here don't exist yet in the sheet, so just add
-													sheet.addRow(newRow);
-												}
-												ImportSource.findOneAndUpdate(
-													{obj: importSource.obj},
-													{$push: {actions: amodel._id}, entity: importSource.entity},
-													{upsert: true},
-													function (err) {
-														if (err) icallback("Failed to log an importsource");
-														else icallback(null);
-													}
-												);
-											},
-											function (err) {
-												if (err) return gscallback(err); //TODO: close the action properly
-												else {
-													if (status == "Success") {
-														console.log("Searching for duplicates...");
-														duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-															if (err) {
-																status = "Failed";
-																report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
-															}
-															else report += "\nDuplicate detection completed.";
-															Action.findByIdAndUpdate(
-																amodel._id,
-																{finished: Date.now(), status: status, details: report},
-																{safe: true, upsert: false},
-																function(err) {
-																	if (err) return gscallback(err);
-																	else gscallback(null);
-																}
-															);
-														});
-													}
-													else { //TODO dedup code
-														Action.findByIdAndUpdate(
-															amodel._id,
-															{finished: Date.now(), status: status, details: report},
-															{safe: true, upsert: false},
-															function(err) {
-																if (err) return gscallback(err);
-																else gscallback(null);
-															}
-														);
-													}
-												}
-											}
-										);
-									},
-									function (err) {
-										if (err) console.log("Failure during import POST: " + err);					
-									}
-								]);
+                                    function (gscallback) {
+                                        gdoc.useServiceAccountAuth(creds, function(err) {
+                                            if (err) {
+                                                return gscallback("Failed to auth Google Sheet for project IDs");
+                                            }
+                                            else {
+                                                console.log('Authed doc');
+                                                return gscallback(null);
+                                            }
+                                        });
+                                    },
+                                    function (gscallback) {
+                                        gdoc.getInfo(function(err, info) {
+                                            if (err) {
+                                                return gscallback("Failed to open Google Sheet for project IDs");
+                                            }
+                                            else {
+                                                console.log('Loaded doc: '+info.title);
+                                                sheet = info.worksheets[0];
+                                                console.log("got sheet");
+                                                return gscallback(null);
+                                            }
+                                        });
+                                    },
+                                    function (gscallback) {
+                                        async.eachSeries(
+                                            importSources,
+                                            function(importSource, icallback) {
+                                                if (importSource.entity === 'project' && importSource.newProjId) {
+                                                    var newRow = {
+                                                        'project': importSource.projName,
+                                                        'country': importSource.projCountry,
+                                                        'projId': importSource.newProjId
+                                                    };
+                                                    console.log("add row to sheet");
+                                                    //In theory any rows here don't exist yet in the sheet, so just add
+                                                    sheet.addRow(newRow, function(err) {
+                                                        if (err) console.log("Serious but non-fatal error: could not persist project ID:\n" + err);
+                                                        else {
+                                                            console.log("persisted row to sheet");
+                                                        }
+                                                        ImportSource.findOneAndUpdate(
+                                                                  {obj: importSource.obj},
+                                                                  {$push: {actions: amodel._id}, entity: importSource.entity},
+                                                                  {upsert: true},
+                                                                  function (err) {
+                                                                      if (err) icallback("Failed to log an importsource");
+                                                                      else icallback(null);
+                                                                  }
+                                                        );
+                                                    });
+                                                }
+                                                
+                                            },
+                                            function (err) {
+                                                if (err) return gscallback(err); //TODO: close the action properly
+                                                else {
+                                                    if (status == "Success") {
+                                                        console.log("Searching for duplicates...");
+                                                        duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                            if (err) {
+                                                                status = "Failed";
+                                                                report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
+                                                            }
+                                                            else report += "\nDuplicate detection completed.";
+                                                            Action.findByIdAndUpdate(
+                                                                amodel._id,
+                                                                {finished: Date.now(), status: status, details: report},
+                                                                {safe: true, upsert: false},
+                                                                function(err) {
+                                                                    if (err) return gscallback(err);
+                                                                    else gscallback(null);
+                                                                }
+                                                            );
+                                                        });
+                                                    }
+                                                    else { //TODO dedup code
+                                                        Action.findByIdAndUpdate(
+                                                            amodel._id,
+                                                            {finished: Date.now(), status: status, details: report},
+                                                            {safe: true, upsert: false},
+                                                            function(err) {
+                                                                if (err) return gscallback(err);
+                                                                else gscallback(null);
+                                                            }
+                                                        );
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                ],
+                                function (err) {
+                                        if (err) console.log("Failure during import POST: " + err);                 
+                                });
                             });
-	                    }
+                        }
                         else if (req.body.name == "Mark as cleaned") {
                             console.log(dmodel.name + " marked as cleaned");
                             res.status(200);
@@ -366,7 +430,7 @@ exports.createAction = function(req, res) {
                                     if (err) console.log("Failed to update an action: " + err);
                                 }
                             );
-	                    }
+                        }
                         else if (req.body.name == "Unload last import") {
                             console.log("Starting unload for " + dmodel.name);
 
@@ -409,7 +473,7 @@ exports.createAction = function(req, res) {
                                         }
                                     }
                                 });
-	                    }
+                        }
                     }
                     else {
                         if (err) {
@@ -451,128 +515,128 @@ exports.getActionReport = function(req, res, next) {
 // simulates the Companies House Extractives API. Dummy controller for not yet existing CH Extractives API data
 exports.getTestdata = function(req, res, next) {
 
-	var test = [{
-		   "ReportDetails"    : {
-		        notes           : "",
-		        reportEndDate   : "2015/10/12",
-		        reportName      : "TestReport1",
-		        companyNumber   : "1",					// country: always GB. from DB: take ID for GB. If new company, add source
-		        companyName     : "company 2f",
-		        currency        : "Dollar",
-		        version         : 1,					// check if source for report with current version already exists
-		        referenceNumber : "123",
-		        dateAdded       : "2015/11/11"
-		     }
-		   ,
-		   "projectTotals"           :  [{ projectTotal : {
-		        notes       : "",
-		        amount      : "10,000,000",
-		        projectCode : "tose",
-		        projectName : "Top Secret"			// query DB for projectCode (proj. identifier) first, then project name (might have changed). Deduplication / fuzzy check necessary
-		     }
-		   }],
-		   "governmentPaymentTotals" :  [{ PaymentTotals : {
-		        notes           : "",
-		        amount          : "12,000,000",						// take only transfers (not totals). Totals calculated by controller. Check afterwards if sum matches totals
-		        government      : "USA",
-		        countryCodeList : "US",
-		     }
-		   }] ,
-		   "governmentPayments"      :  [{ governmentPayments : {
-		         notes       : "",
-		         amount      : "5,000,000",
-		         government  : "USA",
-		         countryCode : "US",
-		         unitVolume  : {
-		            valuationMethod  : "estimated",
-		            volume           : "10",
-		            unitMeasure      : "Dollar",
-		         }
-		      }
-		    },
-		    { governmentPayments : {
-		         notes       : "",
-		         amount      : "7,000,000",
-		         government  : "USA",
-		         countryCode : "US",
-		         unitVolume  : {
-		            valuationMethod  : "estimated",
-		            volume           : "10",
-		            unitMeasure      : "Dollar",
-		         }
-		      }
-		    }],
-		   "projectPayments"         :  [{ projectPayment : {
-		        notes       : "",
-		        paymentType : "transfer",
-		        amount      : "8,000,000",
-		        projectName : "Top Secret",		// check if transfer already exists. Source "UK mandatory...disclosure" must be added to new transfer
-		        projectCode : "tose",
-		        unitVolume  : {
-		            valuationMethod  : "estimated",
-		            volume           : "200",
-		            unitMeasure      : "Dollar",
-		         },
-		        CountryCodeList :"US"
-		     }
-		   }]
-		},
-		{
-			   "ReportDetails"    : {
-			        notes           : "",
-			        reportEndDate   : "2015/07/22",
-			        reportName      : "TestReport2",
-			        companyNumber   : "2",
-			        companyName     : "Exxon",
-			        currency        : "Dollar",
-			        version         : 1,
-			        referenceNumber : "123",
-			        dateAdded       : "2015/08/03"
-			     }
-			   ,
-			   "projectTotals"           :  [{ projectTotal : {
-			        notes       : "",
-			        amount      : "4,000,000",
-			        projectCode : "newp",
-			        projectName : "newproject"
-			     }
-			   }],
-			   "governmentPaymentTotals" :  [{ PaymentTotals : {
-			        notes           : "",
-			        amount          : "30,000,000",
-			        government      : "Germany",
-			        countryCodeList : "DE",
-			     }
-			   }] ,
-			   "governmentPayments"      :  [{ governmentPayments : {
-			         notes       : "",
-			         amount      : "10,000,000",
-			         government  : "Germany",
-			         countryCode : "DE",
-			         unitVolume  : {
-			            valuationMethod  : "estimated",
-			            volume           : "5000",
-			            unitMeasure      : "Euro",
-			         }
-			      }
-			    }],
-			   "projectPayments"         :  [{ projectPayment : {
-			        notes       : "",
-			        paymentType : "Transfer",
-			        amount      : "2,000,000",
-			        projectName : "newproject",
-			        projectCode : "newp",
-			        unitVolume  : {
-			            valuationMethod  : "estimated",
-			            volume           : "2345",
-			            unitMeasure      : "Euro",
-			         },
-			        CountryCodeList :"DE"
-			     }
-			   }]
-			}]
+    var test = [{
+           "ReportDetails"    : {
+                notes           : "",
+                reportEndDate   : "2015/10/12",
+                reportName      : "TestReport1",
+                companyNumber   : "1",                  // country: always GB. from DB: take ID for GB. If new company, add source
+                companyName     : "company 2f",
+                currency        : "Dollar",
+                version         : 1,                    // check if source for report with current version already exists
+                referenceNumber : "123",
+                dateAdded       : "2015/11/11"
+             }
+           ,
+           "projectTotals"           :  [{ projectTotal : {
+                notes       : "",
+                amount      : "10,000,000",
+                projectCode : "tose",
+                projectName : "Top Secret"          // query DB for projectCode (proj. identifier) first, then project name (might have changed). Deduplication / fuzzy check necessary
+             }
+           }],
+           "governmentPaymentTotals" :  [{ PaymentTotals : {
+                notes           : "",
+                amount          : "12,000,000",                     // take only transfers (not totals). Totals calculated by controller. Check afterwards if sum matches totals
+                government      : "USA",
+                countryCodeList : "US",
+             }
+           }] ,
+           "governmentPayments"      :  [{ governmentPayments : {
+                 notes       : "",
+                 amount      : "5,000,000",
+                 government  : "USA",
+                 countryCode : "US",
+                 unitVolume  : {
+                    valuationMethod  : "estimated",
+                    volume           : "10",
+                    unitMeasure      : "Dollar",
+                 }
+              }
+            },
+            { governmentPayments : {
+                 notes       : "",
+                 amount      : "7,000,000",
+                 government  : "USA",
+                 countryCode : "US",
+                 unitVolume  : {
+                    valuationMethod  : "estimated",
+                    volume           : "10",
+                    unitMeasure      : "Dollar",
+                 }
+              }
+            }],
+           "projectPayments"         :  [{ projectPayment : {
+                notes       : "",
+                paymentType : "transfer",
+                amount      : "8,000,000",
+                projectName : "Top Secret",     // check if transfer already exists. Source "UK mandatory...disclosure" must be added to new transfer
+                projectCode : "tose",
+                unitVolume  : {
+                    valuationMethod  : "estimated",
+                    volume           : "200",
+                    unitMeasure      : "Dollar",
+                 },
+                CountryCodeList :"US"
+             }
+           }]
+        },
+        {
+               "ReportDetails"    : {
+                    notes           : "",
+                    reportEndDate   : "2015/07/22",
+                    reportName      : "TestReport2",
+                    companyNumber   : "2",
+                    companyName     : "Exxon",
+                    currency        : "Dollar",
+                    version         : 1,
+                    referenceNumber : "123",
+                    dateAdded       : "2015/08/03"
+                 }
+               ,
+               "projectTotals"           :  [{ projectTotal : {
+                    notes       : "",
+                    amount      : "4,000,000",
+                    projectCode : "newp",
+                    projectName : "newproject"
+                 }
+               }],
+               "governmentPaymentTotals" :  [{ PaymentTotals : {
+                    notes           : "",
+                    amount          : "30,000,000",
+                    government      : "Germany",
+                    countryCodeList : "DE",
+                 }
+               }] ,
+               "governmentPayments"      :  [{ governmentPayments : {
+                     notes       : "",
+                     amount      : "10,000,000",
+                     government  : "Germany",
+                     countryCode : "DE",
+                     unitVolume  : {
+                        valuationMethod  : "estimated",
+                        volume           : "5000",
+                        unitMeasure      : "Euro",
+                     }
+                  }
+                }],
+               "projectPayments"         :  [{ projectPayment : {
+                    notes       : "",
+                    paymentType : "Transfer",
+                    amount      : "2,000,000",
+                    projectName : "newproject",
+                    projectCode : "newp",
+                    unitVolume  : {
+                        valuationMethod  : "estimated",
+                        volume           : "2345",
+                        unitMeasure      : "Euro",
+                     },
+                    CountryCodeList :"DE"
+                 }
+               }]
+            }]
 
-	res.send(test)
+    res.send(test)
 };
 
 // simulates the Companies House Extractives API. Dummy for duplicate entries (companies, projects)

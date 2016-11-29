@@ -8,7 +8,9 @@ var Source 			= require('mongoose').model('Source'),
 	isocountries 	= require("i18n-iso-countries"),
 	_ 				= require("underscore"),
 	async  			= require('async'),
-	request 		= require('superagent'),
+  csv     = require('csv-parse/lib/sync'),
+	request 		= require('request'),
+	superagent 		= require('superagent'),
 	randomstring	= require('just.randomstring');
 
 API_KEY = process.env.CHAPIKEY;
@@ -87,7 +89,7 @@ exports.importData = function(finalcallback) {
 	    function(scallback) {
 			console.log("Reading existing project IDs from Google Sheets...");
 	
-			var feedurl = `https://spreadsheets.google.com/feeds/worksheets/1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto/public/full?alt=json`;
+			var feedurl = "https://spreadsheets.google.com/feeds/worksheets/1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto/public/full?alt=json";
 
 			request({
 				url: feedurl,
@@ -96,12 +98,12 @@ exports.importData = function(finalcallback) {
 				if (!error && response.statusCode === 200) {
 					for (var j=0; j<body.feed.entry[0].link.length; j++) {
 						if (body.feed.entry[0].link[j].type === "text/csv") {
-							report += `Getting data from sheet "${body.feed.entry[0].title.$t}"...\n`;
+							reporter.add(`Getting data from sheet "${body.feed.entry[0].title.$t}"...\n`);
 							request({
 								url: body.feed.entry[0].link[j].href
-							}, function (i, error, response, sbody) {
+							}, function (error, response, sbody) {
 								if (error) {
-									report += `${body.feed.entry[0].title.$t}: Could not retrieve sheet`;
+									reporter.add(`${body.feed.entry[0].title.$t}: Could not retrieve sheet`);
 									return scallback("Failed", reporter.text, createdOrAffectedEntities);
 								}
 								records = csv(sbody, {trim: true, columns: true});
@@ -119,7 +121,7 @@ exports.importData = function(finalcallback) {
 					}
 				}
 				else {
-					report += "Could not get information from GSheets feed - is the sheet shared?\n";
+					reporter.add("Could not get information from GSheets feed - is the sheet shared?\n");
 					return scallback("Failed", reporter.text, createdOrAffectedEntities);
 				}
 			});
@@ -131,7 +133,7 @@ exports.importData = function(finalcallback) {
 
 					// Call Companies House Extractives API
 
-					request
+					superagent
 						.get('https://extractives.companieshouse.gov.uk/api/year/'+year.toString()+'/json')
 						// testing with local duplicates
 						//.get('http://localhost:3030/api/duplicatestestdata')
@@ -150,9 +152,8 @@ exports.importData = function(finalcallback) {
 									return finalcallback("Failed", reporter.text, createdOrAffectedEntities);
 								}
 								else {
-
 									// get all reports for this year and handle them one after another
-									//console.log(res.body);
+									console.log(util.inspect(res.body, {depth: 10}));
 									async.eachSeries(res.body, function (chReportData, icallback) {
 											//Set currency for this report
 											loadChReport(chReportData, year, reporter, icallback);
@@ -208,6 +209,10 @@ function loadChReport(chData, year, report, loadcallback) {
 					report.add("Done. Not importing data for existing source.\n");
 					return async.nextTick(function(){ loadcallback(null, report); });
 				}
+				else if (err === "ignoring report") {
+					report.add("Done. Not importing data for blacklisted report.\n");
+					return async.nextTick(function(){ loadcallback(null, report); });
+				}
 				else {
 					report.add("LOAD DATA: Got an error\n");
 					return async.nextTick(function(){ loadcallback(err, report); });
@@ -224,9 +229,15 @@ function loadChReport(chData, year, report, loadcallback) {
 		var version = chData.reportDetails.version;
 		var source_company = chData.reportDetails.companyName;
 		var currency = chData.reportDetails.currency;
-                var companyNumber = chData.reportDetails.companyNumber; 
-                var referenceNumber = chData.reportDetails.referenceNumber;
-        Source.findOne(
+    var companyNumber = chData.reportDetails.companyNumber; 
+    //Ignore this report:
+    if (companyNumber === "05227012") {
+        report.add('Report in blacklist, ignoring\n');
+        //Note that we DON'T add to created/affected as the data from this source will be ignored
+        return callback("ignoring report",report, null, null);
+    }
+    var referenceNumber = chData.reportDetails.referenceNumber;
+    Source.findOne(
 			{
                 // Source name identifies the new source and is used for this combination of year, report version and company
 				source_name: 'Companies House Extractives Disclosure of ' + source_company + ' for ' + year + ', Version ' + version},
@@ -518,7 +529,7 @@ function loadChReport(chData, year, report, loadcallback) {
 					}
 					else {
 				*/
-			            if (countryId !== null) {
+			        if (countryId !== null) {
 							//report.add('proj find: ' + util.inspect(projectTotalEntry));
 							Project.findOne( //match case-insensitive
 								{
@@ -674,10 +685,16 @@ function loadChReport(chData, year, report, loadcallback) {
 			// We assume that every project in the API has transfers. Otherwise it wouldn't make much sense.
 			console.log(util.inspect(projectPaymentEntry));
 			console.log(projectPaymentEntry.countryCodeList);
-
-			var countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
-			// Only adds the country if not already there
-			var update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
+			var countryIso = "NULL"; //Used for sending to Id, but don't add it to DB object; that should have country set to null as default
+			var country = null;
+			var update = {};
+			
+      if (projectPaymentEntry.countryCodeList) {
+          country = countries[projectPaymentEntry.countryCodeList]._id;
+          countryIso = countries[projectPaymentEntry.countryCodeList].iso2;
+			    // Only adds the country if not already there
+			    update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
+			}
 			
 			createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = null;
 
@@ -688,7 +705,7 @@ function loadChReport(chData, year, report, loadcallback) {
 				var newProjIdObj = makeProjId( countryIso, projectPaymentEntry.projectName );
 				if (newProjIdObj.newIdCreated) {
 					//Write the new ID later
-					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = newProjId;
+					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = newProjIdObj.projId;
 					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].projCountry = countryIso;
 					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].projName = projectPaymentEntry.projectName;
 				}
@@ -706,8 +723,6 @@ function loadChReport(chData, year, report, loadcallback) {
 				else {
 					projects[projectPaymentEntry.projectName] = uproject;
 					var transfer_audit_type = "company_payment";
-
-					var country = countries[projectPaymentEntry.countryCodeList]._id;
 		
 					// TODO: transfer year = year of report date?
 					// query.transfer_year = year;
