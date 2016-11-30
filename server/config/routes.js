@@ -142,11 +142,11 @@ module.exports	= function(app) {
 	});
 
 	//Create a dataset - todo protect with admin
-	app.post('/api/datasets', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createDataset);
+	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Create a dataset
-	app.post('/api/datasets', auth.requiresApiLogin, /* auth.requiresRole('admin'),*/ datasets.createDataset);
+	app.post('/api/datasets', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createDataset);
 	//Start an ETL step
-	app.post('/api/datasets/:id/actions', /* auth.requiresApiLogin, auth.requiresRole('admin'), */ datasets.createAction);
+	app.post('/api/datasets/:id/actions', auth.requiresApiLogin, auth.requiresRole('admin'), datasets.createAction);
 
 
 	//////////////////////////////////////
@@ -246,7 +246,8 @@ module.exports	= function(app) {
 
 	// DO NOT MERGE TO PRODUCTION! FOR STAGING USE ONLY!
 	app.get('/api/destroy', auth.requiresApiLogin, auth.requiresRole('admin'), destroy.destroy);
-
+	// Write out project IDs
+	app.get('/api/all_projects/persist', auth.requiresApiLogin, auth.requiresRole('admin'), projects.persist);
 
 
 
