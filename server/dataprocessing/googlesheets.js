@@ -23,9 +23,12 @@ var actionId;
 
 var createdOrAffectedEntities;
 
-exports.processData = function(link, actionid, callback) {
+var projIds = [];
+
+exports.processData = function(link, actionid, existingProjIds, callback) {
     actionId = actionid;
     createdOrAffectedEntities = {};
+    projIds = existingProjIds;
     var report = "";
     var keytoend =  link.substr(link.indexOf("/d/") + 3, link.length);
     var key = keytoend.substr(0, keytoend.indexOf("/"));
@@ -676,9 +679,23 @@ function parseData(sheets, report, finalcallback) {
                 projectsReport.add('Empty project name in row. Skipping.\n');
                 return callback(null);
             }
-            var countryRow, countryId, projId;
+            var countryRow, countryId;
             var projQuery = {};
-            var projQueryBase = {
+            var projId = null;
+            
+            
+            try {
+                //First get country
+                countryRow = _.findWhere(sheets['1'].data, {"#project": row['#project']}); //Find data in sheet 1
+                countryId = countries[countryRow['#country+identifier']]._id;
+                //Then search based on project name and country
+                projRow = _.findWhere(projIds, {"projName": row['#project'], "projCountry": countryRow['#country+identifier']}); //Find data in list of existing proj. IDs read in from Google Sheets
+                if (projRow) {
+                    projId = projRow['projId'];
+                    console.log("Found an existing project ID for " + row['#project'] + ": " + projId);
+                }
+                
+                var projQueryBase = {
                                     $or:
                                         [
                                             {
@@ -690,11 +707,8 @@ function parseData(sheets, report, finalcallback) {
                                         ],
                                     "proj_country.country": countryId
                                 };
-            
-            try {
-                countryRow = _.findWhere(sheets['1'].data, {"#project": row['#project']});
-                countryId = countries[countryRow['#country+identifier']]._id;
-                projId = countryRow['#project+identifier'];
+                
+                
                 if (projId) {
                     console.log("Got a project ID: " + projId);
                     projQuery = {
@@ -726,12 +740,12 @@ function parseData(sheets, report, finalcallback) {
                             return callback(`Failed: ${projectsReport.report}`);
                         }
                         else if (doc) { //Project already exists,
-                            console.log("Project already exists under query: " + util.inspect(projQuery, {depth: 4}));
+                            console.log("Project already exists under query: " + util.inspect(projQuery, {depth: 8}));
                             projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), using\n`);
                             updateOrCreateProject(null, doc, countryId, projId, callback); //NO existing project internally
                         }
                         else {
-                            console.log("Project does not exist under query: " + util.inspect(projQuery, {depth: 4}));
+                            console.log("Project does not exist under query: " + util.inspect(projQuery, {depth: 8}));
                             projectsReport.add(`Project ${row[rowIndex]} not found in DB. It will be added later.\n`);
                             updateOrCreateProject(null, null, countryId, projId, callback); //NO existing project internally, NO project in DB
                         }

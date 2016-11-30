@@ -8,8 +8,7 @@ var Source 			= require('mongoose').model('Source'),
 	isocountries 	= require("i18n-iso-countries"),
 	_ 				= require("underscore"),
 	async  			= require('async'),
-  csv     = require('csv-parse/lib/sync'),
-	request 		= require('request'),
+	util = require('util'),
 	superagent 		= require('superagent'),
 	randomstring	= require('just.randomstring');
 
@@ -33,19 +32,20 @@ function generate_source_url(companyNumber, referenceNumber) {
 }
 
 function makeProjId (countryIso, name) {
-    idRow = _.findWhere(existingProjIds, {projName: name, projCountry: countryIso});
+    idRow = _.findWhere(existingProjIds, {projName: name.trim(), projCountry: countryIso});
     if (idRow) { 
         console.log("Got an ID for project from sheet: " + idRow.projId + " using ISO " + countryIso + " and projName " + name);
         return {projId: idRow.projId, newIdCreated: false};
 	}
 	else { 
-		var pid = countryIso.toLowerCase() + name.toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
-		console.log("Createing a new ID: " + pid + " using ISO " + countryIso);
-		return {projId: pid, newIdCreated: true}; //TODO not always true!
+		var pid = countryIso.toLowerCase() + name.trim().toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+		console.log("Createing a new ID: " + pid + " using ISO " + countryIso + " and projName " + name);
+		return {projId: pid, newIdCreated: true};
 	}
 }
 
-exports.importData = function(finalcallback) {
+exports.importData = function(projIds, finalcallback) {
+  existingProjIds = projIds;
 
 	var reportString = "";
 
@@ -66,66 +66,25 @@ exports.importData = function(finalcallback) {
 	    //Read in countries from DB
 	    function (scallback) {
 	        reporter.add("Getting countries from database...\n");
-			countries = {};
-			countries_iso2 = {};
-			Country.find({}, function (err, cresult) {
-				if (err) {
-					reporter.add(`Got an error: ${err}\n`);
-					return scallback("Failed", reporter.text, createdOrAffectedEntities);
-				}
-				else {
-					reporter.add(`Found ${cresult.length} countries\n`);
-					var ctry;
-					for (ctry of cresult) {
-						country_iso3 = isocountries.alpha2ToAlpha3(ctry.iso2).toUpperCase();
-						countries[country_iso3] = ctry;
-						countries_iso2[ctry.iso2.toUpperCase()] = ctry;
-					}
-					return scallback(null);
-				}
-			});
+          countries = {};
+          countries_iso2 = {};
+          Country.find({}, function (err, cresult) {
+              if (err) {
+                  reporter.add(`Got an error: ${err}\n`);
+                  return scallback("Failed", reporter.text, createdOrAffectedEntities);
+              }
+              else {
+                  reporter.add(`Found ${cresult.length} countries\n`);
+                  var ctry;
+                  for (ctry of cresult) {
+                      country_iso3 = isocountries.alpha2ToAlpha3(ctry.iso2).toUpperCase();
+                      countries[country_iso3] = ctry;
+                      countries_iso2[ctry.iso2.toUpperCase()] = ctry;
+                  }
+                  return scallback(null);
+              }
+          });
 	    },
-	    //Read in persisted project IDs
-	    function(scallback) {
-			console.log("Reading existing project IDs from Google Sheets...");
-	
-			var feedurl = "https://spreadsheets.google.com/feeds/worksheets/1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto/public/full?alt=json";
-
-			request({
-				url: feedurl,
-				json: true
-			}, function (error, response, body) {
-				if (!error && response.statusCode === 200) {
-					for (var j=0; j<body.feed.entry[0].link.length; j++) {
-						if (body.feed.entry[0].link[j].type === "text/csv") {
-							reporter.add(`Getting data from sheet "${body.feed.entry[0].title.$t}"...\n`);
-							request({
-								url: body.feed.entry[0].link[j].href
-							}, function (error, response, sbody) {
-								if (error) {
-									reporter.add(`${body.feed.entry[0].title.$t}: Could not retrieve sheet`);
-									return scallback("Failed", reporter.text, createdOrAffectedEntities);
-								}
-								records = csv(sbody, {trim: true, columns: true});
-								for (var r=0; r<records.length; r++) {
-									var newId = {
-													projName: records[r]['#project'],
-													projCountry: records[r]['#project+country+identifier'],
-													projId: records[r]['#project+identifier']
-												};
-									existingProjIds.push(newId);
-								}
-								return scallback(null);
-							});
-						}
-					}
-				}
-				else {
-					reporter.add("Could not get information from GSheets feed - is the sheet shared?\n");
-					return scallback("Failed", reporter.text, createdOrAffectedEntities);
-				}
-			});
-		},
 		// loop all years in the given range and call the Companies House Extractives API for each of these years
 		function (scallback) {
 			async.eachSeries(years, function (year, fcallback) {
@@ -155,6 +114,10 @@ exports.importData = function(finalcallback) {
 									// get all reports for this year and handle them one after another
 									console.log(util.inspect(res.body, {depth: 10}));
 									async.eachSeries(res.body, function (chReportData, icallback) {
+									    //Remove bad data
+									    if ((chReportData.projectTotals.projectTotal.length == 1) && ((chReportData.projectTotals.projectTotal[0].projectName == '0') || (chReportData.projectTotals.projectTotal[0].projectName == 'No Project'))) {
+									        delete chReportData.projectTotals.projectTotal;
+									    }
 											//Set currency for this report
 											loadChReport(chReportData, year, reporter, icallback);
 										},
@@ -409,7 +372,7 @@ function loadChReport(chData, year, report, loadcallback) {
 
 					createdOrAffectedEntities[model._id] = {entity: "project", obj: model._id};
 					report.add('Added or updated project ' + projectName + ' to the DB.\n');
-					projects[projectName] = model;
+					projects[projectName.trim().toLowerCase()] = model;
 
 					Project.find({}, function (err, cresult) {
 
@@ -511,13 +474,13 @@ function loadChReport(chData, year, report, loadcallback) {
 					}
 					else if (projDoc) {
 						report.add('Project ' + projectTotalEntry.projectName + ' already exists in the DB (id or name match), not adding but updating project.\n');
-						projects[projectTotalEntry.projectName] = projDoc;
+						projects[projectTotalEntry.projectName.toLowerCase()] = projDoc;
 
 						// TODO: Move into function
 						// TODO: Cope with lack of country in totals?
 						async.waterfall([
 							// update the project if exists, otherwise create a new one
-							async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName, countryId),
+							async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName.toLowerCase()], projectTotalEntry.projectName, countryId),
 							// then create a new link between this project and the referring report company
 							createLink,
 							// search potential duplicates for this project
@@ -536,10 +499,10 @@ function loadChReport(chData, year, report, loadcallback) {
 									$or:
 										[
 											{
-												"proj_name":  { $regex : new RegExp(projectTotalEntry.projectName, "i") }
+												"proj_name":  { $regex : new RegExp(projectTotalEntry.projectName.trim(), "i") }
 											},
 											{
-												"proj_aliases.alias": { $regex : new RegExp(projectTotalEntry.projectName, "i") }
+												"proj_aliases.alias": { $regex : new RegExp(projectTotalEntry.projectName.trim(), "i") }
 											}
 										],
 									"proj_country.country": countryId
@@ -558,11 +521,11 @@ function loadChReport(chData, year, report, loadcallback) {
 										}
 	
 										projectNamefromDB = doc.proj_name;
-										projects[projectNamefromDB] = doc;
+										projects[projectNamefromDB.toLowerCase()] = doc;
 										// TODO: Move into function
 										async.waterfall([
 											// update the project if exists, otherwise create a new one
-											async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+											async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName.trim().toLowerCase()], projectTotalEntry.projectName.trim()),
 											// then create a new link between this project and the referring report company
 											createLink,
 											// search potential duplicates for this project
@@ -576,7 +539,7 @@ function loadChReport(chData, year, report, loadcallback) {
 										// TODO: Move into function
 										async.waterfall([
 											// update the project if exists, otherwise create a new one
-											async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+											async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName.trim().toLowerCase()], projectTotalEntry.projectName.trim()),
 											// then create a new link between this project and the referring report company
 											createLink,
 											// search potential duplicates for this project
@@ -593,7 +556,7 @@ function loadChReport(chData, year, report, loadcallback) {
 							// TODO: Move into function
 							async.waterfall([
 								// update the project if exists, otherwise create a new one
-								async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName], projectTotalEntry.projectName),
+								async.apply(updateOrCreateProject, projects[projectTotalEntry.projectName.trim().toLowerCase()], projectTotalEntry.projectName.trim()),
 								// then create a new link between this project and the referring report company
 								createLink,
 								// search potential duplicates for this project
@@ -674,11 +637,15 @@ function loadChReport(chData, year, report, loadcallback) {
 		async.eachSeries(chData.projectPayments.projectPayment, function (projectPaymentEntry, forcallback) {
 
 			// If project code for this payment was not yet in the project totals list, then something's wrong in the data, skip.
-			if (!projects[projectPaymentEntry.projectName] || (projectPaymentEntry.projectName == '0')) { //Include weird data bug
-
+			// This includes a workaround for project names being misplaced in project code
+			if ((!projects[projectPaymentEntry.projectName.trim().toLowerCase()] && !projects[projectPaymentEntry.projectCode.trim().toLowerCase()]) || (projectPaymentEntry.projectName == '0') || (projectPaymentEntry.projectName == 'No Projects')) { //Include weird data bug //Actually, shouldn't get this far; detect projects with name '0'/'No project' as no project
 				report.add('Invalid or missing project data. Aborting.\n');
 				return forcallback(null);
-
+			}
+			
+			//See above
+			if (!projects[projectPaymentEntry.projectName.trim().toLowerCase()] && projects[projectPaymentEntry.projectCode.trim().toLowerCase()]) {
+			    projectPaymentEntry.projectName = projectPaymentEntry.projectCode;
 			}
 			
 			// Update project countries and set ID if not set
@@ -696,32 +663,33 @@ function loadChReport(chData, year, report, loadcallback) {
 			    update = {$addToSet: {proj_country: {country: countries[projectPaymentEntry.countryCodeList]._id, source: source._id}}};
 			}
 			
-			createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = null;
+			createdOrAffectedEntities[projects[projectPaymentEntry.projectName.trim().toLowerCase()]._id].newProjId = null;
 
-			if (!projects[projectPaymentEntry.projectName].proj_id) {
+			if (!projects[projectPaymentEntry.projectName.trim().toLowerCase()].proj_id) {
 				//console.log("Project ID not set, setting...");
 				//Abuse this to note that an ID has been created
 				//Get persisted ID (Google Sheets) or make a new one up
 				var newProjIdObj = makeProjId( countryIso, projectPaymentEntry.projectName );
 				if (newProjIdObj.newIdCreated) {
 					//Write the new ID later
-					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].newProjId = newProjIdObj.projId;
-					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].projCountry = countryIso;
-					createdOrAffectedEntities[projects[projectPaymentEntry.projectName]._id].projName = projectPaymentEntry.projectName;
+					createdOrAffectedEntities[projects[projectPaymentEntry.projectName.trim().toLowerCase()]._id].newProjId = newProjIdObj.projId;
+					createdOrAffectedEntities[projects[projectPaymentEntry.projectName.trim().toLowerCase()]._id].projCountry = countryIso;
+					//NOTE: These can differ in capitalisation, commenting out in order to prevent usage (not used at the moment)
+					//createdOrAffectedEntities[projects[projectPaymentEntry.projectName.toLowerCase()]._id].projName = projectPaymentEntry.projectName;
 				}
 				
 				update.proj_id = newProjIdObj.projId;
 			}
 			//else console.log("Project ID already set, not setting...");
 
- 			Project.findByIdAndUpdate(projects[projectPaymentEntry.projectName]._id, update, {'new': true}, function(err, uproject) {
+ 			Project.findByIdAndUpdate(projects[projectPaymentEntry.projectName.trim().toLowerCase()]._id, update, {'new': true}, function(err, uproject) {
  				if (err) {
 					console.log(err);
 					report.add('Could not update project. Aborting.\n');
 					return forcallback(err);
 				}
 				else {
-					projects[projectPaymentEntry.projectName] = uproject;
+					projects[projectPaymentEntry.projectName.trim().toLowerCase()] = uproject;
 					var transfer_audit_type = "company_payment";
 		
 					// TODO: transfer year = year of report date?
@@ -835,8 +803,8 @@ function makeNewTransfer(paymentData, projects, company, currency, transfer_audi
 	else return false; // error
 
 	if (transfer_level == "project") {
-		if (projects[paymentData.projectName]) {
-			transfer.project = projects[paymentData.projectName]._id;
+		if (projects[paymentData.projectName.trim().toLowerCase()]) {
+			transfer.project = projects[paymentData.projectName.trim().toLowerCase()]._id;
 		}
 		else return false; // error
 	}

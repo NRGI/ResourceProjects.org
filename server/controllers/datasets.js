@@ -4,15 +4,16 @@ var Dataset         = require('mongoose').model('Dataset'),
     ImportSource    = require('mongoose').model('ImportSource'),
     async           = require('async'),
     _               = require('underscore'),
-    GoogleSpreadsheet = require('google-spreadsheet');
-    googlesheets    = require('../dataprocessing/googlesheets.js');
-    companieshouse  = require('../dataprocessing/companieshouse.js');
-    duplicateHandler= require('../dataprocessing/duplicateHandler.js');
-    unloader        = require('../dataprocessing/unloader.js');
+    
+    request         = require('request'),
+    csv             = require('csv-parse/lib/sync'),
+    googlesheets    = require('../dataprocessing/googlesheets.js'),
+    companieshouse  = require('../dataprocessing/companieshouse.js'),
+    duplicateHandler= require('../dataprocessing/duplicateHandler.js'),
+    unloader        = require('../dataprocessing/unloader.js'),
     util            = require('util');
 var fs      = require('fs');
 var duplicateHandler =  require('../dataprocessing/duplicateHandler.js');
-var creds = require('../ResourceProjectsPersistIDs.json');
 
 exports.getDatasets = function(req, res) {
     var limit = null, skip = 0;
@@ -162,6 +163,48 @@ exports.createDataset = function(req, res) {
     res.send();
 };
 
+function readProjIds (scallback) {
+    var existingProjIds = [];
+    console.log("Reading existing project IDs from Google Sheets...");
+
+    var feedurl = "https://spreadsheets.google.com/feeds/worksheets/1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto/public/full?alt=json";
+
+    request({
+        url: feedurl,
+        json: true
+    }, function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            for (var j=0; j<body.feed.entry[0].link.length; j++) {
+                if (body.feed.entry[0].link[j].type === "text/csv") {
+                    console.log(`Getting data from sheet "${body.feed.entry[0].title.$t}"...\n`);
+                    request({
+                        url: body.feed.entry[0].link[j].href
+                    }, function (error, response, sbody) {
+                        if (error) {
+                            console.log(`${body.feed.entry[0].title.$t}: Could not retrieve sheet`);
+                            return scallback("Failed");
+                        }
+                        records = csv(sbody, {trim: true, columns: true});
+                        for (var r=0; r<records.length; r++) {
+                            var newId = {
+                                            projName: records[r]['#project'],
+                                            projCountry: records[r]['#project+country+identifier'],
+                                            projId: records[r]['#project+identifier']
+                                        };
+                            existingProjIds.push(newId);
+                        }
+                        return scallback(null, existingProjIds);
+                    });
+                }
+            }
+        }
+        else {
+            console.log("Could not get information from GSheets feed - is the sheet shared?\n");
+            return scallback("Failed", reporter.text, createdOrAffectedEntities);
+        }
+    });
+}
+
 exports.createAction = function(req, res) {
     var user_id;
     if (!req.user) {
@@ -187,205 +230,232 @@ exports.createAction = function(req, res) {
                 function(err, dmodel) {
                     if (!err && dmodel) {
                         if (req.body.name == "Import from Google Sheets") {
-                            console.log("Starting import from " + dmodel.name + '...');
-                            res.status(200);
-                            res.send();
-                            googlesheets.processData(dmodel.source_url, amodel._id, function(status, report, affectedEntities) {
-                                console.log("Action finished...");
-                                console.log("Status: " + status + "\n");
-                                //console.log("Report: " + report + "\n");
-                                //Save affected entities ad persist IDs (for unloading and reloading)
-                                var keytoend =  dmodel.source_url.substr(dmodel.source_url.indexOf("/d/") + 3, dmodel.source_url.length);
-                                var key = keytoend.substr(0, keytoend.indexOf("/"));
-                                var gdoc = new GoogleSpreadsheet(key);
-                                var importSources = [];
-                                _.each(affectedEntities, function(value) {
-                                    value.action = amodel._id;
-                                    importSources.push(value);
-                                });
-                                console.log("There were " + importSources.length + " import sources ");
-                                async.series([
-                                    function (gscallback) {
-                                        gdoc.useServiceAccountAuth(creds, function(err) {
-                                            if (err) {
-                                                return gscallback("Failed to auth Google Sheet for project IDs");
-                                            }
-                                            else {
-                                                console.log('Authed doc');
-                                                return gscallback(null);
-                                            }
-                                        });
-                                    },
-                                    function (gscallback) {
-                                        gdoc.getInfo(function(err, info) {
-                                            if (err) {
-                                                return gscallback("Failed to open Google Sheet for project IDs");
-                                            }
-                                            else {
-                                                console.log('Loaded doc: '+info.title);
-                                                sheet = info.worksheets[2]; //TODO: Don't hard code this
-                                                console.log("got sheet");
-                                                return gscallback(null);
-                                            }
-                                        });
-                                    },
-                                    function (gscallback) {
-                                        async.eachSeries(
-                                            importSources,
-                                            function(importSource, icallback) {
-                                                if (importSource.entity === 'project' && importSource.newProjId) {
-                                                    sheet.getRows({
-                                                      offset: importSource.rowNum,
-                                                      limit: 1
-                                                    }, function( err, rows ){
-                                                      // the row is an object with keys set by the column headers
-                                                      console.log(util.inspect(rows[0])); //Very curious to see how this works...
-                                                      rows[0][null] = importSource.newProjId; //Designed to fail
-                                                      rows[0].save(function (err) {
-                                                          if (err) console.log("Serious but non-fatal error: could not persist project ID:\n" + err);
-                                                          else {
-                                                              console.log("persisted row to sheet");
-                                                          }
-                                                      });
-                                                    });
+                            readProjIds(function(err, projIds) {
+                                if (err) {
+                                    res.status(400);
+                                    err = new Error('Error');
+                                    return res.send({reason:err})
+                                }
+                            
+                                console.log("Starting import from " + dmodel.name + '...');
+                                res.status(200);
+                                res.send();
+                                googlesheets.processData(dmodel.source_url, amodel._id, projIds, function(status, report, affectedEntities) {
+                                    console.log("Action finished...");
+                                    console.log("Status: " + status + "\n");
+                                    //console.log("Report: " + report + "\n");
+                                    //Save affected entities ad persist IDs (for unloading and reloading)
+                                    var keytoend =  dmodel.source_url.substr(dmodel.source_url.indexOf("/d/") + 3, dmodel.source_url.length);
+                                    var key = keytoend.substr(0, keytoend.indexOf("/"));
+                                    //var gdoc = new GoogleSpreadsheet(key);
+                                    var importSources = [];
+                                    _.each(affectedEntities, function(value) {
+                                        value.action = amodel._id;
+                                        importSources.push(value);
+                                    });
+                                    console.log("There were " + importSources.length + " import sources ");
+                                    async.series([
+                                        /*function (gscallback) {
+                                            gdoc.useServiceAccountAuth(creds, function(err) {
+                                                if (err) {
+                                                    return gscallback("Failed to auth Google Sheet for project IDs");
                                                 }
-                                                ImportSource.findOneAndUpdate(
-                                                    {obj: importSource.obj},
-                                                    {$push: {actions: amodel._id}, entity: importSource.entity},
-                                                    {upsert: true},
-                                                    function (err) {
-                                                        if (err) icallback("Failed to log an importsource");
-                                                        else icallback(null);
-                                                    }
-                                                );
-                                            },
-                                            function (err) {
-                                                if (err) console.log(err);
-                                                else {                                            
-                                                    //TODO: duplicates detector should only look at the entites of the last things that were inserted
-                                                    //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
-                                                    if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
-                                                        duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-                                                             if (err) {
-                                                                 status = "Failed";
-                                                                 report += "\nDuplicate detection failed with error: " + err;
-                                                             }
-                                                             else report += "\nDuplicate detection completed.";
-                                                             //TODO move to function
-                                                             Action.findByIdAndUpdate(
-                                                                 amodel._id,
-                                                                 {finished: Date.now(), status: status, details: report},
-                                                                 {safe: true, upsert: false},
-                                                                 function(err) {
-                                                                     if (err) console.log("Failed to update an action: " + err);
+                                                else {
+                                                    console.log('Authed doc');
+                                                    return gscallback(null);
+                                                }
+                                            });
+                                        },
+                                        function (gscallback) {
+                                            gdoc.getInfo(function(err, info) {
+                                                if (err) {
+                                                    return gscallback("Failed to open Google Sheet for project IDs");
+                                                }
+                                                else {
+                                                    console.log('Loaded doc: '+info.title);
+                                                    sheet = info.worksheets[2]; //TODO: Don't hard code this
+                                                    console.log("got sheet");
+                                                    return gscallback(null);
+                                                }
+                                            });
+                                        },*/
+                                        function (gscallback) {
+                                            async.eachSeries(
+                                                importSources,
+                                                function(importSource, icallback) {
+                                                    /*if (importSource.entity === 'project' && importSource.newProjId) {
+                                                        sheet.getRows({
+                                                          offset: importSource.rowNum,
+                                                          limit: 1
+                                                        }, function( err, rows ){
+                                                          // the row is an object with keys set by the column headers
+                                                          console.log(util.inspect(rows[0])); //Very curious to see how this works...
+                                                          rows[0][null] = importSource.newProjId; //Designed to fail
+                                                          rows[0].save(function (err) {
+                                                              if (err) console.log("Serious but non-fatal error: could not persist project ID:\n" + err);
+                                                              else {
+                                                                  console.log("persisted row to sheet");
+                                                              }
+                                                          });
+                                                        });
+                                                    }*/
+                                                    ImportSource.findOneAndUpdate(
+                                                        {obj: importSource.obj},
+                                                        {$push: {actions: amodel._id}, entity: importSource.entity},
+                                                        {upsert: true},
+                                                        function (err) {
+                                                            if (err) icallback("Failed to log an importsource");
+                                                            else icallback(null);
+                                                        }
+                                                    );
+                                                },
+                                                function (err) {
+                                                    if (err) console.log(err);
+                                                    else {                                            
+                                                        //TODO: duplicates detector should only look at the entites of the last things that were inserted
+                                                        //TODO: think about whether anything in duplicates is missing from affected entities, may need to update them in case of resolution, on other hand then maybe too late for unload?
+                                                        if (status == "Success") { //Only look for dups if success. Otherwise unload will be required and we don't want to use this data to augment other entities.
+                                                            duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                                 if (err) {
+                                                                     status = "Failed";
+                                                                     report += "\nDuplicate detection failed with error: " + err;
                                                                  }
-                                                             );
-                                                         });
-                                                    }
-                                                    else { //TODO dedup code
-                                                        Action.findByIdAndUpdate(
-                                                                 amodel._id,
-                                                                 {finished: Date.now(), status: status, details: report},
-                                                                 {safe: true, upsert: false},
-                                                                 function(err) {
-                                                                     if (err) console.log("Failed to update an action: " + err);
-                                                                 }
-                                                        );
+                                                                 else report += "\nDuplicate detection completed.";
+                                                                 //TODO move to function
+                                                                 Action.findByIdAndUpdate(
+                                                                     amodel._id,
+                                                                     {finished: Date.now(), status: status, details: report},
+                                                                     {safe: true, upsert: false},
+                                                                     function(err) {
+                                                                         if (err) console.log("Failed to update an action: " + err);
+                                                                     }
+                                                                 );
+                                                             });
+                                                        }
+                                                        else { //TODO dedup code
+                                                            Action.findByIdAndUpdate(
+                                                                     amodel._id,
+                                                                     {finished: Date.now(), status: status, details: report},
+                                                                     {safe: true, upsert: false},
+                                                                     function(err) {
+                                                                         if (err) console.log("Failed to update an action: " + err);
+                                                                     }
+                                                            );
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        );
-                                    }
-                                ],
-                                function (err) {
-                                    if (err) console.log("Failure during import POST: " + err);
+                                            );
+                                        }
+                                    ],
+                                    function (err) {
+                                        if (err) console.log("Failure during import POST: " + err);
+                                    });
                                 });
                             });
                         }
                         else if (req.body.name == "Import from Companies House API") {
-                            console.log("Starting import from " + dmodel.name);
-                            res.status(200);
-                            res.send();
-                            console.log("Triggered, res sent\n");
-                            companieshouse.importData(function(status, report, affectedEntities) {
-                                console.log("Process finished");
-                                console.log("Status: " + status + "\n");
-                                //console.log("Report: " + report + "\n");
+                            readProjIds(function(err, projIds) {
+                                if (err) {
+                                    res.status(400);
+                                    err = new Error('Error');
+                                    return res.send({reason:err})
+                                }
+                            
+                                console.log("Starting import from " + dmodel.name + '...');
+                                res.status(200);
+                                res.send();
+
+                                companieshouse.importData(projIds, function(status, report, affectedEntities) {
+                                    console.log("Process finished");
+                                    console.log("Status: " + status + "\n");
+                                    //console.log("Report: " + report + "\n");
                                 
-                                //Save affected entities (for unloading) and project ids (for reloading)
-                                var importSources = [];
-                                var sheet = null;
-                                var gdoc = new GoogleSpreadsheet('1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto');
-                                _.each(affectedEntities, function(value) {
-                                    value.action = amodel._id;
-                                    importSources.push(value);
-                                });
-                                async.series([
-                                    function (gscallback) {
-                                        gdoc.useServiceAccountAuth(creds, function(err) {
-                                            if (err) {
-                                                return gscallback("Failed to auth Google Sheet for project IDs");
-                                            }
-                                            else {
-                                                console.log('Authed doc');
-                                                return gscallback(null);
-                                            }
-                                        });
-                                    },
-                                    function (gscallback) {
-                                        gdoc.getInfo(function(err, info) {
-                                            if (err) {
-                                                return gscallback("Failed to open Google Sheet for project IDs");
-                                            }
-                                            else {
-                                                console.log('Loaded doc: '+info.title);
-                                                sheet = info.worksheets[0];
-                                                console.log("got sheet");
-                                                return gscallback(null);
-                                            }
-                                        });
-                                    },
-                                    function (gscallback) {
-                                        async.eachSeries(
-                                            importSources,
-                                            function(importSource, icallback) {
-                                                if (importSource.entity === 'project' && importSource.newProjId) {
-                                                    var newRow = {
-                                                        'project': importSource.projName,
-                                                        'country': importSource.projCountry,
-                                                        'projId': importSource.newProjId
-                                                    };
-                                                    console.log("add row to sheet");
-                                                    //In theory any rows here don't exist yet in the sheet, so just add
-                                                    sheet.addRow(newRow, function(err) {
-                                                        if (err) console.log("Serious but non-fatal error: could not persist project ID:\n" + err);
-                                                        else {
-                                                            console.log("persisted row to sheet");
-                                                        }
-                                                        ImportSource.findOneAndUpdate(
-                                                                  {obj: importSource.obj},
-                                                                  {$push: {actions: amodel._id}, entity: importSource.entity},
-                                                                  {upsert: true},
-                                                                  function (err) {
-                                                                      if (err) icallback("Failed to log an importsource");
-                                                                      else icallback(null);
-                                                                  }
-                                                        );
-                                                    });
+                                    //Save affected entities (for unloading) and project ids (for reloading)
+                                    var importSources = [];
+                                    var sheet = null;
+                                    //var gdoc = new GoogleSpreadsheet('1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto');
+                                    _.each(affectedEntities, function(value) {
+                                        value.action = amodel._id;
+                                        importSources.push(value);
+                                    });
+                                    async.series([
+                                        /*function (gscallback) {
+                                            gdoc.useServiceAccountAuth(creds, function(err) {
+                                                if (err) {
+                                                    return gscallback("Failed to auth Google Sheet for project IDs");
                                                 }
-                                                
-                                            },
-                                            function (err) {
-                                                if (err) return gscallback(err); //TODO: close the action properly
                                                 else {
-                                                    if (status == "Success") {
-                                                        console.log("Searching for duplicates...");
-                                                        duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
-                                                            if (err) {
-                                                                status = "Failed";
-                                                                report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
-                                                            }
-                                                            else report += "\nDuplicate detection completed.";
+                                                    console.log('Authed doc');
+                                                    return gscallback(null);
+                                                }
+                                            });
+                                        },
+                                        function (gscallback) {
+                                            gdoc.getInfo(function(err, info) {
+                                                if (err) {
+                                                    return gscallback("Failed to open Google Sheet for project IDs");
+                                                }
+                                                else {
+                                                    console.log('Loaded doc: '+info.title);
+                                                    sheet = info.worksheets[0];
+                                                    console.log("got sheet");
+                                                    return gscallback(null);
+                                                }
+                                            });
+                                        },*/
+                                        function (gscallback) {
+                                            async.eachSeries(
+                                                importSources,
+                                                function(importSource, icallback) {
+                                                    /*if (importSource.entity === 'project' && importSource.newProjId) {
+                                                        var newRow = {
+                                                            'project': importSource.projName,
+                                                            'country': importSource.projCountry,
+                                                            'projId': importSource.newProjId
+                                                        };
+                                                        console.log("add row to sheet");
+                                                        //In theory any rows here don't exist yet in the sheet, so just add
+                                                        sheet.addRow(newRow, function(err) {
+                                                            if (err) console.log("Serious but non-fatal error: could not persist project ID:\n" + err);
+                                                            else {
+                                                                console.log("persisted row to sheet");
+                                                            }*/
+                                                            ImportSource.findOneAndUpdate(
+                                                                      {obj: importSource.obj},
+                                                                      {$push: {actions: amodel._id}, entity: importSource.entity},
+                                                                      {upsert: true},
+                                                                      function (err) {
+                                                                          if (err) icallback("Failed to log an importsource");
+                                                                          else icallback(null);
+                                                                      }
+                                                            );
+                                                        /*});
+                                                    }*/
+                                                
+                                                },
+                                                function (err) {
+                                                    if (err) return gscallback(err); //TODO: close the action properly
+                                                    else {
+                                                        if (status == "Success") {
+                                                            console.log("Searching for duplicates...");
+                                                            duplicateHandler.findAndHandleDuplicates(amodel._id, function(err) {
+                                                                if (err) {
+                                                                    status = "Failed";
+                                                                    report += "\nDuplicate detection failed with error: " + util.inspect(err.errors, {depth: 4});
+                                                                }
+                                                                else report += "\nDuplicate detection completed.";
+                                                                Action.findByIdAndUpdate(
+                                                                    amodel._id,
+                                                                    {finished: Date.now(), status: status, details: report},
+                                                                    {safe: true, upsert: false},
+                                                                    function(err) {
+                                                                        if (err) return gscallback(err);
+                                                                        else gscallback(null);
+                                                                    }
+                                                                );
+                                                            });
+                                                        }
+                                                        else { //TODO dedup code
                                                             Action.findByIdAndUpdate(
                                                                 amodel._id,
                                                                 {finished: Date.now(), status: status, details: report},
@@ -395,26 +465,15 @@ exports.createAction = function(req, res) {
                                                                     else gscallback(null);
                                                                 }
                                                             );
-                                                        });
-                                                    }
-                                                    else { //TODO dedup code
-                                                        Action.findByIdAndUpdate(
-                                                            amodel._id,
-                                                            {finished: Date.now(), status: status, details: report},
-                                                            {safe: true, upsert: false},
-                                                            function(err) {
-                                                                if (err) return gscallback(err);
-                                                                else gscallback(null);
-                                                            }
-                                                        );
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        );
-                                    }
-                                ],
-                                function (err) {
-                                        if (err) console.log("Failure during import POST: " + err);                 
+                                            );
+                                        }
+                                    ],
+                                    function (err) {
+                                            if (err) console.log("Failure during import POST: " + err);                 
+                                    });
                                 });
                             });
                         }
