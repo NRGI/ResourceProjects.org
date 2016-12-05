@@ -53,40 +53,31 @@ angular.module('app').config([
       controller: 'nrgiReconcileCtrl'
     }).when('/admin/create-user', {
       templateUrl: '/partials/admin/users/create-user',
-      controller: 'nrgiUserAdminCreateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiUserAdminCreateCtrl'
     }).when('/admin/user-admin', {
       templateUrl: '/partials/admin/users/user-admin',
-      controller: 'nrgiUserAdminCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiUserAdminCtrl'
     }).when('/admin/user-admin/:id', {
       templateUrl: '/partials/admin/users/user-admin-update',
-      controller: 'nrgiUserAdminUpdateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiUserAdminUpdateCtrl'
     }).when('/admin/sourceType-admin', {
       templateUrl: '/partials/admin/sourceTypes/sourceType-admin',
-      controller: 'nrgiSourceTypeAdminCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiSourceTypeAdminCtrl'
     }).when('/admin/create-sourceType', {
       templateUrl: '/partials/admin/sourceTypes/create-sourceType',
-      controller: 'nrgiSourceTypeAdminCreateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiSourceTypeAdminCreateCtrl'
     }).when('/admin/sourceType-admin/:id', {
       templateUrl: '/partials/admin/sourceTypes/sourceType-admin-update',
-      controller: 'nrgiSourceTypeAdminUpdateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiSourceTypeAdminUpdateCtrl'
     }).when('/admin/edit-about-page', {
       templateUrl: '/partials/admin/cms/aboutPage/edit-about-page',
-      controller: 'nrgiAboutPageUpdateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiAboutPageUpdateCtrl'
     }).when('/admin/edit-glossary-page', {
       templateUrl: '/partials/admin/cms/glossaryPage/edit-glossary-page',
-      controller: 'nrgiGlossaryPageUpdateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiGlossaryPageUpdateCtrl'
     }).when('/admin/edit-landing-page', {
       templateUrl: '/partials/admin/cms/landingPage/edit-landing-page',
-      controller: 'nrgiLandingPageUpdateCtrl',
-      resolve: routeRoleChecks.supervisor
+      controller: 'nrgiLandingPageUpdateCtrl'
     }).when('/login', {
       templateUrl: '/partials/account/login',
       controller: 'nrgiLoginCtrl'
@@ -130,9 +121,6 @@ angular.module('app').config([
     }).when('/project/:id', {
       templateUrl: '/partials/dynamic/projects/project-detail',
       controller: 'nrgiProjectDetailCtrl'
-    }).when('/projects/map', {
-      templateUrl: '/partials/dynamic/projects/map',
-      controller: 'nrgiMapCtrl'
     }).when('/sites', {
       templateUrl: '/partials/dynamic/sites/site-list',
       controller: 'nrgiSiteListCtrl'
@@ -187,22 +175,12 @@ angular.module('app').config([
     });
   }
 ]);
-// .run(['$rootScope', '$location', '$window', function(
-// $rootScope,
-// $location,
-// $window
-// ){
-//
-// }
 angular.module('app').run([
   '$rootScope',
   '$routeParams',
   '$location',
   '$window',
-  '$http',
-  'nrgiAuthSrvc',
-  'nrgiNotifier',
-  function ($rootScope, $routeParams, $location, $window, $http, nrgiAuthSrvc, nrgiNotifier) {
+  function ($rootScope, $routeParams, $location, $window) {
     $rootScope._ = _;
     $rootScope.Object = Object;
     $rootScope.keys = $rootScope.Object.keys;
@@ -219,7 +197,6 @@ angular.module('app').run([
         output += key + '=' + value + '&';
       });
       output = output.substr(0, output.length - 1);
-      //console.log(output);
       $window.ga([
         '_trackPageview',
         output
@@ -1181,6 +1158,242 @@ angular.module('app').controller('nrgiProfileCtrl', [
     };
   }
 ]);'use strict';
+angular.module('app').factory('nrgiCSV', [
+  '$filter',
+  function ($filter) {
+    var csv = [];
+    var commodityName = '';
+    var companyName = '';
+    var countryName = '';
+    var typeName = '';
+    var name = '';
+    var transferValue = '';
+    var id = '';
+    var str;
+    var com = ', ';
+    return {
+      setCsv: function (fields, data) {
+        csv = [];
+        angular.forEach(data, function (p, key) {
+          csv[key] = [];
+          angular.forEach(fields, function (field, i) {
+            if (field == 'transfer_value') {
+              transferValue = '';
+              transferValue = $filter('currency')(p[field], '', 0);
+              csv[key].push(transferValue);
+            }
+            if (field == 'country') {
+              countryName = '';
+              if (p[field] != undefined) {
+                countryName = p[field].name.toString();
+                countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
+              }
+              csv[key].push(countryName);
+            }
+            if (field == 'company') {
+              companyName = '';
+              if (p[field] != undefined) {
+                companyName = p[field].company_name.toString();
+                companyName = companyName.charAt(0).toUpperCase() + companyName.substr(1);
+              }
+              csv[key].push(companyName);
+            }
+            if (field == 'proj_site_type' || field == 'production_level') {
+              type = '';
+              if (p.proj_site != undefined && p.proj_site.type != undefined) {
+                var type = p.proj_site.type.toString();
+              }
+              csv[key].push(type);
+            }
+            if (field == 'proj_site_id') {
+              id = '';
+              if (p.proj_site != undefined && p.proj_site._id != undefined && p.proj_site.type == 'project') {
+                var id = p.proj_site._id.toString();
+              }
+              csv[key].push(id);
+            }
+            if (field == 'production_commodity') {
+              if (p[field] && p[field].name) {
+                commodityName = '';
+                commodityName = p[field].name.toString();
+                commodityName = commodityName.charAt(0).toUpperCase() + commodityName.substr(1);
+                csv[key].push(commodityName);
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'proj_commodity' || field == 'site_commodity' || field == 'concession_commodities') {
+              if (p[field] && p[field].length > 0) {
+                str = '';
+                var commodities = _.uniq(p[field], function (a) {
+                    if (a) {
+                      return a._id;
+                    }
+                  });
+                angular.forEach(commodities, function (commodity, i) {
+                  commodityName = '';
+                  if (commodity != undefined) {
+                    commodityName = commodity.commodity_name.toString();
+                    commodityName = commodityName.charAt(0).toUpperCase() + commodityName.substr(1);
+                  }
+                  if (i != commodities.length - 1) {
+                    str = str + commodityName + com;
+                  } else {
+                    str = str + commodityName;
+                    csv[key].push(str);
+                  }
+                });
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'proj_status' || field == 'site_status' || field == 'concession_status') {
+              if (p[field]) {
+                str = '';
+                var date = new Date(p[field].timestamp);
+                date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
+                var statusName = p[field].string.toString();
+                statusName = statusName.charAt(0).toUpperCase() + statusName.substr(1);
+                str = str + statusName + ' (true at ' + date + ')';
+                csv[key].push(str);
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'proj_country' || field == 'site_country' || field == 'concession_country') {
+              if (p[field] && p[field].length > 0) {
+                str = '';
+                angular.forEach(p[field], function (country, i) {
+                  countryName = '';
+                  if (country.country != undefined) {
+                    countryName = country.country.name.toString();
+                    countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
+                  }
+                  if (i != p[field].length - 1) {
+                    str = str + countryName + com;
+                  } else {
+                    str = str + countryName;
+                    csv[key].push(str);
+                  }
+                });
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'companies') {
+              if (p[field] && p[field].length > 0) {
+                str = '';
+                angular.forEach(p[field], function (company, i) {
+                  companyName = '';
+                  if (company != undefined) {
+                    companyName = company.company_name.toString();
+                    companyName = companyName.charAt(0).toUpperCase() + companyName.substr(1);
+                  }
+                  if (i != p[field].length - 1) {
+                    str = str + companyName + com;
+                  } else {
+                    str = str + companyName;
+                    csv[key].push(str);
+                  }
+                });
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'proj_type') {
+              if (p.proj_commodity && p.proj_commodity.length > 0) {
+                str = '';
+                var projCommodity = _.uniq(p.proj_commodity, function (a) {
+                    if (a) {
+                      return a.commodity_type;
+                    }
+                  });
+                angular.forEach(projCommodity, function (type, i) {
+                  typeName = '';
+                  if (type != undefined) {
+                    typeName = $filter('addSpaces')(type.commodity_type);
+                    typeName = typeName.charAt(0).toUpperCase() + typeName.substr(1);
+                  }
+                  if (i != projCommodity.length - 1) {
+                    str = str + typeName + com;
+                  } else {
+                    str = str + typeName;
+                    csv[key].push(str);
+                  }
+                });
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'concession_type') {
+              if (p.concession_commodity && p.concession_commodity.length > 0) {
+                str = '';
+                var concessionCommodity = _.uniq(p.concession_commodity, function (a) {
+                    return a.commodity_type;
+                  });
+                angular.forEach(concessionCommodity, function (type, i) {
+                  typeName = type.commodity_type.toString();
+                  typeName = typeName.charAt(0).toUpperCase() + typeName.substr(1);
+                  if (i != concessionCommodity.length - 1) {
+                    str = str + typeName + com;
+                  } else {
+                    str = str + typeName;
+                    csv[key].push(str);
+                  }
+                });
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'site_commodity_type') {
+              if (p.site_commodity && p.site_commodity.length > 0) {
+                str = '';
+                var commodityType = _.uniq(p.site_commodity, function (a) {
+                    return a.commodity_type;
+                  });
+                angular.forEach(commodityType, function (type, i) {
+                  typeName = $filter('addSpaces')(type.commodity_type);
+                  typeName = typeName.charAt(0).toUpperCase() + typeName.substr(1);
+                  if (i != commodityType.length - 1) {
+                    str = str + typeName + com;
+                  } else {
+                    str = str + typeName;
+                    csv[key].push(str);
+                  }
+                });
+              } else {
+                csv[key].push('');
+              }
+            }
+            if (field == 'proj_id') {
+              id = '';
+              if (p.proj_site != undefined && p.proj_site._id != undefined) {
+                id = p.proj_site._id.toString();
+              }
+              csv[key].push(id);
+            }
+            if (field == 'proj_site') {
+              name = '';
+              if (p[field] != undefined && p[field].name != undefined) {
+                name = p[field].name.toString();
+              }
+              csv[key].push(name);
+            }
+            if (field != 'proj_status' && field != 'proj_commodity' && field != 'proj_type' && field != 'proj_country' && field != 'companies' && field != 'site_status' && field != 'site_commodity' && field != 'site_commodity_type' && field != 'site_country' && field != 'concession_status' && field != 'concession_commodities' && field != 'concession_type' && field != 'concession_country' && field != 'production_commodity' && field != 'proj_site' && field != 'production_level' && field != 'proj_id' && field != 'company' && field != 'country' && field != 'proj_site_type' && field != 'proj_site_id' && field != 'transfer_value') {
+              csv[key].push(p[field]);
+            }
+            if (data.length - 1 == key && fields.length - 1 == i) {
+              return csv;
+            }
+          });
+        });
+      },
+      getResult: function () {
+        return csv;
+      }
+    };
+  }
+]);'use strict';
 angular.module('app').filter('sanitize', [
   '$sce',
   function ($sce) {
@@ -1192,6 +1405,12 @@ angular.module('app').filter('sanitize', [
   return function (text) {
     if (text !== undefined) {
       return text.replace(/[_]/g, ' ');
+    }
+  };
+}).filter('addSpace', function () {
+  return function (text) {
+    if (text !== undefined) {
+      return text.replace(/[,]/g, ', ');
     }
   };
 }).filter('zpad', function () {
@@ -1239,16 +1458,44 @@ angular.module('app').controller('nrgiCompanyOperationTableCtrl', [
     var fields = [];
     var str;
     var com = ', ';
+    var limit = 50, currentPage = 0;
     usSpinnerService.spin('spinner-companyOperation');
     $scope.$watch('id', function (value) {
-      if ($scope.type == 'country' && value != undefined) {
+      if ($scope.type == 'countries_of_operation' && value != undefined) {
+        usSpinnerService.stop('spinner-companyOperation');
         $scope.companies = value;
+        if ($scope.companies.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          limit = 50;
+          currentPage = 1;
+        }
       }
-      if ($scope.type != 'country' && value != undefined) {
+      if ($scope.type != 'countries_of_operation' && value != undefined) {
         $scope.loading = false;
         $scope.getCompanyOperation($scope.id, $scope.type);
       }
     });
+    $scope.loadMoreCompaniesOfOperation = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.type,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.companies = _.union($scope.companies, response.companies);
+        if (response.companies.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
     $scope.getCompanyOperation = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -1256,7 +1503,9 @@ angular.module('app').controller('nrgiCompanyOperationTableCtrl', [
             $scope.loading = true;
             nrgiTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               $scope.companies = success.companies;
@@ -1344,18 +1593,46 @@ angular.module('app').controller('nrgiCompanyTableCtrl', [
     var fields = [];
     var str;
     var com = ', ';
+    var limit = 50, currentPage = 0;
     var company_group_name = '';
     usSpinnerService.spin('spinner-company');
     $scope.company_of_operation = [];
     $scope.$watch('id', function (value) {
-      if ($scope.type == 'country' && value != undefined) {
+      if ($scope.type == 'country_of_incorporation' && value != undefined) {
         $scope.companies = value;
+        usSpinnerService.stop('spinner-company');
+        if ($scope.companies.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          limit = 50;
+          currentPage = 1;
+        }
       }
-      if ($scope.type != 'country' && value != undefined) {
+      if ($scope.type != 'country_of_incorporation' && value != undefined) {
         $scope.loading = false;
         $scope.getCompany($scope.id, $scope.type);
       }
     });
+    $scope.loadMoreCompanies = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.type,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.companies = _.union($scope.companies, response.companies);
+        if (response.companies.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
     $scope.getCompany = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -1363,7 +1640,9 @@ angular.module('app').controller('nrgiCompanyTableCtrl', [
             $scope.loading = true;
             nrgiTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               if (success.companies.length == 0 && $scope.companies.length == 0) {
@@ -1442,28 +1721,116 @@ angular.module('app').controller('nrgiConcessionTableCtrl', [
   '$filter',
   'nrgiConcessionTablesSrvc',
   'usSpinnerService',
-  function ($scope, $filter, nrgiConcessionTablesSrvc, usSpinnerService) {
+  'nrgiCSV',
+  function ($scope, $filter, nrgiConcessionTablesSrvc, usSpinnerService, nrgiCSV) {
     $scope.concessions = [];
     $scope.openClose = true;
-    $scope.loading = false;
+    //$scope.loading = false;
     $scope.expression = '';
-    $scope.csv_concessions = [];
-    var country_name = '';
-    var header_concessions = [];
-    var fields = [];
-    var str;
-    var commodity_name = '';
-    var com = ', ';
+    var headerConcessions = [], fields = [];
+    var limit = 50, currentPage = 0;
+    var headers = [
+        {
+          name: 'Name',
+          status: true,
+          field: 'concession_name'
+        },
+        {
+          name: 'Country',
+          status: $scope.country,
+          field: 'concession_country'
+        },
+        {
+          name: 'Commodity Type ',
+          status: $scope.type,
+          field: 'concession_type'
+        },
+        {
+          name: 'Commodity ',
+          status: $scope.commodity,
+          field: 'concession_commodities'
+        },
+        {
+          name: 'Status ',
+          status: $scope.status,
+          field: 'concession_status'
+        },
+        {
+          name: 'No. Projects ',
+          status: $scope.projects,
+          field: 'projects_count'
+        }
+      ];
+    angular.forEach(headers, function (header) {
+      if (header.status != false && header.status != undefined) {
+        headerConcessions.push(header.name);
+        fields.push(header.field);
+      }
+    });
+    $scope.getHeaderConcessions = function () {
+      return headerConcessions;
+    };
     usSpinnerService.spin('spinner-concession');
     $scope.$watch('id', function (value) {
       if ($scope.name == 'country' && value != undefined) {
         $scope.concessions = value;
+        usSpinnerService.stop('spinner-concession');
+        if ($scope.concessions.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          limit = 50;
+          currentPage = 1;
+        }
       }
       if ($scope.name != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getConcessions($scope.id, $scope.name);
       }
     });
+    $scope.loadMoreConcessions = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiConcessionTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.name,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.concessions = _.union($scope.concessions, response.concessions);
+        if (response.concessions.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
+    $scope.loadConcessionsCSV = function () {
+      nrgiCSV.setCsv(fields, $scope.concessions);
+      return nrgiCSV.getResult();
+    };
+    $scope.getAllConcessions = function () {
+      if ($scope.busy == true && $scope.concessions.length > 49 || $scope.concessions.length < 49) {
+        setTimeout(function () {
+          angular.element(document.getElementById('loadConcessionCSV')).trigger('click');
+        }, 0);
+      } else {
+        nrgiConcessionTablesSrvc.query({
+          _id: $scope.countryid,
+          type: $scope.name,
+          skip: 0,
+          limit: 5000000
+        }, function (data) {
+          $scope.concessions = data.concessions;
+          $scope.busy = true;
+          setTimeout(function () {
+            angular.element(document.getElementById('loadConcessionCSV')).trigger('click');
+          }, 0);
+        });
+      }
+    };
     $scope.getConcessions = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -1471,7 +1838,9 @@ angular.module('app').controller('nrgiConcessionTableCtrl', [
             $scope.loading = true;
             nrgiConcessionTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               if (success.concessions.length == 0 && $scope.concessions.length == 0) {
@@ -1479,121 +1848,6 @@ angular.module('app').controller('nrgiConcessionTableCtrl', [
               }
               $scope.concessions = success.concessions;
               usSpinnerService.stop('spinner-concession');
-              var headers = [
-                  {
-                    name: 'Name',
-                    status: true,
-                    field: 'concession_name'
-                  },
-                  {
-                    name: 'Country',
-                    status: true,
-                    field: 'concession_country'
-                  },
-                  {
-                    name: 'Commodity Type ',
-                    status: $scope.type,
-                    field: 'concession_type'
-                  },
-                  {
-                    name: 'Commodity ',
-                    status: $scope.commodity,
-                    field: 'concession_commodities'
-                  },
-                  {
-                    name: 'Status ',
-                    status: $scope.status,
-                    field: 'concession_status'
-                  },
-                  {
-                    name: 'No. Projects ',
-                    status: $scope.projects,
-                    field: 'projects'
-                  }
-                ];
-              angular.forEach(headers, function (header) {
-                if (header.status != false && header.status != undefined) {
-                  header_concessions.push(header.name);
-                  fields.push(header.field);
-                }
-              });
-              $scope.getHeaderConcessions = function () {
-                return header_concessions;
-              };
-              angular.forEach($scope.concessions, function (concession, key) {
-                $scope.csv_concessions[key] = [];
-                angular.forEach(fields, function (field) {
-                  if (field == 'concession_commodities') {
-                    if (concession[field].length > 0) {
-                      str = '';
-                      angular.forEach(concession[field], function (commodity, i) {
-                        if (commodity.commodity != undefined) {
-                          commodity_name = commodity.commodity.commodity_name.toString();
-                          commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
-                        }
-                        if (i != concession[field].length - 1) {
-                          str = str + commodity_name + com;
-                        } else {
-                          str = str + commodity_name;
-                          $scope.csv_concessions[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_concessions[key].push('');
-                    }
-                  }
-                  if (field == 'concession_status') {
-                    if (concession[field].length > 0) {
-                      str = '';
-                      angular.forEach(concession[field], function (status, i) {
-                        var date = new Date(status.timestamp);
-                        date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
-                        var status_name = status.string.toString();
-                        status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
-                        if (i != concession[field].length - 1) {
-                          str = str + status_name + '(true at ' + date + ')' + com;
-                        } else {
-                          str = str + status_name + '(true at ' + date + ')';
-                          $scope.csv_concessions[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_concessions[key].push('');
-                    }
-                  }
-                  if (field == 'concession_country') {
-                    country_name = '';
-                    if (concession[field] != undefined) {
-                      country_name = concession[field].name.toString();
-                      country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
-                    }
-                    $scope.csv_concessions[key].push(country_name);
-                  }
-                  if (field == 'concession_type') {
-                    if (concession.concession_commodities.length > 0) {
-                      str = '';
-                      var concession_commodity = _.uniq(concession.concession_commodities, function (a) {
-                          return a.commodity.commodity_type;
-                        });
-                      angular.forEach(concession_commodity, function (type, i) {
-                        var type_name = type.commodity.commodity_type.toString();
-                        type_name = type_name.charAt(0).toUpperCase() + type_name.substr(1);
-                        if (i != concession_commodity.length - 1) {
-                          str = str + type_name + com;
-                        } else {
-                          str = str + type_name;
-                          $scope.csv_concessions[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_concessions[key].push('');
-                    }
-                  }
-                  if (field != 'concession_status' && field != 'concession_commodities' && field != 'concession_type' && field != 'concession_country') {
-                    $scope.csv_concessions[key].push(concession[field]);
-                  }
-                });
-              });
             }, function (error) {
               usSpinnerService.stop('spinner-concession');
             });
@@ -1607,14 +1861,16 @@ angular.module('app').controller('nrgiContractTableCtrl', [
   '$scope',
   'nrgiContractTablesSrvc',
   'usSpinnerService',
-  function ($scope, nrgiContractTablesSrvc, usSpinnerService) {
+  '$filter',
+  function ($scope, nrgiContractTablesSrvc, usSpinnerService, $filter) {
     $scope.openClose = true;
     $scope.loading = false;
     $scope.contracts = [];
     $scope.expression = '';
     $scope.csv_contracts = [];
-    var country_name = '';
-    var header_contracts = [];
+    var countryName = '';
+    var commodityName = '';
+    var headerContracts = [];
     var fields = [];
     usSpinnerService.spin('spinner-contract');
     $scope.$watch('id', function (value) {
@@ -1675,30 +1931,38 @@ angular.module('app').controller('nrgiContractTableCtrl', [
                 ];
               angular.forEach(headers, function (header) {
                 if (header.status != false && header.status != undefined) {
-                  header_contracts.push(header.name);
+                  headerContracts.push(header.name);
                   fields.push(header.field);
                 }
               });
               $scope.getHeaderContracts = function () {
-                return header_contracts;
+                return headerContracts;
               };
               angular.forEach($scope.contracts, function (contract, key) {
                 $scope.csv_contracts[key] = [];
                 angular.forEach(fields, function (field) {
                   if (field == 'contract_country') {
-                    country_name = '';
+                    countryName = '';
                     if (contract[field] != undefined) {
-                      country_name = contract[field].name.toString();
-                      country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                      countryName = contract[field].name.toString();
+                      countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
                     }
-                    $scope.csv_contracts[key].push(country_name);
+                    $scope.csv_contracts[key].push(countryName);
                   }
-                  if (field != 'contract_country') {
+                  if (field == 'contract_commodity') {
+                    commodityName = '';
+                    if (contract[field] != undefined) {
+                      commodityName = $filter('addSpace')(contract[field].toString());
+                    }
+                    $scope.csv_contracts[key].push(commodityName);
+                  }
+                  if (field != 'contract_country' && field != 'contract_commodity') {
                     $scope.csv_contracts[key].push(contract[field]);
                   }
                 });
               });
             }, function (error) {
+              console.log(error);
               usSpinnerService.stop('spinner-contract');
             });
           }
@@ -1706,18 +1970,18 @@ angular.module('app').controller('nrgiContractTableCtrl', [
       }
     };
   }
-]);'use strict';
-angular.module('app').controller('nrgiLastAddedCtrl', [
-  '$scope',
-  'nrgiLastAddedSrvc',
-  function ($scope, nrgiLastAddedSrvc) {
-    nrgiLastAddedSrvc.get(function (success) {
-      $scope.projects = success.projects;
-      $scope.sources = success.sources;
-    }, function (error) {
-    });
-  }
-]);'use strict';
+]);//For now not used
+//'use strict';
+//angular
+//    .module('app')
+//    .controller('nrgiLastAddedCtrl', function ($scope, nrgiLastAddedSrvc) {
+//        nrgiLastAddedSrvc.get(function (success) {
+//            $scope.projects = success.projects;
+//            $scope.sources = success.sources;
+//        }, function(error) {
+//        });
+//    });
+'use strict';
 angular.module('app').controller('nrgiLeafletCtrl', [
   '$scope',
   '$rootScope',
@@ -1751,8 +2015,16 @@ angular.module('app').controller('nrgiLeafletCtrl', [
     });
     $scope.$watch('id', function (value) {
       if (value != undefined) {
-        $scope.getCoordinate(value, $scope.type);
       }
+      $scope.$watch('id', function (value) {
+        if ($scope.type == 'country' && value != undefined) {
+          $scope.alldata = value;
+          $scope.loadCoordinate($scope.alldata, $scope.polygon);
+        }
+        if ($scope.type != 'country' && value != undefined) {
+          $scope.getCoordinate(value, $scope.type);
+        }
+      });
     });
     $scope.$watch('data', function (value) {
       if (value != undefined) {
@@ -1792,13 +2064,13 @@ angular.module('app').controller('nrgiLeafletCtrl', [
           $scope.location.push({
             lat: data.lat,
             lng: data.lng,
-            message: '<a href=\'site/' + data.id + '\'>' + data.message + '</a></br>' + data.message
+            message: '<a href=\'site/' + data._id + '\'>' + data.message + '</a></br>' + data.message
           });
         } else if (data.type == 'field') {
           $scope.location.push({
             lat: data.lat,
             lng: data.lng,
-            message: '<a href=\'field/' + data.id + '\'>' + data.message + '</a></br>' + data.message
+            message: '<a href=\'field/' + data._id + '\'>' + data.message + '</a></br>' + data.message
           });
         } else if ($scope.map == true) {
           if (data.coordinates.length > 0) {
@@ -1808,7 +2080,7 @@ angular.module('app').controller('nrgiLeafletCtrl', [
           $scope.location.push({
             lat: data.lat,
             lng: data.lng,
-            message: '<a href=\'site/' + data.id + '\'>' + data.message + '</a></br>' + data.message
+            message: '<a href=\'site/' + data._id + '\'>' + data.message + '</a></br>' + data.message
           });
         }
         lat.push(data.lat);
@@ -2073,27 +2345,131 @@ angular.module('app').controller('nrgiProductionTableCtrl', [
   '$scope',
   'nrgiProdTablesSrvc',
   'usSpinnerService',
-  function ($scope, nrgiProdTablesSrvc, usSpinnerService) {
+  'nrgiCSV',
+  function ($scope, nrgiProdTablesSrvc, usSpinnerService, nrgiCSV) {
     $scope.production = [];
     $scope.loading = false;
     $scope.openClose = true;
-    $scope.csv_production = [];
-    var header_transfer = [];
+    var headerTransfer = [];
     $scope.expression = '';
     var fields = [];
-    var commodity = '';
-    var name = '';
-    var id = '';
+    var headers = [
+        {
+          name: 'Year',
+          status: true,
+          field: 'production_year'
+        },
+        {
+          name: 'Volume',
+          status: true,
+          field: 'production_volume'
+        },
+        {
+          name: 'Unit',
+          status: true,
+          field: 'production_unit'
+        },
+        {
+          name: 'Commodity',
+          status: true,
+          field: 'production_commodity'
+        },
+        {
+          name: 'Price',
+          status: true,
+          field: 'production_price'
+        },
+        {
+          name: 'Price unit',
+          status: true,
+          field: 'production_price_unit'
+        },
+        {
+          name: 'Level ',
+          status: true,
+          field: 'production_level'
+        },
+        {
+          name: 'Project ID',
+          status: $scope.projectlink,
+          field: 'proj_id'
+        },
+        {
+          name: 'Project / Site ',
+          status: $scope.projectlink,
+          field: 'proj_site'
+        }
+      ];
+    angular.forEach(headers, function (header) {
+      if (header.status != false && header.status != undefined) {
+        headerTransfer.push(header.name);
+        fields.push(header.field);
+      }
+    });
+    $scope.getHeaderProduction = function () {
+      return headerTransfer;
+    };
+    var limit = 50, currentPage = 0;
     usSpinnerService.spin('spinner-production');
     $scope.$watch('id', function (value) {
       if ($scope.type == 'country' && value != undefined) {
         $scope.production = value;
+        usSpinnerService.stop('spinner-production');
+        if ($scope.production.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          currentPage = 1;
+        }
       }
       if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getProduction($scope.id, $scope.type);
       }
     });
+    $scope.loadMoreProductions = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiProdTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.type,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.production = _.union($scope.production, response.production);
+        if (response.production.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
+    $scope.loadProductionsCSV = function () {
+      nrgiCSV.setCsv(fields, $scope.production);
+      return nrgiCSV.getResult();
+    };
+    $scope.getAllProductions = function () {
+      if ($scope.busy == true && $scope.production.length > 49 || $scope.production.length < 49) {
+        setTimeout(function () {
+          angular.element(document.getElementById('loadProductionCSV')).trigger('click');
+        }, 0);
+      } else {
+        nrgiProdTablesSrvc.query({
+          _id: $scope.countryid,
+          type: $scope.type,
+          skip: 0,
+          limit: 5000000
+        }, function (data) {
+          $scope.production = data.production;
+          $scope.busy = true;
+          setTimeout(function () {
+            angular.element(document.getElementById('loadProductionCSV')).trigger('click');
+          }, 0);
+        });
+      }
+    };
     $scope.getProduction = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -2101,7 +2477,9 @@ angular.module('app').controller('nrgiProductionTableCtrl', [
             $scope.loading = true;
             nrgiProdTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               if (success.production.length == 0 && $scope.production.length == 0) {
@@ -2109,92 +2487,8 @@ angular.module('app').controller('nrgiProductionTableCtrl', [
               }
               $scope.production = success.production;
               usSpinnerService.stop('spinner-production');
-              var headers = [
-                  {
-                    name: 'Year',
-                    status: true,
-                    field: 'production_year'
-                  },
-                  {
-                    name: 'Volume',
-                    status: true,
-                    field: 'production_volume'
-                  },
-                  {
-                    name: 'Unit',
-                    status: true,
-                    field: 'production_unit'
-                  },
-                  {
-                    name: 'Commodity',
-                    status: true,
-                    field: 'production_commodity'
-                  },
-                  {
-                    name: 'Price',
-                    status: true,
-                    field: 'production_price'
-                  },
-                  {
-                    name: 'Price unit',
-                    status: true,
-                    field: 'production_price_unit'
-                  },
-                  {
-                    name: 'Level ',
-                    status: true,
-                    field: 'production_level'
-                  },
-                  {
-                    name: 'Project ID',
-                    status: $scope.projectlink,
-                    field: 'proj_id'
-                  },
-                  {
-                    name: 'Project / Site ',
-                    status: $scope.projectlink,
-                    field: 'proj_site'
-                  }
-                ];
-              angular.forEach(headers, function (header) {
-                if (header.status != false && header.status != undefined) {
-                  header_transfer.push(header.name);
-                  fields.push(header.field);
-                }
-              });
-              $scope.getHeaderProduction = function () {
-                return header_transfer;
-              };
-              angular.forEach($scope.production, function (p, key) {
-                $scope.csv_production[key] = [];
-                angular.forEach(fields, function (field) {
-                  if (field == 'commodity') {
-                    commodity = '';
-                    if (p[field] != undefined) {
-                      commodity = p[field].commodity_name;
-                    }
-                    $scope.csv_production[key].push(commodity);
-                  }
-                  if (field == 'proj_id') {
-                    id = '';
-                    if (p.proj_site != undefined && p.proj_site._id != undefined && p.production_level == 'project') {
-                      id = p.proj_site._id.toString();
-                    }
-                    $scope.csv_production[key].push(id);
-                  }
-                  if (field == 'proj_site') {
-                    name = '';
-                    if (p[field] != undefined && p[field].name != undefined) {
-                      name = p[field].name.toString();
-                    }
-                    $scope.csv_production[key].push(name);
-                  }
-                  if (field != 'commodity' && field != 'proj_site' && field != 'proj_id') {
-                    $scope.csv_production[key].push(p[field]);
-                  }
-                });
-              });
             }, function (error) {
+              console.log(error);
               usSpinnerService.stop('spinner-production');
             });
           }
@@ -2205,32 +2499,125 @@ angular.module('app').controller('nrgiProductionTableCtrl', [
 ]);'use strict';
 angular.module('app').controller('nrgiProjectTableCtrl', [
   '$scope',
-  '$filter',
   'nrgiProjectTablesSrvc',
   'usSpinnerService',
-  function ($scope, $filter, nrgiProjectTablesSrvc, usSpinnerService) {
+  'nrgiCSV',
+  function ($scope, nrgiProjectTablesSrvc, usSpinnerService, nrgiCSV) {
     $scope.projects = [];
-    $scope.loading = false;
     $scope.openClose = true;
-    $scope.csv_project = [];
     $scope.expression = '';
-    var commodity_name = '';
-    var country_name = '';
-    var type_name = '';
-    var header_project = [];
+    $scope.count = 0;
+    $scope.busy = true;
+    var headerProject = [];
     var fields = [];
-    var str;
-    var com = ', ';
+    var limit = 50, currentPage = 0;
+    var headers = [
+        {
+          name: 'Project ID',
+          status: true,
+          field: 'proj_id'
+        },
+        {
+          name: 'Name',
+          status: true,
+          field: 'proj_name'
+        },
+        {
+          name: 'Country',
+          status: $scope.country,
+          field: 'proj_country'
+        },
+        {
+          name: 'Commodity Type ',
+          status: $scope.type,
+          field: 'proj_type'
+        },
+        {
+          name: 'Commodity ',
+          status: $scope.commodity,
+          field: 'proj_commodity'
+        },
+        {
+          name: 'Status ',
+          status: $scope.status,
+          field: 'proj_status'
+        },
+        {
+          name: 'Companies ',
+          status: $scope.companies,
+          field: 'companies'
+        }
+      ];
+    angular.forEach(headers, function (header) {
+      if (header.status != false && header.status != undefined) {
+        headerProject.push(header.name);
+        fields.push(header.field);
+      }
+    });
+    $scope.getHeaderProjects = function () {
+      return headerProject;
+    };
     usSpinnerService.spin('spinner-project');
     $scope.$watch('id', function (value) {
       if ($scope.type == 'country' && value != undefined) {
         $scope.projects = value;
+        usSpinnerService.stop('spinner-project');
+        if ($scope.projects.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          limit = 50;
+          currentPage = 1;
+        }
       }
       if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getProjects($scope.id, $scope.type);
       }
     });
+    $scope.loadMoreProjects = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiProjectTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.type,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.projects = _.union($scope.projects, response.projects);
+        if (response.projects.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
+    $scope.loadCSV = function () {
+      nrgiCSV.setCsv(fields, $scope.projects);
+      return nrgiCSV.getResult();
+    };
+    $scope.getAllProjects = function () {
+      if ($scope.busy == true && $scope.projects.length > 49 || $scope.projects.length < 49) {
+        setTimeout(function () {
+          angular.element(document.getElementById('loadProjectCSV')).trigger('click');
+        }, 0);
+      } else {
+        nrgiProjectTablesSrvc.query({
+          _id: $scope.countryid,
+          type: $scope.type,
+          skip: 0,
+          limit: 5000000
+        }, function (data) {
+          $scope.projects = data.projects;
+          $scope.busy = true;
+          setTimeout(function () {
+            angular.element(document.getElementById('loadProjectCSV')).trigger('click');
+          }, 0);
+        });
+      }
+    };
     $scope.getProjects = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -2238,7 +2625,9 @@ angular.module('app').controller('nrgiProjectTableCtrl', [
             $scope.loading = true;
             nrgiProjectTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               if (success.projects.length == 0 && $scope.projects.length == 0) {
@@ -2246,143 +2635,8 @@ angular.module('app').controller('nrgiProjectTableCtrl', [
               }
               $scope.projects = success.projects;
               usSpinnerService.stop('spinner-project');
-              var headers = [
-                  {
-                    name: 'Project ID',
-                    status: true,
-                    field: 'proj_id'
-                  },
-                  {
-                    name: 'Name',
-                    status: true,
-                    field: 'proj_name'
-                  },
-                  {
-                    name: 'Country',
-                    status: $scope.country,
-                    field: 'proj_country'
-                  },
-                  {
-                    name: 'Commodity Type ',
-                    status: $scope.type,
-                    field: 'proj_type'
-                  },
-                  {
-                    name: 'Commodity ',
-                    status: $scope.commodity,
-                    field: 'proj_commodity'
-                  },
-                  {
-                    name: 'Status ',
-                    status: $scope.status,
-                    field: 'proj_status'
-                  },
-                  {
-                    name: 'Companies ',
-                    status: $scope.companies,
-                    field: 'companies'
-                  }
-                ];
-              angular.forEach(headers, function (header) {
-                if (header.status != false && header.status != undefined) {
-                  header_project.push(header.name);
-                  fields.push(header.field);
-                }
-              });
-              $scope.getHeaderProjects = function () {
-                return header_project;
-              };
-              angular.forEach($scope.projects, function (p, key) {
-                $scope.csv_project[key] = [];
-                angular.forEach(fields, function (field) {
-                  if (field == 'proj_commodity') {
-                    if (p[field].length > 0) {
-                      str = '';
-                      var commodities = _.uniq(p.proj_commodity, function (a) {
-                          if (a.commodity) {
-                            return a.commodity._id;
-                          }
-                        });
-                      angular.forEach(commodities, function (commodity, i) {
-                        commodity_name = '';
-                        if (commodity.commodity != undefined) {
-                          commodity_name = commodity.commodity.commodity_name.toString();
-                          commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
-                        }
-                        if (i != commodities.length - 1) {
-                          str = str + commodity_name + com;
-                        } else {
-                          str = str + commodity_name;
-                          $scope.csv_project[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_project[key].push('');
-                    }
-                  }
-                  if (field == 'proj_status') {
-                    if (p[field]) {
-                      str = '';
-                      var date = new Date(status.timestamp);
-                      date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
-                      var status_name = p[field].string.toString();
-                      status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
-                      str = str + status_name + '(true at ' + date + ')' + com;
-                    } else {
-                      $scope.csv_project[key].push('');
-                    }
-                  }
-                  if (field == 'proj_country') {
-                    if (p[field].length > 0) {
-                      str = '';
-                      angular.forEach(p[field], function (country, i) {
-                        country_name = '';
-                        if (country.country != undefined) {
-                          country_name = country.country.name.toString();
-                          country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
-                        }
-                        if (i != p[field].length - 1) {
-                          str = str + country_name + com;
-                        } else {
-                          str = str + country_name;
-                          $scope.csv_project[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_project[key].push('');
-                    }
-                  }
-                  if (field == 'proj_type') {
-                    if (p.proj_commodity.length > 0) {
-                      str = '';
-                      var proj_commodity = _.uniq(p.proj_commodity, function (a) {
-                          if (a.commodity) {
-                            return a.commodity.commodity_type;
-                          }
-                        });
-                      angular.forEach(proj_commodity, function (type, i) {
-                        type_name = '';
-                        if (type.commodity != undefined) {
-                          type_name = type.commodity.commodity_type.toString();
-                          type_name = type_name.charAt(0).toUpperCase() + type_name.substr(1);
-                        }
-                        if (i != proj_commodity.length - 1) {
-                          str = str + type_name + com;
-                        } else {
-                          str = str + type_name;
-                          $scope.csv_project[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_project[key].push('');
-                    }
-                  }
-                  if (field != 'proj_status' && field != 'proj_commodity' && field != 'proj_type' && field != 'proj_country') {
-                    $scope.csv_project[key].push(p[field]);
-                  }
-                });
-              });
             }, function (error) {
+              console.log(error);
               usSpinnerService.stop('spinner-project');
             });
           }
@@ -2396,28 +2650,123 @@ angular.module('app').controller('nrgiSiteTableCtrl', [
   '$filter',
   'nrgiSiteFieldTablesSrvc',
   'usSpinnerService',
-  function ($scope, $filter, nrgiSiteFieldTablesSrvc, usSpinnerService) {
+  'nrgiCSV',
+  function ($scope, $filter, nrgiSiteFieldTablesSrvc, usSpinnerService, nrgiCSV) {
     $scope.sites = [];
     $scope.openClose = true;
     $scope.loading = false;
     $scope.csv_site = [];
     $scope.expression = '';
-    var commodity_name = '';
-    var country_name = '';
-    var header_site = [];
+    var headerSite = [];
     var fields = [];
-    var str;
-    var com = ', ';
+    var limit = 50, currentPage = 0;
+    var headers = [
+        {
+          name: 'Name',
+          status: true,
+          field: 'site_name'
+        },
+        {
+          name: 'Type',
+          status: $scope.type,
+          field: 'site_type'
+        },
+        {
+          name: 'Country',
+          status: $scope.country,
+          field: 'site_country'
+        },
+        {
+          name: 'Commodity Type ',
+          status: $scope.commoditytype,
+          field: 'site_commodity_type'
+        },
+        {
+          name: 'Commodity ',
+          status: $scope.commodity,
+          field: 'site_commodity'
+        },
+        {
+          name: 'Status ',
+          status: $scope.status,
+          field: 'site_status'
+        },
+        {
+          name: 'Companies ',
+          status: $scope.company,
+          field: 'companies'
+        }
+      ];
+    angular.forEach(headers, function (header) {
+      if (header.status != false && header.status != undefined) {
+        headerSite.push(header.name);
+        fields.push(header.field);
+      }
+    });
+    $scope.getHeaderSites = function () {
+      return headerSite;
+    };
     usSpinnerService.spin('spinner-site');
     $scope.$watch('id', function (value) {
       if ($scope.name == 'country' && value != undefined) {
         $scope.sites = value;
+        usSpinnerService.stop('spinner-site');
+        if ($scope.sites.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          limit = 50;
+          currentPage = 1;
+        }
       }
       if ($scope.name != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getSites($scope.id, $scope.name);
       }
     });
+    $scope.loadMoreSites = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiSiteFieldTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.name,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.sites = _.union($scope.sites, response.sites);
+        if (response.sites.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
+    $scope.loadSitesCSV = function () {
+      nrgiCSV.setCsv(fields, $scope.sites);
+      return nrgiCSV.getResult();
+    };
+    $scope.getAllSites = function () {
+      if ($scope.busy == true && $scope.sites.length > 49 || $scope.sites.length < 49) {
+        setTimeout(function () {
+          angular.element(document.getElementById('loadSitesCSV')).trigger('click');
+        }, 0);
+      } else {
+        nrgiSiteFieldTablesSrvc.query({
+          _id: $scope.countryid,
+          type: $scope.name,
+          skip: 0,
+          limit: 5000000
+        }, function (data) {
+          $scope.sites = data.sites;
+          $scope.busy = true;
+          setTimeout(function () {
+            angular.element(document.getElementById('loadSitesCSV')).trigger('click');
+          }, 0);
+        });
+      }
+    };
     $scope.getSites = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -2425,7 +2774,9 @@ angular.module('app').controller('nrgiSiteTableCtrl', [
             $scope.loading = true;
             nrgiSiteFieldTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               if (success.sites.length == 0 && $scope.sites.length == 0) {
@@ -2433,140 +2784,8 @@ angular.module('app').controller('nrgiSiteTableCtrl', [
               }
               $scope.sites = success.sites;
               usSpinnerService.stop('spinner-site');
-              var headers = [
-                  {
-                    name: 'Name',
-                    status: true,
-                    field: 'site_name'
-                  },
-                  {
-                    name: 'Type',
-                    status: $scope.type,
-                    field: 'site_type'
-                  },
-                  {
-                    name: 'Country',
-                    status: $scope.country,
-                    field: 'site_country'
-                  },
-                  {
-                    name: 'Commodity Type ',
-                    status: $scope.commoditytype,
-                    field: 'site_commodity_type'
-                  },
-                  {
-                    name: 'Commodity ',
-                    status: $scope.commodity,
-                    field: 'site_commodity'
-                  },
-                  {
-                    name: 'Status ',
-                    status: $scope.status,
-                    field: 'site_status'
-                  },
-                  {
-                    name: 'Companies ',
-                    status: $scope.company,
-                    field: 'companies'
-                  }
-                ];
-              angular.forEach(headers, function (header) {
-                if (header.status != false && header.status != undefined) {
-                  header_site.push(header.name);
-                  fields.push(header.field);
-                }
-              });
-              $scope.getHeaderSites = function () {
-                return header_site;
-              };
-              angular.forEach($scope.sites, function (p, key) {
-                $scope.csv_site[key] = [];
-                angular.forEach(fields, function (field) {
-                  if (field == 'site_commodity') {
-                    if (p[field].length > 0) {
-                      str = '';
-                      var commodities = _.uniq(p.site_commodity, function (a) {
-                          return a.commodity._id;
-                        });
-                      angular.forEach(commodities, function (commodity, i) {
-                        commodity_name = '';
-                        if (commodity.commodity != undefined) {
-                          commodity_name = commodity.commodity.commodity_name.toString();
-                          commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
-                        }
-                        if (i != commodities.length - 1) {
-                          str = str + commodity_name + com;
-                        } else {
-                          str = str + commodity_name;
-                          $scope.csv_site[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_site[key].push('');
-                    }
-                  }
-                  if (field == 'site_status') {
-                    if (p[field]) {
-                      str = '';
-                      var date = new Date(status.timestamp);
-                      date = $filter('date')(date, 'MM/dd/yyyy @ h:mma');
-                      var status_name = p[field].string.toString();
-                      status_name = status_name.charAt(0).toUpperCase() + status_name.substr(1);
-                      if (i != p[field].length - 1) {
-                        str = str + status_name + '(true at ' + date + ')' + com;
-                      } else {
-                        str = str + status_name + '(true at ' + date + ')';
-                        $scope.csv_site[key].push(str);
-                      }
-                    } else {
-                      $scope.csv_site[key].push('');
-                    }
-                  }
-                  if (field == 'site_country') {
-                    if (p[field].length > 0) {
-                      str = '';
-                      angular.forEach(p[field], function (country, i) {
-                        if (country.country != undefined) {
-                          country_name = country.country.name.toString();
-                          country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
-                        }
-                        if (i != p[field].length - 1) {
-                          str = str + country_name + com;
-                        } else {
-                          str = str + country_name;
-                          $scope.csv_site[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_site[key].push('');
-                    }
-                  }
-                  if (field == 'site_commodity_type') {
-                    if (p.site_commodity.length > 0) {
-                      str = '';
-                      var commodity_type = _.uniq(p.site_commodity, function (a) {
-                          return a.commodity.commodity_type;
-                        });
-                      angular.forEach(commodity_type, function (type, i) {
-                        var type_name = type.commodity.commodity_type.toString();
-                        type_name = type_name.charAt(0).toUpperCase() + type_name.substr(1);
-                        if (i != commodity_type.length - 1) {
-                          str = str + type_name + com;
-                        } else {
-                          str = str + type_name;
-                          $scope.csv_site[key].push(str);
-                        }
-                      });
-                    } else {
-                      $scope.csv_site[key].push('');
-                    }
-                  }
-                  if (field != 'site_status' && field != 'site_commodity' && field != 'site_commodity_type' && field != 'site_country') {
-                    $scope.csv_site[key].push(p[field]);
-                  }
-                });
-              });
             }, function (error) {
+              console.log(error);
               usSpinnerService.stop('spinner-site');
             });
           }
@@ -2626,6 +2845,7 @@ angular.module('app').controller('nrgiSourcesTableCtrl', [
                 });
               });
             }, function (error) {
+              console.log(error);
               usSpinnerService.stop('spinner-source');
             });
           }
@@ -2633,25 +2853,28 @@ angular.module('app').controller('nrgiSourcesTableCtrl', [
       }
     };
   }
-]);'use strict';
-angular.module('app').controller('nrgiSummaryStatsCtrl', [
-  '$scope',
-  'nrgiSummaryStatsSrvc',
-  'nrgiSumOfPaymentsSrvc',
-  function ($scope, nrgiSummaryStatsSrvc, nrgiSumOfPaymentsSrvc) {
-    $scope.summaryStats = [];
-    nrgiSummaryStatsSrvc.get(function (success) {
-      $scope.summaryStats = success;
-    }, function (error) {
-    });
-    nrgiSumOfPaymentsSrvc.get(function (success) {
-      $scope.usd = success.usd;
-      $scope.bbl = success.bbl;
-      $scope.gbp = success.gbp;
-    }, function (error) {
-    });
-  }
-]);'use strict';
+]);//For now not used
+//'use strict';
+//angular
+//    .module('app')
+//    .controller('nrgiSummaryStatsCtrl', function ($scope, nrgiSummaryStatsSrvc, nrgiSumOfPaymentsSrvc) {
+//        $scope.summaryStats=[];
+//
+//        nrgiSummaryStatsSrvc.get(function (success) {
+//            $scope.summaryStats = success;
+//        }, function(error) {
+//
+//        });
+//
+//        nrgiSumOfPaymentsSrvc.get(function (success) {
+//            $scope.usd = success.usd;
+//            $scope.bbl = success.bbl;
+//            $scope.gbp = success.gbp;
+//        }, function(error) {
+//
+//        });
+//    });
+'use strict';
 angular.module('app').controller('nrgiSunburstByGovCtrl', [
   '$scope',
   'nrgiPaymentsByGovSrvc',
@@ -2874,7 +3097,7 @@ angular.module('app').controller('nrgiSunburstCtrl', [
           },
           keyFormatter: function (d, i) {
             if ($scope.currency_filter && $scope.currency_filter != 'Show all currency') {
-              return d + ' ' + $scope.currency_filter;
+              return d + $scope.currency_filter;
             } else {
               return d;
             }
@@ -3064,28 +3287,131 @@ angular.module('app').controller('nrgiTransferTableCtrl', [
   '$scope',
   'nrgiTransferTablesSrvc',
   'usSpinnerService',
-  '$filter',
-  function ($scope, nrgiTransferTablesSrvc, usSpinnerService, $filter) {
+  'nrgiCSV',
+  function ($scope, nrgiTransferTablesSrvc, usSpinnerService, nrgiCSV) {
     $scope.transfers = [];
     $scope.loading = false;
     $scope.openClose = true;
-    $scope.csv_transfers = [];
-    var header_transfer = [];
+    var headerTransfer = [];
     $scope.expression = '';
     var fields = [];
-    var country_name = '';
-    var transfer_value = '';
-    var company_name = '';
+    var limit = 50, currentPage = 0;
+    var headers = [
+        {
+          name: 'Year',
+          status: true,
+          field: 'transfer_year'
+        },
+        {
+          name: 'Paid by',
+          status: true,
+          field: 'company'
+        },
+        {
+          name: 'Paid to',
+          status: true,
+          field: 'country'
+        },
+        {
+          name: 'Project',
+          status: true,
+          field: 'proj_site'
+        },
+        {
+          name: 'Project ID',
+          status: true,
+          field: 'proj_site_id'
+        },
+        {
+          name: 'Level ',
+          status: true,
+          field: 'proj_site_type'
+        },
+        {
+          name: 'Payment Type',
+          status: true,
+          field: 'transfer_type'
+        },
+        {
+          name: 'Currency',
+          status: true,
+          field: 'transfer_unit'
+        },
+        {
+          name: 'Value ',
+          status: true,
+          field: 'transfer_value'
+        }
+      ];
+    angular.forEach(headers, function (header) {
+      if (header.status != false && header.status != undefined) {
+        headerTransfer.push(header.name);
+        fields.push(header.field);
+      }
+    });
+    $scope.getHeaderTransfers = function () {
+      return headerTransfer;
+    };
     usSpinnerService.spin('spinner-transfers');
     $scope.$watch('id', function (value) {
       if ($scope.type == 'country' && value != undefined) {
         $scope.transfers = value;
+        usSpinnerService.stop('spinner-transfers');
+        if ($scope.transfers.length == 0) {
+          $scope.expression = 'showLast';
+        } else {
+          $scope.busy = false;
+          currentPage = 1;
+        }
       }
       if ($scope.type != 'country' && value != undefined) {
         $scope.loading = false;
         $scope.getTransfers($scope.id, $scope.type);
       }
     });
+    $scope.loadMoreTransfers = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      nrgiTransferTablesSrvc.query({
+        _id: $scope.countryid,
+        type: $scope.type,
+        skip: currentPage * limit,
+        limit: limit
+      }, function (response) {
+        $scope.transfers = _.union($scope.transfers, response.transfers);
+        if (response.transfers.length > 49) {
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+        } else {
+          $scope.busy = true;
+        }
+      });
+    };
+    $scope.loadPaymentsCSV = function () {
+      nrgiCSV.setCsv(fields, $scope.transfers);
+      return nrgiCSV.getResult();
+    };
+    $scope.getAllPayments = function () {
+      if ($scope.busy == true && $scope.transfers.length > 49 || $scope.transfers.length < 49) {
+        setTimeout(function () {
+          angular.element(document.getElementById('loadPaymentCSV')).trigger('click');
+        }, 0);
+      } else {
+        nrgiTransferTablesSrvc.query({
+          _id: $scope.countryid,
+          type: $scope.type,
+          skip: 0,
+          limit: 5000000
+        }, function (data) {
+          $scope.transfers = data.transfers;
+          $scope.busy = true;
+          setTimeout(function () {
+            angular.element(document.getElementById('loadPaymentCSV')).trigger('click');
+          }, 0);
+        });
+      }
+    };
     $scope.getTransfers = function (id, type) {
       if ($scope.id != undefined) {
         if ($scope.openClose == true) {
@@ -3093,7 +3419,9 @@ angular.module('app').controller('nrgiTransferTableCtrl', [
             $scope.loading = true;
             nrgiTransferTablesSrvc.get({
               _id: id,
-              type: type
+              type: type,
+              skip: currentPage * limit,
+              limit: limit
             }, function (success) {
               $scope.expression = '';
               if (success.transfers.length == 0 && $scope.transfers.length == 0) {
@@ -3101,113 +3429,8 @@ angular.module('app').controller('nrgiTransferTableCtrl', [
               }
               $scope.transfers = success.transfers;
               usSpinnerService.stop('spinner-transfers');
-              var headers = [
-                  {
-                    name: 'Year',
-                    status: true,
-                    field: 'transfer_year'
-                  },
-                  {
-                    name: 'Paid by',
-                    status: true,
-                    field: 'company'
-                  },
-                  {
-                    name: 'Paid to',
-                    status: true,
-                    field: 'country'
-                  },
-                  {
-                    name: 'Project',
-                    status: true,
-                    field: 'proj_site'
-                  },
-                  {
-                    name: 'Project ID',
-                    status: true,
-                    field: 'proj_id'
-                  },
-                  {
-                    name: 'Level ',
-                    status: true,
-                    field: 'proj_type'
-                  },
-                  {
-                    name: 'Payment Type',
-                    status: true,
-                    field: 'transfer_type'
-                  },
-                  {
-                    name: 'Currency',
-                    status: true,
-                    field: 'transfer_unit'
-                  },
-                  {
-                    name: 'Value ',
-                    status: true,
-                    field: 'transfer_value'
-                  }
-                ];
-              angular.forEach(headers, function (header) {
-                if (header.status != false && header.status != undefined) {
-                  header_transfer.push(header.name);
-                  fields.push(header.field);
-                }
-              });
-              $scope.getHeaderTransfers = function () {
-                return header_transfer;
-              };
-              angular.forEach($scope.transfers, function (transfer, key) {
-                $scope.csv_transfers[key] = [];
-                angular.forEach(fields, function (field) {
-                  if (field == 'transfer_value') {
-                    transfer_value = '';
-                    transfer_value = $filter('currency')(transfer[field], '', 0);
-                    $scope.csv_transfers[key].push(transfer_value);
-                  }
-                  if (field == 'country') {
-                    country_name = '';
-                    if (transfer[field] != undefined) {
-                      country_name = transfer[field].name.toString();
-                      country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
-                    }
-                    $scope.csv_transfers[key].push(country_name);
-                  }
-                  if (field == 'company') {
-                    company_name = '';
-                    if (transfer[field] != undefined) {
-                      company_name = transfer[field].company_name.toString();
-                      company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
-                    }
-                    $scope.csv_transfers[key].push(company_name);
-                  }
-                  if (field == 'proj_site') {
-                    name = '';
-                    if (transfer[field] != undefined && transfer[field].name != undefined) {
-                      var name = transfer[field].name.toString();
-                    }
-                    $scope.csv_transfers[key].push(name);
-                  }
-                  if (field == 'proj_type') {
-                    type = '';
-                    if (transfer.proj_site != undefined && transfer.proj_site.type != undefined) {
-                      var type = transfer.proj_site.type.toString();
-                    }
-                    $scope.csv_transfers[key].push(type);
-                  }
-                  if (field == 'proj_id') {
-                    id = '';
-                    if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.proj_site.type == 'project') {
-                      var id = transfer.proj_site._id.toString();
-                    }
-                    $scope.csv_transfers[key].push(id);
-                  }
-                  if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_type' && field != 'proj_id' && field != 'transfer_value') {
-                    $scope.csv_transfers[key].push(transfer[field]);
-                  }
-                });
-              });
             }, function (error) {
+              console.log(error);
               usSpinnerService.stop('spinner-transfers');
             });
           }
@@ -3450,6 +3673,7 @@ angular.module('app').directive('nrgiCompanyOperationTable', function () {
     controller: 'nrgiCompanyOperationTableCtrl',
     scope: {
       group: '=',
+      countryid: '=',
       type: '=',
       stake: '=',
       project: '=',
@@ -3472,6 +3696,7 @@ angular.module('app').directive('nrgiCompanyTable', function () {
       type: '=',
       stake: '=',
       project: '=',
+      countryid: '=',
       site: '=',
       contract: '=',
       concession: '=',
@@ -3489,6 +3714,7 @@ angular.module('app').directive('nrgiConcessionTable', function () {
     scope: {
       commodity: '=',
       country: '=',
+      countryid: '=',
       type: '=',
       status: '=',
       projects: '=',
@@ -3511,14 +3737,19 @@ angular.module('app').directive('nrgiContractTable', function () {
     },
     templateUrl: '/partials/directives/templates/nrgi-contract-table'
   };
-});'use strict';
-angular.module('app').directive('nrgiLastAdded', function () {
-  return {
-    restrict: 'EA',
-    controller: 'nrgiLastAddedCtrl',
-    templateUrl: '/partials/directives/templates/nrgi-last-added'
-  };
-});'use strict';
+});//For now not used
+//'use strict';
+//
+//angular
+//    .module('app')
+//    .directive('nrgiLastAdded', function() {
+//        return {
+//            restrict: 'EA',
+//            controller: 'nrgiLastAddedCtrl',
+//            templateUrl: '/partials/directives/templates/nrgi-last-added'
+//        };
+//    });
+'use strict';
 angular.module('app').directive('nrgiLeaflet', function () {
   return {
     restrict: 'EA',
@@ -3584,6 +3815,7 @@ angular.module('app').directive('nrgiProductionTable', function () {
     scope: {
       projectlink: '=',
       id: '=',
+      countryid: '=',
       type: '='
     },
     templateUrl: '/partials/directives/templates/nrgi-production-table'
@@ -3597,6 +3829,7 @@ angular.module('app').directive('nrgiProjectTable', function () {
       country: '=',
       type: '=',
       commoditytype: '=',
+      countryid: '=',
       companies: '=',
       commodity: '=',
       status: '=',
@@ -3628,6 +3861,7 @@ angular.module('app').directive('nrgiSiteTable', function () {
       id: '=',
       commodity: '=',
       status: '=',
+      countryid: '=',
       country: '=',
       type: '=',
       commoditytype: '=',
@@ -3646,14 +3880,19 @@ angular.module('app').directive('nrgiSourcesTable', function () {
     },
     templateUrl: '/partials/directives/templates/nrgi-sources-table'
   };
-});'use strict';
-angular.module('app').directive('nrgiSummaryStats', function () {
-  return {
-    restrict: 'EA',
-    controller: 'nrgiSummaryStatsCtrl',
-    templateUrl: '/partials/directives/templates/nrgi-summary-stats'
-  };
-});'use strict';
+});//For now not used
+//'use strict';
+//
+//angular
+//    .module('app')
+//    .directive('nrgiSummaryStats', function() {
+//        return {
+//            restrict: 'EA',
+//            controller: 'nrgiSummaryStatsCtrl',
+//            templateUrl: '/partials/directives/templates/nrgi-summary-stats'
+//        };
+//    });
+'use strict';
 angular.module('app').directive('nrgiSunburstByGov', function () {
   return {
     restrict: 'EA',
@@ -3676,6 +3915,7 @@ angular.module('app').directive('nrgiTransferTable', function () {
       id: '=',
       type: '=',
       project: '=',
+      countryid: '=',
       projectlink: '='
     },
     templateUrl: '/partials/directives/templates/nrgi-transfer-table'
@@ -3856,45 +4096,45 @@ angular.module('app').controller('nrgiCompanyListCtrl', [
     $scope.getHeaderCompanies = function () {
       return header_companies;
     };
-    $scope.createDownloadList = function (companies) {
-      angular.forEach(companies, function (company, key) {
-        $scope.csv_companies[key] = [];
-        angular.forEach(fields, function (field) {
-          if (field == 'company_groups') {
-            if (company[field] != undefined && company[field].length > 0) {
-              str = '';
-              angular.forEach(company[field], function (group, i) {
-                company_group_name = '';
-                if (group != undefined) {
-                  company_group_name = group.company_group_name.toString();
-                  company_group_name = company_group_name.charAt(0).toUpperCase() + company_group_name.substr(1);
-                }
-                if (i != company[field].length - 1 && company_group_name != '') {
-                  str = str + company_group_name + com;
-                } else {
-                  str = str + company_group_name;
-                  $scope.csv_companies[key].push(str);
-                }
-              });
-            } else {
-              $scope.csv_companies[key].push('');
-            }
-          }
-          if (field != 'company_groups') {
-            $scope.csv_companies[key].push(company[field]);
-          }
-        });
-      });
-    };
+    //$scope.createDownloadList = function (companies) {
+    //    angular.forEach(companies, function (company, key) {
+    //        $scope.csv_companies[key] = [];
+    //        angular.forEach(fields, function (field) {
+    //            if (field == 'company_groups') {
+    //                if(company[field]!=undefined&&company[field].length > 0) {
+    //                    str = '';
+    //                    angular.forEach(company[field], function (group, i) {
+    //                        company_group_name = '';
+    //                        if (group != undefined) {
+    //                            company_group_name = group.company_group_name.toString();
+    //                            company_group_name = company_group_name.charAt(0).toUpperCase() + company_group_name.substr(1);
+    //                        }
+    //                        if (i != company[field].length - 1 && company_group_name != '') {
+    //                            str = str + company_group_name + com;
+    //                        } else {
+    //                            str = str + company_group_name;
+    //                            $scope.csv_companies[key].push(str);
+    //                        }
+    //                    });
+    //                } else {
+    //                    $scope.csv_companies[key].push('')
+    //                }
+    //            }
+    //            if (field != 'company_groups') {
+    //                $scope.csv_companies[key].push(company[field])
+    //            }
+    //        })
+    //    });
+    //};
     nrgiCompaniesSrvc.query({
       skip: currentPage * limit,
       limit: limit
     }, function (response) {
-      $scope.count = response.count;
-      $scope.companies = response.data;
-      totalPages = Math.ceil(response.count / limit);
-      currentPage = currentPage + 1;
-      $scope.createDownloadList($scope.companies);
+      console.log(response);
+      $scope.count = response.company_count;
+      $scope.companies = response.companies;
+      totalPages = Math.ceil(response.company_count / limit);
+      currentPage = currentPage + 1;  //$scope.createDownloadList($scope.companies);
     });
     $scope.loadMore = function () {
       if ($scope.busy)
@@ -3905,10 +4145,9 @@ angular.module('app').controller('nrgiCompanyListCtrl', [
           skip: currentPage * limit,
           limit: limit
         }, function (response) {
-          $scope.companies = _.union($scope.companies, response.data);
+          $scope.companies = _.union($scope.companies, response.companies);
           currentPage = currentPage + 1;
-          $scope.busy = false;
-          $scope.createDownloadList($scope.companies);
+          $scope.busy = false;  //$scope.createDownloadList($scope.companies);
         });
       }
     };
@@ -3935,7 +4174,6 @@ angular.module('app').controller('nrgiConcessionListCtrl', [
   '$filter',
   function ($scope, $rootScope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiConcessionsSrvc, $filter) {
     var limit = 50, currentPage = 0, totalPages = 0;
-    //_ = $rootScope._;
     $scope.count = 0;
     $scope.busy = false;
     var country_name, status, timestamp, commodity_type, commodity_name, str;
@@ -3977,8 +4215,8 @@ angular.module('app').controller('nrgiConcessionListCtrl', [
               str = '';
               angular.forEach(concession[field], function (country, i) {
                 country_name = '';
-                if (country != undefined && country.country != undefined) {
-                  country_name = country.country.name.toString();
+                if (country != undefined && country.name) {
+                  country_name = country.name.toString();
                   country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                 }
                 if (i != concession[field].length - 1 && country_name != '') {
@@ -3996,13 +4234,15 @@ angular.module('app').controller('nrgiConcessionListCtrl', [
             if (concession[field] != undefined && concession[field].length > 0) {
               str = '';
               concession[field] = _.map(_.groupBy(concession[field], function (doc) {
-                return doc.commodity_name;
+                if (doc && doc.commodity_name) {
+                  return doc.commodity_name;
+                }
               }), function (grouped) {
                 return grouped[0];
               });
               angular.forEach(concession[field], function (commodity, i) {
                 commodity_name = '';
-                if (commodity != undefined) {
+                if (commodity != undefined && commodity.commodity_name) {
                   commodity_name = commodity.commodity_name.toString();
                   commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
                 }
@@ -4038,13 +4278,15 @@ angular.module('app').controller('nrgiConcessionListCtrl', [
             if (concession['concession_commodity'] != undefined && concession['concession_commodity'].length > 0) {
               str = '';
               concession['concession_commodity'] = _.map(_.groupBy(concession['concession_commodity'], function (doc) {
-                return doc.commodity_type;
+                if (doc && doc.commodity_type) {
+                  return doc.commodity_type;
+                }
               }), function (grouped) {
                 return grouped[0];
               });
               angular.forEach(concession['concession_commodity'], function (commodity, i) {
                 commodity_type = '';
-                if (commodity != undefined) {
+                if (commodity != undefined && commodity.commodity_type) {
                   commodity_type = commodity.commodity_type.toString();
                   commodity_type = commodity_type.charAt(0).toUpperCase() + commodity_type.substr(1);
                 }
@@ -4280,8 +4522,12 @@ angular.module('app').controller('nrgiCountryDetailCtrl', [
   '$routeParams',
   function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiCountriesSrvc, nrgiCountryCommoditiesSrvc, $routeParams) {
     nrgiCountriesSrvc.get({ _id: $routeParams.id }, function (response) {
-      $scope.country = response.country;
-      $scope.country.commodities = response.commodities;
+      if (response.error) {
+      } else {
+        $scope.country = response.country;
+        $scope.country.commodities = response.commodities;
+        $scope.id = response.country._id;
+      }
     });
     $scope.$watch('country._id', function (value) {
       if (value != undefined) {
@@ -4454,10 +4700,10 @@ angular.module('app').controller('nrgiPieChartCtrl', [
         type: 'pieChart',
         height: 500,
         x: function (d) {
-          return d.key + ', ' + d.value;
+          return d.key + ', ' + d.value.toFixed(1);
         },
         y: function (d) {
-          return d.y;
+          return d.value * 100 / $scope.total;
         },
         showLabels: false,
         duration: 500,
@@ -4467,7 +4713,7 @@ angular.module('app').controller('nrgiPieChartCtrl', [
         showLegend: false,
         tooltip: {
           valueFormatter: function (d, i) {
-            return d.toFixed(1) + '%';
+            return d.toFixed(3) + '%';
           },
           keyFormatter: function (d, i) {
             return d + ' million ' + $scope.currency_filter;
@@ -4483,7 +4729,8 @@ angular.module('app').controller('nrgiPieChartCtrl', [
         $scope.total = 0;
         if (response.data) {
           $scope.pie = response.data[0].children;
-          $scope.total = response.data[0].total_value;
+          $scope.total = response.data[0].total_value.toFixed(1);
+          $scope.count = response.data[0].count;
           $scope.options.chart.noData = 'No Data Available.';
           usSpinnerService.stop('spinner-pie-chart');
         } else {
@@ -4937,7 +5184,7 @@ angular.module('app').controller('nrgiSiteListCtrl', [
               str = '';
               angular.forEach(site[field], function (country, i) {
                 country_name = '';
-                if (country != undefined) {
+                if (country != undefined && country.country && country.country.name) {
                   country_name = country.country.name.toString();
                   country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                 }
@@ -4956,13 +5203,15 @@ angular.module('app').controller('nrgiSiteListCtrl', [
             if (site['site_commodity'] != undefined && site['site_commodity'].length > 0) {
               str = '';
               site['site_commodity'] = _.map(_.groupBy(site['site_commodity'], function (doc) {
-                return doc.commodity_type;
+                if (doc && doc.commodity_type) {
+                  return doc.commodity_type;
+                }
               }), function (grouped) {
                 return grouped[0];
               });
               angular.forEach(site['site_commodity'], function (commodity, i) {
                 commodity_type = '';
-                if (commodity != undefined) {
+                if (commodity != undefined && commodity.commodity_type) {
                   commodity_type = commodity.commodity_type.toString();
                   commodity_type = commodity_type.charAt(0).toUpperCase() + commodity_type.substr(1);
                 }
@@ -4981,13 +5230,15 @@ angular.module('app').controller('nrgiSiteListCtrl', [
             if (site[field] != undefined && site[field].length > 0) {
               str = '';
               site[field] = _.map(_.groupBy(site[field], function (doc) {
-                return doc.commodity_name;
+                if (doc && doc.commodity_name) {
+                  return doc.commodity_name;
+                }
               }), function (grouped) {
                 return grouped[0];
               });
               angular.forEach(site[field], function (commodity, i) {
                 commodity_name = '';
-                if (commodity != undefined) {
+                if (commodity != undefined && commodity.commodity_name) {
                   commodity_name = commodity.commodity_name.toString();
                   commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
                 }
@@ -5257,7 +5508,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
   'nrgiTransferFilters',
   '$filter',
   function ($scope, $rootScope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiTransfersSrvc, nrgiTransferFilters, $filter) {
-    var currentPage = 0, totalPages = 0, searchOptions = {}, header_transfer = [], fields = [], country_name = '', company_name = '', transfer_value = '';
+    var currentPage = 0, totalPages = 0, searchOptions = {}, headerTransfer = [], fields = [], countryName = '', companyName = '', transferValue = '';
     $scope.limit = 500;
     $scope.skip = currentPage * $scope.limit;
     $scope.count = 0;
@@ -5320,7 +5571,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
       if (year && year != searchOptions.transfer_year) {
         $scope.skip = 0;
         searchOptions.skip = 0;
-        searchOptions.limit = 0;
+        searchOptions.limit = 500;
         currentPage = 0;
         searchOptions.transfer_year = year;
         if ($scope.currency) {
@@ -5332,7 +5583,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         $scope.skip = 0;
         searchOptions = {
           skip: 0,
-          limit: 0,
+          limit: 500,
           transfer_unit: searchOptions.transfer_unit
         };
         $scope.load(searchOptions);
@@ -5340,7 +5591,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         $scope.skip = 0;
         searchOptions = {
           skip: 0,
-          limit: 0
+          limit: 500
         };
         $scope.load(searchOptions);
       }
@@ -5361,7 +5612,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         $scope.skip = 0;
         searchOptions = {
           skip: 0,
-          limit: 0,
+          limit: 500,
           transfer_year: searchOptions.transfer_year
         };
         $scope.load(searchOptions);
@@ -5369,7 +5620,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         $scope.skip = 0;
         searchOptions = {
           skip: 0,
-          limit: 0
+          limit: 500
         };
         $scope.load(searchOptions);
       }
@@ -5451,17 +5702,17 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         {
           name: 'Value ',
           status: true,
-          field: 'transfer_value'
+          field: 'transferValue'
         }
       ];
     angular.forEach(headers, function (header) {
       if (header.status != false && header.status != undefined) {
-        header_transfer.push(header.name);
+        headerTransfer.push(header.name);
         fields.push(header.field);
       }
     });
     $scope.getHeaderTransfers = function () {
-      return header_transfer;
+      return headerTransfer;
     };
     $scope.load_all = function () {
       if ($scope.busy)
@@ -5469,32 +5720,32 @@ angular.module('app').controller('nrgiTransferListCtrl', [
       $scope.busy = true;
       nrgiTransfersSrvc.query({
         skip: 0,
-        limit: 0
+        limit: $scope.count
       }, function (response) {
         $scope.csv_transfers = [];
         angular.forEach(response.data, function (transfer, key) {
           $scope.csv_transfers[key] = [];
           angular.forEach(fields, function (field) {
-            if (field == 'transfer_value') {
-              transfer_value = '';
-              transfer_value = $filter('currency')(transfer[field], '', 0);
-              $scope.csv_transfers[key].push(transfer_value);
+            if (field == 'transferValue') {
+              transferValue = '';
+              transferValue = $filter('currency')(transfer[field], '', 0);
+              $scope.csv_transfers[key].push(transferValue);
             }
             if (field == 'country') {
-              country_name = '';
-              if (transfer[field] != undefined) {
-                country_name = transfer[field].name.toString();
-                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+              countryName = '';
+              if (transfer[field] != undefined && transfer[field].name) {
+                countryName = transfer[field].name.toString();
+                countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
               }
-              $scope.csv_transfers[key].push(country_name);
+              $scope.csv_transfers[key].push(countryName);
             }
             if (field == 'company') {
-              company_name = '';
-              if (transfer[field] != undefined) {
-                company_name = transfer[field].company_name.toString();
-                company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
+              companyName = '';
+              if (transfer[field] != undefined && transfer[field].companyName) {
+                companyName = transfer[field].companyName.toString();
+                companyName = companyName.charAt(0).toUpperCase() + companyName.substr(1);
               }
-              $scope.csv_transfers[key].push(company_name);
+              $scope.csv_transfers[key].push(companyName);
             }
             if (field == 'transfer_gov_entity') {
               if (transfer[field]) {
@@ -5523,7 +5774,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
               }
               $scope.csv_transfers[key].push(id);
             }
-            if (field != 'company' && field != 'transfer_gov_entity' && field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transfer_value') {
+            if (field != 'company' && field != 'transfer_gov_entity' && field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transferValue') {
               $scope.csv_transfers[key].push(transfer[field]);
             }
           });
@@ -5748,7 +5999,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
       $scope.busy = true;
       nrgiTransfersByGovSrvc.query({
         skip: 0,
-        limit: 0
+        limit: $scope.count
       }, function (response) {
         $scope.csv_transfers = [];
         angular.forEach(response.data, function (transfer, key) {
@@ -5761,7 +6012,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
             }
             if (field == 'country') {
               country_name = '';
-              if (transfer[field] != undefined) {
+              if (transfer[field] != undefined && transfer[field].name) {
                 country_name = transfer[field].name.toString();
                 country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
               }
@@ -5769,7 +6020,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
             }
             if (field == 'company') {
               company_name = '';
-              if (transfer[field] != undefined) {
+              if (transfer[field] != undefined && transfer[field].company_name) {
                 company_name = transfer[field].company_name.toString();
                 company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
               }
@@ -7169,29 +7420,7 @@ angular.module('app').factory('nrgiSourceTypesSrvc', [
     return SourceTypeResource;
   }
 ]);'use strict';
-angular.module('app').factory('nrgiSummaryStatsSrvc', [
-  '$resource',
-  function ($resource) {
-    var SummaryStatsResource = $resource('/api/summary_stats', {}, {
-        query: {
-          method: 'GET',
-          isArray: false
-        }
-      });
-    return SummaryStatsResource;
-  }
-]).factory('nrgiSumOfPaymentsSrvc', [
-  '$resource',
-  function ($resource) {
-    var SumOfPaymentsResource = $resource('/api/sum_of_payments', {}, {
-        query: {
-          method: 'GET',
-          isArray: false
-        }
-      });
-    return SumOfPaymentsResource;
-  }
-]).factory('nrgiPaymentsSrvc', [
+angular.module('app').factory('nrgiPaymentsSrvc', [
   '$resource',
   function ($resource) {
     var PaymentsResource = $resource('/api/transfers', {}, {
@@ -7228,9 +7457,11 @@ angular.module('app').factory('nrgiSummaryStatsSrvc', [
 angular.module('app').factory('nrgiTablesSrvc', [
   '$resource',
   function ($resource) {
-    var CompanyTableResource = $resource('/api/company_table/:type/:_id', {
+    var CompanyTableResource = $resource('/api/company_table/:type/:_id/:limit/:skip', {
         _id: '@id',
-        type: '@type'
+        type: '@type',
+        limit: '@limit',
+        skip: '@skip'
       }, {
         query: {
           method: 'GET',
@@ -7242,9 +7473,11 @@ angular.module('app').factory('nrgiTablesSrvc', [
 ]).factory('nrgiProjectTablesSrvc', [
   '$resource',
   function ($resource) {
-    var ProjectTableResource = $resource('/api/project_table/:type/:_id', {
+    var ProjectTableResource = $resource('/api/project_table/:type/:_id/:limit/:skip', {
         _id: '@id',
-        type: '@type'
+        type: '@type',
+        limit: '@limit',
+        skip: '@skip'
       }, {
         query: {
           method: 'GET',
@@ -7256,9 +7489,11 @@ angular.module('app').factory('nrgiTablesSrvc', [
 ]).factory('nrgiProdTablesSrvc', [
   '$resource',
   function ($resource) {
-    var ProdTableResource = $resource('/api/prod_table/:type/:_id', {
+    var ProdTableResource = $resource('/api/prod_table/:type/:_id/:limit/:skip', {
         _id: '@id',
-        type: '@type'
+        type: '@type',
+        limit: '@limit',
+        skip: '@skip'
       }, {
         query: {
           method: 'GET',
@@ -7270,9 +7505,11 @@ angular.module('app').factory('nrgiTablesSrvc', [
 ]).factory('nrgiTransferTablesSrvc', [
   '$resource',
   function ($resource) {
-    var TransferTableResource = $resource('/api/transfer_table/:type/:_id', {
+    var TransferTableResource = $resource('/api/transfer_table/:type/:_id/:limit/:skip', {
         _id: '@id',
-        type: '@type'
+        type: '@type',
+        limit: '@limit',
+        skip: '@skip'
       }, {
         query: {
           method: 'GET',
@@ -7298,9 +7535,11 @@ angular.module('app').factory('nrgiTablesSrvc', [
 ]).factory('nrgiSiteFieldTablesSrvc', [
   '$resource',
   function ($resource) {
-    var SiteFieldTableResource = $resource('/api/site_table/:type/:_id', {
+    var SiteFieldTableResource = $resource('/api/site_table/:type/:_id/:limit/:skip', {
         _id: '@id',
-        type: '@type'
+        type: '@type',
+        limit: '@limit',
+        skip: '@skip'
       }, {
         query: {
           method: 'GET',
@@ -7326,9 +7565,11 @@ angular.module('app').factory('nrgiTablesSrvc', [
 ]).factory('nrgiConcessionTablesSrvc', [
   '$resource',
   function ($resource) {
-    var ConcessionTableResource = $resource('/api/concession_table/:type/:_id', {
+    var ConcessionTableResource = $resource('/api/concession_table/:type/:_id/:limit/:skip', {
         _id: '@id',
-        type: '@type'
+        type: '@type',
+        limit: '@limit',
+        skip: '@skip'
       }, {
         query: {
           method: 'GET',

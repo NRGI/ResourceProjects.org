@@ -10,25 +10,28 @@ var Project 		= require('mongoose').model('Project'),
     Concession 	    = require('mongoose').model('Concession'),
     async           = require('async'),
     mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
 
-
 exports.getSiteFieldTable = function(req, res){
 
-    var _id = mongoose.Types.ObjectId(req.params.id);
-    var link_counter, link_len,site_counter,site_len,companies_len,companies_counter;
-    var site ={};
+    var id = mongoose.Types.ObjectId(req.params.id);
+    var link_counter, link_len,site_counter,site_len, companies_len,companies_counter;
+    var site ={}, errorList=[];
     site.sites=[];
+    var limit = parseInt(req.params.limit);
+    var skip = parseInt(req.params.skip);
     var type = req.params.type;
     var query='';
-    if(type=='company') { query = {company:req.params.id, entities:"site"}}
-    if(type=='concession') { query = {concession:req.params.id, entities:"site"}}
-    if(type=='contract') { query = {contract:req.params.id, entities:"site"}}
-    if(type=='commodity') { query = {'site_commodity.commodity':req.params.id}}
-    if(type=='country') { query = {'site_country.country':req.params.id}}
-    if(type=='group') { query={company_group: req.params.id, entities: "company"}}
+    if(type=='company') { query = {company:id, entities:"site"}}
+    if(type=='concession') { query = {concession:id, entities:"site"}}
+    if(type=='contract') { query = {contract:id, entities:"site"}}
+
+    if(type=='commodity') { query = {'site_commodity.commodity':id}}
+    if(type=='country') { query = {'site_country.country':id}}
+    if(type=='group') { query={company_group: id, entities: "company"}}
     async.waterfall([
         getLinks,
         getSites,
@@ -38,7 +41,7 @@ exports.getSiteFieldTable = function(req, res){
         getGroupLinkedProjects
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            res.send({sites:[],error:err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -48,142 +51,147 @@ exports.getSiteFieldTable = function(req, res){
         }
     });
     function getLinks(callback) {
-        if(type!='commodity'&&type!='group'&&type!='country') {
-            Link.find(query)
-                .populate('site commodity country')
-                .deepPopulate('site.site_country.country site.site_commodity.commodity')
-                .exec(function (err, links) {
-                    if (links.length>0) {
-                        link_len = links.length;
-                        link_counter = 0;
-                        _.each(links, function (link) {
-                            ++link_counter;
-                            site.sites.push({
-                                _id: link.site._id,
-                                field: link.site.field,
-                                site_name: link.site.site_name,
-                                site_status: link.site.site_status,
-                                site_country: link.site.site_country,
-                                site_commodity: link.site.site_commodity
-                            });
-
-                            if (link_len == link_counter) {
-                                site.sites = _.map(_.groupBy(site.sites,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, site);
-                            }
-
-                        })
-                    } else {
-                        callback(null, site);
+        if (type != 'commodity' && type != 'group' && type != 'country') {
+            Link.aggregate([
+                {$match: query},
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$unwind: '$site'},
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $lookup: {
+                        from: "countries",
+                        localField: "site.site_country.country",
+                        foreignField: "_id",
+                        as: "site.site_country"
                     }
-                });
-        } else {
+                },
+                {
+                    $lookup: {
+                        from: "commodities",
+                        localField: "site.site_commodity.commodity",
+                        foreignField: "_id",
+                        as: "site.site_commodity"
+                    }
+                },
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $group: {
+                        _id: '$site._id',
+                        field: {$first: '$site.field'},
+                        site_name: {$first: '$site.site_name'},
+                        site_status: {$first: '$site.site_status'},
+                        site_commodity: {$addToSet: '$site.site_commodity'},
+                        site_country: {$first: '$site.site_country'}
+                    }
+                },
+                { $skip : skip},
+                { $limit : limit }
+            ]).exec(function (err, links) {
+                if (err) {
+                    errorList = errors.errorFunction(err,type+ ' site links not found');
+                    return res.send({sites:[], error: errorList});
+                } else {
+                    if (links.length > 0) {
+                        site.sites = links
+                        callback(null, site);
+                    } else {
+                        errorList.push({type: type, message: type + ' site links not found'})
+                        return res.send({sites:[], error: errorList});
+                    }
+                }
+            })
+        }else {
             callback(null, site);
         }
     }
 
     function getSites(site, callback) {
         if(type=='commodity') {
-            Site.find(query)
-                .populate('contract commodity country site_country.country site_commodity.commodity')
-                .exec(function (err, sites) {
-                    site_counter = 0;
-                    site_len = sites.length;
-                    if(site_len>0) {
-                        sites.forEach(function (s) {
-                            ++site_counter;
-                            site.sites.push({
-                                _id: s._id,
-                                field: s.field,
-                                site_name: s.site_name,
-                                site_status: s.site_status,
-                                site_country: s.site_country,
-                                site_commodity: s.site_commodity,
-                                companies:0
-                            });
-                            if (site_counter === site_len) {
-                                site.sites = _.map(_.groupBy(site.sites,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, site);
-                            }
-                        });
-                    }else {
-                        callback(null, site);
+            site.sites = [];
+            Site.aggregate([
+                { $sort : { site_name : -1 } },
+                {$unwind: '$site_commodity'},
+                {$match: query},
+                {$unwind: {"path": "$site_country", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities",localField: "site_commodity.commodity",foreignField: "_id",as: "site_commodity"}},
+                {$lookup: {from: "countries",localField: "site_country.country",foreignField: "_id",as: "site_country"}},
+
+                {$unwind: {"path": "$site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
+                {$group:{
+                    _id: '$_id',
+                    field: {$first: '$field'},
+                    site_name: {$first: '$site_name'},
+                    site_status: {$first: '$site_status'},
+                    site_commodity: {$addToSet: '$site_commodity'},
+                    site_country: {$first: '$site_country'}
+                }},
+                { $skip : skip},
+                { $limit : limit }
+            ]).exec(function (err, sites) {
+                if (err) {
+                    errorList = errors.errorFunction(err,type+ ' site not found');
+                    callback(null, site, errorList);
+                } else {
+                    if (sites.length > 0) {
+                        site.sites = sites
+                        callback(null, site, errorList);
+                    } else {
+                        errorList.push({type: type, message: type + ' site not found'})
+                        callback(null, site, errorList);
                     }
-                });
+                }
+            });
         }else {
-            callback(null, site);
+            callback(null, site, errorList);
         }
     }
 
-    function getCountrySites(site, callback) {
+    function getCountrySites(site, errorList, callback) {
         if(type=='country') {
             site.sites = [];
             Site.aggregate([
                 { $sort : { site_name : -1 } },
                 {$unwind: '$site_country'},
-                {$match:{'site_country.country':_id}},
+                {$match: query},
                 {$unwind: {"path": "$site_status", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
                 {$lookup: {from: "commodities",localField: "site_commodity.commodity",foreignField: "_id",as: "commodity"}},
                 {$group:{
                     "_id": "$_id",
+                    field: {$first: '$field'},
                     "site_name":{$first:"$site_name"},
                     "site_country":{$first:"$site_country"},
                     "site_commodity":{$first:"$commodity"},
                     "site_status":{$last:"$site_status"}
                 }},
                 {$project:{_id:1,site_name:1,site_country:1,site_commodity:1,site_status:1,companies_count:{$literal:0},companies:[]}},
-                { $limit : 50 },
-                { $skip : 0}
+                { $skip : skip},
+                { $limit : limit }
             ]).exec(function (err, proj) {
-                site.sites = proj
-                callback(null, site);
+                if (err) {
+                    errorList = errors.errorFunction(err, type + ' site not found');
+                    callback(null, site, errorList);
+                } else {
+                    if (proj.length > 0) {
+                        site.sites = proj
+                        callback(null, site, errorList);
+                    } else {
+                        errorList.push({type: type, message: type + ' site not found'})
+                        callback(null, site, errorList);
+                    }
+                }
             });
-            //Site.find(query)
-            //    .populate('contract commodity country site_country.country site_commodity.commodity')
-            //    .exec(function (err, sites) {
-            //        link_len = sites.length;
-            //        link_counter = 0;
-            //        if(link_len>0) {
-            //            _.each(sites, function (s) {
-            //                ++link_counter;
-            //                site.sites.push({
-            //                    _id: s._id,
-            //                    field: s.field,
-            //                    site_name: s.site_name,
-            //                    site_status: s.site_status,
-            //                    site_country: s.site_country,
-            //                    site_commodity: s.site_commodity,
-            //                    companies:0
-            //                });
-            //                if (link_len == link_counter) {
-            //                    site.sites = _.map(_.groupBy(site.sites,function(doc){
-            //                        return doc._id;
-            //                    }),function(grouped){
-            //                        return grouped[0];
-            //                    });
-            //                    callback(null, site);
-            //                }
-            //            })
-            //        }else{
-            //            callback(null, site);
-            //        }
-            //    });
         } else{
-            callback(null, site);
+            callback(null, site,errorList);
         }
     }
-    function getCompanyCount(sites, callback) {
+    function getCompanyCount(sites,errorList, callback) {
         if (type == 'commodity'||type=='country') {
-
             var _ids = _.pluck(sites.sites, '_id');
             Link.aggregate([
                 {$match: {$or: [{site: {$in: _ids}}], entities: 'company'}},
@@ -200,7 +208,7 @@ exports.getSiteFieldTable = function(req, res){
                     "site_name":"$site.site_name"
                 }},
                 { $sort : { "site_name" : -1 } },
-                {$match:{'site_country.country':_id}},
+                {$match:{'site_country.country':id}},
                 {$unwind: {"path": "$site_status", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
                 {$lookup: {from: "commodities",localField: "site_commodity.commodity",foreignField: "_id",as: "commodity"}},
@@ -212,7 +220,9 @@ exports.getSiteFieldTable = function(req, res){
                     "site_status":{$last:"$site_status"},
                     "companies":{$addToSet:"$company"}
                 }},
-                {$project:{_id:1,companies:1,companies_count:{$size:'$companies'},site_name:1,site_country:1,site_commodity:1,site_status:1}}
+                {$project:{_id:1,companies:1,companies_count:{$size:'$companies'},site_name:1,site_country:1,site_commodity:1,site_status:1}},
+                { $skip : skip},
+                { $limit : limit }
             ]).exec(function (err, links) {
                 _.map(sites.sites, function(site){
                     var list = _.find(links, function(link){
@@ -225,29 +235,6 @@ exports.getSiteFieldTable = function(req, res){
                 });
                 callback(null, sites);
             })
-            //site_len = sites.sites.length;
-            //site_counter = 0;
-            //if (site_len > 0) {
-            //    sites.sites.forEach(function (site) {
-            //        Link.find({site: site._id, entities: 'company'})
-            //            .populate('company', '_id company_name')
-            //            .exec(function (err, links) {
-            //                ++site_counter;
-            //                link_len = links.length;
-            //                link_counter = 0;
-            //                _.each(links, function (link) {
-            //                    ++link_counter;
-            //                    site.companies = +1;
-            //                });
-            //                if (link_len == link_counter && site_counter == site_len) {
-            //                    callback(null, sites);
-            //                }
-            //
-            //            });
-            //    });
-            //} else {
-            //    callback(null, sites);
-            //}
         } else {
             callback(null, sites);
         }

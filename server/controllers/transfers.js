@@ -2,7 +2,7 @@ var Transfer 		= require('mongoose').model('Transfer'),
     async           = require('async'),
     mongoose 		= require('mongoose'),
     _               = require("underscore"),
-    errors 	    = require('./errorList'),
+    errors 	        = require('./errorList'),
     request         = require('request');
 
 //Get payment filters
@@ -23,7 +23,7 @@ exports.getTransferFilters = function(req, res) {
         getFilters
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            return res.send({filters:[],error: err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -40,7 +40,7 @@ exports.getTransferFilters = function(req, res) {
         ]).exec(function (err, transfers) {
             if (err) {
                 err = new Error('Error: '+ err);
-                return res.send({error: err.toString()});
+                return res.send({filters:[],error: err.toString()});
             } else if (transfers.length>0) {
                 paymentsFilter.year_selector = _.countBy(transfers, "transfer_year");
                 paymentsFilter.currency_selector = _.countBy(transfers, "transfer_unit");
@@ -48,7 +48,7 @@ exports.getTransferFilters = function(req, res) {
                 paymentsFilter.company_selector=_.groupBy(transfers, function (doc) {if(doc&&doc.company&&doc.company._id){return doc.company._id;}});
                 callback(null, {filters: paymentsFilter});
             } else {
-                return res.send({error: 'not found'});
+                return res.send({filters:[],error: 'not found'});
             }
         })
     }
@@ -69,6 +69,7 @@ exports.getTransfers = function(req, res) {
     ], function (err, result) {
         if (err) {
             res.send(err);
+            return res.send({data: [], count: 0, error: err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -82,9 +83,9 @@ exports.getTransfers = function(req, res) {
         Transfer.find(req.query).count().exec(function(err, transfersCount) {
             if (err) {
                 err = new Error('Error: '+ err);
-                return res.send({error: err.toString()});
+                return res.send({data: [], count: 0, error: err.toString()});
             } else if (transfersCount == 0) {
-                return res.send({error: 'not found'});
+                return res.send({data: [], count: 0, error: 'not found'});
             } else {
                 callback(null, transfersCount);
             }
@@ -155,7 +156,7 @@ exports.getTransfersByGov = function(req, res) {
         getTransferSet
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            return res.send({data: [], count: 0, error: err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -168,9 +169,9 @@ exports.getTransfersByGov = function(req, res) {
         Transfer.find(req.query).count().exec(function(err, transfersCount) {
             if (err) {
                 err = new Error('Error: '+ err);
-                return res.send({error: err.toString()});
+                return res.send({data: [], count: 0,  error: err.toString()});
             } else if (transfersCount == 0) {
-                return res.send({error: 'not found'});
+                return res.send({data: [], count: 0, error: 'not found'});
             } else {
                 callback(null, transfersCount);
             }

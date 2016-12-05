@@ -4,8 +4,6 @@ data-toggle="collapse"
 ng-click='openClose=!openClose; getSites(id,name)'
 data-target="#sites")
     h4.text-justify Sites and Fields
-//a(data-toggle="collapse" ng-click='openClose=!openClose;getSites(id,name)' data-target="#sites")
-//    h2 Sites and Fields
 #sites.panel-collapse.collapse.in
     table.load_table.table.table-striped.sites(
     ts-wrapper
@@ -32,11 +30,11 @@ data-target="#sites")
                 ng-if="company==true"
                 ts-criteria='site_status[site_status.length - 1].string') Companies
 
-        tbody
-            //span(
-            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            //spinner-start-active="true"
-            //spinner-key="spinner-site")
+        tbody.sitesScrollContainer
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-site")
             tr(
             ng-repeat="site in sites"
             ts-repeat ng-class="expression")
@@ -52,26 +50,27 @@ data-target="#sites")
                 td.site_country(ng-if="type==true")
                     text(ng-if='site.field') field
                     text(ng-if='!site.field') site
-                td.site_country(ng-if="country==true"): text(ng-repeat="country in site.site_country | unique: 'country._id'")
-                    a(href='country/{{country.country.iso2}}')
-                        span(ng-bind-html="country.country.name|sanitize")
+                td.site_country(ng-if="country==true"): span(ng-repeat="country in site.site_country | unique: '_id'")
+                    a(href='country/{{country.iso2}}')
+                        span(ng-bind-html="country.name|sanitize")
                     | {{$last ? '' : ', '}}
-                td.site_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity.commodity_type'")
-                    | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
+                td.site_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
+                    | {{commodity.commodity_type | ucfirst | addSpaces}}
                     | {{$last ? '' : ', '}}
-                td.site_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity._id'")
-                    a(href='commodity/{{commodity.commodity.commodity_id}}')
-                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                td.site_commodity(ng-if="commodity==true"): span(ng-repeat="commodity in site.site_commodity | unique: '_id'")
+                    a(href='commodity/{{commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.site_status(ng-if="status==true"): text(ng-repeat="status in site.site_status")
                     text(ng-if="$last") {{status.string | ucfirst}}
                     text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.text-center(ng-if="company==true && site.companies.length>0 && site.companies_count<3"): text(ng-repeat="company in site.companies ")
+                td.text-center(ng-if="company==true && site.companies.length>0 && site.companies_count<3"): span(ng-repeat="company in site.companies ")
                     a(href='company/{{company._id}}')
                         span(ng-bind-html="company.company_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.text-center(ng-if="company==true && site.companies_count>=3") ({{site.companies_count}}) "companies"
                 td.text-center(ng-if="company==true && site.companies_count ==0 && site.companies.length==0")
+    div(ng-if='sites.length>49' infinite-scroll='loadMoreSites()' infinite-scroll-distance='3' infinite-scroll-container='".sitesScrollContainer"')
     div(ng-if="sites.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -80,6 +79,12 @@ data-target="#sites")
                 =' '
                 a(
                 href=""
-                ng-csv="csv_site"
+                ng-click="getAllSites()") Site and Fields CSV
+                button(
+                class='hidden'
+                id='loadSitesCSV'
+                href=""
+                ng-csv="loadSitesCSV()"
+                lazy-load='true'
                 csv-header="getHeaderSites()"
-                filename="sites.csv") Site and Fields CSV
+                filename="sites.csv") Projects CSV

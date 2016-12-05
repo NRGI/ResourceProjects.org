@@ -50,7 +50,7 @@ describe("Site Table Directive", function() {
         },
         ID = "57156908a6565c01006341f8",
         element,
-        expectedParams = {_id: '57156908a6565c01006341f8',type: 'type'};
+        expectedParams = {_id: '57156908a6565c01006341f8',type: 'type',limit:50,skip:0};
     beforeEach(module('app'));
 
     beforeEach(inject(function($templateCache,_$compile_,_$rootScope_,$controller, nrgiSiteFieldTablesSrvc,_usSpinnerService_) {
@@ -87,9 +87,6 @@ describe("Site Table Directive", function() {
         siteQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(siteQueryStub, expectedParams);
         scope.sites.should.be.equal(result.sites);
-
-        scope.$digest();
-
         var isolateScope = element.find('table');
         isolateScope.should.be.defined;
 

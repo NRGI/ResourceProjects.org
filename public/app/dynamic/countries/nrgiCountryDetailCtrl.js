@@ -10,8 +10,12 @@ angular.module('app')
         $routeParams
     ) {
         nrgiCountriesSrvc.get({_id: $routeParams.id}, function (response) {
-            $scope.country=response.country;
-            $scope.country.commodities=response.commodities;
+            if(response.error){
+            }else {
+                $scope.country = response.country;
+                $scope.country.commodities = response.commodities;
+                $scope.id = response.country._id;
+            }
         });
         $scope.$watch('country._id', function(value) {
             if(value!=undefined){

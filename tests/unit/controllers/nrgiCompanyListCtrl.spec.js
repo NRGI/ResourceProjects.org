@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         companiesData = {
             "count": 2,
-            "data": [{
+            "companies": [{
                     _id: "56fcd522641ff90100863140",
                     company_name: "Bendon Internationa Ltd",
                     company_established_source: "56fcd522641ff901008630cc",
@@ -166,7 +166,7 @@ describe("Unit: Testing Controllers", function() {
     it("loads the company data", function () {
         companiesQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(companiesQueryStub, expectedParams);
-        scope.companies.should.be.equal(companiesData.data);
+        scope.companies.should.be.equal(companiesData.companies);
 
         scope.loadMore();
         companiesQueryStub.called.should.be.equal(true);

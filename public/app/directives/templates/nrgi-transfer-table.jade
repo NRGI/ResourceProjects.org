@@ -4,8 +4,6 @@ data-toggle="collapse"
 ng-click='openClose=!openClose; getTransfers(id,type)'
 data-target="#transfers")
     h4.text-justify Payments
-//a(data-toggle="collapse" ng-click='openClose=!openClose;getTransfers(id,type)' data-target="#transfers")
-//    h2 Payments
 #transfers.panel-collapse.collapse.in
     table.load_table.table.table-striped.projects(
     ng-class="transfers.length >= 8 ? 'header-fixed' : ''"
@@ -22,7 +20,7 @@ data-target="#transfers")
                 th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
                 th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
                 th.tablesort-sortable-th(ts-criteria='transfer_value') Value
-        tbody
+        tbody.transfersScrollContainer
             //span(
             //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
             //spinner-start-active="true"
@@ -40,6 +38,7 @@ data-target="#transfers")
                 td.transfer_type {{transfer.transfer_type}}
                 td.transfer_currency {{transfer.transfer_unit}}
                 td.transfer_value {{transfer.transfer_value | currency:"":0}}
+    div(ng-if='transfers.length>49' infinite-scroll='loadMoreTransfers()' infinite-scroll-distance='3' infinite-scroll-container='".transfersScrollContainer"')
     div(ng-if="transfers.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -48,7 +47,13 @@ data-target="#transfers")
                 =' '
                 a(
                 href=""
-                ng-csv="csv_transfers"
+                ng-click="getAllPayments()") Payments CSV
+                button(
+                class='hidden'
+                id='loadPaymentCSV'
+                href=""
+                ng-csv="loadPaymentsCSV()"
+                lazy-load='true'
                 csv-header="getHeaderTransfers()"
-                filename="transfers.csv") Payments CSV
+                filename="transfers.csv")
 

@@ -48,7 +48,7 @@ angular.module('app')
                             str = '';
                             angular.forEach(site[field], function (country, i) {
                                 country_name = '';
-                                if (country != undefined) {
+                                if (country != undefined && country.country && country.country.name) {
                                     country_name = country.country.name.toString();
                                     country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                                 }
@@ -67,13 +67,15 @@ angular.module('app')
                         if(site['site_commodity']!=undefined&&site['site_commodity'].length > 0) {
                             str = '';
                             site['site_commodity'] = _.map(_.groupBy(site['site_commodity'],function(doc){
-                                return doc.commodity_type;
+                                if(doc && doc.commodity_type) {
+                                    return doc.commodity_type;
+                                }
                             }),function(grouped){
                                 return grouped[0];
                             });
                             angular.forEach(site['site_commodity'], function (commodity, i) {
                                 commodity_type = '';
-                                if (commodity != undefined) {
+                                if (commodity != undefined && commodity.commodity_type) {
                                     commodity_type = commodity.commodity_type.toString();
                                     commodity_type = commodity_type.charAt(0).toUpperCase() + commodity_type.substr(1);
                                 }
@@ -91,14 +93,16 @@ angular.module('app')
                     if (field == 'site_commodity') {
                         if(site[field]!=undefined&&site[field].length > 0) {
                             str = '';
-                            site[field] = _.map(_.groupBy(site[field],function(doc){
-                                return doc.commodity_name;
+                            site[field] = _.map(_.groupBy(site[field],function(doc) {
+                                if (doc && doc.commodity_name) {
+                                    return doc.commodity_name;
+                                }
                             }),function(grouped){
                                 return grouped[0];
                             });
                             angular.forEach(site[field], function (commodity, i) {
                                 commodity_name = '';
-                                if (commodity != undefined) {
+                                if (commodity != undefined && commodity.commodity_name) {
                                     commodity_name = commodity.commodity_name.toString();
                                     commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
                                 }

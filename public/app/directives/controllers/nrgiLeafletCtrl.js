@@ -38,8 +38,17 @@ angular
         });
         $scope.$watch('id', function(value) {
             if(value!=undefined) {
-                $scope.getCoordinate(value, $scope.type);
+
             }
+            $scope.$watch('id', function(value) {
+                if($scope.type=='country'&&value!=undefined) {
+                    $scope.alldata = value;
+                    $scope.loadCoordinate($scope.alldata,$scope.polygon)
+                }
+                if($scope.type!='country'&&value!=undefined){
+                    $scope.getCoordinate(value, $scope.type);
+                }
+            });
         })
         $scope.$watch('data', function(value) {
             if(value!=undefined) {
@@ -80,13 +89,13 @@ angular
                     $scope.location.push({
                         lat: data.lat,
                         lng: data.lng,
-                        message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                        message: "<a href='site/" + data._id + "'>" + data.message + "</a></br>" + data.message
                     });
                 } else if (data.type == 'field') {
                     $scope.location.push({
                         lat: data.lat,
                         lng: data.lng,
-                        message: "<a href='field/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                        message: "<a href='field/" + data._id + "'>" + data.message + "</a></br>" + data.message
                     });
                 } else if ($scope.map == true) {
                     if (data.coordinates.length > 0) {
@@ -96,7 +105,7 @@ angular
                         $scope.location.push({
                             lat: data.lat,
                             lng: data.lng,
-                            message: "<a href='site/" + data.id + "'>" + data.message + "</a></br>" + data.message
+                            message: "<a href='site/" + data._id + "'>" + data.message + "</a></br>" + data.message
                         });
                }
                 lat.push(data.lat);

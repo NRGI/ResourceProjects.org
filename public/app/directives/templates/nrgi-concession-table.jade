@@ -4,8 +4,6 @@ data-toggle="collapse"
 ng-click='openClose=!openClose; getConcessions(id,name)'
 data-target="#concessions")
     h4.text-justify Concessions
-//a(data-toggle="collapse" ng-click='openClose=!openClose;getConcessions(id,name)' data-target="#concessions")
-//    h2 Concessions
 #concessions.panel-collapse.collapse.in
     table.load_table.table.table-striped.concessions(
     ts-wrapper
@@ -28,11 +26,11 @@ data-target="#concessions")
                 th.tablesort-sortable-th(
                 ng-if="projects==true"
                 ts-criteria='projects|parseInt') No. Projects
-        tbody
-            //span(
-            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            //spinner-start-active="true"
-            //spinner-key="spinner-concession")
+        tbody.concessionScrollContainer
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-concession")
             tr(
             ng-repeat="concession in concessions | unique: '_id'"
             ts-repeat ng-class="expression")
@@ -45,9 +43,9 @@ data-target="#concessions")
                 td.concession_type(ng-if="type==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity.commodity_type'")
                     | {{commodity.commodity.commodity_type| ucfirst}}
                     | {{$last ? '' : ', '}}
-                td.concession_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in concession.concession_commodities | unique: 'commodity._id'")
-                    a(href='commodity/{{commodity.commodity.commodity_id}}')
-                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                td.concession_commodity(ng-if="commodity==true"): span(ng-repeat="commodity in concession.concession_commodity | unique: 'commodity._id'")
+                    a(href='commodity/{{commodity.commodity_id}}')
+                        span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.concession_status(ng-if='status==true'): text(
                            ng-repeat="status in concession.concession_status"
@@ -56,6 +54,7 @@ data-target="#concessions")
                                    | {{status.string | ucfirst}}
                                    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 td.concession_projects {{concession.projects_count}}
+    div(ng-if='concessions.length>49' infinite-scroll='loadMoreConcessions()' infinite-scroll-distance='3' infinite-scroll-container='".concessionScrollContainer"')
     div(ng-if="concessions.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden="true")
@@ -64,6 +63,12 @@ data-target="#concessions")
                 =' '
                 a(
                 href=""
-                ng-csv="csv_concessions"
+                ng-click='getAllConcessions()') Concessions CSV
+                button(
+                class='hidden'
+                id='loadConcessionCSV'
+                href=""
+                ng-csv="loadConcessionsCSV()"
+                lazy-load='true'
                 csv-header="getHeaderConcessions()"
-                filename="companies.csv") Concessions CSV
+                filename="concessions.csv")

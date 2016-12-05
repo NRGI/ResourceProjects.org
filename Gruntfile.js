@@ -24,7 +24,6 @@ module.exports = function(grunt) {
         "public/vendor/angular-nvd3/dist/angular-nvd3.js",
         "public/vendor/bootstrap-select/dist/js/bootstrap-select.js",
         "public/vendor/angular-google-analytics/dist/angular-google-analytics.js",
-        "public/vendor/ngInfiniteScroll/build/ng-infinite-scroll.js",
         "public/vendor/leaflet/dist/leaflet.js",
         "public/vendor/esri-leaflet/dist/esri-leaflet.js",
         "public/plugin/bootstrap-typeahead.js",
@@ -32,7 +31,8 @@ module.exports = function(grunt) {
         "public/vendor/plotlyjs/plotly.js",
         "public/vendor/angular-plotly/src/angular-plotly.js",
         "public/plugin/header.js",
-        "public/plugin/leaflet.fullscreen.min.js"
+        "public/plugin/leaflet.fullscreen.min.js",
+        "public/plugin/ng-infinite-scroll.js"
     ]
 
 var style = [
@@ -48,7 +48,7 @@ var style = [
     "public/vendor/nvd3/build/nv.d3.min.css",
     "public/vendor/textAngular/dist/textAngular.css",
     "public/vendor/bootstrap-select/dist/css/bootstrap-select.css"]
-var port = 3031;
+var port = 3032;
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),

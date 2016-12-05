@@ -163,10 +163,11 @@ angular.module('app')
             return header_transfer
         };
 
+
         $scope.load_all = function(){
             if ($scope.busy) return;
             $scope.busy = true;
-            nrgiTransfersByGovSrvc.query({skip: 0, limit: 0}, function (response) {
+            nrgiTransfersByGovSrvc.query({skip: 0, limit: $scope.count}, function (response) {
                 $scope.csv_transfers = [];
                 angular.forEach(response.data, function (transfer, key) {
                     $scope.csv_transfers[key] = [];
@@ -178,7 +179,7 @@ angular.module('app')
                         }
                         if (field == 'country') {
                             country_name = '';
-                            if (transfer[field] != undefined) {
+                            if (transfer[field] != undefined && transfer[field].name) {
                                 country_name = transfer[field].name.toString();
                                 country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                             }
@@ -186,7 +187,7 @@ angular.module('app')
                         }
                         if (field == 'company') {
                             company_name = '';
-                            if (transfer[field] != undefined) {
+                            if (transfer[field] != undefined && transfer[field].company_name) {
                                 company_name = transfer[field].company_name.toString();
                                 company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
                             }

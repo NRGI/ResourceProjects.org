@@ -8,6 +8,7 @@ angular
             controller: 'nrgiCompanyOperationTableCtrl',
             scope: {
                 group: '=',
+                countryid:'=',
                 type: '=',
                 stake: '=',
                 project:'=',

@@ -10,6 +10,7 @@ angular
                 id:'=',
                 type:'=',
                 project: '=',
+                countryid:'=',
                 projectlink: '='
             },
             templateUrl: '/partials/directives/templates/nrgi-transfer-table'

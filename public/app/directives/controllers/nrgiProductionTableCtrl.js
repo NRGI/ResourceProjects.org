@@ -1,25 +1,88 @@
 'use strict';
-angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrgiProdTablesSrvc,usSpinnerService) {
+angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrgiProdTablesSrvc,usSpinnerService,nrgiCSV) {
     $scope.production = [];
     $scope.loading = false;
     $scope.openClose = true;
-    $scope.csv_production = [];
-    var header_transfer = [];
+    var headerTransfer = [];
     $scope.expression='';
     var fields = [];
-    var commodity='';
-    var name='';
-    var id='';
+    var headers = [
+        {name: 'Year', status: true, field: 'production_year'},
+        {name: 'Volume', status: true, field: 'production_volume'},
+        {name: 'Unit', status: true, field: 'production_unit'},
+        {name: 'Commodity', status: true, field: 'production_commodity'},
+        {name: 'Price', status: true, field: 'production_price'},
+        {name: 'Price unit', status: true, field: 'production_price_unit'},
+        {name: 'Level ', status: true, field: 'production_level'},
+        {name: 'Project ID', status: $scope.projectlink, field: 'proj_id'},
+        {name: 'Project / Site ', status: $scope.projectlink, field: 'proj_site'}];
+
+    angular.forEach(headers, function (header) {
+        if (header.status != false && header.status != undefined) {
+            headerTransfer.push(header.name);
+            fields.push(header.field);
+        }
+    });
+
+    $scope.getHeaderProduction = function () {
+        return headerTransfer
+    };
+    var limit = 50,
+        currentPage = 0;
     usSpinnerService.spin('spinner-production');
+
     $scope.$watch('id', function(value) {
         if($scope.type=='country'&&value!=undefined) {
             $scope.production = value;
+            usSpinnerService.stop('spinner-production');
+            if ($scope.production.length == 0 ) {
+                $scope.expression = 'showLast';
+            }else {
+                $scope.busy = false;
+                currentPage = 1;
+            }
         }
         if($scope.type!='country'&&value!=undefined){
             $scope.loading = false;
             $scope.getProduction($scope.id, $scope.type);
         }
     });
+
+    $scope.loadMoreProductions = function() {
+        if ($scope.busy) return;
+        $scope.busy = true;
+        nrgiProdTablesSrvc.query({_id: $scope.countryid,
+            type: $scope.type,skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.production = _.union($scope.production, response.production);
+            if( response.production.length>49){
+                currentPage = currentPage + 1;
+                $scope.busy = false;
+            }else{
+                $scope.busy = true;
+            }
+        });
+    };
+
+    $scope.loadProductionsCSV = function () {
+        nrgiCSV.setCsv(fields, $scope.production)
+        return nrgiCSV.getResult()
+    };
+
+    $scope.getAllProductions = function () {
+        if ($scope.busy == true && $scope.production.length > 49 || $scope.production.length < 49) {
+            setTimeout(function () {angular.element(document.getElementById("loadProductionCSV")).trigger('click');}, 0)
+        } else {
+            nrgiProdTablesSrvc.query({
+                _id: $scope.countryid,
+                type: $scope.type, skip: 0, limit: 5000000
+            }, function (data) {
+                $scope.production = data.production
+                $scope.busy = true;
+                setTimeout(function () {angular.element(document.getElementById("loadProductionCSV")).trigger('click');}, 0)
+            })
+        }
+    }
+
     $scope.getProduction = function (id, type) {
         if ($scope.id != undefined) {
             if ($scope.openClose == true) {
@@ -27,7 +90,9 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                     $scope.loading = true;
                     nrgiProdTablesSrvc.get({
                         _id: id,
-                        type: type
+                        type: type,
+                        skip: currentPage*limit,
+                        limit: limit
                     }, function (success) {
                         $scope.expression='';
                         if (success.production.length == 0 && $scope.production.length == 0) {
@@ -36,55 +101,8 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                         $scope.production=success.production;
                         usSpinnerService.stop('spinner-production');
 
-                        var headers = [
-                            {name: 'Year', status: true, field: 'production_year'},
-                            {name: 'Volume', status: true, field: 'production_volume'},
-                            {name: 'Unit', status: true, field: 'production_unit'},
-                            {name: 'Commodity', status: true, field: 'production_commodity'},
-                            {name: 'Price', status: true, field: 'production_price'},
-                            {name: 'Price unit', status: true, field: 'production_price_unit'},
-                            {name: 'Level ', status: true, field: 'production_level'},
-                            {name: 'Project ID', status: $scope.projectlink, field: 'proj_id'},
-                            {name: 'Project / Site ', status: $scope.projectlink, field: 'proj_site'}];
-                        angular.forEach(headers, function (header) {
-                            if (header.status != false && header.status != undefined) {
-                                header_transfer.push(header.name);
-                                fields.push(header.field);
-                            }
-                        });
-                        $scope.getHeaderProduction = function () {
-                            return header_transfer
-                        };
-                        angular.forEach($scope.production, function (p, key) {
-                            $scope.csv_production[key] = [];
-                            angular.forEach(fields, function (field) {
-                                if (field == 'commodity') {
-                                    commodity = '';
-                                    if (p[field] != undefined) {
-                                        commodity = p[field].commodity_name
-                                    }
-                                    $scope.csv_production[key].push(commodity);
-                                }
-                                if (field == 'proj_id') {
-                                    id = '';
-                                    if (p.proj_site != undefined && p.proj_site._id != undefined && p.production_level =='project') {
-                                        id = p.proj_site._id.toString();
-                                    }
-                                    $scope.csv_production[key].push(id);
-                                }
-                                if (field == 'proj_site') {
-                                    name = '';
-                                    if (p[field] != undefined && p[field].name != undefined) {
-                                        name = p[field].name.toString();
-                                    }
-                                    $scope.csv_production[key].push(name);
-                                }
-                                if (field != 'commodity' && field != 'proj_site' && field != 'proj_id') {
-                                    $scope.csv_production[key].push(p[field])
-                                }
-                            })
-                        });
                     }, function(error){
+                        console.log(error)
                         usSpinnerService.stop('spinner-production');
                     })
                 }

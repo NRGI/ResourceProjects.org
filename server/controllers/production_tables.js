@@ -9,35 +9,40 @@ var Project 		= require('mongoose').model('Project'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
     async           = require('async'),
+    mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
 
 exports.getProductionTable = function(req, res){
+    var _id = mongoose.Types.ObjectId(req.params.id);
     var link_counter, link_len, queries,production_counter,production_len,companies_len,companies_counter;
     var type = req.params.type;
     var projects = {};
+    var limit = parseInt(req.params.limit);
+    var skip = parseInt(req.params.skip);
     projects.production_query =[];
-    if(type=='concession') { queries={concession:req.params.id}; projects.production_query = [req.params.id];}
-    if(type=='company') { queries={company:req.params.id};projects.production_query = [req.params.id];}
-    if(type=='contract') { queries={contract:req.params.id};projects.production_query = [req.params.id];}
-    if(type=='project') {  queries={project:req.params.id};projects.production_query = [req.params.id];}
-    if(type=='site') {  queries={site:req.params.id};projects.production_query = [req.params.id];}
-    if(type=='commodity') {  queries={commodity:req.params.id};projects.production_query = [req.params.id];}
-    if(type=='source_type') {  queries={source_type_id:req.params.id};}
-    if(type=='group') { queries={company_group: req.params.id, entities: "company"};projects.production_query = [req.params.id];}
+    if(type=='concession') { queries={concession:_id}; projects.production_query = [_id];}
+    if(type=='company') { queries={company:_id};projects.production_query = [_id];}
+    if(type=='contract') { queries={contract:_id};projects.production_query = [_id];}
+    if(type=='project') {  queries={project:_id};projects.production_query = [_id];}
+    if(type=='site') {  queries={site:_id};projects.production_query = [_id];}
+    if(type=='commodity') {  queries={commodity:_id};projects.production_query = [_id];}
+    if(type=='source_type') {  queries={source_type_id:_id};}
+    if(type=='group') { queries={company_group: _id, entities: "company"};projects.production_query = [_id];}
     var models = [],models_len,models_counter=0,counter=0;
     async.waterfall([
         getLinks,
         getGroupCompany,
         getGroupLinks,
         getCountryID,
-        getCountryLinks,
+        //getCountryLinks,
         getSource,
         getProduction
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            res.send({production:[],error:err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -192,46 +197,112 @@ exports.getProductionTable = function(req, res){
     }
     function getCountryID(projects,callback) {
         if(type=='country') {
-            Country.find({'iso2':req.params.id})
-                .exec(function (err, country) {
-                  if(country.length>0) {
-                      models = [
-                          {name: 'Site', field: {'site_country.country': country[0]._id}, params: 'site'},
-                          {name: 'Company', field: {'countries_of_operation.country': country[0]._id}, params: 'country'},
-                          {name: 'Company',field: {'country_of_incorporation.country': country[0]._id},params: 'country'},
-                          {name: 'Concession',field: {'concession_country.country': country[0]._id},params: 'concession'},
-                          {name: 'Project', field: {'proj_country.country': country[0]._id}, params: 'project'}
-                      ];
-                  }
+            projects.production = [];
+            Production.aggregate([
+                {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+                {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
+                {$lookup: {from: "commodities",localField: "production_commodity",foreignField: "_id",as: "production_commodity"}},
+                {$unwind: {"path": "$production_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company.countries_of_operation", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company.country_of_incorporation", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+                {$match:{$or:[{'company.country_of_incorporation.country':_id},
+                    {'company.countries_of_operation.country':_id},
+                    {'project.proj_country.country':_id},
+                    {'site.site_country.country':_id},
+                    {'concession.concession_country.country':_id},
+                    {'country._id':_id}
+                ]}},
+                {$group:{
+                    "_id": "$_id",
+                    "production_year":{$first:"$production_year"},
+                    "company":{$last:"$company"},
+                    "country":{$first:"$country"},
+                    "project":{$first:"$project"},
+                    "site":{$first:"$site"},
+                    "production_volume":{$first:"$production_volume"},
+                    "production_unit":{$first:"$production_unit"},
+                    "production_price":{$first:"$production_price"},
+                    "production_price_unit":{$first:"$production_price_unit"},
+                    "production_level":{$first:"$proj_site"},
+                    "production_commodity":{$first:"$production_commodity"}
+                }},
+                {$project:{_id:1,transfer_year:1,
+                    country: { name:"$country.name",iso2:"$country.iso2"},
+                    company:{$cond:[{$eq:["$company", null]}, null, {_id:"$company._id",company_name:"$company.company_name"}]},
+                    proj_site: {
+                        $cond: {
+                            if: {$not: "$site"},
+                            then: {
+                                $cond: {
+                                    if: {$not: "$project"},
+                                    then: [],else:{
+                                        _id: "$project.proj_id", name: "$project.proj_name",
+                                        type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                    }
+                                }
+                            },
+                            else: {
+                                _id: "$site._id", name: "$site.site_name",
+                                type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                            }
+                        }
+                    },
+                    production_commodity:{$cond:[{$eq:["$production_commodity", null]}, null, {_id:"$production_commodity._id",name:"$production_commodity.commodity_name",
+                        commodity_id:'$production_commodity.commodity_id'}]},
+                    production_year:1,production_volume:1,production_unit:1,production_price:1,production_price_unit:1,production_level:1
+                }},
+                {$skip: skip},
+                {$limit: limit}
+            ]).exec(function (err, production) {
+                if (err) {
                     callback(null, projects);
-                });
-        }else {
-            callback(null, projects);
-        }
-    }
-    function getCountryLinks(projects,callback) {
-        if(type=='country') {
-            models_counter=0;
-            models_len = models.length;
-            _.each(models, function(model) {
-                var name = require('mongoose').model(model.name);
-                var $field = model.field;
-                name.find($field)
-                    .exec(function (err, responce) {
-                    models_counter++;
-                    _.each(responce, function(re) {
-                        counter++;
-                        projects.production_query.push(re._id);
-                    });
-                    if(models_counter==models_len){
+                }else {
+                    if (production.length > 0) {
+                        projects.production = production;
+                        callback(null, projects);
+                    } else {
                         callback(null, projects);
                     }
-                });
-            });
+                }
+            })
         }else {
             callback(null, projects);
         }
     }
+    //function getCountryLinks(projects,callback) {
+    //    if(type=='country') {
+    //        models_counter=0;
+    //        models_len = models.length;
+    //        _.each(models, function(model) {
+    //            var name = require('mongoose').model(model.name);
+    //            var $field = model.field;
+    //            name.find($field)
+    //                .exec(function (err, responce) {
+    //                models_counter++;
+    //                _.each(responce, function(re) {
+    //                    counter++;
+    //                    projects.production_query.push(re._id);
+    //                });
+    //                if(models_counter==models_len){
+    //                    callback(null, projects);
+    //                }
+    //            });
+    //        });
+    //    }else {
+    //        callback(null, projects);
+    //    }
+    //}
     function getSource(projects,callback) {
         if(type=='source_type') {
             Source.find(queries).exec(function(err,sources){
@@ -249,68 +320,90 @@ exports.getProductionTable = function(req, res){
         }
     }
     function getProduction(projects, callback) {
-        var productions = [];var query='';var proj_site={};
-        projects.production = [];
-        if(type=='concession'){ query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
-        if(type=='company') { query={$or: [{project: {$in: projects.production_query}},{site: {$in: projects.production_query}},{concession: {$in: projects.production_query}}]}}
-        if(type=='contract') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
-        if(type=='commodity') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
-        if(type=='project'||type=='site') { query={$or: [{project:{$in: projects.production_query}},{site:{$in: projects.production_query}}]}}
-        if(type=='group') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{company:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
-        if(type=='country') { query = {$or: [{project:{$in: projects.production_query}}, {site:{$in: projects.production_query}},{country:{$in: projects.production_query}},{concession:{$in: projects.production_query}}]}}
-        if(type=='source_type') { query = {$or: [{source:{$in: projects.production_query}}]}}
-        Production.find(query)
-            .populate('production_commodity project site country')
-            .exec(function (err, production) {
-                production_counter = 0;
-                production_len = production.length;
-                if (production_len > 0) {
-                    production.forEach(function (prod) {
-                        proj_site={};
-                        if(prod.project!=undefined){
-                            proj_site =  {name:prod.project.proj_name,_id:prod.project.proj_id,type:'project'}
-                        }
-                        if(prod.site!=undefined){
-                            if(prod.site.field){
-                                proj_site =  {name:prod.site.site_name,_id:prod.site._id,type:'field'}
+        if(type!='country') {
+            var productions = [];
+            var query = '';
+            var proj_site = {};
+            projects.production = [];
+            if (type == 'concession') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}]}
+            }
+            if (type == 'company') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}, {concession: {$in: projects.production_query}}]}
+            }
+            if (type == 'contract') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}, {concession: {$in: projects.production_query}}]}
+            }
+            if (type == 'commodity') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}, {concession: {$in: projects.production_query}}]}
+            }
+            if (type == 'project' || type == 'site') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}]}
+            }
+            if (type == 'group') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}, {company: {$in: projects.production_query}}, {concession: {$in: projects.production_query}}]}
+            }
+            if (type == 'country') {
+                query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}, {country: {$in: projects.production_query}}, {concession: {$in: projects.production_query}}]}
+            }
+            if (type == 'source_type') {
+                query = {$or: [{source: {$in: projects.production_query}}]}
+            }
+            Production.find(query)
+                .populate('production_commodity project site country')
+                .exec(function (err, production) {
+                    production_counter = 0;
+                    production_len = production.length;
+                    if (production_len > 0) {
+                        production.forEach(function (prod) {
+                            proj_site = {};
+                            if (prod.project != undefined) {
+                                proj_site = {name: prod.project.proj_name, _id: prod.project.proj_id, type: 'project'}
                             }
-                            if(!prod.site.field){
-                                proj_site =  {name:prod.site.site_name,_id:prod.site._id,type:'site'}
+                            if (prod.site != undefined) {
+                                if (prod.site.field) {
+                                    proj_site = {name: prod.site.site_name, _id: prod.site._id, type: 'field'}
+                                }
+                                if (!prod.site.field) {
+                                    proj_site = {name: prod.site.site_name, _id: prod.site._id, type: 'site'}
+                                }
                             }
-                        }
-                        ++production_counter;
-                        if (!productions.hasOwnProperty(prod._id)) {
-                            productions.push({
-                                _id: prod._id,
-                                production_year: prod.production_year,
-                                production_volume: prod.production_volume,
-                                production_unit: prod.production_unit,
-                                production_commodity: {
-                                    _id: prod.production_commodity._id,
-                                    commodity_name: prod.production_commodity.commodity_name,
-                                    commodity_id: prod.production_commodity.commodity_id
-                                },
-                                production_price: prod.production_price,
-                                production_price_unit: prod.production_price_unit,
-                                production_level: prod.production_level,
-                                proj_site: proj_site
-                            });
-                        }
+                            ++production_counter;
+                            if (!productions.hasOwnProperty(prod._id)) {
+                                productions.push({
+                                    _id: prod._id,
+                                    production_year: prod.production_year,
+                                    production_volume: prod.production_volume,
+                                    production_unit: prod.production_unit,
+                                    production_commodity: {
+                                        _id: prod.production_commodity._id,
+                                        commodity_name: prod.production_commodity.commodity_name,
+                                        commodity_id: prod.production_commodity.commodity_id
+                                    },
+                                    production_price: prod.production_price,
+                                    production_price_unit: prod.production_price_unit,
+                                    production_level: prod.production_level,
+                                    proj_site: proj_site
+                                });
+                            }
+                            if (production_counter === production_len) {
+                                productions = _.map(_.groupBy(productions, function (doc) {
+                                    return doc._id;
+                                }), function (grouped) {
+                                    return grouped[0];
+                                });
+                                projects.production = productions;
+                                callback(null, projects);
+                            }
+                        })
+                    } else {
                         if (production_counter === production_len) {
-                            productions = _.map(_.groupBy(productions,function(doc){
-                                return doc._id;
-                            }),function(grouped){
-                                return grouped[0];
-                            });
-                            projects.production = productions;
                             callback(null, projects);
                         }
-                    })
-                } else {
-                    if (production_counter === production_len) {
-                        callback(null, projects);
                     }
-                }
-            })
+                })
+        }else {
+            callback(null, projects)
+        }
     }
 };

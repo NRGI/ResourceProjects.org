@@ -9,13 +9,15 @@ var Project 		= require('mongoose').model('Project'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
     async           = require('async'),
+    mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
 
 exports.getContractTable = function(req, res){
     var link_counter, link_len,companies_len,companies_counter;
-    var company ={};var commodity=[];
+    var company ={};var commodity=[],errorList=[];
     company.contracts_link=[];
     var type = req.params.type;
     var query='';
@@ -198,71 +200,75 @@ exports.getContractTable = function(req, res){
     }
     function getCommodityContractsDB(company, callback) {
         if (type == 'commodity' || type == 'country') {
-            var contract_len = company.contracts.length;
-            var contract_counter = 0;
-            if (contract_len > 0) {
-                company.contracts.forEach(function (contract) {
-                    if(contract._id != undefined) {
-                        Contract.find({contract_id: contract._id})
-                            .exec(function (err, contracts) {
-                                contract_counter++;
-                                if(contracts.length>0) {
-                                    contract.id = contracts[0]._id;
-                                }
-                                if (contract_counter == contract_len) {
-                                    callback(null, company);
-                                }
-                            });
-                    }else {
-                        contract_counter++;
-                    }
-                    if (contract_counter == contract_len) {
+            var _ids = _.pluck(company.contracts, '_id');
+            if(_ids) {
+                Contract.aggregate([
+                    {$match: {$or: [{contract_id: {$in: _ids}}]}}
+                ]).exec(function (err, contracts) {
+                    if (err) {
+                        errorList = errors.errorFunction(err,'Contracts');
                         callback(null, company);
+                    } else {
+                        if (contracts.length > 0) {
+                            _.map(company.contracts, function (company) {
+                                var list = _.find(contracts, function (link) {
+                                    return company.contract_id == link.contract_id;
+                                });
+                                if (list) {
+                                    company.id = list._id;
+                                }
+                                return company;
+                            });
+                            callback(null, company, errorList);
+                        } else {
+                            errorList.push({type: 'Contracts', message: 'contracts not found'})
+                            callback(null, company, errorList);
+                        }
                     }
-                })
-            } else {
-                callback(null, company);
+                });
+            }else{
+                callback(null, company, errorList);
             }
         } else {
-            callback(null, company);
+            callback(null, company, errorList);
         }
     }
-    function getCommodityCompaniesCount(company, callback) {
+    function getCommodityCompaniesCount(company, errorList, callback) {
         if (type == 'commodity'||type == 'country') {
-            var contract_len = company.contracts.length;
-            var contract_counter = 0;
-            if (contract_len > 0) {
-                company.contracts.forEach(function (contract) {
-                    if(contract.id !='') {
-                        Link.find({contract:contract.id,entities:'company'})
-                            .exec(function (err, companies) {
-                                contract_counter++;
-                                if(companies.length>0) {
-                                    companies = _.map(_.groupBy(companies,function(doc){
-                                        return doc._id;
-                                    }),function(grouped){
-                                        return grouped[0];
-                                    });
-                                    contract.companies = companies.length;
+            var _ids = _.pluck(company.contracts, 'id');
+            if(_ids) {
+                Link.aggregate([
+                    {$match:{$or: [{contract: {$in: _ids}}], entities:'company'}}
+                ]).exec(function (err, contracts) {
+                    if (err) {
+                        errorList = errors.errorFunction(err,'Contract links');
+                        callback(null, company, errorList);
+                    } else {
+                        if (contracts.length > 0) {
+                            _.map(company.contracts, function (company) {
+                                var list = _.find(contracts, function (link) {
+                                    return company.id.toString() == link.contract>toString();
+                                });
+                                if (list && list.companies && list.companies.length>0) {
+                                    company.companies = list.companies.length;
                                 }
-                                if (contract_counter == contract_len) {
-                                    callback(null, company);
-                                }
+                                return company;
                             });
-                    } else
-                    {contract_counter++;}
-                    if (contract_counter == contract_len) {
-                        callback(null, company);
+                            callback(null, company, errorList);
+                        } else {
+                            errorList.push({type: 'Contract links', message: 'contract links not found'})
+                            callback(null, company, errorList);
+                        }
                     }
-                })
-            } else {
-                callback(null, company);
+                });
+            }else{
+                callback(null, company, errorList);
             }
         } else {
-            callback(null, company);
+            callback(null, company, errorList);
         }
     }
-    function getContractCommodity(company, callback) {
+    function getContractCommodity(company, errorList, callback) {
         if (type != 'commodity'&&type!='group'&&type != 'country') {
             var contract_len = company.contracts.length;
             var contract_counter = 0;

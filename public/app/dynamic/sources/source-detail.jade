@@ -11,7 +11,7 @@
                     tbody
                         tr
                             td.project-label.our-id Type:
-                            td {{source.source_type}}
+                            td {{source.source_type_id.source_type_name}}
                         tr
                             td.project-label.website Source date:
                             td {{source.source_date| date:'yyyy-MM-dd'}}
@@ -36,8 +36,7 @@
                                 | (Google sheet)
                         tr
                             td.project-label.open-corporates Created:
-                            td {{source.create_author.first_name}} {{source.create_author.last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
-
+                            td(ng-if='source.create_author&&source.create_date') {{source.create_author.first_name}} {{source.create_author.last_name}} on {{source.create_date| date:'yyyy-MM-dd'}}
         .col-md-6
             .info-box
                 table#source-description

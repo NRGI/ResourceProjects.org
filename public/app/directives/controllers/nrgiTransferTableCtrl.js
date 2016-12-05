@@ -2,27 +2,87 @@
 
 angular
     .module('app')
-    .controller('nrgiTransferTableCtrl', function ($scope,nrgiTransferTablesSrvc,usSpinnerService, $filter) {
+    .controller('nrgiTransferTableCtrl', function ($scope,nrgiTransferTablesSrvc,usSpinnerService, nrgiCSV) {
         $scope.transfers=[];
         $scope.loading=false;
         $scope.openClose=true;
-        $scope.csv_transfers = [];
-        var header_transfer = [];
+        var headerTransfer = [];
         $scope.expression='';
         var fields = [];
-        var country_name = '';
-        var transfer_value = '';
-        var company_name = '';
+        var limit = 50,
+            currentPage = 0;
+        var headers = [
+            {name: 'Year', status: true, field: 'transfer_year'},
+            {name: 'Paid by', status: true, field: 'company'},
+            {name: 'Paid to', status: true, field: 'country'},
+            {name: 'Project', status: true, field: 'proj_site'},
+            {name: 'Project ID', status: true, field: 'proj_site_id'},
+            {name: 'Level ', status: true, field: 'proj_site_type'},
+            {name: 'Payment Type', status: true, field: 'transfer_type'},
+            {name: 'Currency', status: true, field: 'transfer_unit'},
+            {name: 'Value ', status: true, field: 'transfer_value'}];
+        angular.forEach(headers, function (header) {
+            if (header.status != false && header.status != undefined) {
+                headerTransfer.push(header.name);
+                fields.push(header.field);
+            }
+        });
+        $scope.getHeaderTransfers = function () {
+            return headerTransfer
+        };
+
         usSpinnerService.spin('spinner-transfers');
         $scope.$watch('id', function(value) {
             if($scope.type=='country'&&value!=undefined) {
                 $scope.transfers = value;
+                usSpinnerService.stop('spinner-transfers');
+                if ($scope.transfers.length == 0 ) {
+                    $scope.expression = 'showLast';
+                }else {
+                    $scope.busy = false;
+                    currentPage = 1;
+                }
             }
             if($scope.type!='country'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getTransfers($scope.id, $scope.type);
             }
         });
+
+        $scope.loadMoreTransfers = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            nrgiTransferTablesSrvc.query({_id: $scope.countryid,
+                type: $scope.type,skip: currentPage*limit, limit: limit}, function (response) {
+                $scope.transfers = _.union($scope.transfers, response.transfers);
+                if( response.transfers.length>49){
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                }else{
+                    $scope.busy = true;
+                }
+            });
+        };
+
+        $scope.loadPaymentsCSV = function() {
+            nrgiCSV.setCsv(fields,$scope.transfers)
+            return nrgiCSV.getResult()
+        };
+        $scope.getAllPayments = function() {
+            if($scope.busy == true && $scope.transfers.length>49 || $scope.transfers.length<49) {
+                setTimeout(function () {angular.element(document.getElementById("loadPaymentCSV")).trigger('click');},0)
+            } else {
+                nrgiTransferTablesSrvc.query({
+                    _id: $scope.countryid,
+                    type: $scope.type, skip: 0, limit: 5000000
+                }, function (data) {
+                    $scope.transfers = data.transfers
+                    $scope.busy = true;
+                    setTimeout(function () {angular.element(document.getElementById("loadPaymentCSV")).trigger('click');},0)
+                })
+            }
+        }
+
         $scope.getTransfers=function(id,type) {
             if ($scope.id != undefined) {
                 if ($scope.openClose == true) {
@@ -30,7 +90,9 @@ angular
                         $scope.loading = true;
                         nrgiTransferTablesSrvc.get({
                             _id: id,
-                            type: type
+                            type: type,
+                            skip: currentPage*limit,
+                            limit: limit
                         }, function (success) {
                             $scope.expression = '';
                             if (success.transfers.length == 0 && $scope.transfers.length == 0) {
@@ -38,76 +100,8 @@ angular
                             }
                             $scope.transfers = success.transfers;
                             usSpinnerService.stop('spinner-transfers');
-                            var headers = [
-                                {name: 'Year', status: true, field: 'transfer_year'},
-                                {name: 'Paid by', status: true, field: 'company'},
-                                {name: 'Paid to', status: true, field: 'country'},
-                                {name: 'Project', status: true, field: 'proj_site'},
-                                {name: 'Project ID', status: true, field: 'proj_id'},
-                                {name: 'Level ', status: true, field: 'proj_type'},
-                                {name: 'Payment Type', status: true, field: 'transfer_type'},
-                                {name: 'Currency', status: true, field: 'transfer_unit'},
-                                {name: 'Value ', status: true, field: 'transfer_value'}];
-                            angular.forEach(headers, function (header) {
-                                if (header.status != false && header.status != undefined) {
-                                    header_transfer.push(header.name);
-                                    fields.push(header.field);
-                                }
-                            });
-                            $scope.getHeaderTransfers = function () {
-                                return header_transfer
-                            };
-                            angular.forEach($scope.transfers, function (transfer, key) {
-                                $scope.csv_transfers[key] = [];
-                                angular.forEach(fields, function (field) {
-                                    if (field == 'transfer_value') {
-                                        transfer_value = '';
-                                        transfer_value = $filter('currency')(transfer[field], '', 0)
-                                        $scope.csv_transfers[key].push(transfer_value);
-                                    }
-                                    if (field == 'country') {
-                                        country_name = '';
-                                        if (transfer[field] != undefined) {
-                                            country_name = transfer[field].name.toString();
-                                            country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
-                                        }
-                                        $scope.csv_transfers[key].push(country_name);
-                                    }
-                                    if (field == 'company') {
-                                        company_name = '';
-                                        if (transfer[field] != undefined) {
-                                            company_name = transfer[field].company_name.toString();
-                                            company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
-                                        }
-                                        $scope.csv_transfers[key].push(company_name);
-                                    }
-                                    if (field == 'proj_site') {
-                                        name = '';
-                                        if (transfer[field] != undefined && transfer[field].name != undefined) {
-                                            var name = transfer[field].name.toString();
-                                        }
-                                        $scope.csv_transfers[key].push(name)
-                                    }
-                                    if (field == 'proj_type') {
-                                        type = '';
-                                        if (transfer.proj_site != undefined && transfer.proj_site.type != undefined) {
-                                            var type = transfer.proj_site.type.toString();
-                                        }
-                                        $scope.csv_transfers[key].push(type)
-                                    }
-                                    if (field == 'proj_id') {
-                                        id = '';
-                                        if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.proj_site.type == 'project') {
-                                            var id = transfer.proj_site._id.toString();
-                                        }
-                                        $scope.csv_transfers[key].push(id);
-                                    }
-                                    if (field != 'company' && field != 'country' && field != 'proj_site' && field != 'proj_type' && field != 'proj_id' && field != 'transfer_value') {
-                                        $scope.csv_transfers[key].push(transfer[field])
-                                    }
-                                })
-                            });
                         }, function (error) {
+                            console.log(error)
                             usSpinnerService.stop('spinner-transfers');
                         })
                     }

@@ -28,28 +28,25 @@ data-target="#projects")
                 th.text-center.tablesort-sortable-th(
                 ng-if="companies==true"
                 ts-criteria='companies_count|parseInt') Companies
-        tbody
-            //span(
-            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            //spinner-start-active="true"
-            //spinner-key="spinner-project")
+        tbody.projectsScrollContainer
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-project")
             tr(
             ng-repeat="project in projects | unique: '_id'"
             ts-repeat ng-class="expression")
                 td.proj_id
                     a(href='project/{{project.proj_id}}')
                         span(ng-bind-html="project.proj_name|sanitize")
-                td.proj_country(ng-if="country==true"): text(ng-repeat="country in project.proj_country | unique: 'country._id'")
-                    a(href='country/{{country.country.iso2}}')
-                        span(ng-bind-html="country.country.name|sanitize")
+                td.proj_country(ng-if="country==true"): span(ng-repeat="country in project.proj_country | unique: '_id'")
+                    a(href='country/{{country.iso2}}')
+                        span(ng-bind-html="country.name|sanitize")
                     | {{$last ? '' : ', '}}
-                //td.proj_type(ng-if="type==true"): text(ng-repeat="type in project.proj_type")
-                //    | {{type.string | ucfirst}}
-                //    | {{$last ? '' : ', '}}
                 td.proj_commodity_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity_type'")
                     | {{commodity.commodity_type | ucfirst | addSpaces}}
                     | {{$last ? '' : ', '}}
-                td.proj_commodity(ng-if="commodity==true"): text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                td.proj_commodity(ng-if="commodity==true"): span(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
                     a(href='commodity/{{commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
@@ -59,12 +56,13 @@ data-target="#projects")
                     ng-if="project.proj_status")
                         | {{project.proj_status.string | ucfirst | addSpaces}}
                         text.small(ng-if="project.proj_status.timestamp")  (true at {{project.proj_status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                td.text-center(ng-if="companies==true && project.companies.length>0 && project.companies_count<3"): text(ng-repeat="company in project.companies ")
+                td.text-center(ng-if="companies==true && project.companies.length>0 && project.companies_count<3"): span(ng-repeat="company in project.companies ")
                     a(href='company/{{company._id}}')
                         span(ng-bind-html="company.company_name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.text-center(ng-if="companies==true && project.companies_count>=3") ({{project.companies_count}}) "companies"
                 td.text-center(ng-if="companies==true && project.companies_count ==0 && project.companies.length==0")
+    div(ng-if='projects.length>49' infinite-scroll='loadMoreProjects()' infinite-scroll-distance='3' infinite-scroll-container='".projectsScrollContainer"')
     div(ng-if="projects.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -73,6 +71,12 @@ data-target="#projects")
                 =' '
                 a(
                 href=""
-                ng-csv="csv_project"
+                ng-click="getAllProjects()") Projects CSV
+                button(
+                class='hidden'
+                id='loadProjectCSV'
+                href=""
+                ng-csv="loadCSV()"
+                lazy-load='true'
                 csv-header="getHeaderProjects()"
-                filename="projects.csv") Projects CSV
+                filename="projects.csv")

@@ -46,6 +46,7 @@ angular
 
                             })
                         }, function(error){
+                            console.log(error)
                             usSpinnerService.stop('spinner-source');
                         })
                     }

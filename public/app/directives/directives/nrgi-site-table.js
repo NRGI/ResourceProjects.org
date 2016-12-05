@@ -11,6 +11,7 @@ angular
                 id:'=',
                 commodity: '=',
                 status: '=',
+                countryid:'=',
                 country: '=',
                 type: '=',
                 commoditytype: '=',

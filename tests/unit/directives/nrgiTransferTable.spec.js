@@ -40,7 +40,7 @@ describe("TransferTable Directive", function() {
         },
         ID = "57156908a6565c01006341f8",
         element,
-        expectedParams = {_id: 'id',type: 'type'};
+        expectedParams = {_id: 'id',type: 'type',limit:50,skip:0};
     beforeEach(module('app'));
 
     beforeEach(inject(function($templateCache,_$compile_,_$rootScope_,$controller, nrgiTransferTablesSrvc,_usSpinnerService_) {
@@ -74,8 +74,6 @@ describe("TransferTable Directive", function() {
         transferQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(transferQueryStub, expectedParams);
         scope.transfers.should.be.equal(result.transfers);
-
-        scope.$digest();
 
         var isolateScope = element.find('table');
         isolateScope.should.be.defined;

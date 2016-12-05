@@ -4,8 +4,6 @@ data-toggle="collapse"
 ng-click='openClose=!openClose;getCompanyOperation(id,type)'
 data-target="#companies_operation")
     h4.text-justify Companies Operating In
-//a(data-toggle="collapse" ng-click='openClose=!openClose;getCompanyOperation(id,type)' data-target="#companies_operation")
-//    h2 Companies Operating In
 #companies_operation.panel-collapse.collapse.in
     table.load_table.table.table-striped.companies(
     ng-class="companies.length >= 8 ? 'header-fixed' : ''"
@@ -16,18 +14,12 @@ data-target="#companies_operation")
                 th.tablesort-sortable-th(
                 ng-if="group==true"
                 ts-criteria='company_groups[company_groups.length-1].company_group_name') Group
-                //th.tablesort-sortable-th(ng-if="project==true" ts-criteria='projects') No. Projects
-                //th.tablesort-sortable-th(ng-if="site==true" ts-criteria='') No. Sites
-                //th.tablesort-sortable-th(ng-if="site==true" ts-criteria='') No. Fields
-                //th.tablesort-sortable-th(ng-if="contract==true" ts-criteria='') No. Contracts
-                //th.tablesort-sortable-th(ng-if="concession==true" ts-criteria='') No. Concessions
                 th.tablesort-sortable-th(ng-if="stake==true") Stake
-        tbody
-            //span(
-            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            //spinner-start-active="true"
-            //spinner-key="spinner-companyOperation")
-            //| {{company_of_operation}}
+        tbody.companiesOfOperationScrollContainer
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-companyOperation")
             tr(
             ng-repeat="company in companies"
             ts-repeat
@@ -38,11 +30,8 @@ data-target="#companies_operation")
                     a(href="group/{{ group._id }}")
                         span(ng-bind-html="group.company_group_name|sanitize")
                     | {{$last ? '' : ', '}}
-                //td.company_stake(ng-if="project==true") {{company.projects}}
-                //td.company_stake(ng-if="site==true") {{company.sites}}
-                //td.company_stake(ng-if="contract==true") {{company.contracts}}
-                //td.company_stake(ng-if="concession==true") {{company.concessions}}
                 td.company_stake(ng-if="stake==true") {{company.stake}}
+    div(ng-if='companies.length>49' infinite-scroll='loadMoreCompaniesOfOperation()' infinite-scroll-distance='3' infinite-scroll-container='".companiesOfOperationScrollContainer"')
     div(ng-if="companies.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden="true")

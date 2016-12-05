@@ -7,124 +7,125 @@ var CompanyGroup 		= require('mongoose').model('CompanyGroup'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
+//For now not used
+//exports.getCompanyGroups = function(req, res) {
+//    var companyGroup_len, link_len, companyGroup_counter, link_counter,
+//        limit = Number(req.params.limit),
+//        skip = Number(req.params.skip);
+//
+//    async.waterfall([
+//        companyGroupCount,
+//        getCompanyGroupSet,
+//        getCompanyGroupLinks,
+//        getLinkedCompanyProjects
+//    ], function (err, result) {
+//        if (err) {
+//            res.send(err);
+//        } else{
+//            if (req.query && req.query.callback) {
+//                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+//            } else {
+//                return res.send(result);
+//            }
+//        }
+//    });
+//
+//    function companyGroupCount(callback) {
+//        CompanyGroup.find({}).count().exec(function(err, companyGroup_count) {
+//            if(companyGroup_count) {
+//                callback(null, companyGroup_count);
+//            } else {
+//                return res.send(err);
+//            }
+//        });
+//    }
+//    function getCompanyGroupSet(companyGroup_count, callback) {
+//        CompanyGroup.find({})
+//            .sort({
+//                company_group_name: 'asc'
+//            })
+//            .skip(skip)
+//            .limit(limit)
+//            .lean()
+//            .exec(function(err, companyGroups) {
+//                if(companyGroups) {
+//                    callback(null, companyGroup_count, companyGroups);
+//                } else {
+//                    return res.send(err);
+//                }
+//            });
+//    }
+//    function getCompanyGroupLinks(companyGroup_count, companyGroups, callback) {
+//        companyGroup_len = companyGroups.length;
+//        companyGroup_counter = 0;
+//        if(companyGroup_len>0) {
+//            companyGroups.forEach(function (group) {
+//                Link.find({company_group: group._id})
+//                    .populate('company')
+//                    .populate('project')
+//                    .exec(function (err, links) {
+//                        ++companyGroup_counter;
+//                        link_len = links.length;
+//                        link_counter = 0;
+//                        group.company_count = 0;
+//                        group.companies = {};
+//                        links.forEach(function (link) {
+//                            ++link_counter;
+//
+//                            var entity = _.without(link.entities, 'company_group')[0];
+//                            switch (entity) {
+//                                case 'company':
+//                                    group.companies = {company: link.company._id};
+//                                    group.company_count += 1;
+//                                    break;
+//                                default:
+//                                    console.log(entity, 'link skipped...');
+//                            }
+//                        });
+//                        if (companyGroup_counter == companyGroup_len && link_counter == link_len) {
+//                            callback(null, companyGroup_count, companyGroups);
+//                        }
+//                    });
+//            });
+//        }else{
+//            callback(null, companyGroup_count, companyGroups);
+//        }
+//    }
+//    function getLinkedCompanyProjects (companyGroup_count, companyGroups, callback){
+//        companyGroup_len = companyGroups.length;
+//        companyGroup_counter = 0;
+//        if(companyGroup_len>0) {
+//            async.forEach(companyGroups, function (group) {
+//                group.project_count = 0;
+//                if(Object.keys(group.companies).length != 0) {
+//                    Link.find({entities: 'project',$or: [group.companies]})
+//                        .populate('project')
+//                        .exec(function (err, proj_count) {
+//                            proj_count = _.map(_.groupBy(proj_count,function(doc){
+//                                if(doc.project!=undefined && doc.project._id!=undefined )
+//                                return doc.project._id;
+//                            }),function(grouped){
+//                                return grouped[0];
+//                            });
+//                            ++companyGroup_counter;
+//                            group.project_count = proj_count.length;
+//                            if (companyGroup_counter == companyGroup_len) {
+//                                callback(null, {data: companyGroups, count: companyGroup_count});
+//                            }
+//                        });
+//                }else{
+//                    ++companyGroup_counter;
+//                }
+//                if(Object.keys(group.companies).length == 0 && companyGroup_counter == companyGroup_len) {
+//                    callback(null, {data: companyGroups, count: companyGroup_count});
+//                }
+//                });
+//        } else {
+//            callback(null, {data:companyGroups, count:companyGroup_count});
+//        }
+//    }
+//};
 
-exports.getCompanyGroups = function(req, res) {
-    var companyGroup_len, link_len, companyGroup_counter, link_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
-
-    async.waterfall([
-        companyGroupCount,
-        getCompanyGroupSet,
-        getCompanyGroupLinks,
-        getLinkedCompanyProjects
-    ], function (err, result) {
-        if (err) {
-            res.send(err);
-        } else{
-            if (req.query && req.query.callback) {
-                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
-            } else {
-                return res.send(result);
-            }
-        }
-    });
-
-    function companyGroupCount(callback) {
-        CompanyGroup.find({}).count().exec(function(err, companyGroup_count) {
-            if(companyGroup_count) {
-                callback(null, companyGroup_count);
-            } else {
-                return res.send(err);
-            }
-        });
-    }
-    function getCompanyGroupSet(companyGroup_count, callback) {
-        CompanyGroup.find({})
-            .sort({
-                company_group_name: 'asc'
-            })
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .exec(function(err, companyGroups) {
-                if(companyGroups) {
-                    callback(null, companyGroup_count, companyGroups);
-                } else {
-                    return res.send(err);
-                }
-            });
-    }
-    function getCompanyGroupLinks(companyGroup_count, companyGroups, callback) {
-        companyGroup_len = companyGroups.length;
-        companyGroup_counter = 0;
-        if(companyGroup_len>0) {
-            companyGroups.forEach(function (group) {
-                Link.find({company_group: group._id})
-                    .populate('company')
-                    .populate('project')
-                    .exec(function (err, links) {
-                        ++companyGroup_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        group.company_count = 0;
-                        group.companies = {};
-                        links.forEach(function (link) {
-                            ++link_counter;
-
-                            var entity = _.without(link.entities, 'company_group')[0];
-                            switch (entity) {
-                                case 'company':
-                                    group.companies = {company: link.company._id};
-                                    group.company_count += 1;
-                                    break;
-                                default:
-                                    console.log(entity, 'link skipped...');
-                            }
-                        });
-                        if (companyGroup_counter == companyGroup_len && link_counter == link_len) {
-                            callback(null, companyGroup_count, companyGroups);
-                        }
-                    });
-            });
-        }else{
-            callback(null, companyGroup_count, companyGroups);
-        }
-    }
-    function getLinkedCompanyProjects (companyGroup_count, companyGroups, callback){
-        companyGroup_len = companyGroups.length;
-        companyGroup_counter = 0;
-        if(companyGroup_len>0) {
-            async.forEach(companyGroups, function (group) {
-                group.project_count = 0;
-                if(Object.keys(group.companies).length != 0) {
-                    Link.find({entities: 'project',$or: [group.companies]})
-                        .populate('project')
-                        .exec(function (err, proj_count) {
-                            proj_count = _.map(_.groupBy(proj_count,function(doc){
-                                if(doc.project!=undefined && doc.project._id!=undefined )
-                                return doc.project._id;
-                            }),function(grouped){
-                                return grouped[0];
-                            });
-                            ++companyGroup_counter;
-                            group.project_count = proj_count.length;
-                            if (companyGroup_counter == companyGroup_len) {
-                                callback(null, {data: companyGroups, count: companyGroup_count});
-                            }
-                        });
-                }else{
-                    ++companyGroup_counter;
-                }
-                if(Object.keys(group.companies).length == 0 && companyGroup_counter == companyGroup_len) {
-                    callback(null, {data: companyGroups, count: companyGroup_count});
-                }
-                });
-        } else {
-            callback(null, {data:companyGroups, count:companyGroup_count});
-        }
-    }
-};
 
 exports.getCompanyGroupID = function(req, res) {
 

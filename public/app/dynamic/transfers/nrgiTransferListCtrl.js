@@ -11,7 +11,7 @@ angular.module('app')
         $filter
     ) {
 
-        var currentPage = 0, totalPages = 0, searchOptions = {}, header_transfer = [], fields = [], country_name = '', company_name = '', transfer_value = '';
+        var currentPage = 0, totalPages = 0, searchOptions = {}, headerTransfer = [], fields = [], countryName = '', companyName = '', transferValue = '';
         $scope.limit = 500;
         $scope.skip = currentPage * $scope.limit;
         $scope.count =0;
@@ -70,7 +70,7 @@ angular.module('app')
             if(year && year!=searchOptions.transfer_year) {
                 $scope.skip=0;
                 searchOptions.skip=0;
-                searchOptions.limit= 0;currentPage = 0;
+                searchOptions.limit= 500;currentPage = 0;
                 searchOptions.transfer_year = year;
                 if($scope.currency) {
                     searchOptions.transfer_unit = $scope.currency;
@@ -79,11 +79,11 @@ angular.module('app')
             }
             if($scope.year=='' && $scope.currency){
                 $scope.skip=0;
-                searchOptions = {skip:0, limit:0, transfer_unit:searchOptions.transfer_unit }
+                searchOptions = {skip:0, limit:500, transfer_unit:searchOptions.transfer_unit }
                 $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
                 $scope.skip=0;
-                searchOptions = {skip:0, limit:0}
+                searchOptions = {skip:0, limit:500}
                 $scope.load(searchOptions);
             }
         });
@@ -101,11 +101,11 @@ angular.module('app')
             }
             if($scope.currency=='' && $scope.year){
                 $scope.skip=0;
-                searchOptions = {skip:0, limit:0, transfer_year:searchOptions.transfer_year }
+                searchOptions = {skip:0, limit:500, transfer_year:searchOptions.transfer_year }
                 $scope.load(searchOptions);
             } else if($scope.year=='' && $scope.currency==''){
                 $scope.skip=0;
-                searchOptions = {skip: 0, limit: 0};
+                searchOptions = {skip: 0, limit: 500};
                 $scope.load(searchOptions);
             }
         });
@@ -151,56 +151,55 @@ angular.module('app')
             {name: 'Level ', status: true, field: 'transfer_gov_entity'},
             {name: 'Payment Type', status: true, field: 'transfer_type'},
             {name: 'Currency', status: true, field: 'transfer_unit'},
-            {name: 'Value ', status: true, field: 'transfer_value'}];
+            {name: 'Value ', status: true, field: 'transferValue'}];
         angular.forEach(headers, function (header) {
             if (header.status != false && header.status != undefined) {
-                header_transfer.push(header.name);
+                headerTransfer.push(header.name);
                 fields.push(header.field);
             }
         });
         $scope.getHeaderTransfers = function () {
-            return header_transfer
+            return headerTransfer
         };
 
-        $scope.load_all = function(){
+        $scope.load_all = function() {
             if ($scope.busy) return;
             $scope.busy = true;
-           nrgiTransfersSrvc.query({skip: 0, limit: 0}, function (response) {
+            nrgiTransfersSrvc.query({skip: 0, limit: $scope.count}, function (response) {
                 $scope.csv_transfers = [];
                 angular.forEach(response.data, function (transfer, key) {
                     $scope.csv_transfers[key] = [];
                     angular.forEach(fields, function (field) {
-                        if(field =='transfer_value'){
-                            transfer_value = '';
-                            transfer_value = $filter('currency')(transfer[field], '', 0)
-                            $scope.csv_transfers[key].push(transfer_value);
+                        if (field == 'transferValue') {
+                            transferValue = '';
+                            transferValue = $filter('currency')(transfer[field], '', 0)
+                            $scope.csv_transfers[key].push(transferValue);
                         }
                         if (field == 'country') {
-                            country_name = '';
-                            if (transfer[field] != undefined) {
-                                country_name = transfer[field].name.toString();
-                                country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                            countryName = '';
+                            if (transfer[field] != undefined && transfer[field].name) {
+                                countryName = transfer[field].name.toString();
+                                countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
                             }
-                            $scope.csv_transfers[key].push(country_name);
+                            $scope.csv_transfers[key].push(countryName);
                         }
                         if (field == 'company') {
-                            company_name = '';
-                            if (transfer[field] != undefined) {
-                                company_name = transfer[field].company_name.toString();
-                                company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
+                            companyName = '';
+                            if (transfer[field] != undefined && transfer[field].companyName) {
+                                companyName = transfer[field].companyName.toString();
+                                companyName = companyName.charAt(0).toUpperCase() + companyName.substr(1);
                             }
-                            $scope.csv_transfers[key].push(company_name);
+                            $scope.csv_transfers[key].push(companyName);
                         }
                         if (field == 'transfer_gov_entity') {
-                            if (transfer[field]){
+                            if (transfer[field]) {
                                 name = transfer[field];
                             }
-                            if (!transfer[field])
-                            {
+                            if (!transfer[field]) {
                                 if (transfer.proj_site != undefined) {
                                     name = transfer.proj_site.type;
-                                }else{
-                                    name='';
+                                } else {
+                                    name = '';
                                 }
                             }
                             $scope.csv_transfers[key].push(name)
@@ -215,16 +214,15 @@ angular.module('app')
                         if (field == 'proj_id') {
                             id = '';
                             if (transfer.proj_site != undefined && transfer.proj_site._id != undefined && transfer.proj_site.type == 'project') {
-                               var id = transfer.proj_site._id.toString();
+                                var id = transfer.proj_site._id.toString();
                             }
                             $scope.csv_transfers[key].push(id);
                         }
-                        if (field != 'company' && field != 'transfer_gov_entity'&& field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transfer_value') {
+                        if (field != 'company' && field != 'transfer_gov_entity' && field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transferValue') {
                             $scope.csv_transfers[key].push(transfer[field])
                         }
                     })
                 });
             });
         }
-
     });

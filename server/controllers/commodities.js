@@ -69,6 +69,7 @@ exports.getCommodities = function(req, res) {
                 c.sites=0;
                 c.contract =0;
                 models_len = models.length;
+
                 async.eachOf(models, function(model) {
                     ++commodity_counter;
                     models_counter=0;
@@ -88,35 +89,6 @@ exports.getCommodities = function(req, res) {
             });
         }
     }
-    //function getContractCount(commodity_count, commodities, callback) {
-    //	commodity_len = commodities.length;
-    //	commodity_counter = 0;
-    //	if(commodity_len>0) {
-    //		commodities.forEach(function (c) {
-    //			c.sites=0;
-    //			c.fields=0;
-    //			Site.find({'site_commodity.commodity': c._id})
-    //				.exec(function (err, sites) {
-    //					++commodity_counter;
-    //					link_len = sites.length;
-    //					link_counter = 0;
-    //					sites.forEach(function (site) {
-    //						if(site.field){
-    //							c.fields += 1;
-    //						}else{
-    //							c.sites += 1;
-    //						}
-    //						++link_counter;
-    //					});
-    //					if (commodity_counter == commodity_len && link_counter == link_len) {
-    //						callback(null,{data: commodities, count: commodity_count});
-    //					}
-    //				});
-    //		});
-    //	} else{
-    //		callback(null,{data: commodities, count: commodity_count});
-    //	}
-    //}
 };
 
 exports.getCommodityByID = function(req, res) {

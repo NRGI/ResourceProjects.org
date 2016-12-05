@@ -24,7 +24,7 @@ angular
                     },
                     keyFormatter: function (d, i) {
                         if ($scope.currency_filter && $scope.currency_filter != 'Show all currency') {
-                            return d + ' ' + $scope.currency_filter
+                            return  d +  $scope.currency_filter
                         } else {
                             return d
                         }

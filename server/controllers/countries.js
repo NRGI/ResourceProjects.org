@@ -10,6 +10,7 @@ var Country 		= require('mongoose').model('Country'),
     Production 		= require('mongoose').model('Production'),
     Commodity 		= require('mongoose').model('Commodity'),
     mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -32,7 +33,7 @@ exports.getCountries = function(req, res) {
     ], function (err, result) {
         if (err) {
             err = new Error('Error: '+ err);
-            res.send({reason: err.toString()});
+            res.send({data:[],count:0,reason: err.toString()});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -46,7 +47,7 @@ exports.getCountries = function(req, res) {
         Country.find({}).count().exec(function(err, country_count) {
             if (err) {
                 err = new Error('Error: '+ err);;
-                return res.send({reason: err.toString()});
+                return res.send({data:[],count:0,reason: err.toString()});
             } else if (!country_count) {
                 callback(null, 0);
             } else {
@@ -62,9 +63,9 @@ exports.getCountries = function(req, res) {
             .exec(function(err, countries) {
                 if (err) {
                     err = new Error('Error: '+ err);
-                    return res.send({reason: err.toString()});
+                    return res.send({data:[],count:0,reason: err.toString()});
                 } else if (!countries) {
-                    return res.send({reason: 'not found'});
+                    return res.send({data:[],count:0,reason: 'not found'});
                 } else {
                     callback(null, country_count, countries);
                 }
@@ -86,7 +87,7 @@ exports.getCountries = function(req, res) {
             {$project:{_id:'$country._id',iso2:'$country.iso2',name:'$country.name',project_count:{ $size: "$project" }}}
         ]).exec(function (err, projects) {
             if (err) {
-                errorList = errorFunction(err,'Projects');
+                errorList = errors.errorFunction(err,'Projects');
                 callback(null, country_count, countries,errorList);
             }
             else {
@@ -117,7 +118,7 @@ exports.getCountries = function(req, res) {
             {$project:{_id:'$country._id',iso2:'$country.iso2',name:'$country.name',site_count:{ $size: "$project"}}}
         ]).exec(function (err, sites) {
             if (err) {
-                errorList = errorFunction(err,'Sites');
+                errorList = errors.errorFunction(err,'Sites');
                 callback(null, country_count, countries,errorList);
             }
             else {
@@ -148,7 +149,7 @@ exports.getCountries = function(req, res) {
             {$project:{_id:'$country._id',iso2:'$country.iso2',name:'$country.name',field_count:{ $size: "$project"}}}
         ]).exec(function (err, fields) {
             if (err) {
-                errorList = errorFunction(err,'Concessions');
+                errorList = errors.errorFunction(err,'Concessions');
                 callback(null, country_count, countries,errorList);
             }
             else {
@@ -178,7 +179,7 @@ exports.getCountries = function(req, res) {
             {$project:{_id:'$country._id',iso2:'$country.iso2',name:'$country.name',concession_count:{ $size: "$project"}}}
         ]).exec(function (err, concessions) {
             if (err) {
-                errorList = errorFunction(err,'Concessions');
+                errorList = errors.errorFunction(err,'Concessions');
                 callback(null, country_count, countries,errorList);
             } else {
                 if (concessions.length>0) {
@@ -207,7 +208,7 @@ exports.getCountries = function(req, res) {
             {$project:{_id:'$country._id',iso2:'$country.iso2',name:'$country.name',transfer_count:{ $size: "$project"}}}
         ]).exec(function (err, transfers) {
             if (err) {
-                errorList = errorFunction(err,'Concessions');
+                errorList = errors.errorFunction(err,'Concessions');
                 callback(null, country_count, countries,errorList);
             } else {
                 if (transfers.length>0) {
@@ -247,19 +248,17 @@ exports.getCountries = function(req, res) {
         });
         return result;
     }
-    function errorFunction(err,type){
-        err = new Error('Error: '+err);
-        errorList.push({type:type, message:err.toString()})
-        return errorList;
-    }
 };
 
 exports.getAllDAtaCountryByID = function(req, res) {
     var _id = mongoose.Types.ObjectId(req.params.id);
+    var limit = Number(req.params.limit),
+        skip = Number(req.params.skip);
     errorList=[];
     var projects = {};
     projects.projects = [];
     async.waterfall([
+        getMapCoordinates,
         getProjects,
         getProjectCompanyCount,
         getSites,
@@ -283,8 +282,35 @@ exports.getAllDAtaCountryByID = function(req, res) {
             }
         }
     });
-
-    function getProjects(callback) {
+    function getMapCoordinates(callback) {
+        projects.proj_coordinates = [];
+        Site.aggregate([
+                {$unwind: '$site_country'},
+                {$match:{'site_country.country':_id,"site_coordinates":{ $exists: true,$nin: [ null ]}}},
+                {$unwind:'$site_coordinates'},
+                {$project:{
+                    'lat':  { "$arrayElemAt": [ "$site_coordinates.loc", -2 ] },
+                    'lng': { "$arrayElemAt": [ "$site_coordinates.loc", -1 ] },
+                    'message': "$site_name",
+                    'timestamp': "$site_coordinates.timestamp",
+                    'type': {$cond: { if: { $gte: [ "$field", true ] }, then: 'field', else: 'site' }}
+                }}
+            ]).exec(function (err, sites) {
+            if (err) {
+                errorList = errors.errorFunction(err, 'Coordinates');
+                callback(null, projects, errorList);
+            } else {
+                if (sites.length > 0) {
+                    projects.proj_coordinates = sites;
+                    callback(null, projects, errorList);
+                } else {
+                    errorList.push({type: 'Coordinates', message: 'coordinates not found'})
+                    callback(null, projects, errorList);
+                }
+            }
+        });
+    }
+    function getProjects(projects, errorList, callback) {
         projects.projects = [];
         Project.aggregate([
             { $sort : { proj_name : -1 } },
@@ -303,11 +329,11 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 "project_id":{$first:"$_id"}
             }},
             {$project:{_id:1,proj_id:1,proj_name:1,project_id:1,proj_country:1,proj_commodity:1,proj_status:1,companies_count:{$literal:0},companies:[]}},
-            { $limit : 50 },
-            { $skip : 0}
+            { $skip : 0 },
+            { $limit : 50}
         ]).exec(function (err, proj) {
             if (err) {
-                errorList = errorFunction(err,'Projects');
+                errorList = errors.errorFunction(err,'Projects');
                 callback(null, projects,errorList);
             }else {
                 if (proj.length > 0) {
@@ -378,7 +404,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
             }
         ]).exec(function (err, links) {
             if (err) {
-                errorList = errorFunction(err,'Project links');
+                errorList = errors.errorFunction(err,'Project links');
                 callback(null, projects,errorList);
             }else {
                 if (links.length > 0) {
@@ -421,7 +447,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 { $skip : 0}
             ]).exec(function (err, proj) {
                 if (err) {
-                    errorList = errorFunction(err,'Sites');
+                    errorList = errors.errorFunction(err,'Sites');
                     callback(null, site,errorList);
                 }else {
                     if (proj.length > 0) {
@@ -466,7 +492,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 {$project:{_id:1,companies:1,companies_count:{$size:'$companies'},site_name:1,site_country:1,site_commodity:1,site_status:1}}
             ]).exec(function (err, links) {
                 if (err) {
-                    errorList = errorFunction(err,'Site links');
+                    errorList = errors.errorFunction(err,'Site links');
                     callback(null, sites,errorList);
                 }else {
                     if (links.length > 0) {
@@ -499,10 +525,12 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 {$project:{
                     _id:1,company_name:1,
                     countries_of_operation:"$countries_of_operation",
-                    company_groups:[]}}
+                    company_groups:[]}},
+                { $skip : 0 },
+                { $limit : 50}
             ]).exec(function (err, company) {
                 if (err) {
-                    errorList = errorFunction(err,'Companies of operation');
+                    errorList = errors.errorFunction(err,'Companies of operation');
                     callback(null, companies,errorList);
                 }else {
                     if (company.length > 0) {
@@ -532,7 +560,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 company_groups:1}}
         ]).exec(function (err, links) {
             if (err) {
-                errorList = errorFunction(err,'Company of operation links');
+                errorList = errors.errorFunction(err,'Company of operation links');
                 callback(null, companies,errorList);
             }else {
                 if (links.length > 0) {
@@ -564,10 +592,12 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 {$project:{
                     _id:1,company_name:1,
                     country_of_incorporation:"$country_of_incorporation",
-                    company_groups:[]}}
+                    company_groups:[]}},
+                { $skip : 0 },
+                { $limit : 50}
             ]).exec(function (err, company) {
                 if (err) {
-                    errorList = errorFunction(err,'Company of incorporation');
+                    errorList = errors.errorFunction(err,'Company of incorporation');
                     callback(null, companies,errorList);
                 }else {
                     if (company.length > 0) {
@@ -597,7 +627,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 company_groups:1}}
         ]).exec(function (err, links) {
             if (err) {
-                errorList = errorFunction(err,'Company of incorporation links');
+                errorList = errors.errorFunction(err,'Company of incorporation links');
                 callback(null, companies,errorList);
             }else {
                 if (links.length > 0) {
@@ -634,11 +664,11 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 "concession_status":{$last:"$concession_status"}
             }},
             {$project:{_id:1,concession_name:1,concession_country:1,concession_commodity:1,concession_status:1,projects_count:{$literal:0}}},
-            { $limit : 50 },
-            { $skip : 0}
+            { $skip : 0},
+            { $limit : 50 }
         ]).exec(function (err, concession) {
             if (err) {
-                errorList = errorFunction(err,'Concessions');
+                errorList = errors.errorFunction(err,'Concessions');
                 callback(null, concessions,errorList);
             }else {
                 if (concession.length > 0) {
@@ -685,7 +715,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
             {$project:{_id:1,concession_name:1,concession_country:1,concession_commodity:1,concession_status:1,projects_count:{$size: '$project'}}}
         ]).exec(function (err, links) {
             if (err) {
-                errorList = errorFunction(err,'Concession links');
+                errorList = errors.errorFunction(err,'Concession links');
                 callback(null, concessions,errorList);
             }else {
                 if (links.length > 0) {
@@ -744,18 +774,43 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 "transfer_unit":{$first:"$transfer_unit"},
                 "transfer_value":{$first:"$transfer_value"}
             }},
-            {$project:{_id:1,transfer_year:1,
-                country: { name:"$country.name",iso2:"$country.iso2"},
-                company:{$cond:[{$eq:["$company", null]}, null, {_id:"$company._id",company_name:"$company.company_name"}]},
-                project:{$cond:[{$eq:["$project", null]}, null, {proj_id:"$project.proj_id",name:"$project.proj_name"}]},
-                site:{$cond:[{$eq:["$site", null]}, null, {_id:"$site._id",name:"$site.site_name",field:'$site.field'}]},
-                transfer_level:1,transfer_type:1,transfer_unit:1,transfer_value:1
-            }},
-            { $limit : 50 },
-            { $skip : 0}
+            {
+                $project: {
+                    _id: 1, transfer_year: 1,
+                    country: {name: "$country.name", iso2: "$country.iso2"},
+                    company: {
+                        $cond: {
+                            if: {$not: "$company"},
+                            then: '',
+                            else: {_id: "$company._id", company_name: "$company.company_name"}
+                        }
+                    },
+                    proj_site: {
+                        $cond: {
+                            if: {$not: "$site"},
+                            then: {
+                                $cond: {
+                                    if: {$not: "$project"},
+                                    then: [], else: {
+                                        _id: "$project.proj_id", name: "$project.proj_name",
+                                        type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                    }
+                                }
+                            },
+                            else: {
+                                _id: "$site._id", name: "$site.site_name",
+                                type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                            }
+                        }
+                    },
+                    transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
+                }
+            },
+            { $skip : 0},
+            { $limit : 50 }
         ]).exec(function (err, transfers) {
             if (err) {
-                errorList = errorFunction(err,'Payments');
+                errorList = errors.errorFunction(err,'Payments');
                 callback(null, payments,errorList);
             }else {
                 if (transfers.length > 0) {
@@ -813,17 +868,34 @@ exports.getAllDAtaCountryByID = function(req, res) {
             {$project:{_id:1,transfer_year:1,
                 country: { name:"$country.name",iso2:"$country.iso2"},
                 company:{$cond:[{$eq:["$company", null]}, null, {_id:"$company._id",company_name:"$company.company_name"}]},
-                project:{$cond:[{$eq:["$project", null]}, null, {proj_id:"$project.proj_id",name:"$project.proj_name"}]},
+                proj_site: {
+                    $cond: {
+                        if: {$not: "$site"},
+                        then: {
+                            $cond: {
+                                if: {$not: "$project"},
+                                then: [],else:{
+                                    _id: "$project.proj_id", name: "$project.proj_name",
+                                    type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                }
+                            }
+                        },
+                        else: {
+                            _id: "$site._id", name: "$site.site_name",
+                            type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                        }
+                    }
+                },
                 site:{$cond:[{$eq:["$site", null]}, null, {_id:"$site._id",name:"$site.site_name",field:'$site.field'}]},
                 production_commodity:{$cond:[{$eq:["$production_commodity", null]}, null, {_id:"$production_commodity._id",name:"$production_commodity.commodity_name",
                     commodity_id:'$production_commodity.commodity_id'}]},
                 production_year:1,production_volume:1,production_unit:1,production_price:1,production_price_unit:1,production_level:1
             }},
-            { $limit : 50 },
-            { $skip : 0}
+            { $skip : 0},
+            { $limit : 50 }
         ]).exec(function (err, production) {
             if (err) {
-                errorList = errorFunction(err,'Payments');
+                errorList = errors.errorFunction(err,'Payments');
                 productions.errorList = errorList;
                 callback(null, productions,errorList);
             }else {
@@ -843,6 +915,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
 
 exports.getCountryByID = function(req, res) {
     var country_id;
+    var errorList =[];
     async.waterfall([
         getCountry,
         getProjects,
@@ -850,7 +923,7 @@ exports.getCountryByID = function(req, res) {
         getConcessions
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            res.send({commodities:[],country:[],error:err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -864,15 +937,21 @@ exports.getCountryByID = function(req, res) {
             {$match:{iso2:req.params.id}},
             {$lookup: {from: "commodities",localField: "country_commodity.commodity",foreignField: "_id",as: "country_commodity"}}
         ]).exec(function(err, country) {
-            if(country.length>0) {
-                country_id = mongoose.Types.ObjectId(country[0]._id);
-                callback(null, country[0]);
+            if (err) {
+                errorList = errors.errorFunction(err,'Countries');
+                res.send({commodities:[],country:[],error:errorList});
             } else {
-                callback(err);
+                if (country.length > 0) {
+                    country_id = mongoose.Types.ObjectId(country[0]._id);
+                    callback(null, country[0], errorList);
+                } else {
+                    errorList.push({type: 'Countries', message: 'countries not found'})
+                    callback(null, country[0], errorList);
+                }
             }
         });
     }
-    function getProjects(country, callback) {
+    function getProjects(country,errorList, callback) {
         Project.aggregate([
                 {$unwind: '$proj_country'},
                 {$match:{'proj_country.country': country_id}},
@@ -889,7 +968,7 @@ exports.getCountryByID = function(req, res) {
                 {$project:{_id:'$commodity._id',commodity_name:'$commodity.commodity_name',commodity_type:'$commodity.commodity_type',commodity_id:'$commodity.commodity_id'}}
             ]).exec(function (err, commodities) {
             if (err) {
-                errorList = errorFunction(err,'Project commodities');
+                errorList = errors.errorFunction(err,'Project commodities');
                 callback(null, commodities,errorList,country);
             }
             else {
@@ -919,7 +998,7 @@ exports.getCountryByID = function(req, res) {
             {$project:{_id:'$commodity._id',commodity_name:'$commodity.commodity_name',commodity_type:'$commodity.commodity_type',commodity_id:'$commodity.commodity_id'}}
         ]).exec(function (err, site_commodities) {
             if (err) {
-                errorList = errorFunction(err,'Site commodities');
+                errorList = errors.errorFunction(err,'Site commodities');
                 callback(null, commodities,errorList,country);
             }
             else {
@@ -950,7 +1029,7 @@ exports.getCountryByID = function(req, res) {
             {$project:{_id:'$commodity._id',commodity_name:'$commodity.commodity_name',commodity_type:'$commodity.commodity_type',commodity_id:'$commodity.commodity_id'}}
         ]).exec(function (err, concession_commodities) {
             if (err) {
-                errorList = errorFunction(err,'Site commodities');
+                errorList = errors.errorFunction(err,'Site commodities');
                 if(commodities.length>0){
                     commodities = commodities[0]
                 }
@@ -969,11 +1048,7 @@ exports.getCountryByID = function(req, res) {
     }
 
 };
-function errorFunction(err,type){
-    err = new Error('Error: '+err);
-    errorList.push({type:type, message:err.toString()})
-    return errorList;
-}
+
 exports.createCountry = function(req, res, next) {
     var countryData = req.body;
     Country.create(countryData, function(err, country) {

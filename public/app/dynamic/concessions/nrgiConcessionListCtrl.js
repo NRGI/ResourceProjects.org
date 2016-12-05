@@ -13,7 +13,6 @@ angular.module('app')
         var limit = 50,
             currentPage = 0,
             totalPages = 0;
-            //_ = $rootScope._;
 
         $scope.count =0;
         $scope.busy = false;
@@ -36,8 +35,8 @@ angular.module('app')
                             str = '';
                             angular.forEach(concession[field], function (country, i) {
                                 country_name = '';
-                                if (country != undefined&&country.country!=undefined) {
-                                    country_name = country.country.name.toString();
+                                if (country != undefined && country.name) {
+                                    country_name = country.name.toString();
                                     country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                                 }
                                 if (i != concession[field].length - 1 && country_name != '') {
@@ -46,6 +45,7 @@ angular.module('app')
                                     str = str + country_name;
                                     $scope.csv_concessions[key].push(str);
                                 }
+
                             });
                         } else {
                             $scope.csv_concessions[key].push('')
@@ -55,13 +55,15 @@ angular.module('app')
                         if(concession[field]!=undefined&&concession[field].length > 0) {
                             str = '';
                             concession[field] = _.map(_.groupBy(concession[field],function(doc){
-                                return doc.commodity_name;
+                                if(doc && doc.commodity_name) {
+                                    return doc.commodity_name;
+                                }
                             }),function(grouped){
                                 return grouped[0];
                             });
                             angular.forEach(concession[field], function (commodity, i) {
                                 commodity_name = '';
-                                if (commodity != undefined) {
+                                if (commodity != undefined && commodity.commodity_name) {
                                     commodity_name = commodity.commodity_name.toString();
                                     commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
                                 }
@@ -97,13 +99,15 @@ angular.module('app')
                         if(concession['concession_commodity']!=undefined&&concession['concession_commodity'].length > 0) {
                             str = '';
                             concession['concession_commodity'] = _.map(_.groupBy(concession['concession_commodity'],function(doc){
-                                return doc.commodity_type;
+                                if(doc && doc.commodity_type) {
+                                    return doc.commodity_type;
+                                }
                             }),function(grouped){
                                 return grouped[0];
                             });
                             angular.forEach(concession['concession_commodity'], function (commodity, i) {
                                 commodity_type = '';
-                                if (commodity != undefined) {
+                                if (commodity != undefined && commodity.commodity_type) {
                                     commodity_type = commodity.commodity_type.toString();
                                     commodity_type = commodity_type.charAt(0).toUpperCase() + commodity_type.substr(1);
                                 }

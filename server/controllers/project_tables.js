@@ -11,6 +11,7 @@ var Project 		= require('mongoose').model('Project'),
     async           = require('async'),
     mongoose 		= require('mongoose'),
     _               = require("underscore"),
+    errors 	    = require('./errorList'),
     request         = require('request');
 
 exports.getProjectTable = function(req, res){
@@ -18,6 +19,8 @@ exports.getProjectTable = function(req, res){
     var link_counter, link_len, companies_len, companies_counter;
     var company =[];
     var type = req.params.type;
+    var limit = parseInt(req.params.limit);
+    var skip = parseInt(req.params.skip);
     var query={};
     var projects = {};
     projects.projects = [];
@@ -36,7 +39,7 @@ exports.getProjectTable = function(req, res){
         getGroupLinkedProjects
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            res.send({projects:[],error:err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -145,8 +148,8 @@ exports.getProjectTable = function(req, res){
                     "project_id":{$first:"$_id"}
                 }},
                 {$project:{_id:1,proj_id:1,proj_name:1,project_id:1,proj_country:1,proj_commodity:1,proj_status:1,companies_count:{$literal:0},companies:[]}},
-                { $limit : 50 },
-                { $skip : 0}
+                { $skip : skip},
+                { $limit : limit }
             ]).exec(function (err, proj) {
                 projects.projects = proj
                 projects.project_id = _.pluck(proj, 'project_id');
