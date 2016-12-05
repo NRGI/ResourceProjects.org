@@ -6,7 +6,7 @@
             small Country
     .row
         .col-md-12
-            nrgi-leaflet(id='country._id' type='"country"')
+            nrgi-leaflet(id='data.proj_coordinates' type='"country"')
     .row.top-padding-med
         .col-md-6
             .info-box
@@ -28,6 +28,7 @@
                 type="'country'"
                 country="false"
                 commoditytype="true"
+                countryid="id"
                 companies="true"
                 commodity="true"
                 status="true")
@@ -37,6 +38,7 @@
                 id="data.sites"
                 name="'country'"
                 country="false"
+                countryid="id"
                 commoditytype="true"
                 type="false"
                 commodity="true"
@@ -46,13 +48,15 @@
             .col-md-6
                 nrgi-company-table(
                 id="data.companies"
-                type="'country'"
+                type="'country_of_incorporation'"
+                countryid="id"
                 group="true"
                 incorporated="true")
             .col-md-6
                 nrgi-company-operation-table(
                 id="data.companies_of_operation"
-                type="'country'"
+                type="'countries_of_operation'"
+                countryid="id"
                 group="true"
                 operation="true")
         .row.top-padding-lg
@@ -69,6 +73,7 @@
                 id="data.concessions"
                 name="'country'"
                 country="false"
+                countryid="id"
                 commodity="true"
                 status="true"
                 projects="true")
@@ -77,12 +82,14 @@
                 nrgi-production-table(
                 id="data.productions"
                 type="'country'"
+                countryid="id"
                 projectlink="true")
         .row.top-padding-lg
             .col-md-12
                 nrgi-transfer-table(
                 id="data.transfers"
                 type="'country'"
+                countryid="id"
                 project="true"
                 projectlink="false")
         .row.top-padding-lg

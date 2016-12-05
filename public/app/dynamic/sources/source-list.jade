@@ -40,7 +40,7 @@
 					th.tablesort-sortable-th(ts-criteria='retrieve_date') Retrieved date
 			tbody
 				tr(
-				ng-repeat="source in sources | unique: '_id'"
+				ng-repeat="source in sources"
 				ts-repeat)
 					td.source_name
 						a(href='source/{{ source._id }}')

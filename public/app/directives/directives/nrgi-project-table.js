@@ -10,6 +10,7 @@ angular
                 country: '=',
                 type: '=',
                 commoditytype:'=',
+                countryid:'=',
                 companies: '=',
                 commodity: '=',
                 status: '=',

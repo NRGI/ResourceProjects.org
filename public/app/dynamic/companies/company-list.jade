@@ -1,6 +1,6 @@
 .container
     .row.top-padding-med.bottom-padding-med
-        .col-md-3
+        .col-md-6
             h1 Companies
                 = ' '
                 small(ng-if="count") {{count}}
@@ -37,7 +37,7 @@
                     ts-repeat)
                         td.company_name: a(href='company/{{company._id}}')
                             span(ng-bind-html="company.company_name|sanitize")
-                        td.company_groups: text(ng-repeat="group in company.company_groups | unique: '_id'")
+                        td.company_groups: span(ng-repeat="group in company.company_groups | unique: '_id'")
                             a(href='group/{{group._id}}')
                                 span(ng-bind-html="group.company_group_name|sanitize")
                             | {{$last ? '' : ', '}}

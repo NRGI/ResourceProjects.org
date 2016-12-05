@@ -1,11 +1,13 @@
-'use strict';
+//For now not used
 
-angular
-    .module('app')
-    .directive('nrgiSummaryStats', function() {
-        return {
-            restrict: 'EA',
-            controller: 'nrgiSummaryStatsCtrl',
-            templateUrl: '/partials/directives/templates/nrgi-summary-stats'
-        };
-    });
+//'use strict';
+//
+//angular
+//    .module('app')
+//    .directive('nrgiSummaryStats', function() {
+//        return {
+//            restrict: 'EA',
+//            controller: 'nrgiSummaryStatsCtrl',
+//            templateUrl: '/partials/directives/templates/nrgi-summary-stats'
+//        };
+//    });

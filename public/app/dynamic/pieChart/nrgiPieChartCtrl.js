@@ -13,8 +13,8 @@ angular.module('app')
             chart: {
                 type: 'pieChart',
                 height: 500,
-                x: function(d){return d.key + ', ' + d.value;},
-                y: function(d){return d.y;},
+                x: function(d){return d.key + ', ' + d.value.toFixed(1);},
+                y: function(d){return  (d.value*100)/$scope.total},
                 showLabels: false,
                 duration: 500,
                 labelThreshold: 0.01,
@@ -23,7 +23,7 @@ angular.module('app')
                 showLegend:false,
                 tooltip:{
                     valueFormatter:function (d, i) {
-                        return d.toFixed(1) + '%';
+                        return d.toFixed(3) + '%';
                     },
                     keyFormatter: function(d,i){
                         return d + ' million ' + $scope.currency_filter
@@ -39,7 +39,8 @@ angular.module('app')
                 $scope.total = 0;
                 if (response.data) {
                     $scope.pie = response.data[0].children;
-                    $scope.total = response.data[0].total_value;
+                    $scope.total = response.data[0].total_value.toFixed(1);
+                    $scope.count = response.data[0].count;
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-pie-chart');
                 }else{

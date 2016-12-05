@@ -27,7 +27,7 @@ describe("Company Operation Table Directive", function() {
         },
         ID = "57156908a6565c01006341f8",
         element,
-        expectedParams = {_id: '57156908a6565c01006341f8',type: 'type'};
+        expectedParams = {_id: '57156908a6565c01006341f8',type: 'type',limit:50,skip:0};
     beforeEach(module('app'));
 
     beforeEach(inject(function($templateCache,_$compile_,_$rootScope_,$controller, nrgiTablesSrvc,_usSpinnerService_) {
@@ -60,12 +60,12 @@ describe("Company Operation Table Directive", function() {
 
     it("should display company of operation data", function() {
 
-        scope.getCompanyOperation('57156908a6565c01006341f8', 'type');
+        scope.getCompanyOperation('57156908a6565c01006341f8', 'type',50,0);
         companyOperationQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(companyOperationQueryStub, expectedParams);
         scope.companies.should.be.equal(result.companies);
 
-        scope.$digest();
+        //scope.$digest();
 
         var isolateScope = element.find('table');
         isolateScope.should.be.defined;

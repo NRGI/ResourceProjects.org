@@ -54,7 +54,7 @@ exports.getContracts = function(req, res) {
                 if(contracts) {
                     callback(null, contract_count, contracts);
                 } else {
-                    return res.send(err);
+                    return res.send({data:[],error:err});
                 }
             });
     }
@@ -198,7 +198,7 @@ exports.getContractByID = function(req, res) {
                 if(contract) {
                     callback(null, contract);
                 } else {
-                    callback(err);
+                    return res.send({data:[],error:err});
                 }
             });
     }

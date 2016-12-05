@@ -9,31 +9,37 @@ var Project 		= require('mongoose').model('Project'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
     async           = require('async'),
+    mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
 exports.getTransferTable = function(req, res){
-    var link_counter, link_len, queries,query, company={},transfers_counter,transfers_len,companies_len,companies_counter,type = req.params.type,projects = {};
+    var _id = mongoose.Types.ObjectId(req.params.id);
+
+    var link_counter, link_len,errorList=[], queries,query, company={},transfers_counter,transfers_len,companies_len,companies_counter,type = req.params.type,projects = {};
     projects.transfers_query =[];
-    if(type=='concession') { queries={concession:req.params.id}; projects.transfers_query = [req.params.id];}
-    if(type=='company') { queries={company:req.params.id};projects.transfers_query = [req.params.id];}
-    if(type=='contract') { queries={contract:req.params.id};projects.transfers_query = [req.params.id];}
-    if(type=='project') {  queries={project:req.params.id};projects.transfers_query = [req.params.id];}
-    if(type=='site') {  queries={site:req.params.id};projects.transfers_query = [req.params.id];}
-    if(type=='group') { query={company_group: req.params.id, entities: "company"};projects.transfers_query = [req.params.id];}
-    if(type=='source_type') {  query={source_type_id:req.params.id};}
+    var limit = parseInt(req.params.limit);
+    var skip = parseInt(req.params.skip);
+    if(type=='concession') { queries={concession:_id}; projects.transfers_query = [_id];}
+    if(type=='company') { queries={company:_id};projects.transfers_query = [_id];}
+    if(type=='contract') { queries={contract:_id};projects.transfers_query = [_id];}
+    if(type=='project') {  queries={project:_id};projects.transfers_query = [_id];}
+    if(type=='site') {  queries={site:_id};projects.transfers_query = [_id];}
+    if(type=='group') { query={company_group: _id, entities: "company"};projects.transfers_query = [_id];}
+    if(type=='source_type') {  query={source_type_id:_id};}
     var models =[], models_len,models_counter=0,counter=0;
     async.waterfall([
         getLinks,
         getGroupCompany,
         getGroupLinks,
         getCountryID,
-        getCountryLinks,
+        //getCountryLinks,
         getSource,
         getTransfers
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            res.send({transfers:[], error:err});
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -190,46 +196,70 @@ exports.getTransferTable = function(req, res){
     }
     function getCountryID(projects,callback) {
         if(type=='country') {
-            Country.find({'iso2':req.params.id})
-                .exec(function (err, country) {
-                    if(country.length>0) {
-                        models = [
-                            {name:'Site',field:{'site_country.country':country[0]._id},params:'site'},
-                            {name:'Company',field:{'countries_of_operation.country':country[0]._id},params:'country'},
-                            {name:'Company',field:{'country_of_incorporation.country':country[0]._id},params:'country'},
-                            {name:'Concession',field:{'concession_country.country':country[0]._id},params:'concession'},
-                            {name:'Project',field:{'proj_country.country':country[0]._id},params:'project'}
-                        ];
+            projects.transfers = [];
+            Transfer.aggregate([
+                {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+                {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
+                {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company.countries_of_operation", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company.country_of_incorporation", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+                {$match:{$or:[{'company.country_of_incorporation.country':_id},
+                    {'company.countries_of_operation.country':_id},
+                    {'project.proj_country.country':_id},
+                    {'site.site_country.country':_id},
+                    {'concession.concession_country.country':_id},
+                    {'country._id':_id}
+                ]}},
+                {$group:{
+                    "_id": "$_id",
+                    "transfer_year":{$first:"$transfer_year"},
+                    "company":{$last:"$company"},
+                    "country":{$first:"$country"},
+                    "project":{$first:"$project"},
+                    "site":{$first:"$site"},
+                    "transfer_level":{$first:"$transfer_level"},
+                    "transfer_type":{$first:"$transfer_type"},
+                    "transfer_unit":{$first:"$transfer_unit"},
+                    "transfer_value":{$first:"$transfer_value"}
+                }},
+                {$project:{_id:1,transfer_year:1,
+                    country: { name:"$country.name",iso2:"$country.iso2"},
+                    company:{$cond:[{$eq:["$company", null]}, null, {_id:"$company._id",company_name:"$company.company_name"}]},
+                    project:{$cond:[{$eq:["$project", null]}, null, {proj_id:"$project.proj_id",name:"$project.proj_name"}]},
+                    site:{$cond:[{$eq:["$site", null]}, null, {_id:"$site._id",name:"$site.site_name",field:'$site.field'}]},
+                    transfer_level:1,transfer_type:1,transfer_unit:1,transfer_value:1
+                }},
+                {$skip: skip},
+                {$limit: limit}
+            ]).exec(function (err, transfers) {
+                if (err) {
+                    errorList = errors.errorFunction(err,'Payments');
+                    callback(null, transfers,errorList);
+                }else {
+                    if (transfers.length > 0) {
+                        projects.transfers = transfers;
+                        callback(null, projects, errorList);
+                    } else {
+                        errorList.push({type: 'Payments', message: 'payments not found'})
+                        callback(null, projects, errorList);
                     }
-                    callback(null, projects);
-                });
+                }
+            })
         }else {
-            callback(null, projects);
+            callback(null, projects,errorList);
         }
     }
-    function getCountryLinks(projects,callback) {
-        if(type=='country') {
-            models_counter=0;
-            models_len = models.length;
-            _.each(models, function(model) {
-                var name = require('mongoose').model(model.name);
-                var $field = model.field;
-                name.find($field).exec(function (err, responce) {
-                    models_counter++;
-                    _.each(responce, function(re) {
-                        counter++;
-                        projects.transfers_query.push(re._id);
-                    });
-                    if(models_counter==models_len){
-                        callback(null, projects);
-                    }
-                });
-            });
-        }else {
-            callback(null, projects);
-        }
-    }
-    function getSource(projects,callback) {
+    function getSource(projects,errorList,callback) {
         if(type=='source_type') {
             Source.find(query).exec(function(err,sources){
                 if(sources.length>0){
@@ -251,81 +281,107 @@ exports.getTransferTable = function(req, res){
         }
     }
     function getTransfers(projects, callback) {
-        var project_transfers = [];
-        var query = '';var proj_site={};
-        projects.transfers = [];
-        if (type == 'concession') { query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
-        if (type == 'company') {query = {company: {$in: projects.transfers_query}}}
-        if (type == 'contract') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
-        if (type == 'commodity') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}}
-        if (type == 'project' || type == 'site') {query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}}
-        if (type == 'group') {query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{company:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
-        if (type=='country') { query = {$or: [{project:{$in: projects.transfers_query}}, {site:{$in: projects.transfers_query}},{country:{$in: projects.transfers_query}},{concession:{$in: projects.transfers_query}}]}}
-        if(type=='source_type') { query = {$or: [{source:{$in: projects.transfers_query}}]}}
-        if (projects.transfers_query != null) {
-            Transfer.find(query)
-                .populate('company country project site')
-                .populate('source', '_id source_name source_url source_date source_type_id')
-                .exec(function (err, transfers) {
-                    transfers_counter = 0;
-                    transfers_len = transfers.length;
-                    if (transfers_len > 0) {
-                        transfers.forEach(function (transfer) {
-                            proj_site={};
-                            if(transfer.project!=undefined){
-                                proj_site =  {name:transfer.project.proj_name,_id:transfer.project.proj_id,type:'project'}
-                            }
-                            if(transfer.site!=undefined){
-                                if(transfer.site.field){
-                                    proj_site =  {name:transfer.site.site_name,_id:transfer.site._id,type:'field'}
+        if (type != 'country') {
+            var query = '';
+            projects.transfers = [];
+            if (type == 'concession') {
+                query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}
+            }
+            if (type == 'company') {
+                query = {company: {$in: projects.transfers_query}}
+            }
+            if (type == 'contract') {
+                query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}
+            }
+            if (type == 'commodity') {
+                query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}
+            }
+            if (type == 'project' || type == 'site') {
+                query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}]}
+            }
+            if (type == 'group') {
+                query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {company: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}
+            }
+            if (type == 'country') {
+                query = {$or: [{project: {$in: projects.transfers_query}}, {site: {$in: projects.transfers_query}}, {country: {$in: projects.transfers_query}}, {concession: {$in: projects.transfers_query}}]}
+            }
+            if (type == 'source_type') {
+                query = {$or: [{source: {$in: projects.transfers_query}}]}
+            }
+            if (projects.transfers_query != null) {
+                Transfer.aggregate([
+                    {$match: query},
+                    {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+                    {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+                    {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                    {$lookup: {from: "countries", localField: "country", foreignField: "_id", as: "country"}},
+                    {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $project: {
+                            _id: 1, transfer_year: 1,
+                            country: {name: "$country.name", iso2: "$country.iso2"},
+                            company: {
+                                $cond: {
+                                    if: {$not: "$company"},
+                                    then: '',
+                                    else: {_id: "$company._id", company_name: "$company.company_name"}
                                 }
-                                if(!transfer.site.field){
-                                    proj_site =  {name:transfer.site.site_name,_id:transfer.site._id,type:'site'}
+                            },
+                            proj_site: {
+                                $cond: {
+                                    if: {$not: "$site"},
+                                    then: {
+                                        $cond: {
+                                            if: {$not: "$project"},
+                                            then: [], else: {
+                                                _id: "$project.proj_id", name: "$project.proj_name",
+                                                type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                            }
+                                        }
+                                    },
+                                    else: {
+                                        _id: "$site._id", name: "$site.site_name",
+                                        type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                                    }
                                 }
-                            }
-                            ++transfers_counter;
-                            if (!project_transfers.hasOwnProperty(transfer._id)) {
-                                if(Object.keys(proj_site).length != 0) {
-                                    project_transfers.push({
-                                        _id: transfer._id,
-                                        transfer_year: transfer.transfer_year,
-                                        country: {
-                                            name: transfer.country.name,
-                                            iso2: transfer.country.iso2},
-                                        transfer_type: transfer.transfer_type,
-                                        transfer_unit: transfer.transfer_unit,
-                                        transfer_value: transfer.transfer_value,
-                                        transfer_level: transfer.transfer_level,
-                                        transfer_audit_type: transfer.transfer_audit_type,
-                                        transfer_gov_entity: transfer.transfer_gov_entity,
-                                        source: transfer.source,
-                                        proj_site: proj_site
-                                    });
-                                }
-                            }
-                            if (transfer.company && transfer.company!=undefined&&Object.keys(proj_site).length != 0) {
-                                _.last(project_transfers).company = {
-                                    _id: transfer.company._id,
-                                    company_name: transfer.company.company_name
-                                };
-                            }
-                            if (transfers_counter === transfers_len) {
-                                project_transfers = _.map(_.groupBy(project_transfers,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                projects.transfers = project_transfers;
-                                callback(null, projects);
-                            }
-                        })
+                            },
+                            transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            transfer_year: {$first: '$transfer_year'},
+                            transfer_type: {$first: '$transfer_type'},
+                            transfer_unit: {$first: '$transfer_unit'},
+                            transfer_value: {$first: '$transfer_value'},
+                            country: {$first: '$country'},
+                            company: {$first: '$company'},
+                            proj_site: {$first: '$proj_site'}
+                        }
+                    },
+                    {$skip: skip},
+                    {$limit: limit}
+                ]).exec(function (err, transfers) {
+                    if (err) {
+                        errorList = errors.errorFunction(err, 'Transfers by Project');
+                        callback(null, {transfers:transfers, errorList:errorList});
                     } else {
-                        if (transfers_counter === transfers_len) {
-                            callback(null, projects);
+                        if (transfers.length > 0) {
+                            callback(null, {transfers:transfers, errorList:errorList});
+                        } else {
+                            errorList.push({type: 'Transfers by Project', message: 'transfers by project not found'})
+                            callback(null, {transfers:transfers, errorList:errorList});
                         }
                     }
                 });
-        }else{
+            } else {
+                callback(null, projects);
+            }
+        } else {
             callback(null, projects);
         }
     }

@@ -9,6 +9,7 @@ angular
             scope: {
                 projectlink: '=',
                 id:'=',
+                countryid:'=',
                 type:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-production-table'

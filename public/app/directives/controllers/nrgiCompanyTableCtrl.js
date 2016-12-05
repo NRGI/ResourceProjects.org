@@ -11,18 +11,43 @@ angular
         var fields = [];
         var str;
         var com = ', ';
+        var limit = 50,
+            currentPage = 0;
         var company_group_name='';
         usSpinnerService.spin('spinner-company');
         $scope.company_of_operation=[];
+
         $scope.$watch('id', function(value) {
-            if($scope.type=='country'&&value!=undefined) {
+            if($scope.type=='country_of_incorporation'&&value!=undefined) {
                 $scope.companies = value;
+                usSpinnerService.stop('spinner-company');
+                if ($scope.companies.length == 0 ) {
+                    $scope.expression = 'showLast';
+                }else {
+                    $scope.busy = false;
+                    limit = 50;
+                    currentPage = 1;
+                }
             }
-            if($scope.type!='country'&&value!=undefined){
+            if($scope.type!='country_of_incorporation'&&value!=undefined){
                 $scope.loading = false;
                 $scope.getCompany($scope.id, $scope.type);
             }
         });
+        $scope.loadMoreCompanies = function() {
+            if ($scope.busy) return;
+            $scope.busy = true;
+            nrgiTablesSrvc.query({_id: $scope.countryid,
+                type: $scope.type,skip: currentPage*limit, limit: limit}, function (response) {
+                $scope.companies = _.union($scope.companies, response.companies);
+                if( response.companies.length>49){
+                    currentPage = currentPage + 1;
+                    $scope.busy = false;
+                }else{
+                    $scope.busy = true;
+                }
+            });
+        };
         $scope.getCompany=function(id,type) {
             if ($scope.id!=undefined){
                 if ($scope.openClose == true) {
@@ -30,7 +55,9 @@ angular
                         $scope.loading = true;
                         nrgiTablesSrvc.get({
                             _id: id,
-                            type: type
+                            type: type,
+                            skip: currentPage*limit,
+                            limit: limit
                         }, function (success) {
                             $scope.expression='';
                             if (success.companies.length == 0 && $scope.companies.length == 0) {

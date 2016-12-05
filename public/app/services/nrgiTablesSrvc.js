@@ -2,28 +2,28 @@
 
 angular.module('app')
     .factory('nrgiTablesSrvc', function($resource) {
-    var CompanyTableResource = $resource('/api/company_table/:type/:_id', {_id: "@id",type:"@type"}, {
+    var CompanyTableResource = $resource('/api/company_table/:type/:_id/:limit/:skip', {_id: "@id",type:"@type",limit:"@limit",skip:"@skip"}, {
         query:  {method:'GET', isArray: false}
     });
 
     return CompanyTableResource;
     })
     .factory('nrgiProjectTablesSrvc', function($resource) {
-        var ProjectTableResource = $resource('/api/project_table/:type/:_id', {_id: "@id",type:"@type"}, {
+        var ProjectTableResource = $resource('/api/project_table/:type/:_id/:limit/:skip', {_id: "@id",type:"@type",limit:"@limit",skip:"@skip"}, {
             query:  {method:'GET', isArray: false}
         });
 
         return ProjectTableResource;
     })
     .factory('nrgiProdTablesSrvc', function($resource) {
-        var ProdTableResource = $resource('/api/prod_table/:type/:_id', {_id:"@id",type:"@type"}, {
+        var ProdTableResource = $resource('/api/prod_table/:type/:_id/:limit/:skip', {_id:"@id",type:"@type",limit:"@limit",skip:"@skip"}, {
             query:  {method:'GET', isArray: false}
         });
 
         return ProdTableResource;
     })
     .factory('nrgiTransferTablesSrvc', function($resource) {
-        var TransferTableResource = $resource('/api/transfer_table/:type/:_id', {_id:"@id",type:"@type"}, {
+        var TransferTableResource = $resource('/api/transfer_table/:type/:_id/:limit/:skip', {_id:"@id",type:"@type",limit:"@limit",skip:"@skip"}, {
             query:  {method:'GET', isArray: false}
         });
 
@@ -37,7 +37,7 @@ angular.module('app')
         return SourceTableResource;
     })
     .factory('nrgiSiteFieldTablesSrvc', function($resource) {
-        var SiteFieldTableResource = $resource('/api/site_table/:type/:_id', {_id:"@id",type:"@type"}, {
+        var SiteFieldTableResource = $resource('/api/site_table/:type/:_id/:limit/:skip', {_id:"@id",type:"@type",limit:"@limit",skip:"@skip"}, {
             query:  {method:'GET', isArray: false}
         });
 
@@ -51,7 +51,7 @@ angular.module('app')
         return ContractTableResource;
     })
     .factory('nrgiConcessionTablesSrvc', function($resource) {
-        var ConcessionTableResource = $resource('/api/concession_table/:type/:_id', {_id:"@id",type:"@type"}, {
+        var ConcessionTableResource = $resource('/api/concession_table/:type/:_id/:limit/:skip', {_id:"@id",type:"@type",limit:"@limit",skip:"@skip"}, {
             query:  {method:'GET', isArray: false}
         });
 

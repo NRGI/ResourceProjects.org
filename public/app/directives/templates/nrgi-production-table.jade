@@ -4,8 +4,6 @@ data-toggle="collapse"
 ng-click='openClose=!openClose; getProduction(id,type)'
 data-target="#productions")
     h4.text-justify Production Stats
-//a(data-toggle="collapse" ng-click='openClose=!openClose;getProduction(id,type)' data-target="#productions")
-//    h2 Production Stats
 #productions.panel-collapse.collapse.in
     table.load_table.table.table-striped.projects(
     ts-wrapper
@@ -22,11 +20,11 @@ data-target="#productions")
                 th.tablesort-sortable-th(
                 ng-if="projectlink==true"
                 ts-criteria='production_links.name') Project / Site
-        tbody
-            //span(
-            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            //spinner-start-active="true"
-            //spinner-key="spinner-production")
+        tbody.productionsScrollContainer
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-production")
             tr(
             ng-repeat="prod in production"
             ts-repeat ng-class="expression")
@@ -35,20 +33,18 @@ data-target="#productions")
                 td.production_unit {{prod.production_unit}}
                 td.production_commodity
                     a(href='commodity/{{prod.production_commodity.commodity_id}}')
-                        span(ng-bind-html="prod.production_commodity.commodity_name|sanitize")
+                        span(ng-bind-html="prod.production_commodity.name|sanitize")
                 td.text-right.production_price
                     text(ng-if="prod.production_price") {{prod.production_price}}
                     em(ng-if="!prod.production_price") ..
                 td.text-right.production_price_per_unit {{prod.production_price_unit}}
                     text(ng-if="prod.production_price") {{prod.production_price_unit}}
                     em(ng-if="!prod.production_price") ..
-                td.text-center.production_level {{prod.production_level}}
+                td.text-center.production_level {{prod.proj_site.type}}
                 td.project_links(ng-if="projectlink===true")
-                    //: span(ng-repeat="link in prod.production_links | unique: '_id'")
-
                     a(href="{{prod.proj_site.type}}/{{prod.proj_site._id}}")
                         span(ng-bind-html="prod.proj_site.name|sanitize")
-                    //| {{$last ? '' : ', '}}
+    div(ng-if='production.length>49' infinite-scroll='loadMoreProductions()' infinite-scroll-distance='3' infinite-scroll-container='".productionsScrollContainer"')
     div(ng-if="production.length>0")
         .download
             span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -57,6 +53,12 @@ data-target="#productions")
                 =' '
                 a(
                 href=""
-                ng-csv="csv_production"
+                ng-click='getAllProductions()') Production Stats CSV
+                button(
+                class='hidden'
+                id='loadProductionCSV'
+                href=""
+                ng-csv="loadProductionsCSV()"
+                lazy-load='true'
                 csv-header="getHeaderProduction()"
-                filename="productions.csv") Production Stats CSV
+                filename="productions.csv")

@@ -44,15 +44,15 @@
                 td.site_name
                     a(href='{{route}}/{{site._id}}')
                         span(ng-bind-html="site.site_name|sanitize")
-                td.site_country: text(ng-repeat="country in site.site_country | unique: 'country._id'")
-                    a(href='/country/{{country.country.iso2}}')
-                        span(ng-bind-html="country.country.name|sanitize")
+                td.site_country: span(ng-repeat="country in site.site_country | unique: 'country._id'")
+                    a(href='/country/{{country.iso2}}')
+                        span(ng-bind-html="country.name|sanitize")
                     | {{$last ? '' : ', '}}
                 td.site_commodity_type
                     text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
                         | {{commodity.commodity_type | ucfirst | addSpaces}}
                         | {{$last ? '' : ', '}}
-                td.site_commodity: text(ng-repeat="commodity in site.site_commodity | unique: '_id'")
+                td.site_commodity: span(ng-repeat="commodity in site.site_commodity | unique: '_id'")
                     a(href='commodity/{{commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity_name|sanitize")
                     | {{$last ? '' : ', '}}
@@ -61,7 +61,7 @@
                 //    text.small  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
                 //td.text-center(ng-if="companies==true") {{project.companies}}
                 td.site_status
-                    em(ng-if="site.site_status.length<1") ..
+                    em(ng-if="site.site_status.length<1||site.site_status==null") ..
                     text(
                     ng-if="site.site_status.length>0"
                     ng-repeat="status in site.site_status")

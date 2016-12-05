@@ -23,8 +23,6 @@ var auth 				= require('./auth'),
 	company_tables 		= require('../controllers/company_tables'),
 	map 				= require('../controllers/map'),
 	sourceTypes 		= require('../controllers/sourceTypes'),
-	summaryStats 		= require('../controllers/summaryStats'),
-	lastAdded 			= require('../controllers/lastAdded'),
 	sunburst 			= require('../controllers/sunburst'),
 	content 			= require('../controllers/content'),
 	main_map 			= require('../controllers/main_map'),
@@ -32,14 +30,13 @@ var auth 				= require('./auth'),
 	destroy 			= require('../controllers/delete_data'),
 	treemap 			= require('../controllers/treemap'),
 	cors 				= require('cors'),
-  duplicates = require('../controllers/duplicates');
+ 	duplicates = require('../controllers/duplicates');
 
-	//etl         = require('../controllers/etl');
-	// answers 	= require('../controllers/answers'),
-	// questions 	= require('../controllers/questions'),
-	// assessments = require('../controllers/assessments');
-	// mongoose 	= require('mongoose');
-	// User 		= mongoose.model('User');
+
+//For now not used
+//summaryStats 		= require('../controllers/summaryStats'),
+//lastAdded 			= require('../controllers/lastAdded'),
+
 
 module.exports	= function(app) {
 	app.use(function(req, res, next) {
@@ -59,12 +56,6 @@ module.exports	= function(app) {
 	////////////////////////
 	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
 	app.get('/api/concessions/:id', concessions.getConcessionByID);
-	// POST
-	//app.post('/api/concessions',auth.requiresApiLogin, auth.requiresRole('admin'),  concessions.createConcession);
-	// PUT
-	//app.put('/api/concessions', auth.requiresApiLogin, auth.requiresRole('admin'), concessions.updateConcession);
-	// DELETE
-	//app.delete('/api/concessions/:id',auth.requiresApiLogin, auth.requiresRole('admin'), concessions.deleteConcession);
 
 	/////////////////////
 	/// PROJECTS CRUD ///
@@ -72,15 +63,6 @@ module.exports	= function(app) {
 	app.get('/api/projects/:limit/:skip', projects.getProjects);
 	app.get('/api/all_projects/:limit/:skip', projects.getAllProjects);
 	app.get('/api/projects/:id', projects.getProjectByID);
-	//app.get('/api/projects/', projects.getProjectsMap);
-	//app.get('/api/projects/:iso2/:limit/:skip', projects.getProjectsWithIso);
-
-	// POST
-	//app.post('/api/projects',auth.requiresApiLogin, auth.requiresRole('admin'),  projects.createProject);
-	// PUT
-	//app.put('/api/projects', auth.requiresApiLogin, auth.requiresRole('admin'), projects.updateProject);
-	// DELETE
-	//app.delete('/api/projects/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), projects.deleteProject);
 
 	/////////////////////////////
 	///// TRANSFERS CRUD ////////
@@ -88,53 +70,30 @@ module.exports	= function(app) {
 	app.get('/api/transfer_filters/:country', transfers.getTransferFilters);
 	app.get('/api/transfers/:limit/:skip', transfers.getTransfers);
 	app.get('/api/transfersGov/:limit/:skip', transfers.getTransfersByGov);
-	// app.get('/api/transfers/:id', transfers.getPaymentByID);
-	// // POST
-	// app.post('/api/transfers',auth.requiresApiLogin, auth.requiresRole('admin'),  transfers.createProject);
-	// // PUT
-	// app.put('/api/transfers', auth.requiresApiLogin, auth.requiresRole('admin'), transfers.updateProject);
-	// // DELETE
-	// app.delete('/api/transfers/:id',  auth.requiresApiLogin, auth.requiresRole('admin'), transfers.deleteProject);
 
 	//////////////////////
 	/// COMPANIES CRUD ///
 	//////////////////////
-	//app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:limit/:skip', companies.getCompanies);
 	app.get('/api/companies/:id', companies.getCompanyID);
 	app.get('/api/companydata/:id', companies.getCompanyByID);
 
-    // POST
-    //app.post('/api/companies',auth.requiresApiLogin, auth.requiresRole('admin'),  companies.createCompany);
-	// PUT
-	//app.put('/api/companies', auth.requiresApiLogin, auth.requiresRole('admin'), companies.updateCompany);
-	// DELETE
-	//app.delete('/api/companies/:id',auth.requiresApiLogin, auth.requiresRole('admin'), companies.deleteCompany);
 
 	//////////////////////////
 	/// COMPANYGROUPS CRUD ///
 	//////////////////////////
-	app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
+
+	//For now not used
+	//app.get('/api/companyGroups/:limit/:skip', companyGroups.getCompanyGroups);
+
 	app.get('/api/companyGroups/:id', companyGroups.getCompanyGroupID);
 	app.get('/api/companyGroupData/:id', companyGroups.getCompanyGroupByID);
-	// POST
-	//app.post('/api/companyGroups',auth.requiresApiLogin, auth.requiresRole('admin'),  companyGroups.createCompanyGroup);
-	// PUT
-	//app.put('/api/companyGroups', auth.requiresApiLogin, auth.requiresRole('admin'), companyGroups.updateCompanyGroup);
-	// DELETE
-	//app.delete('/api/companyGroups/:id',auth.requiresApiLogin, auth.requiresRole('admin'), companyGroups.deleteCompanyGroup);
 
 	///////////////////
 	/// COMMODITIES ///
 	///////////////////
 	app.get('/api/commodities/:limit/:skip', commodities.getCommodities);
-	app.get('/api/commodities/:id', commodities.getCommodityByID);
-	// POST
-	//app.post('/api/commodities', auth.requiresApiLogin, auth.requiresRole('admin'), commodities.createCommodity);
-	// PUT
-	//app.put('/api/commodities',  auth.requiresApiLogin, auth.requiresRole('admin'),commodities.updateCommodity);
-	// DELETE
-	//app.delete('/api/commodities/:id', auth.requiresApiLogin, auth.requiresRole('admin'),commodities.deleteCommodity);
+	app.get('/api/commodities/:id', commodities.getCommodityByID)
 
 	//////////////////////
 	/// COUNTRIES CRUD ///
@@ -142,12 +101,6 @@ module.exports	= function(app) {
 	app.get('/api/countries/:limit/:skip', countries.getCountries);
 	app.get('/api/countries/:id', countries.getCountryByID);
 	app.get('/api/countrycommodity/:id', countries.getAllDAtaCountryByID);
-	// POST
-	//app.post('/api/countries', auth.requiresApiLogin, auth.requiresRole('admin'), countries.createCountry);
-	// PUT
-	//app.put('/api/countries', auth.requiresApiLogin, auth.requiresRole('admin'), countries.updateCountry);
-	// DELETE
-	//app.delete('/api/countries/:id', auth.requiresApiLogin, auth.requiresRole('admin'), countries.deleteCountry);
 
 	////////////////////
 	/// SOURCES CRUD ///
@@ -155,25 +108,18 @@ module.exports	= function(app) {
 	app.get('/api/sources/:limit/:skip', sources.getSources);
 	app.get('/api/sources/:id', sources.getSourceByID);
 
-	// POST
-	//app.post('/api/sources', auth.requiresApiLogin, auth.requiresRole('admin'), sources.createSource);
-	// PUT
-	//app.put('/api/sources', auth.requiresApiLogin, auth.requiresRole('admin'), sources.updateSource);
-	// DELETE
-	//app.delete('/api/sources/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sources.deleteSource);
-
 	/////////////////////////
 	/// SOURCE TYPES CRUD ///
 	/////////////////////////
-	//app.get('/api/sourcetypes/:limit/:skip', sourceTypes.getSourceTypes);
-	//app.get('/api/sourcetypes/:id', sourceTypes.getSourceTypeByID);
+	app.get('/api/sourcetypes/:limit/:skip', sourceTypes.getSourceTypes);
+	app.get('/api/sourcetypes/:id', sourceTypes.getSourceTypeByID);
 
 	// POST
-	//app.post('/api/sourcetypes', auth.requiresApiLogin, auth.requiresRole('admin'),  sourceTypes.createSourceType);
+	app.post('/api/sourcetypes', auth.requiresApiLogin, auth.requiresRole('admin'),  sourceTypes.createSourceType);
 	// PUT
-	//app.put('/api/sourcetypes', auth.requiresApiLogin, auth.requiresRole('admin'), sourceTypes.updateSourceType);
+	app.put('/api/sourcetypes', auth.requiresApiLogin, auth.requiresRole('admin'), sourceTypes.updateSourceType);
 	// DELETE
-	//app.delete('/api/sourcetypes/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sourceTypes.deleteSourceType);
+	app.delete('/api/sourcetypes/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sourceTypes.deleteSourceType);
 
 
 	//////////////////
@@ -181,13 +127,7 @@ module.exports	= function(app) {
 	//////////////////
 	app.get('/api/sites/:limit/:skip/:field', sites.getSites);
 	app.get('/api/sites/:id', sites.getSiteByID);
-	app.get('/api/sites/map/:field', sites.getSitesMap);
-	// POST
-	//app.post('/api/sites',auth.requiresApiLogin, auth.requiresRole('admin'),  sites.createSite);
-	// PUT
-	//app.put('/api/sites',auth.requiresApiLogin, auth.requiresRole('admin'),  sites.updateSite);
-	// DELETE
-	//app.delete('/api/sites/:id', auth.requiresApiLogin, auth.requiresRole('admin'), sites.deleteSite);
+	app.get('/api/sites/map/:field', sites.getSitesMap);;
 
 	//DATASETS - TODO: protect with admin?
 	app.get('/api/datasets', datasets.getDatasets);
@@ -235,7 +175,6 @@ module.exports	= function(app) {
 	//////////////////
 	app.get('/api/users', auth.requiresRole('admin'), users.getUsers);
 	app.get('/api/users/:id', auth.requiresRole('admin'), users.getUsersByID);
-	//app.get('/api/user-list/:id', auth.requiresRole('admin'), users.getUsersListByID);
 
 	// POST
 	app.post('/api/users', auth.requiresApiLogin, auth.requiresRole('admin'), users.createUser);
@@ -254,24 +193,21 @@ module.exports	= function(app) {
 
 
 	//TABLE
-	app.get('/api/company_table/:type/:id', company_tables.getCompanyTable);
-	app.get('/api/project_table/:type/:id', project_tables.getProjectTable);
-	app.get('/api/prod_table/:type/:id', production_tables.getProductionTable);
-	app.get('/api/transfer_table/:type/:id', transfer_tables.getTransferTable);
+	app.get('/api/company_table/:type/:id/:limit/:skip', company_tables.getCompanyTable);
+	app.get('/api/project_table/:type/:id/:limit/:skip', project_tables.getProjectTable);
+	app.get('/api/prod_table/:type/:id/:limit/:skip', production_tables.getProductionTable);
+	app.get('/api/transfer_table/:type/:id/:limit/:skip', transfer_tables.getTransferTable);
 	app.get('/api/source_table/:type/:id', source_tables.getSourceTable);
-	app.get('/api/site_table/:type/:id', site_tables.getSiteFieldTable);
+	app.get('/api/site_table/:type/:id/:limit/:skip', site_tables.getSiteFieldTable);
 	app.get('/api/contract_table/:type/:id', contract_tables.getContractTable);
-	app.get('/api/concession_table/:type/:id', concession_tables.getConcessionTable);
+	app.get('/api/concession_table/:type/:id/:limit/:skip', concession_tables.getConcessionTable);
 
 	app.get('/api/coordinate/:type/:id', map.getCoordinateCountryByID);
 
-	//SUMMARY STATS
-	app.get('/api/summary_stats', summaryStats.getSummaryStats);
-
-	app.get('/api/sum_of_payments', summaryStats.getSumOfPayments);
-
-	//LAST ADDED PROJECTS AND SOURCES
-	app.get('/api/last_added', lastAdded.getLastAdded);
+	//For now not used
+	//app.get('/api/summary_stats', summaryStats.getSummaryStats);
+	//app.get('/api/sum_of_payments', summaryStats.getSumOfPayments);
+	//app.get('/api/last_added', lastAdded.getLastAdded);
 
 	//Payments
 	app.get('/api/transfers', sunburst.getPayments);
@@ -314,16 +250,10 @@ module.exports	= function(app) {
 
 
 
-
-
 	app.all('/api/*', function(req, res) {
 		res.sendStatus(404);
 	});
-	//app.get('*', function(req, res) {
-	//	res.render('landing_page', {
-	//		bootstrappedUser: req.user
-	//	});
-	//});
+
 	app.get('*', function(req, res) {
 		res.render('index', {
 			bootstrappedUser: req.user

@@ -11,6 +11,7 @@ angular
                 type: '=',
                 stake: '=',
                 project:'=',
+                countryid:'=',
                 site:'=',
                 contract:'=',
                 concession:'=',

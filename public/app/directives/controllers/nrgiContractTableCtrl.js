@@ -1,13 +1,14 @@
 'use strict';
 
-angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiContractTablesSrvc,usSpinnerService) {
+angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiContractTablesSrvc,usSpinnerService, $filter) {
     $scope.openClose=true;
     $scope.loading = false;
     $scope.contracts=[];
     $scope.expression='';
     $scope.csv_contracts = [];
-    var country_name='';
-    var header_contracts = [];
+    var countryName='';
+    var commodityName='';
+    var headerContracts = [];
     var fields = [];
     usSpinnerService.spin('spinner-contract');
     $scope.$watch('id', function(value) {
@@ -41,30 +42,38 @@ angular.module('app').controller('nrgiContractTableCtrl', function ($scope,nrgiC
                             {name: 'No. Companies ', status: $scope.companies, field: 'companies'}];
                         angular.forEach(headers, function (header) {
                             if (header.status != false && header.status != undefined) {
-                                header_contracts.push(header.name);
+                                headerContracts.push(header.name);
                                 fields.push(header.field);
                             }
                         });
                         $scope.getHeaderContracts = function () {
-                            return header_contracts
+                            return headerContracts
                         };
                         angular.forEach($scope.contracts, function (contract, key) {
                             $scope.csv_contracts[key] = [];
                             angular.forEach(fields, function (field) {
                                 if (field == 'contract_country') {
-                                    country_name = '';
+                                    countryName = '';
                                     if (contract[field] != undefined) {
-                                        country_name = contract[field].name.toString();
-                                        country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
+                                        countryName = contract[field].name.toString();
+                                        countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
                                     }
-                                    $scope.csv_contracts[key].push(country_name);
+                                    $scope.csv_contracts[key].push(countryName);
                                 }
-                                if (field != 'contract_country') {
+                                if(field =='contract_commodity'){
+                                    commodityName = '';
+                                    if (contract[field] != undefined) {
+                                        commodityName = $filter('addSpace')(contract[field].toString())
+                                    }
+                                    $scope.csv_contracts[key].push(commodityName);
+                                }
+                                if (field != 'contract_country' && field !='contract_commodity') {
                                     $scope.csv_contracts[key].push(contract[field]);
                                 }
                             });
                         })
                     }, function(error){
+                        console.log(error)
                         usSpinnerService.stop('spinner-contract');
                     })
                 }

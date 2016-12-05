@@ -13,6 +13,13 @@ angular.module('app')
             }
         };
     })
+    .filter('addSpace', function () {
+        return function (text) {
+            if (text !== undefined) {
+                return text.replace(/[,]/g, ', ');
+            }
+        };
+    })
     .filter('zpad', function () {
         return function (n, len) {
             var num = parseInt(n, 10);

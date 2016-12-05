@@ -49,7 +49,7 @@ describe("Concession Table Directive", function() {
         },
         ID = "57156908a6565c01006341f8",
         element,
-        expectedParams = {_id: '57156908a6565c01006341f8',type: 'type'};
+        expectedParams = {_id: '57156908a6565c01006341f8',type: 'type',limit:50,skip:0};
     beforeEach(module('app'));
 
     beforeEach(inject(function($templateCache,_$compile_,_$rootScope_,$controller, nrgiConcessionTablesSrvc,_usSpinnerService_) {
