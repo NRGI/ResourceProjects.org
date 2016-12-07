@@ -8,11 +8,12 @@ branches:
     - staging
     - master
     - dev
+    - update-shippable-token
 
 env:
   global:
     # Shippable API token used to trigger deploy
-    - secure: Jk3Dpa4bLBZgoZCnfuRV2odUfCe+MiV417MBRDzrsFdZU8KadjNkmfrS3MBO0Znh4EcNArw79k65fFHJTr4yEUpLT1FVboU/OCBtI0lvzFlB/Pw6o02u2PHImQ5dzHJgrf4A9z8bEIWlEyrQrEzL9r32DWbZ+4blixUUXt7hh74oyRQagt2c6zZAySVZIRv+jsNU27nbCVmFZbkiqStXbJptUAGG1x2nv+oi60XST2AAllodpUiZvZzXafdhqAytZnVqdZqsre/HEEGkgOrsWjt3iIdp2kk13/Uh15m3efVKodFaLapQ49AReOyCSsS5mg5qyjQ1Gvg35hY8474sTA==
+    - secure: ZHB5/RtAQ8vBhJ50mGYp0x5W5cHyPXJ8Y5/MnOas611wh6f8qdG23lEgcwzHsBU+WFgl0SyFXVWIwgOdLKb2mZ5enk+oNVL1SDO9wxnReyS9xvIdinvj/YeFHiv5JF0svNlTebLOeySKgI00EdUGmoM7GcL36VIt0Uu7jfCzjQILcmpnVPNtYtLhpkmNKHUrvCh5xZLtD53GR3mZzOKlC/rLG+g1vaXp0dpAyWyXx2nVAEJgCcAGY6MPMshxLLbZRBRJYxpL20K9cK8smPZbQNWx099kWeZ6t+BAatOTH6cloBkESA6h5aeQaaDBXESosT6j2t2fV0/UreCSxLJbrw==
 
 before_script:
   - npm install --dev
