@@ -266,6 +266,7 @@ var makeNewProduction = function(newRow) {
     }
     
     production = fillInGenericFields(newRow, production, "production");
+    if (!production) return false;
 
     return production;
 };
@@ -287,10 +288,12 @@ function fillInGenericFields(newRow, object, name) {
             else object[name + '_level'] = "country";
             break;
         case "project":
+            if (!projects[newRow['#' + name + '+entity+name'].toLowerCase()]) return false;
             object[name + '_level']= "project";
             object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "concession":
+            if (!concessions[newRow['#' + name + '+entity+name'].toLowerCase()]) return false;
             object[name + '_level'] = "concession";
             object.concession = concessions[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
@@ -338,6 +341,7 @@ var makeNewTransfer = function(newRow) {
     }
     
     transfer = fillInGenericFields(newRow, transfer, "payment");
+    if (!transfer) return false;
 
     transfer.transfer_year = parseInt(newRow['#payment+year']);
     transfer.transfer_type = newRow['#payment+paymentType']; //TODO - these have identifiers but we are not using them, and hence no validating the input (Issue #151)
