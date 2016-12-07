@@ -275,46 +275,48 @@ var makeNewProduction = function(newRow) {
 };
 
 function fillInGenericFields(newRow, object, name) {
+    var dbName = name;
+    if (name === 'payment') dbName = 'transfer';
+    
     switch(newRow['#' + name + '+entity+type'].toLowerCase()) {
         case "":
         case "unknown":
             if (newRow['#' + name + '+entity+name'] !== "") { //Entity names without entity type: default is project
                 //But it can also not be a project
                 if (projects[newRow['#' + name + '+entity+name'].toLowerCase()]) {
-                    object[name + '_level'] = "project";
+                    object[dbName + '_level'] = "project";
                     object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
                 }
-                else object[name + '_level'] = "unknown";
+                else object[dbName + '_level'] = "unknown";
             }
-            else if (newRow['#company'] !== "") object[name + '_level'] = "company"; //Implied company level. Company filled elsewhere.
+            else if (newRow['#company'] !== "") object[dbName + '_level'] = "company"; //Implied company level. Company filled elsewhere.
             //Otherwise we only have country to go on. Country must be present. Country filled elsewhere.
-            else object[name + '_level'] = "country";
+            else object[dbName + '_level'] = "country";
             break;
         case "project":
             if (!projects[newRow['#' + name + '+entity+name'].toLowerCase()]) return false;
-            object[name + '_level']= "project";
+            object[dbName + '_level']= "project";
             object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "concession":
             if (!concessions[newRow['#' + name + '+entity+name'].toLowerCase()]) return false;
-            object[name + '_level'] = "concession";
+            object[dbName + '_level'] = "concession";
             object.concession = concessions[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "site":
         case "field":
-            object[name + '_level'] = newRow['#' + name + '+entity+type'].toLowerCase();
+            object[dbName + '_level'] = newRow['#' + name + '+entity+type'].toLowerCase();
             object.site = sites[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "company":
-            object[name + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere.
+            object[dbName + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere.
             break;
         case "country":
-            object[name + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere.
+            object[dbName + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere.
             break;
         default:
             return false; //Unsupported input!
     }
-    
     return object;
 }
 
@@ -744,12 +746,12 @@ function parseData(sheets, report, finalcallback) {
                             return callback(`Failed: ${projectsReport.report}`);
                         }
                         else if (doc) { //Project already exists,
-                            console.log("Project already exists under query: " + util.inspect(projQuery, {depth: 8}));
+                            console.log("Project already exists");// under query: " + util.inspect(projQuery, {depth: 8}));
                             projectsReport.add(`Project ${row[rowIndex]} already exists in the DB (name or alias match), using\n`);
                             updateOrCreateProject(null, doc, countryId, projId, callback); //NO existing project internally
                         }
                         else {
-                            console.log("Project does not exist under query: " + util.inspect(projQuery, {depth: 8}));
+                            console.log("Project does not exist");// under query: " + util.inspect(projQuery, {depth: 8}));
                             projectsReport.add(`Project ${row[rowIndex]} not found in DB. It will be added later.\n`);
                             updateOrCreateProject(null, null, countryId, projId, callback); //NO existing project internally, NO project in DB
                         }

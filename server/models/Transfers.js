@@ -21,8 +21,8 @@ var transferSchema, Transfer,
         message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select government_receipt, company_payment, reconciled or unknown.'
     },
     transfer_level_enu      = {
-        values: 'country project site field concession'.split(' '),
-        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select concession, country, site, field or project.'
+        values: 'country company project site field concession unknown'.split(' '),
+        message: 'Validator failed for `{PATH}` with value `{VALUE}`. Please select concession, country, site, field, project, company or unknown.'
     },
     transfer_accounting_basis_enu      = {
         values: 'cash accrual unknown'.split(' '),
