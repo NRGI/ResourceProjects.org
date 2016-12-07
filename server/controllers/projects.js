@@ -10,7 +10,7 @@ var Project 		= require('mongoose').model('Project'),
     request         = require('request'),
     util            = require('util');
 
-var creds = require('../ResourceProjectsPersistIDs.json');
+var creds = require('../config/ResourceProjectsPersistIDs.json');
 
 exports.getProjects = function(req, res) {
     var project_len, link_len, project_counter, link_counter,
