@@ -8,7 +8,6 @@ branches:
     - staging
     - master
     - dev
-    - update-shippable-token
 
 env:
   global:
