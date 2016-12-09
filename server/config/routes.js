@@ -56,6 +56,7 @@ module.exports	= function(app) {
 	////////////////////////
 	app.get('/api/concessions/:limit/:skip', concessions.getConcessions);
 	app.get('/api/concessions/:id', concessions.getConcessionByID);
+	app.get('/api/concession/data/:id', concessions.getConcessionData);
 
 	/////////////////////
 	/// PROJECTS CRUD ///
@@ -127,7 +128,8 @@ module.exports	= function(app) {
 	//////////////////
 	app.get('/api/sites/:limit/:skip/:field', sites.getSites);
 	app.get('/api/sites/:id', sites.getSiteByID);
-	app.get('/api/sites/map/:field', sites.getSitesMap);;
+	app.get('/api/sites/data/:id', sites.getSiteData);
+	app.get('/api/sites/map/:field', sites.getSitesMap);
 
 	//DATASETS - TODO: protect with admin?
 	app.get('/api/datasets', datasets.getDatasets);

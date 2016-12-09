@@ -6,7 +6,7 @@
             small Company
     .row
         .col-md-12
-            nrgi-leaflet(type='"company"' id='company._id')
+            nrgi-leaflet(id='data.proj_coordinates' type="'company'")
     .row.top-padding-med
         .col-md-6
             .info-box
@@ -74,27 +74,29 @@
                             td.company_description
                                 span(ng-bind-html="company.description|sanitize")
 
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-project-table(
             country="true"
             commodity="true"
             status="true"
             commoditytype="true"
+            countryid="id"
             type="'company'"
-            id="company._id"
+            id="data.projects"
             companies="false")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-site-table(
             name="'company'"
-            id="company._id"
+            countryid="id"
+            id="data.sites"
             country="true"
             commoditytype="true"
             commodity="true"
             status="true"
             type="false")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-6
             nrgi-contract-table(
             type="'company'"
@@ -105,26 +107,29 @@
         .col-md-6
             nrgi-concession-table(
             name="'company'"
-            id="company._id"
             commodity="true"
+            countryid="id"
+            id="data.concessions"
             country="true"
             type="true"
             status="false"
             projects="false")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-transfer-table(
             type="'company'"
-            id="company._id"
+            countryid="id"
+            id="data.transfers"
             project="false"
             projectlink="true")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-production-table(
             type="'company'"
-            id="company._id"
+            countryid="id"
+            id="data.production"
             projectlink="true")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-sources-table(
             id="company._id"

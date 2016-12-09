@@ -37,19 +37,14 @@ angular
             }
         });
         $scope.$watch('id', function(value) {
-            if(value!=undefined) {
-
+            if ($scope.type == 'country' && value != undefined||$scope.type == 'company' && value != undefined) {
+                $scope.alldata = value;
+                $scope.loadCoordinate($scope.alldata, $scope.polygon)
             }
-            $scope.$watch('id', function(value) {
-                if($scope.type=='country'&&value!=undefined) {
-                    $scope.alldata = value;
-                    $scope.loadCoordinate($scope.alldata,$scope.polygon)
-                }
-                if($scope.type!='country'&&value!=undefined){
-                    $scope.getCoordinate(value, $scope.type);
-                }
-            });
-        })
+            if ($scope.type != 'country' && value != undefined&& $scope.type != 'company') {
+                $scope.getCoordinate(value, $scope.type);
+            }
+        });
         $scope.$watch('data', function(value) {
             if(value!=undefined) {
                 $scope.alldata = value;

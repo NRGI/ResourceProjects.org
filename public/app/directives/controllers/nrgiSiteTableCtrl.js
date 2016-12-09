@@ -30,7 +30,11 @@ angular
         };
         usSpinnerService.spin('spinner-site');
         $scope.$watch('id', function(value) {
-            if($scope.name=='country'&&value!=undefined) {
+            if ($scope.name == 'country' && value == undefined || $scope.name == 'company' && value == undefined) {
+                usSpinnerService.stop('spinner-site');
+                $scope.expression = 'showLast';
+            }
+            if ($scope.name == 'country' && value != undefined || $scope.name == 'company' && value != undefined) {
                 $scope.sites = value;
                 usSpinnerService.stop('spinner-site');
                 if ($scope.sites.length == 0 ) {
@@ -41,7 +45,7 @@ angular
                     currentPage = 1;
                 }
             }
-            if($scope.name!='country'&&value!=undefined){
+            if($scope.name!='country' && value!=undefined&& $scope.name!= 'company'){
                 $scope.loading = false;
                 $scope.getSites($scope.id, $scope.name);
             }

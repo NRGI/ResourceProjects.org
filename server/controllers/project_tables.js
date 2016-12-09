@@ -17,7 +17,7 @@ var Project 		= require('mongoose').model('Project'),
 exports.getProjectTable = function(req, res){
     var _id = mongoose.Types.ObjectId(req.params.id);
     var link_counter, link_len, companies_len, companies_counter;
-    var company =[];
+    var company ={},errorList={};
     var type = req.params.type;
     var limit = parseInt(req.params.limit);
     var skip = parseInt(req.params.skip);
@@ -50,46 +50,56 @@ exports.getProjectTable = function(req, res){
     });
     function getLinkedProjects(callback) {
         if(type!='commodity'&&type!='group'&&type!='country') {
-            Link.find(query)
-                .deepPopulate('project.proj_country.country project.proj_commodity.commodity')
-                .lean()
+            Link.aggregate([
+                    {$match:  query},
+                    {$lookup: {from: "projects", localField: "project",foreignField: "_id",as: "project"}},
+                    {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$project.proj_status", "preserveNullAndEmptyArrays": true}},
+                    {$lookup: {from: "commodities",localField: "project.proj_commodity.commodity",foreignField: "_id",as: "project.proj_commodity"}},
+                    {$lookup: {from: "countries",localField: "project.proj_country.country",foreignField: "_id",as: "project.proj_country"}},
+                    {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+                    {$project:{
+                        _id:'$project.proj_id', proj_id:'$project.proj_id', proj_name:'$project.proj_name',
+                        proj_commodity:'$project.proj_commodity',proj_country:'$project.proj_country',proj_status:'$project.proj_status'
+                    }},
+                    {$group:{
+                        _id: '$_id',
+                        proj_id: {$first:'$proj_id'},
+                        proj_name: {$first:'$proj_name'},
+                        proj_commodity: {$addToSet:'$proj_commodity'},
+                        proj_country: {$addToSet:'$proj_country'},
+                        proj_status: {$addToSet:'$proj_status'}
+                    }},
+                    {$project:{
+                        _id:1, proj_site:{_id:'$proj_id'}, proj_name:1,
+                        proj_id:1, proj_commodity:1,proj_country:1,proj_status:1,companies_count:{$literal:0},companies:{$literal:[]}
+                    }},
+                    { $skip : skip},
+                    { $limit : limit }
+                ])
                 .exec(function (err, links) {
-                    if (links.length>0) {
-                        link_len = links.length;
-                        link_counter = 0;
-                        _.each(links, function (link) {
-                            ++link_counter;
-                            if(link.project) {
-                                projects.projects.push({
-                                    proj_id: link.project.proj_id,
-                                    proj_name: link.project.proj_name,
-                                    proj_country: link.project.proj_country,
-                                    proj_commodity: link.project.proj_commodity,
-                                    proj_status: link.project.proj_status,
-                                    _id: link.project._id,
-                                    companies_count: 0,
-                                    companies: []
-                                });
-                            }
-                            if (link_len == link_counter) {
-                                projects.projects = _.map(_.groupBy(projects.projects,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, projects);
-                            }
-                        })
+                    if (err) {
+                        errorList = errors.errorFunction(err, 'project links');
+                        res.send({data: [], errorList: errorList});
                     } else {
-                        callback(null, projects);
+                        if (links.length > 0) {
+                            company.projects =links;
+                            callback(null, company, errorList);
+                        } else {
+                            errorList.push({type: 'project links', message: 'project links not found'})
+                            callback(null, company, errorList);
+                        }
                     }
                 });
         } else{
             projects.projects = [];
-            callback(null, projects);
+            callback(null, projects,errorList);
         }
     }
-    function getCommodityProjects(projects, callback) {
+    function getCommodityProjects(projects,errorList, callback) {
         if(type=='commodity') {
             Project.find(query)
                 .populate('commodity country')

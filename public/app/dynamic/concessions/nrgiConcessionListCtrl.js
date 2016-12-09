@@ -131,7 +131,7 @@ angular.module('app')
 
         nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
-            $scope.concessions = response.data;
+            $scope.concessions = response.concessions;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
             $scope.createDownloadList($scope.concessions);
@@ -142,7 +142,7 @@ angular.module('app')
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.concessions = _.union($scope.concessions, response.data);
+                    $scope.concessions = _.union($scope.concessions, response.concessions);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
                     $scope.createDownloadList($scope.concessions);

@@ -89,7 +89,7 @@ angular.module('app')
                              }
                          }
                          if (field == 'proj_status'||field == 'site_status' || field == 'concession_status') {
-                             if (p[field]) {
+                             if (p[field] && p[field].timestamp && p[field].string) {
                                  str = '';
                                  var date = new Date(p[field].timestamp);
                                  date = $filter('date')(date, "MM/dd/yyyy @ h:mma");
@@ -102,12 +102,13 @@ angular.module('app')
                              }
                          }
                          if (field == 'proj_country' || field == 'site_country' || field == 'concession_country') {
+                             console.log(p[field])
                              if (p[field] && p[field].length > 0) {
                                  str = '';
                                  angular.forEach(p[field], function (country, i) {
                                      countryName = '';
-                                     if (country.country != undefined) {
-                                         countryName = country.country.name.toString();
+                                     if (country != undefined) {
+                                         countryName = country.name.toString();
                                          countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
                                      }
                                      if (i != p[field].length - 1) {

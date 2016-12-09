@@ -34,7 +34,11 @@ angular
 
         usSpinnerService.spin('spinner-project');
         $scope.$watch('id', function (value) {
-            if ($scope.type == 'country' && value != undefined) {
+            if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined) {
+                usSpinnerService.stop('spinner-project');
+                $scope.expression = 'showLast';
+            }
+            if ($scope.type == 'country' && value != undefined || $scope.type == 'company' && value != undefined) {
                 $scope.projects = value;
                 usSpinnerService.stop('spinner-project');
                 if ($scope.projects.length == 0) {
@@ -45,10 +49,11 @@ angular
                     currentPage = 1;
                 }
             }
-            if ($scope.type != 'country' && value != undefined) {
+            if ($scope.type != 'country' && value != undefined && $scope.type!= 'company') {
                 $scope.loading = false;
                 $scope.getProjects($scope.id, $scope.type);
             }
+
         });
 
         $scope.loadMoreProjects = function () {

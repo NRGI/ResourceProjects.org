@@ -34,7 +34,6 @@ exports.getTransferTable = function(req, res){
         getGroupCompany,
         getGroupLinks,
         getCountryID,
-        //getCountryLinks,
         getSource,
         getTransfers
     ], function (err, result) {
@@ -50,61 +49,40 @@ exports.getTransferTable = function(req, res){
     });
     function getLinks(callback) {
         if(type!='group'&&type!='country') {
-            Link.find(queries)
-                .populate('site project concession company')
-                .exec(function (err, links) {
-                    link_len = links.length;
-                    link_counter = 0;
-                    if (link_len > 0) {
-                        _.each(links, function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, type)[0];
-                            switch (entity) {
-                                case 'project':
-                                    if (link.project!=undefined) {
-                                        if (link.project._id != undefined) {
-                                            if (!_.contains(projects.transfers_query, link.project._id)) {
-                                                projects.transfers_query.push(link.project._id);
-                                            }
-                                        }
-                                    }
-                                    break;
-                                case 'site':
-                                    if (link.site._id != undefined) {
-                                        if (!_.contains(projects.transfers_query, link.site._id)) {
-                                            projects.transfers_query.push(link.site._id);
-                                        }
-                                    }
-                                    break;
-
-                                case 'concession':
-                                    if (link.concession._id != undefined) {
-                                        if (!_.contains(projects.transfers_query, link.concession._id)) {
-                                            projects.transfers_query.push(link.concession._id);
-                                        }
-                                    }
-                                    break;
-                                case 'company':
-                                    if (link.company && link.company._id != undefined) {
-                                        if (!_.contains(projects.transfers_query, link.company._id)) {
-                                            projects.transfers_query.push(link.company._id);
-                                        }
-                                    }
-                                    break;
-                            }
-                            if (link_len == link_counter) {
-                                callback(null, projects);
-                            }
-                        })
-                    } else {
-                        callback(null, projects);
+            Link.aggregate([
+                {$match: queries},
+                {
+                    $group: {
+                        _id: null,
+                        project: {$addToSet: '$project'},
+                        site: {$addToSet: '$site'},
+                        concession: {$addToSet: '$concession'},
+                        company: {$addToSet: '$company'}
                     }
-                });
+                },
+                {$project:{
+                    _id:0,
+                    transfers_query: { $setUnion: [ "$project", "$site", "$concession" , "$company" ] }
+                }}
+            ]).exec(function (err, links) {
+                if (err) {
+                    errorList = errors.errorFunction(err, 'Company links');
+                    return res.send({transfers: [], errorList: errorList});
+                } else {
+                    if (links.length > 0) {
+                        projects.transfers_query = links[0].transfers_query
+                        callback(null, projects, errorList);
+                    } else {
+                        errorList.push({type: 'Company links', message: 'company links not found'})
+                        return res.send({transfers: projects, errorList: errorList});
+                    }
+                }
+            });
         }else {
-            callback(null, projects);
+            callback(null, projects, errorList);
         }
     }
-    function getGroupCompany(projects,callback) {
+    function getGroupCompany(projects, errorList, callback) {
         if(type=='group') {
             var companies =[];
             Link.find(query)

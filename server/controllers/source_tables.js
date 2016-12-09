@@ -15,28 +15,29 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getSourceTable = function(req, res){
-    var _id = mongoose.Types.ObjectId(req.params.id);
-    var link_counter, link_len,companies_len,companies_counter;
+    var id = mongoose.Types.ObjectId(req.params.id);
+    var linkCounter, linkLen, companiesLen, companiesCounter;
     var type = req.params.type;
     var queries=[];
     var project={};
     var companies =[];
     project.sources = [];
-    if(type=='concession') { queries={concession:req.params.id}}
-    if(type=='company') { queries={company:req.params.id}}
-    if(type=='contract') { queries={contract:req.params.id}}
-    if(type=='commodity') { queries={commodity:req.params.id}}
-    if(type=='project') { queries={project:req.params.id}}
-    if(type=='group') { queries={company_group:req.params.id}}
+    if(type=='concession') { queries={concession:id}}
+    if(type=='company') { queries={company:id}}
+    if(type=='contract') { queries={contract:id}}
+    if(type=='commodity') { queries={commodity:id}}
+    if(type=='project') { queries={project:id}}
+    if(type=='group') { queries={company_group:id}}
+    if(type=='site') { queries={site:id}}
 
     var models = [
-        {name:'Site',field:{'site_commodity.commodity':req.params.id},params:'site'},
-        {name:'Concession',field:{'concession_commodity.commodity':req.params.id},params:'concession'},
-        {name:'Project',field:{'proj_commodity.commodity':req.params.id},params:'project'}
+        {name:'Site',field:{'site_commodity.commodity':id},params:'site'},
+        {name:'Concession',field:{'concession_commodity.commodity':id},params:'concession'},
+        {name:'Project',field:{'proj_commodity.commodity':id},params:'project'}
     ];
     project.queries=[];
-    var models_len,models_counter=0,counter=0;
-    var country_models = [
+    var modelsLen,modelsCounter=0,counter=0;
+    var countryModels = [
         {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
         {name:'Company',field:{'countries_of_operation.country':req.params.id},params:'company'},
         {name:'Company',field:{'country_of_incorporation.country':req.params.id},params:'company'},
@@ -44,7 +45,7 @@ exports.getSourceTable = function(req, res){
         {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
         {name:'Project',field:{'proj_country.country':req.params.id},params:'project'}
     ];
-    var established_source = [
+    var establishedSource = [
         {name:'Site',field:{'_id':req.params.id},params:'site'},
         {name:'Company',field:{'_id':req.params.id},params:'company'},
         {name:'Concession',field:{'_id':req.params.id},params:'concession'},
@@ -72,10 +73,10 @@ exports.getSourceTable = function(req, res){
     });
     function getEstablishedSource(callback) {
         if(type!='commodity'&&type!='country'&&type!='contract') {
-            models_counter=0;
-            models_len = established_source.length;
-            async.eachLimit(established_source, 5, function (model) {
-                models_counter++;
+            modelsCounter=0;
+            modelsLen = establishedSource.length;
+            async.eachLimit(establishedSource, 5, function (model) {
+                modelsCounter++;
                 if(model.params==type) {
                     var name = require('mongoose').model(model.name);
                     var $field = model.field;
@@ -102,7 +103,7 @@ exports.getSourceTable = function(req, res){
                             }
                             callback(null, project);
                         });
-                }else if(models_counter==models_len){
+                }else if(modelsCounter==modelsLen){
                     callback(null, project);
                 }
             });
@@ -110,60 +111,80 @@ exports.getSourceTable = function(req, res){
             callback(null, project);
         }
     }
-    function getLinkSite(project, callback) {
+    function getLinkSite(project,callback) {
         if(type!='commodity'&&type!='group'&&type!='country') {
-            Link.find(queries)
-                .populate('source project company concession')
-                .deepPopulate('source.source_type_id company.company_established_source.source_type_id project.proj_established_source.source_type_id concession.concession_established_source.source_type_id')
-                .exec(function (err, links) {
-                    if (links.length > 0) {
-                        link_len = links.length;
-                        link_counter = 0;
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            if(type=='project') {
-                                project.sources.push(link.project.proj_established_source);}
-                            if(type=='company') { project.sources.push(link.company.company_established_source);}
-                            if(type=='concession') { project.sources.push(link.concession.concession_established_source);}
-                            if(link.source!=null) {
-                                project.sources.push(link.source);
-                            }
-                            if (link_counter == link_len) {
-                                var uniques = _.map(_.groupBy(project.sources,function(doc){
-                                    if(doc && doc._id) {
-                                        return doc._id;
-                                    }
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                project.sources=uniques;
-                                callback(null, project);
-                            }
-                        });
-                    } else {
-                        callback(null, project);
+            Link.aggregate([
+                {$match:  queries},
+                {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+                {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$lookup: {from: "companygroups",localField: "company_group",foreignField: "_id",as: "company_group"}},
+                {$lookup: {from: "sources",localField: "source",foreignField: "_id",as: "source"}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company_group", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$project: {
+                    source:1,
+                    sources: { $setUnion: [ ["$project.proj_established_source"], ["$site.site_established_source"],
+                        ["$company.company_established_source"],
+                        ["$concession.concession_established_source"],
+                        ["$company_group.company_group_record_established"]
+                    ] }
+                }},
+
+                {$unwind: {"path": "$sources", "preserveNullAndEmptyArrays": true}},
+
+                {$lookup: {from: "sources",localField: "sources",foreignField: "_id",as: "sources"}},
+                {$project: {
+                    _id:0,
+                    source: { $setUnion: ["$sources", ["$source"]
+                    ] }
+                }},
+                {$unwind:"$source"},
+                {$unwind:"$source"},
+
+                {$lookup: {from: "sourcetypes",localField: "source.source_type_id",foreignField: "_id",as: "source.source_type_id"}},
+                {$unwind: {"path": "$source.source_type_id", "preserveNullAndEmptyArrays": true}},
+                {$project: {
+                    _id:'$source._id',
+                    source_name:'$source.source_name',
+                    source_type_id:'$source.source_type_id'
+                }},
+                {
+                    $group: {
+                        _id: '$_id',
+                        source_name: {$first: '$source_name'},
+                        source_type_id: {$first: '$source_type_id'}
                     }
-                });
+                }
+            ]).exec(function (err, links) {
+                project.sources = _.union(project.sources, links);
+                callback(null, project);
+            })
         } else{
             callback(null, project);
         }
     }
     function getCommodityLinks(project,callback) {
         if(type=='commodity') {
-            models_counter=0;
-            models_len = models.length;
+            modelsCounter=0;
+            modelsLen = models.length;
             _.each(models, function(model) {
                 var name = require('mongoose').model(model.name);
                 var $field = model.field;
                 name.find($field).exec(function (err, responce) {
-                    models_counter++;
+                    modelsCounter++;
                     _.each(responce, function(re) {
                         counter++;
                         if(model.params=='project'){project.queries.push({query:{project:re._id},type:'project'})}
                         if(model.params=='concession'){project.queries.push({query:{concession:re._id},type:'concession'})}
                         if(model.params=='site'){project.queries.push({query:{site:re._id},type:'site'})}
                     });
-                    if(models_counter==models_len){
+                    if(modelsCounter==modelsLen){
                         callback(null, project);
                     }
                 });
@@ -174,13 +195,13 @@ exports.getSourceTable = function(req, res){
     }
     function getCountryLinks(project,callback) {
         if(type=='country') {
-            models_counter=0;project.queries=[];
-            models_len = country_models.length;
-            _.each(country_models, function(model) {
+            modelsCounter=0;project.queries=[];
+            modelsLen = countryModels.length;
+            _.each(countryModels, function(model) {
                 var name = require('mongoose').model(model.name);
                 var $field = model.field;
                 name.find($field).exec(function (err, responce) {
-                    models_counter++;
+                    modelsCounter++;
                     _.each(responce, function(re) {
                         counter++;
                         if(model.params=='project'){project.queries.push({query:{project:re._id},type:'project'})}
@@ -188,7 +209,7 @@ exports.getSourceTable = function(req, res){
                         if(model.params=='concession'){project.queries.push({query:{concession:re._id},type:'concession'})}
                         if(model.params=='site'){project.queries.push({query:{site:re._id},type:'site'})}
                     });
-                    if(models_counter==models_len){
+                    if(modelsCounter==modelsLen){
                         callback(null, project);
                     }
                 });
@@ -199,7 +220,7 @@ exports.getSourceTable = function(req, res){
     }
     function getSource(project, callback) {
         if(type=='commodity'||type=='country') {
-            companies_len = project.queries.length;
+            companiesLen = project.queries.length;
             Link.aggregate([
                 {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
                 {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
@@ -226,12 +247,11 @@ exports.getSourceTable = function(req, res){
                 {$unwind: {"path": "$proj_established_source", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$concession_established_source", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$site_established_source", "preserveNullAndEmptyArrays": true}},
-
-                {$match:{$or:[{'company.country_of_incorporation.country':_id},
-                    {'company.countries_of_operation.country':_id},
-                    {'project.proj_country.country':_id},
-                    {'site.site_country.country':_id},
-                    {'concession.concession_country.country':_id}
+                {$match:{$or:[{'company.country_of_incorporation.country':id},
+                    {'company.countries_of_operation.country':id},
+                    {'project.proj_country.country':id},
+                    {'site.site_country.country':id},
+                    {'concession.concession_country.country':id}
                 ]}},
                 {$project:{ _id:0, source:['$source',"$company_established_source","$proj_established_source",
                     "$concession_established_source","$site_established_source"]}},
@@ -264,10 +284,10 @@ exports.getSourceTable = function(req, res){
                 .deepPopulate('source.source_type_id company_group.company_group_record_established.source_type_id')
                 .exec(function (err, links) {
                     if (links.length>0) {
-                        link_len = links.length;
-                        link_counter = 0;
+                        linkLen = links.length;
+                        linkCounter = 0;
                         _.each(links, function (link) {
-                            ++link_counter;
+                            ++linkCounter;
                             if(link.source!=null) {
                                 project.sources.push(link.company_group.company_group_record_established);
                                 project.sources.push(link.source);
@@ -275,7 +295,7 @@ exports.getSourceTable = function(req, res){
                             if(link.company!=undefined) {
                                 companies.push({_id: link.company});
                             }
-                            if (link_len == link_counter) {
+                            if (linkLen == linkCounter) {
                                 var uniques = _.map(_.groupBy(companies,function(doc){
                                     return doc._id;
                                 }),function(grouped){
@@ -296,25 +316,25 @@ exports.getSourceTable = function(req, res){
     function getGroupLinkedProjects(project,callback) {
         if(type=='group') {
             if(companies.length>0) {
-                companies_len = companies.length;
-                companies_counter = 0;
+                companiesLen = companies.length;
+                companiesCounter = 0;
                 _.each(companies, function (company) {
                     if(company._id!=undefined){
                         Link.find({company: company._id})
                             .populate('source company')
                             .deepPopulate('source.source_type_id company.company_established_source.source_type_id')
                             .exec(function (err, links) {
-                                ++companies_counter;
+                                ++companiesCounter;
                                 if (links.length>0) {
-                                    link_len = links.length;
-                                    link_counter = 0;
+                                    linkLen = links.length;
+                                    linkCounter = 0;
                                     _.each(links, function (link) {
-                                        ++link_counter;
+                                        ++linkCounter;
                                         if(link.source!=null) {
                                             project.sources.push(link.source);
                                             project.sources.push(link.company.company_established_source);
                                         }
-                                        if (link_len == link_counter && companies_counter == companies_len) {
+                                        if (linkLen == linkCounter && companiesCounter == companiesLen) {
                                             var uniques = _.map(_.groupBy(project.sources,function(doc){
                                                 if(doc && doc._id) {
                                                     return doc._id;

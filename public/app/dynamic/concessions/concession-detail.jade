@@ -34,9 +34,9 @@
                             td.detail_label.small Country:
                             //TODO figure out why full array isnt populating
                             td.concession_country
-                                span(ng-repeat="country in concession.concession_country | unique: 'country.country.iso2'")
-                                    span(ng-if="$first"): a(href='country/{{country.country.iso2}}')
-                                        span(ng-bind-html="country.country.name|sanitize")
+                                span(ng-repeat="country in concession.concession_country | unique: 'country.iso2'")
+                                    span(ng-if="$first"): a(href='country/{{country.iso2}}')
+                                        span(ng-bind-html="country.name|sanitize")
                         tr(ng-if="concession.concession_status.length>0")
                             td.detail_label.small Status:
                             td.concession_status: text(

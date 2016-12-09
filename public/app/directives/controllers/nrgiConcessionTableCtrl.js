@@ -29,7 +29,7 @@ angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$fi
     usSpinnerService.spin('spinner-concession');
 
     $scope.$watch('id', function(value) {
-        if($scope.name=='country'&&value!=undefined) {
+        if ($scope.name == 'country' && value != undefined || $scope.name == 'company' && value != undefined) {
             $scope.concessions = value;
             usSpinnerService.stop('spinner-concession');
             if ($scope.concessions.length == 0 ) {
@@ -40,7 +40,11 @@ angular.module('app').controller('nrgiConcessionTableCtrl', function ($scope,$fi
                 currentPage = 1;
             }
         }
-        if($scope.name!='country'&&value!=undefined){
+        if ($scope.name == 'country' && value == undefined || $scope.name == 'company' && value == undefined) {
+            usSpinnerService.stop('spinner-concession');
+            $scope.expression = 'showLast';
+        }
+        if($scope.name!='country' && value!=undefined&& $scope.name!= 'company'){
             $scope.loading = false;
             $scope.getConcessions($scope.id, $scope.name);
         }

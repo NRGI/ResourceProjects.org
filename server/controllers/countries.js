@@ -17,7 +17,7 @@ var Country 		= require('mongoose').model('Country'),
 
 var errorList=[];
 exports.getCountries = function(req, res) {
-    var countries_len, countries_counter, final_country_set,errorList=[],
+    var countriesLen, countriesCounter, finalCountrySet,errorList=[],
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
 
@@ -46,7 +46,7 @@ exports.getCountries = function(req, res) {
     function countryCount(callback) {
         Country.find({}).count().exec(function(err, country_count) {
             if (err) {
-                err = new Error('Error: '+ err);;
+                err = new Error('Error: '+ err);
                 return res.send({data:[],count:0,reason: err.toString()});
             } else if (!country_count) {
                 callback(null, 0);
@@ -55,7 +55,7 @@ exports.getCountries = function(req, res) {
             }
         });
     }
-    function getCountrySet(country_count, callback) {
+    function getCountrySet(countryCount, callback) {
         Country.aggregate([
                 {$limit:limit},{$skip:skip},{$sort:{'name':1}},
                 {$project:{_id:1,name:1,iso2:1,field_count:{ $literal: 0 },project_count:{ $literal: 0 },site_count:{ $literal: 0 },concession_count:{ $literal: 0 },transfer_count:{ $literal: 0 }}}
@@ -67,11 +67,11 @@ exports.getCountries = function(req, res) {
                 } else if (!countries) {
                     return res.send({data:[],count:0,reason: 'not found'});
                 } else {
-                    callback(null, country_count, countries);
+                    callback(null, countryCount, countries);
                 }
             });
     }
-    function getProjectCounts(country_count, countries, callback) {
+    function getProjectCounts(countryCount, countries, callback) {
         Project.aggregate([
             {$unwind: '$proj_country'},
             {$lookup: {from: "countries",localField: "proj_country.country",foreignField: "_id",as: "country"}},
@@ -88,20 +88,20 @@ exports.getCountries = function(req, res) {
         ]).exec(function (err, projects) {
             if (err) {
                 errorList = errors.errorFunction(err,'Projects');
-                callback(null, country_count, countries,errorList);
+                callback(null, countryCount, countries,errorList);
             }
             else {
                 if (projects.length>0) {
                     var res = union(countries, projects, 'project_count')
-                    callback(null, country_count, res, errorList);
+                    callback(null, countryCount, res, errorList);
                 } else {
                     errorList.push({type: 'Projects', message: 'projects not found'})
-                    callback(null, country_count, countries, errorList);
+                    callback(null, countryCount, countries, errorList);
                 }
             }
         })
     }
-    function getSiteCounts(country_count, countries, errorList, callback) {
+    function getSiteCounts(countryCount, countries, errorList, callback) {
         Site.aggregate([
             {$match:{ field:false}},
             {$unwind: '$site_country'},
@@ -119,20 +119,20 @@ exports.getCountries = function(req, res) {
         ]).exec(function (err, sites) {
             if (err) {
                 errorList = errors.errorFunction(err,'Sites');
-                callback(null, country_count, countries,errorList);
+                callback(null, countryCount, countries,errorList);
             }
             else {
                 if(sites.length>0) {
                     var res = union(countries, sites, 'site_count')
-                    callback(null, country_count, res,errorList);
+                    callback(null, countryCount, res,errorList);
                 } else{
                     errorList.push({type: 'Sites', message: 'sites not found'})
-                    callback(null, country_count, countries,errorList);
+                    callback(null, countryCount, countries,errorList);
                 }
             }
         })
     }
-    function getFieldCounts(country_count, countries,errorList, callback) {
+    function getFieldCounts(countryCount, countries,errorList, callback) {
         Site.aggregate([
             {$match:{ field:true}},
             {$unwind: '$site_country'},
@@ -150,20 +150,20 @@ exports.getCountries = function(req, res) {
         ]).exec(function (err, fields) {
             if (err) {
                 errorList = errors.errorFunction(err,'Concessions');
-                callback(null, country_count, countries,errorList);
+                callback(null, countryCount, countries,errorList);
             }
             else {
                 if (fields.length>0) {
                     var res = union(countries, fields, 'field_count')
-                    callback(null, country_count, res,errorList);
+                    callback(null, countryCount, res,errorList);
                 } else {
                     errorList.push({type: 'Fields', message: 'fields not found'})
-                    callback(null, country_count, countries,errorList);
+                    callback(null, countryCount, countries,errorList);
                 }
             }
         })
     }
-    function getConcessionCount(country_count, countries,errorList, callback) {
+    function getConcessionCount(countryCount, countries,errorList, callback) {
         Concession.aggregate([
             {$unwind: '$concession_country'},
             {$lookup: {from: "countries",localField: "concession_country.country",foreignField: "_id",as: "country"}},
@@ -180,19 +180,19 @@ exports.getCountries = function(req, res) {
         ]).exec(function (err, concessions) {
             if (err) {
                 errorList = errors.errorFunction(err,'Concessions');
-                callback(null, country_count, countries,errorList);
+                callback(null, countryCount, countries,errorList);
             } else {
                 if (concessions.length>0) {
                     var res = union(countries, concessions, 'concession_count')
-                    callback(null, country_count, res,errorList);
+                    callback(null, countryCount, res,errorList);
                 } else {
                     errorList.push({type: 'Concessions', message: 'concessions not found'})
-                    callback(null, country_count, countries,errorList);
+                    callback(null, countryCount, countries,errorList);
                 }
             }
         })
     }
-    function getTransferCount(country_count, countries,errorList, callback) {
+    function getTransferCount(countryCount, countries,errorList, callback) {
         Transfer.aggregate([
             {$unwind: '$country'},
             {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
@@ -209,30 +209,30 @@ exports.getCountries = function(req, res) {
         ]).exec(function (err, transfers) {
             if (err) {
                 errorList = errors.errorFunction(err,'Concessions');
-                callback(null, country_count, countries,errorList);
+                callback(null, countryCount, countries,errorList);
             } else {
                 if (transfers.length>0) {
                     var res = union(countries, transfers, 'transfer_count')
-                    callback(null, country_count, res,errorList);
+                    callback(null, countryCount, res,errorList);
                 } else {
                     errorList.push({type: 'Transfers', message: 'transfers not found'})
-                    callback(null, country_count, countries,errorList);
+                    callback(null, countryCount, countries,errorList);
                 }
             }
         })
     }
-    function getRelevantCountries(country_count, countries,errorList, callback) {
-        countries_len = countries.length;
-        countries_counter = 0;
-        final_country_set = [];
+    function getRelevantCountries(countryCount, countries,errorList, callback) {
+        countriesLen = countries.length;
+        countriesCounter = 0;
+        finalCountrySet = [];
         _.each(countries, function(country) {
             if (country.project_count!==0 || country.site_count!==0 || country.field_count!==0 || country.concession_count!==0 || country.transfer_count!==0) {
-                final_country_set.push(country);
+                finalCountrySet.push(country);
             } else {
-                --country_count;
+                --countryCount;
             }
         });
-        callback(null, {data:final_country_set, count:country_count, errors:errorList})
+        callback(null, {data:finalCountrySet, count:countryCount, errors:errorList})
     }
     function union(countries, param, field){
         var result = _.map(countries, function(orig){
@@ -251,9 +251,7 @@ exports.getCountries = function(req, res) {
 };
 
 exports.getAllDAtaCountryByID = function(req, res) {
-    var _id = mongoose.Types.ObjectId(req.params.id);
-    var limit = Number(req.params.limit),
-        skip = Number(req.params.skip);
+    var id = mongoose.Types.ObjectId(req.params.id);
     errorList=[];
     var projects = {};
     projects.projects = [];
@@ -286,7 +284,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
         projects.proj_coordinates = [];
         Site.aggregate([
                 {$unwind: '$site_country'},
-                {$match:{'site_country.country':_id,"site_coordinates":{ $exists: true,$nin: [ null ]}}},
+                {$match:{'site_country.country':id,"site_coordinates":{ $exists: true,$nin: [ null ]}}},
                 {$unwind:'$site_coordinates'},
                 {$project:{
                     'lat':  { "$arrayElemAt": [ "$site_coordinates.loc", -2 ] },
@@ -315,7 +313,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
         Project.aggregate([
             { $sort : { proj_name : -1 } },
             {$unwind: '$proj_country'},
-            {$match:{'proj_country.country':_id}},
+            {$match:{'proj_country.country':id}},
             {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
             {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "commodity"}},
@@ -347,9 +345,9 @@ exports.getAllDAtaCountryByID = function(req, res) {
         });
     }
     function getProjectCompanyCount(projects, errorList, callback) {
-        var project_id = _.pluck(projects.projects, 'project_id');
+        var projectId = _.pluck(projects.projects, 'project_id');
         Link.aggregate([
-            {$match: {$or: [{project: {$in: project_id}}], entities: 'company'}},
+            {$match: {$or: [{project: {$in: projectId}}], entities: 'company'}},
             {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
             {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
             {$unwind: '$project'},
@@ -366,7 +364,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 }
             },
             {$sort: {"proj_name": -1}},
-            {$match: {'proj_country.country': _id}},
+            {$match: {'proj_country.country': id}},
             {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
             {
@@ -431,7 +429,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
             Site.aggregate([
                 { $sort : { site_name : -1 } },
                 {$unwind: '$site_country'},
-                {$match:{'site_country.country':_id}},
+                {$match:{'site_country.country':id}},
                 {$unwind: {"path": "$site_status", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
                 {$lookup: {from: "commodities",localField: "site_commodity.commodity",foreignField: "_id",as: "commodity"}},
@@ -461,9 +459,9 @@ exports.getAllDAtaCountryByID = function(req, res) {
             });
     }
     function getSiteCompanyCount(sites, errorList, callback) {
-            var _ids = _.pluck(sites.sites, '_id');
+            var ids = _.pluck(sites.sites, '_id');
             Link.aggregate([
-                {$match: {$or: [{site: {$in: _ids}}], entities: 'company'}},
+                {$match: {$or: [{site: {$in: ids}}], entities: 'company'}},
                 {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
                 {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
                 {$unwind: '$site'},
@@ -477,7 +475,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                     "site_name":"$site.site_name"
                 }},
                 { $sort : { "site_name" : -1 } },
-                {$match:{'site_country.country':_id}},
+                {$match:{'site_country.country':id}},
                 {$unwind: {"path": "$site_status", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
                 {$lookup: {from: "commodities",localField: "site_commodity.commodity",foreignField: "_id",as: "commodity"}},
@@ -517,7 +515,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
             companies.companies_of_operation = [];
             Company.aggregate([
                 {$unwind:'$countries_of_operation'},
-                {$match:{'countries_of_operation.country':_id}},
+                {$match:{'countries_of_operation.country':id}},
                 {$group:{
                     _id:'$_id',company_name:{$first:'$company_name'},
                     countries_of_operation:{$first:'$countries_of_operation'}
@@ -544,9 +542,9 @@ exports.getAllDAtaCountryByID = function(req, res) {
             })
     }
     function getCompanyGroup(companies, errorList, callback) {
-        var companies_id = _.pluck(companies.companies_of_operation, '_id');
+        var companiesId = _.pluck(companies.companies_of_operation, '_id');
         Link.aggregate([
-            {$match: {$or: [{company: {$in: companies_id}}], entities: 'company_group'}},
+            {$match: {$or: [{company: {$in: companiesId}}], entities: 'company_group'}},
             {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
             {$lookup: {from: "companygroups",localField: "company_group",foreignField: "_id",as: "company_group"}},
             {$unwind: '$company'},
@@ -584,7 +582,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
             companies.companies = [];
             Company.aggregate([
                 {$unwind:"$country_of_incorporation"},
-                {$match:{'country_of_incorporation.country':_id}},
+                {$match:{'country_of_incorporation.country':id}},
                 {$group:{
                     _id:'$_id',company_name:{$first:'$company_name'},
                     country_of_incorporation:{$first:'$country_of_incorporation'}
@@ -611,9 +609,9 @@ exports.getAllDAtaCountryByID = function(req, res) {
             })
     }
     function getCompanyIncGroup(companies, errorList, callback) {
-        var companies_id = _.pluck(companies.companies, '_id');
+        var companiesId = _.pluck(companies.companies, '_id');
         Link.aggregate([
-            {$match: {$or: [{company: {$in: companies_id}}], entities: 'company_group'}},
+            {$match: {$or: [{company: {$in: companiesId}}], entities: 'company_group'}},
             {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
             {$lookup: {from: "companygroups",localField: "company_group",foreignField: "_id",as: "company_group"}},
             {$unwind: '$company'},
@@ -652,7 +650,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
         Concession.aggregate([
             { $sort : { concession_name : -1 } },
             {$unwind: '$concession_country'},
-            {$match:{'concession_country.country':_id}},
+            {$match:{'concession_country.country':id}},
             {$unwind: {"path": "$concession_status", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$concession_commodity", "preserveNullAndEmptyArrays": true}},
             {$lookup: {from: "commodities",localField: "concession_commodity.commodity",foreignField: "_id",as: "commodity"}},
@@ -682,9 +680,9 @@ exports.getAllDAtaCountryByID = function(req, res) {
         })
     }
     function getProjectCount(concessions, errorList, callback) {
-        var _ids = _.pluck(concessions.concessions, '_id');
+        var ids = _.pluck(concessions.concessions, '_id');
         Link.aggregate([
-            {$match: {$or: [{concession: {$in: _ids}}], entities: 'project'}},
+            {$match: {$or: [{concession: {$in: ids}}], entities: 'project'}},
             {$lookup: {from: "concessions", localField: "concession", foreignField: "_id", as: "concession"}},
             {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
             {$unwind: '$project'},
@@ -700,7 +698,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                 }
             },
             {$sort: {"concession_name": -1}},
-            {$match: {'concession_country.country': _id}},
+            {$match: {'concession_country.country': id}},
             {$unwind: {"path": "$concession_status", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$concession_commodity", "preserveNullAndEmptyArrays": true}},
             {$lookup: {from: "commodities",localField: "concession_commodity.commodity",foreignField: "_id",as: "commodity"}},
@@ -755,12 +753,12 @@ exports.getAllDAtaCountryByID = function(req, res) {
             {$unwind: {"path": "$company.country_of_incorporation", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
-            {$match:{$or:[{'company.country_of_incorporation.country':_id},
-                {'company.countries_of_operation.country':_id},
-                {'project.proj_country.country':_id},
-                {'site.site_country.country':_id},
-                {'concession.concession_country.country':_id},
-                {'country._id':_id}
+            {$match:{$or:[{'company.country_of_incorporation.country':id},
+                {'company.countries_of_operation.country':id},
+                {'project.proj_country.country':id},
+                {'site.site_country.country':id},
+                {'concession.concession_country.country':id},
+                {'country._id':id}
             ]}},
             {$group:{
                 "_id": "$_id",
@@ -844,12 +842,12 @@ exports.getAllDAtaCountryByID = function(req, res) {
             {$unwind: {"path": "$company.country_of_incorporation", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
-            {$match:{$or:[{'company.country_of_incorporation.country':_id},
-                {'company.countries_of_operation.country':_id},
-                {'project.proj_country.country':_id},
-                {'site.site_country.country':_id},
-                {'concession.concession_country.country':_id},
-                {'country._id':_id}
+            {$match:{$or:[{'company.country_of_incorporation.country':id},
+                {'company.countries_of_operation.country':id},
+                {'project.proj_country.country':id},
+                {'site.site_country.country':id},
+                {'concession.concession_country.country':id},
+                {'country._id':id}
             ]}},
             {$group:{
                 "_id": "$_id",
@@ -887,7 +885,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
                     }
                 },
                 site:{$cond:[{$eq:["$site", null]}, null, {_id:"$site._id",name:"$site.site_name",field:'$site.field'}]},
-                production_commodity:{$cond:[{$eq:["$production_commodity", null]}, null, {_id:"$production_commodity._id",name:"$production_commodity.commodity_name",
+                production_commodity:{$cond:[{$eq:["$production_commodity", null]}, null, {_id:"$production_commodity._id",commodity_name:"$production_commodity.commodity_name",
                     commodity_id:'$production_commodity.commodity_id'}]},
                 production_year:1,production_volume:1,production_unit:1,production_price:1,production_price_unit:1,production_level:1
             }},
@@ -914,7 +912,7 @@ exports.getAllDAtaCountryByID = function(req, res) {
 };
 
 exports.getCountryByID = function(req, res) {
-    var country_id;
+    var countryId;
     var errorList =[];
     async.waterfall([
         getCountry,
@@ -942,7 +940,7 @@ exports.getCountryByID = function(req, res) {
                 res.send({commodities:[],country:[],error:errorList});
             } else {
                 if (country.length > 0) {
-                    country_id = mongoose.Types.ObjectId(country[0]._id);
+                    countryId = mongoose.Types.ObjectId(country[0]._id);
                     callback(null, country[0], errorList);
                 } else {
                     errorList.push({type: 'Countries', message: 'countries not found'})
@@ -954,7 +952,7 @@ exports.getCountryByID = function(req, res) {
     function getProjects(country,errorList, callback) {
         Project.aggregate([
                 {$unwind: '$proj_country'},
-                {$match:{'proj_country.country': country_id}},
+                {$match:{'proj_country.country': countryId}},
                 {$unwind: '$proj_commodity'},
                 {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "commodity"}},
                 {$project:{_id:1,commodity:1}},
@@ -984,7 +982,7 @@ exports.getCountryByID = function(req, res) {
     function getSites(commodities, errorList, country , callback) {
         Site.aggregate([
             {$unwind: '$site_country'},
-            {$match:{'site_country.country':  country_id}},
+            {$match:{'site_country.country':  countryId}},
             {$unwind: '$site_commodity'},
             {$lookup: {from: "commodities",localField: "site_commodity.commodity",foreignField: "_id",as: "commodity"}},
             {$project:{_id:1,commodity:1}},
@@ -1015,7 +1013,7 @@ exports.getCountryByID = function(req, res) {
     function getConcessions(commodities, errorList, country, callback) {
         Concession.aggregate([
             {$unwind: '$concession_country'},
-            {$match:{'concession_country.country':  country_id}},
+            {$match:{'concession_country.country':  countryId}},
             {$unwind: '$concession_commodity'},
             {$lookup: {from: "commodities",localField: "concession_commodity.commodity",foreignField: "_id",as: "commodity"}},
             {$project:{_id:1,commodity:1}},
@@ -1049,9 +1047,9 @@ exports.getCountryByID = function(req, res) {
 
 };
 
-exports.createCountry = function(req, res, next) {
+exports.createCountry = function(req, res) {
     var countryData = req.body;
-    Country.create(countryData, function(err, country) {
+    Country.create(countryData, function(err) {
         if(err){
             res.status(400);
             err = new Error('Error');
@@ -1063,15 +1061,14 @@ exports.createCountry = function(req, res, next) {
 };
 
 exports.updateCountry = function(req, res) {
-    var countryUpdates = req.body;
     Country.findOne({_id:req.body._id}).exec(function(err, country) {
         if(err) {
             res.status(400);
             err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
-        country.iso2= countryUpdates.iso2;
-        country.name= countryUpdates.name;
+        country.iso2= req.body.iso2;
+        country.name= req.body.name;
         country.save(function(err) {
             if(err) {
                 err = new Error('Error');

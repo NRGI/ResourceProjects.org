@@ -3,15 +3,17 @@ var Concession 		= require('mongoose').model('Concession'),
     Production 	    = require('mongoose').model('Production'),
     Link            = require('mongoose').model('Link'),
     errors 	        = require('./errorList'),
+    mongoose 		= require('mongoose'),
     async           = require('async'),
     _               = require("underscore");
 
+// Get All Concessions
 exports.getConcessions = function(req, res) {
-    var concession_len, link_len, concession_counter, transfers_query=[],
-        limit = Number(req.params.limit),errorList=[],
+    var concessionLen, data={}, concessionCounter, transfersQuery=[],
+        limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     async.waterfall([
-        concessionCount,
+        getConcessionCount,
         getConcessionSet,
         getConcessionLinks,
         getTransfersCount,
@@ -28,7 +30,10 @@ exports.getConcessions = function(req, res) {
             }
         }
     );
-    function concessionCount(callback) {
+    function getConcessionCount(callback) {
+        data.concessions = [];
+        data.errorList = [];
+        data.count = 0;
         Concession.find({}).count().exec(function(err, concession_count) {
             if (err) {
                 err = new Error('Error: '+ err);
@@ -36,11 +41,12 @@ exports.getConcessions = function(req, res) {
             } else if (concession_count == 0) {
                 return res.send({reason: 'not found'});
             } else {
-                callback(null, concession_count);
+                data.count = concession_count
+                callback(null, data);
             }
         });
     }
-    function getConcessionSet(concession_count, callback) {
+    function getConcessionSet(data, callback) {
         Concession.aggregate([
             {$sort: {concession_name: -1}},
             {$unwind: {"path": "$concession_country", "preserveNullAndEmptyArrays": true}},
@@ -71,23 +77,24 @@ exports.getConcessions = function(req, res) {
             {$limit: limit}
         ]).exec(function(err, concessions) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({reason: err.toString()});
+                data.errorList = errors.errorFunction(err, 'Concession links');
+                return res.send(data);
             } else if (concessions.length>0) {
-                callback(null, concession_count, concessions);
+                data.concessions = concessions;
+                callback(null, data);
             } else {
-                return res.send({reason: 'not found'});
+                return res.send(data);
             }
         });
     }
-    function getConcessionLinks(concession_count, concessions, callback) {
-        var concessions_id = _.pluck(concessions, '_id');
+    function getConcessionLinks(data, callback) {
+        var concessionsId = _.pluck(data.concessions, '_id');
         Link.aggregate([
-            {$match: {$or: [{concession: {$in: concessions_id }}]}},
+            {$match: {$or: [{concession: {$in: concessionsId }}]}},
             {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
             {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
-            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
             {$lookup: {from: "commodities",localField: "project.proj_commodity.commodity",foreignField: "_id",as: "proj_commodity"}},
@@ -102,25 +109,43 @@ exports.getConcessions = function(req, res) {
                     else:  {_id:"$proj_commodity._id",commodity_type:"$proj_commodity.commodity_type",
                         commodity_id:'$proj_commodity.commodity_id', commodity_name:'$proj_commodity.commodity_name'}}},
                 project:1,
-                fields: {$cond: { if:  {$not: "$site" },
-                    then: [], else: {$cond: { if:  {$gte: ["$site.field", true] },then:[] , else: '$site'}}}
-                },sites: {$cond: { if:  {$not: "$site" },
-                    then: [], else: {$cond: { if:  {$gte: ["$site.field", false] },then:[] , else: '$site'}}}
-                },
+                site:['$site'],
                 project_id: { $concatArrays: [ ["$site"], ["$project"] ] }
             }
             },
+            {$project:{_id:1,
+                commodity:1,
+                project:1,
+                field: {
+                    $filter: {
+                        input: "$site",
+                        as: "site",
+                        cond: { $and: [ "$$site.field", true ] }
+                    }
+                },
+                site:{
+                    $filter: {
+                        input: "$site",
+                        as: "item",
+                        cond: { $and: [ "$$item.field", false ] }
+                    }
+                },
+                project_id:1
+            }
+            },
             {$unwind: {"path": "$project_id", "preserveNullAndEmptyArrays": true}},
-            {$unwind: {"path": "$fields", "preserveNullAndEmptyArrays": true}},
-            {$unwind: {"path": "$sites", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$field", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$field", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
             {$unwind: {"path": "$commodity", "preserveNullAndEmptyArrays": true}},
             {$group:{
                 _id:'$_id',
                 commodity:{$addToSet:'$commodity'},
-                project:{$addToSet:'$project'},
+                project:{$addToSet:'$project.proj_id'},
                 project_id:{$addToSet:'$project_id._id'},
-                site:{$addToSet:'$sites'},
-                field:{$addToSet:'$fields'}
+                site:{$addToSet:'$site._id'},
+                field:{$addToSet:'$field._id'}
             }},
             {$project:{
                 _id:1,project_count:{$size:'$project'},project_id:1,
@@ -129,14 +154,14 @@ exports.getConcessions = function(req, res) {
             }}
         ]).exec(function (err, links) {
                 if (err) {
-                    errorList = errors.errorFunction(err, 'Concession links');
-                    callback(null, concession_count, concessions, errorList);
+                    data.errorList = errors.errorFunction(err, 'Concession links');
+                    callback(null, data);
                 }
                 else {
                     if (links.length > 0) {
-                        _.map(concessions, function (concession) {
+                        _.map(data.concessions, function (concession) {
                             var list = _.find(links, function (link) {
-                                if(link.project_id) {link.project_id.reduce(function(result, item) {transfers_query.push(item)}, {})}
+                                if(link.project_id) {link.project_id.reduce(function(result, item) {transfersQuery.push(item)}, {})}
                                 return link._id.toString() == concession._id.toString();
                             });
                             if (list) {
@@ -148,81 +173,96 @@ exports.getConcessions = function(req, res) {
                             }
                             return concession;
                         });
-                        transfers_query=_.uniq(transfers_query)
-                        callback(null, concession_count, concessions, errorList);
+                        transfersQuery=_.uniq(transfersQuery)
+                        callback(null, data);
                     } else {
-                        errorList.push({type: 'Concession links', message: 'concession links not found'})
-                        callback(null, concession_count, concessions, errorList);
+                        data.errorList.push({type: 'Concession links', message: 'concession links not found'})
+                        callback(null, data);
                     }
                 }
             })
     }
-    function getTransfersCount(concession_count, concessions,errorList, callback) {
-        concession_len = concessions.length;
-        concession_counter = 0;
-        if(concession_len>0) {
-            _.each(concessions, function (concession) {
-                Transfer.find({
-                    $or: [
-                        {project: {$in: concession.project_id}},
-                        {site: {$in: concession.project_id}},
-                        {concession: {$in: concession.project_id}}
-                    ]
-                })
-                    .count()
-                    .exec(function (err, transfer_count) {
-                        if (err) {
-                            errorList = errors.errorFunction(err, 'concession transfers');
-                            callback(null, concession_count, concessions, errorList);
-                        }
-                        else {
-                            ++concession_counter;
-                            concession.transfer_count = transfer_count;
-                            if (concession_counter === concession_len) {
-                                callback(null, concession_count, concessions, errorList);
+    function getTransfersCount(data, callback) {
+        concessionLen = data.concessions.length;
+        concessionCounter = 0;
+        if(concessionLen>0) {
+            _.each(data.concessions, function (concession) {
+                if(concession.project_id.length>0) {
+                    Transfer.find({
+                        $or: [
+                            {project: {$in: concession.project_id}},
+                            {site: {$in: concession.project_id}},
+                            {concession: {$in: concession.project_id}}
+                        ]
+                    })
+                        .count()
+                        .exec(function (err, transfer_count) {
+                            if (err) {
+                                data.errorList = errors.errorFunction(err, 'concession transfers');
+                                callback(null, data);
                             }
-                        }
-                    });
+                            else {
+                                ++concessionCounter;
+                                concession.transfer_count = transfer_count;
+                                if (concessionCounter === concessionLen) {
+                                    callback(null, data);
+                                }
+                            }
+                        });
+                } else{
+                    ++concessionCounter;
+                    if (concessionCounter === concessionLen) {
+                        callback(null, data);
+                    }
+                }
             });
         }else{
-            callback(null, concession_count, concessions, errorList);
+            callback(null, data);
         }
     }
-    function getProductionCount(concession_count, concessions, errorList, callback) {
-        concession_len = concessions.length;
-        concession_counter = 0;
-        if(concession_len>0) {
-            _.each(concessions, function (concession) {
-                Production.find({
-                    $or: [
-                        {project: {$in: concession.project_id}},
-                        {site: {$in: concession.project_id}},
-                        {concession: {$in: concession.project_id}}]
-                })
-                    .count()
-                    .exec(function (err, production_count) {
-                        if (err) {
-                            errorList = errors.errorFunction(err, 'concession productions');
-                            callback(null, {data: concessions, count: concession_count, errorList:errorList});
-                        }
-                        else {
-                            ++concession_counter;
-                            concession.production_count = production_count;
-                            if (concession_counter === concession_len) {
-                            callback(null, {data: concessions, count: concession_count, errorList:errorList});
+    function getProductionCount(data, callback) {
+        concessionLen = data.concessions.length;
+        concessionCounter = 0;
+        if(concessionLen>0) {
+            _.each(data.concessions, function (concession) {
+                if(concession.project_id.length>0) {
+                    Production.find({
+                        $or: [
+                            {project: {$in: concession.project_id}},
+                            {site: {$in: concession.project_id}},
+                            {concession: {$in: concession.project_id}}]
+                    })
+                        .count()
+                        .exec(function (err, production_count) {
+                            if (err) {
+                                data.errorList = errors.errorFunction(err, 'concession productions');
+                                callback(null, data);
                             }
-                        }
-                    });
-
+                            else {
+                                ++concessionCounter;
+                                concession.production_count = production_count;
+                                if (concessionCounter === concessionLen) {
+                                    callback(null, data);
+                                }
+                            }
+                        });
+                } else{
+                    ++concessionCounter;
+                    if (concessionCounter === concessionLen) {
+                        callback(null, data);
+                    }
+                }
             });
         }else{
-            callback(null, concession_count, concessions);
+            callback(null, data);
         }
     }
 };
 
+// Get Concession By ID
 exports.getConcessionByID = function(req, res) {
-    var link_counter, link_len;
+    var id = mongoose.Types.ObjectId(req.params.id);
+    var data={};
 
     async.waterfall([
         getConcession,
@@ -240,152 +280,319 @@ exports.getConcessionByID = function(req, res) {
     });
 
     function getConcession(callback) {
-        Concession.findOne({_id:req.params.id})
-            .populate('concession_aliases', ' _id alias')
-            .populate('concession_country.country')
-            .populate('concession_commodity.commodity')
-            .deepPopulate('concession_company_share.company')
-            .lean()
-            .exec(function(err, concession) {
-                if(concession) {
-                    callback(null, concession);
+        data.concession = [];
+        data.errorList = [];
+
+        Concession.aggregate([
+            {$match: {_id:id}},
+            {$unwind: {"path": "$concession_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession_aliases", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession_company_share", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession_status", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "countries", localField: "concession_country.country",foreignField: "_id",as: "concession_country.country"}},
+            {$lookup: {from: "companies", localField: "concession_company_share.company",foreignField: "_id",as: "concession_company_share.company"}},
+            {$lookup: {from: "commodities", localField: "concession_commodity.commodity",foreignField: "_id",as: "concession_commodity.commodity"}},
+            {$unwind: {"path": "$concession_country.country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession_commodity.commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession_company_share.company", "preserveNullAndEmptyArrays": true}},
+            {$project:{
+                _id:1, concession_established_source:1, concession_name:1,
+                concession_company_share:{
+                    _id:'$concession_company_share.company._id',
+                    iso2:'$concession_company_share.company.company_name',
+                    number:'$concession_company_share.number'
+                },
+                concession_country:{
+                    _id:'$concession_country.country._id',
+                    iso2:'$concession_country.country.iso2',
+                    name:'$concession_country.country.name'
+                },
+                concession_commodity:{
+                    _id:'$concession_commodity.commodity._id',
+                    commodity_name:'$concession_commodity.commodity.commodity_name',
+                    commodity_type:'$concession_commodity.commodity.commodity_type',
+                    commodity_id:'$concession_commodity.commodity.commodity_id'
+                },
+                concession_aliases: {_id:'$concession_aliases._id', alias:'$concession_aliases.alias'},
+                description:1,concession_status:1,oo_url_api:1,oo_url_wiki:1,oo_details:1
+            }},
+            {$unwind: {"path": "$concession_commodity", "preserveNullAndEmptyArrays": true}},
+            {$group:{
+                _id:'$_id',
+                concession_name:{$first:'$concession_name'},
+                concession_established_source:{$first:'$concession_established_source'},
+                concession_company_share:{$addToSet:'$concession_company_share'},
+                concession_country:{$addToSet:'$concession_country'},
+                concession_aliases:{$addToSet:'$concession_aliases'},
+                description:{$first:'$description'},
+                concession_status:{$addToSet:'$concession_status'},
+                concession_commodity:{$addToSet:'$concession_commodity'},
+                oo_url_api:{$first:'$oo_url_api'},
+                oo_url_wiki:{$first:'$oo_url_wiki'},
+                oo_details:{$first:'$oo_details'}
+            }}
+        ]).exec(function(err, concession) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'Concession ' + id);
+                    res.send(data);
                 } else {
-                    callback(null, concession);
+                    if (concession.length > 0) {
+                        data.concession = concession[0]
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: 'Concession ' + id, message: 'concession '+ id+' not found'})
+                        callback(null, data);
+                    }
                 }
             });
     }
 
-    function getConcessionLinks(concession, callback) {
-        if(concession) {
-            concession.contracts = [];
-            concession.source_type = {p: false, c: false};
-            concession.polygon = [];
-            concession.proj_coordinates = [];
-            var commodities = concession.concession_commodity;
-            concession.concession_commodity = [];
-            _.each(commodities, function (commodity) {
-                concession.concession_commodity.push({
-                    _id: commodity.commodity._id,
-                    commodity_name: commodity.commodity.commodity_name,
-                    commodity_type: commodity.commodity.commodity_type,
-                    commodity_id: commodity.commodity.commodity_id
-                });
-            })
-            if (concession.concession_polygon && concession.concession_polygon.length > 0) {
-                var len = concession.concession_polygon.length;
-                var counter = 0;
-                var coordinate = [];
-                concession.concession_polygon.forEach(function (con_loc) {
-                    ++counter;
-                    if (con_loc && con_loc.loc) {
-                        coordinate.push({
-                            'lat': con_loc.loc[0],
-                            'lng': con_loc.loc[1]
-                        });
+    function getConcessionLinks(data, callback) {
+        Link.aggregate([
+                {$match: {concession:id}},
+                {$lookup: {from: "contracts", localField: "contract",foreignField: "_id",as: "contract"}},
+                {$lookup: {from: "projects", localField: "project",foreignField: "_id",as: "project"}},
+                {$lookup: {from: "sites", localField: "site",foreignField: "_id",as: "site"}},
+                {$unwind: {"path": "$contract", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_coordinates", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities", localField: "project.proj_commodity.commodity",foreignField: "_id",as: "project.proj_commodity"}},
+                {$lookup: {from: "commodities", localField: "site.site_commodity.commodity",foreignField: "_id",as: "site.site_commodity"}},
+                {$project: {
+                    commodity: {$setUnion: ["$project.proj_commodity", "$site.site_commodity"]},
+                    concession: 1,
+                    contract: 1,
+                    coordinates: {
+                        $cond: {
+                            if: {$not: "$site"},
+                            then: [],
+                            else: {
+                                $cond: {
+                                    if: {$not: "$site.site_coordinates"},
+                                    then: [],
+                                    else: {
+                                        _id: '$site._id',
+                                        'lat': {"$arrayElemAt": ["$site.site_coordinates.loc", -2]},
+                                        'lng': {"$arrayElemAt": ["$site.site_coordinates.loc", -1]},
+                                        'message': "$site.site_name",
+                                        'timestamp': "$site.site_coordinates.timestamp",
+                                        'type': {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+
+                                    }
+                                }}
+                        }
                     }
-                    if (len == counter) {
-                        concession.polygon.push({coordinate: coordinate});
+                }},
+                {$unwind: {"path": "$commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$coordinates", "preserveNullAndEmptyArrays": true}},
+                {$group:{
+                    _id:null,
+                    commodity:{$addToSet:'$commodity'},
+                    contract:{$addToSet:'$contract'},
+                    coordinates:{$addToSet:'$coordinates'}
+                }}
+            ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Concession ' + id + ' links');
+                res.send(data);
+            } else {
+                if (links.length > 0) {
+                    data.concession.proj_coordinates = links[0].coordinates;
+                    data.concession.contracts = links[0].contract;
+                    if(data.concession.concession_commodity.length>0 && !_.isEmpty(data.concession.concession_commodity[0])){
+                        data.concession.concession_commodity = _.union(data.concession.concession_commodity, links[0].commodity);
+                    } else{
+                        data.concession.concession_commodity = links[0].commodity;
                     }
-                })
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Concession ' + id, message: 'concession ' + id + ' links not found'})
+                    callback(null, data);
+                }
             }
-            Link.find({concession: concession._id})
-                .populate('contract company')
-                .deepPopulate('project.proj_country.country project.proj_commodity.commodity site.site_commodity.commodity source.source_type_id')
-                .exec(function (err, links) {
-                    link_len = links.length;
-                    link_counter = 0;
-                    if (link_len > 0) {
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'concession')[0];
-                            if (!concession.source_type.p || !concession.source_type.c) {
-                                if (link.source != null) {
-                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                        concession.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        concession.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                        concession.source_type.p = true;
-                                    }
-                                }
-                            }
-                            switch (entity) {
-                                case 'contract':
-                                    if (!_.contains(concession.contracts, link.contract.contract_id)) {
-                                        concession.contracts.push(link.contract);
-                                    }
-                                    break;
-                                case 'project':
-                                    if (link.project.proj_commodity.length > 0) {
-                                        if (_.where(concession.concession_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length < 1) {
-                                            concession.concession_commodity.push({
-                                                _id: _.last(link.project.proj_commodity).commodity._id,
-                                                commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
-                                                commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
-                                                commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
-                                            });
-                                        }
-                                    }
-                                    break;
-                                case 'site':
-                                    if (link.site.field && link.site.site_coordinates.length > 0) {
-                                        link.site.site_coordinates.forEach(function (loc) {
-                                            if (loc && loc.loc) {
-                                                concession.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'field',
-                                                    'id': link.site._id
-                                                });
-                                            }
-                                        });
-                                    } else if (!link.site.field && link.site.site_coordinates.length > 0) {
-                                        link.site.site_coordinates.forEach(function (loc) {
-                                            if (loc && loc.loc) {
-                                                concession.proj_coordinates.push({
-                                                    'lat': loc.loc[0],
-                                                    'lng': loc.loc[1],
-                                                    'message': link.site.site_name,
-                                                    'timestamp': loc.timestamp,
-                                                    'type': 'site',
-                                                    'id': link.site._id
-                                                });
-                                            }
-                                        });
-                                    }
-                                    if (link.site.site_commodity.length > 0) {
-                                        if (_.where(concession.concession_commodity, {_id: _.last(link.site.site_commodity).commodity._id}).length < 1) {
-                                            concession.concession_commodity.push({
-                                                _id: _.last(link.site.site_commodity).commodity._id,
-                                                commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
-                                                commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
-                                                commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
-                                            });
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    console.log(entity, 'link skipped...');
-                            }
-                            if (link_counter == link_len) {
-                                callback(null, concession);
-                            }
-                        });
-                    } else {
-                        callback(null, concession);
-                    }
-                });
-        } else {
-            callback(null, {error:"Error"});
-        }
+        })
     }
 };
 
-exports.createConcession = function(req, res, next) {
+
+exports.getConcessionData = function(req, res) {
+    var id = mongoose.Types.ObjectId(req.params.id);
+    var data={};
+
+    async.waterfall([
+        getConcessionCompany,
+        getCompanyGroup,
+        getLinkedProjects
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+        } else{
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
+            } else {
+                return res.send(result);
+            }
+        }
+    });
+
+    function getConcessionCompany(callback) {
+        data.errorList = [];
+        data.companies = [];
+        data.projects = [];
+
+        Link.aggregate([
+            {$match: {concession: id, entities: "company"}},
+            {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+            {$unwind: "$company"},
+            {$project:{_id:1, company:{company_name:'$company.company_name', _id:'$company._id',
+                company_groups:{$literal:[]}}}},
+            {$group:{
+                _id: null,
+                company:{$addToSet:'$company'}
+            }
+            },
+            {$skip:0},
+            {$limit:50}
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Concession links');
+                callback(null, data);
+            } else {
+                if (links.length > 0) {
+                    data.companies = links[0].company;
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Concession links', message: 'concession links not found'})
+                    callback(null, data);
+                }
+            }
+        });
+    }
+
+    function getCompanyGroup(data, callback) {
+        var companiesId = _.pluck(data.companies, '_id');
+        Link.aggregate([
+            {$match: {$or: [{company: {$in: companiesId}}], entities: 'company_group'}},
+            {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+            {$lookup: {from: "companygroups",localField: "company_group",foreignField: "_id",as: "company_group"}},
+            {$unwind: '$company'},
+            {$unwind: '$company_group'},
+            {$group:{
+                _id:'$company._id',company_name:{$first:'$company.company_name'},
+                company_groups:{$addToSet:'$company_group'}
+            }},
+            {$project:{
+                _id:1,company_name:1,
+                company_groups:1}}
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Company links');
+                callback(null, data);
+            }else {
+                if (links.length > 0) {
+                    _.map(data.companies, function(company){
+                        var list = _.find(links, function(link){
+                            return company._id.toString() == link._id.toString(); });
+                        if(list && list.company_groups) {
+                            company.company_groups = list.company_groups;
+                        }
+                        return company;
+                    });
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Company links', message: 'company links not found'})
+                    callback(null, data);
+                }
+            }
+        });
+    }
+
+    function getLinkedProjects(data, callback) {
+        Link.aggregate([
+            {$match: {concession: id, entities:"project"}},
+            {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_status", "preserveNullAndEmptyArrays": true}},
+            {
+                $lookup: {
+                    from: "commodities",
+                    localField: "project.proj_commodity.commodity",
+                    foreignField: "_id",
+                    as: "project.proj_commodity"
+                }
+            },
+            {
+                $lookup: {
+                    from: "countries",
+                    localField: "project.proj_country.country",
+                    foreignField: "_id",
+                    as: "project.proj_country"
+                }
+            },
+            {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {
+                $project: {
+                    _id: '$project.proj_id',
+                    proj_id: '$project.proj_id',
+                    proj_name: '$project.proj_name',
+                    proj_commodity: '$project.proj_commodity',
+                    proj_country: '$project.proj_country',
+                    proj_status: '$project.proj_status'
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    proj_id: {$first: '$proj_id'},
+                    proj_name: {$first: '$proj_name'},
+                    proj_commodity: {$addToSet: '$proj_commodity'},
+                    proj_country: {$addToSet: '$proj_country'},
+                    proj_status: {$addToSet: '$proj_status'}
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    proj_site: {_id: '$proj_id'},
+                    proj_name: 1,
+                    proj_id: 1,
+                    proj_commodity: 1,
+                    proj_country: 1,
+                    proj_status: 1,
+                    companies_count: {$literal: 0},
+                    companies: {$literal: []}
+                }
+            },
+            {$skip: 0},
+            {$limit: 50}
+        ]).exec(function (err, links) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'project links');
+                    res.send(data);
+                } else {
+                    if (links.length > 0) {
+                        data.projects = links;
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: 'project links', message: 'project links not found'})
+                        callback(null, data);
+                    }
+                }
+            });
+    }
+
+};
+
+exports.createConcession = function(req, res) {
     var concessionData = req.body;
-    Concession.create(concessionData, function(err, concession) {
+    Concession.create(concessionData, function(err) {
         if(err){
             res.status(400);
             err = new Error('Error');
@@ -398,26 +605,14 @@ exports.createConcession = function(req, res, next) {
 };
 
 exports.updateConcession = function(req, res) {
-    var concessionUpdates = req.body;
     Concession.findOne({_id:req.body._id}).exec(function(err, concession) {
         if(err) {
             res.status(400);
             err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
-        concession.concession_name= concessionUpdates.concession_name;
-        //concession.concession_aliases= concessionUpdates.concession_aliases;
-        //concession.concession_established_source= concessionUpdates.concession_established_source;
-        concession.description= concessionUpdates.description;
-        //concession.concession_country= concessionUpdates.concession_country;
-        //concession.concession_status= concessionUpdates.concession_status;
-        //concession.concession_type= concessionUpdates.concession_type;
-        //concession.concession_commodity= concessionUpdates.concession_commodity;
-        //concession.oo_concession_id= concessionUpdates.oo_concession_id;
-        //concession.oo_url_api= concessionUpdates.oo_url_api;
-        //concession.oo_url_wiki= concessionUpdates.oo_url_wiki;
-        //concession.oo_source_date= concessionUpdates.oo_source_date;
-        //concession.oo_details= concessionUpdates.oo_details;
+        concession.concession_name= req.body.concession_name;
+        concession.description= req.body.description;
         concession.save(function(err) {
             if(err) {
                 err = new Error('Error');

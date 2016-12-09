@@ -20,17 +20,17 @@
                         tr
                             td.detail_label.small ID:
                             td.site_id {{site._id}}
-                        tr
+                        tr(ng-if="site.projects.length>0")
                             td.detail_label.small Project(s) name:
-                            td.site_site: text(ng-repeat="project in site.projects | unique: '_id'")
+                            td.site_site: span(ng-repeat="project in site.projects | unique: '_id'")
                                 a(href='project/{{project.proj_id}}')
                                     | {{project.proj_name}}
                                 | {{$last ? '' : ', '}}
                         tr(ng-if="site.site_country")
                             td.detail_label.small Country:
-                            td.site_country: text(ng-repeat="country in site.site_country | unique: 'iso2'")
-                                a(href='country/{{country.country.iso2}}')
-                                    span(ng-bind-html="country.country.name|sanitize")
+                            td.site_country: span(ng-repeat="country in site.site_country | unique: 'iso2'")
+                                a(href='country/{{country.iso2}}')
+                                    span(ng-bind-html="country.name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="site.site_aliases.length>0")
                             td.detail_label.small Aliases:
@@ -40,7 +40,7 @@
                         tr(ng-if="site.site_commodity.length>0")
                             td.detail_label.small Commodity Type:
                             td.site_type
-                                text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
+                                span(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
                                     | {{commodity.commodity_type | ucfirst | addSpaces}}
                                     | {{$last ? '' : ', '}}
                                 //span(ng-repeat='type in project.proj_type')
@@ -49,7 +49,7 @@
                         tr(ng-if="site.site_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.site_commodities
-                                text(ng-repeat="commodity in site.site_commodity | unique: '_id'")
+                                span(ng-repeat="commodity in site.site_commodity | unique: '_id'")
                                     a(href='commodity/{{commodity.commodity_id}}')
                                         span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
@@ -125,20 +125,24 @@
                             td.project-description
                                 span(ng-bind-html="site.description|sanitize")
             nrgi-company-table(
-            id="site._id"
+            ng-if="data"
+            countryid="id"
+            id="data.companies"
             type="'site'"
             stake="true"
             group="true")
     .row.top-padding-lg
-        .col-md-12
+        .col-md-12(ng-if="data")
             nrgi-production-table(
-            id="site._id"
+            countryid="id"
+            id="data.production"
             type="'site'"
             projectlink="true")
     .row.top-padding-lg
-        .col-md-12
+        .col-md-12(ng-if="data")
             nrgi-transfer-table(
-            id="site._id"
+            countryid="id"
+            id="data.transfers"
             type="'site'"
             site="false"
             projectlink="true")

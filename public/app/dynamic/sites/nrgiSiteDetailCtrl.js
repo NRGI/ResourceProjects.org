@@ -9,9 +9,14 @@ angular.module('app')
         nrgiSitesSrvc,
         $routeParams
     ) {
-        nrgiSitesSrvc.get({_id: $routeParams.id}, function (success) {
+        nrgiSitesSrvc.get({_id: $routeParams.id}, function (success,error) {
+            if(success.data){
+                $scope.id = success.data._id;
+                $scope.site = success.data;
+            } else{
+                console.log(error)
+            }
             //var _ = $rootScope._;
-            $scope.site = success;
 
             //_.each($scope.site.companies, function(company) {
             //    company.operator = false;
@@ -27,4 +32,12 @@ angular.module('app')
             //    // })
             //});
         });
+        nrgiSitesSrvc.get({data:'data',_id: $routeParams.id}, function (success,error) {
+            if(success) {
+                $scope.data = success;
+            } else{
+                console.log(error)
+            }
+
+        })
     });

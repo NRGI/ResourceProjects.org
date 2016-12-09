@@ -48,36 +48,56 @@ exports.getConcessionTable = function(req, res){
     });
     function getLinks(callback) {
         if (type != 'commodity'&&type != 'group'&&type!='country') {
-            Link.find(query)
-                .populate('concession commodity country')
-                .deepPopulate('concession.concession_commodity.commodity concession.concession_country.country ')
-                .exec(function (err, links) {
-                    if (links.length>0) {
-                        link_len = links.length;
-                        link_counter = 0;
-                        _.each(links, function (link) {
-                            ++link_counter;
-                            company.concessions.push({
-                                _id: link.concession._id,
-                                concession_name: link.concession.concession_name,
-                                concession_country: _.first(link.concession.concession_country).country,
-                                concession_commodities: link.concession.concession_commodity,
-                                concession_status: link.concession.concession_status
-                            });
-                            if (link_len == link_counter) {
-                                company.concessions = _.map(_.groupBy(company.concessions,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, company);
-                            }
-
-                        })
+            Link.aggregate([
+                {$match: query},
+                {$lookup: {from: "concessions", localField: "concession", foreignField: "_id", as: "concession"}},
+                {$unwind: '$concession'},
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $lookup: {
+                        from: "countries",
+                        localField: "concession.concession_country.country",
+                        foreignField: "_id",
+                        as: "concession.concession_country"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "commodities",
+                        localField: "concession.concession_commodity.commodity",
+                        foreignField: "_id",
+                        as: "concession.concession_commodity"
+                    }
+                },
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $group: {
+                        _id: '$concession._id',
+                        concession_name: {$first: '$concession.concession_name'},
+                        concession_status: {$first: '$concession.concession_status'},
+                        concession_commodities: {$addToSet: '$concession.concession_commodity'},
+                        concession_country: {$first: '$concession.concession_country'}
+                    }
+                },
+                { $skip : skip },
+                { $limit : limit }
+            ]).exec(function (err, links) {
+                if (err) {
+                    errorList = errors.errorFunction(err,'company concession links not found');
+                    return res.send({data: [], errorList: errorList});
+                } else {
+                    if (links.length > 0) {
+                        company.concessions = links;
+                        callback(null, company);
                     } else {
+                        errorList.push({type: type, message: 'company concession  links not found'})
                         callback(null, company);
                     }
-                });
+                }
+            })
         } else{
             callback(null, company);
         }
@@ -155,9 +175,6 @@ exports.getConcessionTable = function(req, res){
                     }
                 }
             })
-
-
-
         } else{
             callback(null, company, errorList);
         }

@@ -53,54 +53,37 @@ exports.getProductionTable = function(req, res){
     });
     function getLinks(callback) {
         if(type!='group'&&type!='country' && type!='source_type') {
-            Link.find(queries)
-                .populate('site project concession company')
-                .exec(function (err, links) {
-                    if (links.length>0) {
-                        link_len = links.length;
-                        link_counter = 0;
-                        _.each(links, function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, type)[0];
-                            switch (entity) {
-                                case 'project':
-                                    if (link.project && link.project._id != undefined) {
-                                        if (!_.contains(projects.production_query, link.project._id)) {
-                                            projects.production_query.push(link.project._id);
-                                        }
-                                    }
-                                    break;
-                                case 'site':
-                                    if (link.site._id != undefined) {
-                                        if (!_.contains(projects.production_query, link.site._id)) {
-                                            projects.production_query.push(link.site._id);
-                                        }
-                                    }
-                                    break;
-
-                                case 'concession':
-                                    if (link.concession._id != undefined) {
-                                        if (!_.contains(projects.production_query, link.concession._id)) {
-                                            projects.production_query.push(link.concession._id);
-                                        }
-                                    }
-                                    break;
-                                case 'company':
-                                    if (link.company&&link.company._id != undefined) {
-                                        if (!_.contains(projects.production_query, link.company._id)) {
-                                            projects.production_query.push(link.company._id);
-                                        }
-                                    }
-                                    break;
-                            }
-                            if (link_len == link_counter) {
-                                callback(null, projects);
-                            }
-                        })
-                    } else {
-                        callback(null, projects);
+            Link.aggregate([
+                {$match: queries},
+                {
+                    $group: {
+                        _id: null,
+                        project: {$addToSet: '$project'},
+                        site: {$addToSet: '$site'},
+                        concession: {$addToSet: '$concession'},
+                        company: {$addToSet: '$company'}
                     }
-                });
+                },
+                {$project:{
+                    _id:0,
+                    production_query: { $setUnion: [ "$project", "$site", "$concession" , "$company" ] }
+                }}
+            ]).exec(function (err, links) {
+                if (err) {
+                    //errorList = errors.errorFunction(err, 'Company links');
+                    //return res.send({transfers: [], errorList: errorList});
+                    callback(null, projects);
+                } else {
+                    if (links.length > 0) {
+                        projects.production_query = links[0].production_query
+                        callback(null, projects);
+                    } else {
+                        //errorList.push({type: 'Company links', message: 'company links not found'})
+                        callback(null, projects);
+                        //return res.send({transfers: projects, errorList: errorList});
+                    }
+                }
+            });
         }else {
             callback(null, projects);
         }
@@ -258,7 +241,8 @@ exports.getProductionTable = function(req, res){
                             }
                         }
                     },
-                    production_commodity:{$cond:[{$eq:["$production_commodity", null]}, null, {_id:"$production_commodity._id",name:"$production_commodity.commodity_name",
+                    production_commodity:{$cond:[{$eq:["$production_commodity", null]}, null,
+                        {_id:"$production_commodity._id",commodity_name:"$production_commodity.commodity_name",
                         commodity_id:'$production_commodity.commodity_id'}]},
                     production_year:1,production_volume:1,production_unit:1,production_price:1,production_price_unit:1,production_level:1
                 }},
@@ -321,9 +305,7 @@ exports.getProductionTable = function(req, res){
     }
     function getProduction(projects, callback) {
         if(type!='country') {
-            var productions = [];
             var query = '';
-            var proj_site = {};
             projects.production = [];
             if (type == 'concession') {
                 query = {$or: [{project: {$in: projects.production_query}}, {site: {$in: projects.production_query}}]}
@@ -349,59 +331,78 @@ exports.getProductionTable = function(req, res){
             if (type == 'source_type') {
                 query = {$or: [{source: {$in: projects.production_query}}]}
             }
-            Production.find(query)
-                .populate('production_commodity project site country')
-                .exec(function (err, production) {
-                    production_counter = 0;
-                    production_len = production.length;
-                    if (production_len > 0) {
-                        production.forEach(function (prod) {
-                            proj_site = {};
-                            if (prod.project != undefined) {
-                                proj_site = {name: prod.project.proj_name, _id: prod.project.proj_id, type: 'project'}
-                            }
-                            if (prod.site != undefined) {
-                                if (prod.site.field) {
-                                    proj_site = {name: prod.site.site_name, _id: prod.site._id, type: 'field'}
-                                }
-                                if (!prod.site.field) {
-                                    proj_site = {name: prod.site.site_name, _id: prod.site._id, type: 'site'}
-                                }
-                            }
-                            ++production_counter;
-                            if (!productions.hasOwnProperty(prod._id)) {
-                                productions.push({
-                                    _id: prod._id,
-                                    production_year: prod.production_year,
-                                    production_volume: prod.production_volume,
-                                    production_unit: prod.production_unit,
-                                    production_commodity: {
-                                        _id: prod.production_commodity._id,
-                                        commodity_name: prod.production_commodity.commodity_name,
-                                        commodity_id: prod.production_commodity.commodity_id
-                                    },
-                                    production_price: prod.production_price,
-                                    production_price_unit: prod.production_price_unit,
-                                    production_level: prod.production_level,
-                                    proj_site: proj_site
-                                });
-                            }
-                            if (production_counter === production_len) {
-                                productions = _.map(_.groupBy(productions, function (doc) {
-                                    return doc._id;
-                                }), function (grouped) {
-                                    return grouped[0];
-                                });
-                                projects.production = productions;
-                                callback(null, projects);
-                            }
-                        })
-                    } else {
-                        if (production_counter === production_len) {
-                            callback(null, projects);
+            Production.aggregate([
+                {$match: query},
+                {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+                {$lookup: {from: "commodities", localField: "production_commodity", foreignField: "_id", as: "production_commodity"}},
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$unwind: {"path": "$production_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {       $project: {
+                    _id: 1,
+                    production_commodity: {_id: "$production_commodity._id", commodity_name: "$production_commodity.commodity_name",
+                        commodity_id: "$production_commodity.commodity_id"},
+                    company: {
+                        $cond: {
+                            if: {$not: "$company"},
+                            then: '',
+                            else: {_id: "$company._id", company_name: "$company.company_name"}
                         }
+                    },
+                    proj_site: {
+                        $cond: {
+                            if: {$not: "$site"},
+                            then: {
+                                $cond: {
+                                    if: {$not: "$project"},
+                                    then: [], else: {
+                                        _id: "$project.proj_id", name: "$project.proj_name",
+                                        type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                    }
+                                }
+                            },
+                            else: {
+                                _id: "$site._id", name: "$site.site_name",
+                                type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                            }
+                        }
+                    },
+                    production_year: 1, production_volume: 1, production_unit: 1, production_price: 1,
+                    production_price_unit: 1, production_level: 1
+                }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        production_year: {$first: '$production_year'},
+                        production_volume: {$first: '$production_volume'},
+                        production_unit: {$first: '$production_unit'},
+                        production_price: {$first: '$production_price'},
+                        production_price_unit: {$first: '$production_price_unit'},
+                        production_level: {$first: '$production_level'},
+                        country: {$first: '$country'},
+                        production_commodity: {$first: '$production_commodity'},
+                        proj_site: {$first: '$proj_site'}
                     }
-                })
+                },
+                {$skip: skip},
+                {$limit: limit}
+            ]).exec(function (err, production) {
+                if (err) {
+                    //errorList = errors.errorFunction(err, 'Company productions');
+                    return res.send({errorList: err});
+                } else {
+                    if (production.length > 0) {
+                        projects.production = production;
+                        callback(null, projects);
+                    } else {
+                        //errorList.push({type: 'Company productions', message: 'company productions not found'})
+                        //callback(null,  {data: company, errorList: errorList});
+                        callback(null, projects);
+                    }
+                }
+            })
         }else {
             callback(null, projects)
         }

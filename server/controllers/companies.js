@@ -4,15 +4,15 @@ var Company 		= require('mongoose').model('Company'),
     Production      = require('mongoose').model('Production'),
     Commodity 	    = require('mongoose').model('Commodity'),
     async           = require('async'),
+    mongoose 		= require('mongoose'),
     errors 	        = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
 exports.getCompanies = function(req, res) {
-    var data={}, link_len, company_counter, link_counter,
+    var data={},
         limit = Number(req.params.limit),
-        skip = Number(req.params.skip),
-        errorList=[];
+        skip = Number(req.params.skip);
 
     async.waterfall([
         companyCount,
@@ -32,18 +32,22 @@ exports.getCompanies = function(req, res) {
     });
 
     function companyCount(callback) {
-        Company.find({}).count().exec(function(err, company_count) {
+        data.errorList = [];
+        data.companies = [];
+        data.company_count = 0;
+        Company.find({}).count().exec(function(err, companiesCount) {
             if (err) {
                 err = new Error('Error: '+ err);
-                return res.send({companies:[],reason: err.toString()});
-            } else if (company_count == 0) {
-                return res.send({companies:[],reason: 'not found'});
+                return res.send({companies:[], company_count:0, errorList: err.toString()});
+            } else if (companiesCount == 0) {
+                return res.send({companies:[], company_count:0, errorList: 'not found'});
             } else {
-                callback(null, company_count);
+                data.company_count = companiesCount;
+                callback(null, data);
             }
         });
     }
-    function getCompanySet(company_count, callback) {
+    function getCompanySet(data, callback) {
         Company.aggregate([
             {$sort: {company_name: -1}},
             {$project:{_id:1,company_name:1,company_groups:[],
@@ -55,24 +59,25 @@ exports.getCompanies = function(req, res) {
             {$skip: skip},
             {$limit: limit}
         ]).exec(function (err, companies) {
+            data.companies = companies;
             if (err) {
-                errorList = errors.errorFunction(err,'Companies');
-                callback(null, company_count, companies,errorList);
+                data.errorList = errors.errorFunction(err,'Companies');
+                return res.send(data);
             }
             else {
                 if (companies.length>0) {
-                    callback(null, company_count, companies, errorList);
+                    callback(null, data);
                 } else {
-                    errorList.push({type: 'Companies', message: 'companies not found'})
-                    return res.send({companies:[],reason: 'companies not found'});
+                    data.errorList.push({type: 'Companies', message: 'companies not found'})
+                    return res.send(data);
                 }
             }
         });
     }
-    function getCompanyLinks(company_count, companies, errorList, callback) {
-        var company_id = _.pluck(companies, '_id');
+    function getCompanyLinks(data, callback) {
+        var companyId = _.pluck(data.companies, '_id');
         Link.aggregate([
-            {$match: {$or: [{company: {$in: company_id}}]}},
+            {$match: {$or: [{company: {$in: companyId}}]}},
             {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
             {$project:{_id:1,company:1,company_group:1, project:1,
                 field: {
@@ -121,12 +126,12 @@ exports.getCompanies = function(req, res) {
             }}
         ]).exec(function(err, links) {
             if (err) {
-                errorList = errors.errorFunction(err,'Company links');
-                callback(null, company_count, companies,errorList);
+                data.errorList = errors.errorFunction(err,'Company links');
+                callback(null, data);
             }
             else {
                 if (links.length>0) {
-                    _.map(companies, function (company) {
+                    _.map(data.companies, function (company) {
                         var list = _.find(links, function (link) {
                             return link._id.toString() == company._id.toString();
                         });
@@ -138,34 +143,31 @@ exports.getCompanies = function(req, res) {
                         }
                         return company;
                     });
-                    callback(null, company_count, companies, errorList);
+                    callback(null, data);
                 } else {
-                    errorList.push({type: 'Company links', message: 'company links not found'})
-                    callback(null, company_count, companies, errorList);
+                    data.errorList.push({type: 'Company links', message: 'company links not found'})
+                    callback(null, data);
                 }
             }
         })
     }
-    function getTransfersCount(company_count, companies, errorList, callback) {
-        var company_id = _.pluck(companies, '_id');
+    function getTransfersCount(data, callback) {
+        var companyId = _.pluck(data.companies, '_id');
         Transfer.aggregate([
-            {$match:{company: {$in: company_id}}},
+            {$match:{company: {$in: companyId}}},
             {$group:{
                 "_id": "$company",
                 "transfer_count":{$addToSet:"$_id"}
             }},
             {$project:{_id:1,transfer_count:{$size:'$transfer_count'}}}
         ]).exec(function (err, transfers) {
-            data.company_count = company_count;
             if (err) {
-                errorList = errors.errorFunction(err,'Transfers');
-                data.companies = companies;
-                data.errorList = errorList;
+                data.errorList = errors.errorFunction(err,'Transfers');
                 callback(null, data);
             }
             else {
                 if (transfers.length>0) {
-                    _.map(companies, function (company) {
+                    _.map(data.companies, function (company) {
                         var list = _.find(transfers, function (link) {
                             return link._id.toString() == company._id.toString();
                         });
@@ -174,13 +176,9 @@ exports.getCompanies = function(req, res) {
                         }
                         return company;
                     });
-                    data.companies = companies;
-                    data.errorList = errorList;
                     callback(null, data);
                 } else {
-                    errorList.push({type: 'Transfers', message: 'transfers not found'});
-                    data.companies = companies;
-                    data.errorList = errorList;
+                    data.errorList.push({type: 'Transfers', message: 'transfers not found'});
                     callback(null, data);
                 }
             }
@@ -189,6 +187,7 @@ exports.getCompanies = function(req, res) {
 };
 
 exports.getCompanyID = function(req, res) {
+    var data = {};
 
     async.waterfall([
         getCompany
@@ -203,27 +202,41 @@ exports.getCompanyID = function(req, res) {
             }
         }
     });
+
     function getCompany(callback) {
-        Company.findOne({_id:req.params.id})
-            .populate('company_aliases', ' _id alias')
-            .populate('company_group','_id company_group_name')
-            .populate('country.country')
-            .lean()
-            .exec(function(err, company) {
-                if(company) {
-                    callback(null, company);
+        data.errorList = [];
+        data.company = [];
+        Company.aggregate([
+            {$match:{_id:mongoose.Types.ObjectId(req.params.id)}}
+        ]).exec(function(err, company) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Company');
+                res.send(data);
+            } else {
+                if (company.length > 0) {
+                    data.company = company[0]
+                    callback(null, data);
                 } else {
-                    callback(err);
+                    data.errorList.push({type: 'Company', message: 'company not found'})
+                    callback(null, data);
                 }
-            });
+            }
+        });
     }
 };
 
 exports.getCompanyByID = function(req, res) {
-    var company={},link_counter, link_len;
-
+    var data={}, transfersQuery=[];
+    var id = mongoose.Types.ObjectId(req.params.id)
     async.waterfall([
-        getCompanyLinks
+        getCompanyLinks,
+        getCompanyProjectTable,
+        getCompanySiteTable,
+        getCompanyConcessionTable,
+        getCoordinates,
+        getCompanyTransfers,
+        getTransfers,
+        getProduction
     ], function (err, result) {
         if (err) {
             res.send(err);
@@ -236,82 +249,433 @@ exports.getCompanyByID = function(req, res) {
         }
     });
     function getCompanyLinks(callback) {
-        company.company_groups = [];
-        company.company_commodity = [];
-        Link.find({company: req.params.id})
-            .populate('company_group', '_id company_group_name')
-            .populate('commodity concession')
-            .deepPopulate('project.proj_country.country project.proj_commodity.commodity site.site_commodity.commodity site.site_country.country concession.concession_country.country concession.concession_commodity.commodity')
-            .exec(function (err, links) {
-                link_len = links.length;
-                link_counter = 0;
-                if (link_len > 0) {
-                    links.forEach(function (link) {
-                        ++link_counter;
-                        var entity = _.without(link.entities, 'company')[0];
-                        switch (entity) {
-                            case 'site':
-                                if (link.site.site_commodity.length > 0) {
-                                    if (_.where(company.company_commodity, {_id: _.last(link.site.site_commodity)._id}).length < 1) {
-                                        company.company_commodity.push({
-                                            _id: _.last(link.site.site_commodity)._id,
-                                            commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
-                                            commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
-                                            commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
-                                        });
-                                    }
-                                }
-                                break;
-                            case 'project':
-                                if (link.project && link.project.proj_commodity.length > 0) {
-                                    if (_.where(company.company_commodity, {_id: _.last(link.project.proj_commodity).commodity._id}).length < 1) {
-                                        company.company_commodity.push({
-                                            _id: _.last(link.project.proj_commodity).commodity._id,
-                                            commodity_name: _.last(link.project.proj_commodity).commodity.commodity_name,
-                                            commodity_type: _.last(link.project.proj_commodity).commodity.commodity_type,
-                                            commodity_id: _.last(link.project.proj_commodity).commodity.commodity_id
-                                        });
-                                    }
-                                }
-                                break;
-                            case 'company_group':
-                                if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                    company.company_groups.push({
-                                        _id: link.company_group._id,
-                                        company_group_name: link.company_group.company_group_name
-                                    });
-                                }
-                                break;
-                            case 'concession':
-                                if (link.concession.concession_commodity.length > 0) {
-                                    if (_.where(company.company_commodity, {_id: _.last(link.concession.concession_commodity).commodity._id}).length < 1) {
-                                        company.company_commodity.push({
-                                            _id: _.last(link.concession.concession_commodity).commodity._id,
-                                            commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
-                                            commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
-                                            commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
-                                        });
-                                    }
+        data.errorList=[];
+        data.company_commodity = [];
+        data.projects = [];
+        data.sites=[];
+        data.concessions=[];
+        data.proj_coordinates = [];
+        data.transfers = [];
+        data.production = [];
 
-                                }
-                                break;
-                            default:
-                                console.log(entity, 'link skipped...');
-                        }
-                        if (link_counter == link_len) {
-                            callback(null, company);
-                        }
-                    });
+        Link.aggregate([
+            {$match:  {company:id}},
+            {$lookup: {from: "companygroups", localField: "company_group",foreignField: "_id",as: "company_group"}},
+            {$lookup: {from: "sites", localField: "site",foreignField: "_id",as: "site"}},
+            {$lookup: {from: "projects", localField: "project",foreignField: "_id",as: "project"}},
+            {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+            {$unwind: {"path": "$company_group", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "commodities",localField: "project.proj_commodity.commodity",foreignField: "_id",as: "project.proj_commodity"}},
+            {$lookup: {from: "commodities",localField: "site.site_commodity.commodity",foreignField: "_id",as: "site.site_commodity"}},
+            {$lookup: {from: "commodities",localField: "concession.concession_commodity.commodity",foreignField: "_id",as: "concession.concession_commodity"}},
+            {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+            {$group:{
+                _id: '$company',
+                company_groups: {$addToSet:'$company_group'},
+                proj_commodity: {$addToSet:'$project.proj_commodity'},
+                site_commodity: {$addToSet:'$site.site_commodity'},
+                concession_commodity: {$addToSet:'$concession.concession_commodity'}
+            }},
+            {$project:{
+                _id:1,company_groups:1,
+                company_commodity: { $setUnion: [ "$proj_commodity", "$site_commodity", "$concession_commodity" ] }
+            }}
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Company links');
+                return res.send(data);
+            } else {
+                if (links.length > 0) {
+                    data.company_commodity = links[0].company_commodity
+                    data.company_groups = links[0].company_groups;
+                    callback(null, data);
                 } else {
-                    callback(null, company);
+                    data.errorList.push({type: 'Company links', message: 'company links not found'})
+                    res.send(data);
+                }
+            }
+        });
+    }
+    function getCompanyProjectTable(data, callback) {
+        Link.aggregate([
+            {$match:  {company:id, entities: 'project'}},
+            {$lookup: {from: "projects", localField: "project",foreignField: "_id",as: "project"}},
+            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_status", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "commodities",localField: "project.proj_commodity.commodity",foreignField: "_id",as: "project.proj_commodity"}},
+            {$lookup: {from: "countries",localField: "project.proj_country.country",foreignField: "_id",as: "project.proj_country"}},
+            {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project.proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$project:{
+                _id:'$project.proj_id', proj_id:'$project.proj_id', proj_name:'$project.proj_name',
+                proj_commodity:'$project.proj_commodity',proj_country:'$project.proj_country',proj_status:'$project.proj_status'
+            }},
+            {$group:{
+                _id: '$_id',
+                proj_id: {$first:'$proj_id'},
+                proj_name: {$first:'$proj_name'},
+                proj_commodity: {$addToSet:'$proj_commodity'},
+                proj_country: {$addToSet:'$proj_country'},
+                proj_status: {$addToSet:'$proj_status'}
+            }},
+            {$project:{
+                _id:1, proj_site:{_id:'$proj_id'}, proj_name:1, proj_id:1, proj_commodity:1,proj_country:1,proj_status:1
+            }},
+            { $skip : 0},
+            { $limit : 50 }
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Company project links');
+                return res.send(data);
+            } else {
+                if (links.length > 0) {
+                    data.projects =links;
+                    callback(null,data);
+                } else {
+                    data.errorList.push({type: 'Company project links', message: 'company project links not found'})
+                    callback(null, data);
+                }
+            }
+        });
+    }
+    function getCompanySiteTable(data, callback) {
+            Link.aggregate([
+                {$match: {company:id, entities:"site"}},
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$unwind: '$site'},
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $lookup: {
+                        from: "countries",
+                        localField: "site.site_country.country",
+                        foreignField: "_id",
+                        as: "site.site_country"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "commodities",
+                        localField: "site.site_commodity.commodity",
+                        foreignField: "_id",
+                        as: "site.site_commodity"
+                    }
+                },
+                {$unwind: {"path": "$site.site_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $group: {
+                        _id: '$site._id',
+                        field: {$first: '$site.field'},
+                        site_name: {$first: '$site.site_name'},
+                        site_status: {$first: '$site.site_status'},
+                        site_commodity: {$addToSet: '$site.site_commodity'},
+                        site_country: {$first: '$site.site_country'}
+                    }
+                },
+                { $skip : 0},
+                { $limit : 50 }
+            ]).exec(function (err, links) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'company site links not found');
+                    return  res.send(data);
+                } else {
+                    if (links.length > 0) {
+                        data.sites = links
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: "Company", message: 'company site links not found'})
+                        callback(null, data);
+                    }
+                }
+            })
+    }
+    function getCompanyConcessionTable(data, callback) {
+            Link.aggregate([
+                {$match: {company:id, entities:"concession"}},
+                {$lookup: {from: "concessions", localField: "concession", foreignField: "_id", as: "concession"}},
+                {$unwind: '$concession'},
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $lookup: {
+                        from: "countries",
+                        localField: "concession.concession_country.country",
+                        foreignField: "_id",
+                        as: "concession.concession_country"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "commodities",
+                        localField: "concession.concession_commodity.commodity",
+                        foreignField: "_id",
+                        as: "concession.concession_commodity"
+                    }
+                },
+                {$unwind: {"path": "$concession.concession_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_status", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {
+                    $group: {
+                        _id: '$concession._id',
+                        concession_name: {$first: '$concession.concession_name'},
+                        concession_status: {$first: '$concession.concession_status'},
+                        concession_commodities: {$addToSet: '$concession.concession_commodity'},
+                        concession_country: {$first: '$concession.concession_country'}
+                    }
+                },
+                { $skip : 0 },
+                { $limit : 50 }
+            ]).exec(function (err, links) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err,'company concession links not found');
+                    return res.send(data);
+                } else {
+                    if (links.length > 0) {
+                        data.concessions = links;
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: "Company", message: 'company concession  links not found'})
+                        callback(null, data);
+                    }
+                }
+            })
+    }
+    function getCoordinates(data, callback) {
+        Link.aggregate([
+                {$match:{company: mongoose.Types.ObjectId(req.params.id),entities:'site'}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind:'$site.site_coordinates'},
+                {$project:{
+                    _id:'$site._id',
+                    'lat':  { "$arrayElemAt": [ "$site.site_coordinates.loc", -2 ] },
+                    'lng': { "$arrayElemAt": [ "$site.site_coordinates.loc", -1 ] },
+                    'message': "$site.site_name",
+                    'timestamp': "$site.site_coordinates.timestamp",
+                    'type': {$cond: { if: { $gte: [ "$site.field", true ] }, then: 'field', else: 'site' }}
+                }},
+                {$group:{
+                    _id:'$_id',
+                    lat:{$first:'$lat'},
+                    lng:{$first:'$lng'},
+                    message:{$first:'$message'},
+                    timestamp:{$first:'$timestamp'},
+                    type:{$first:'$type'}
+                }}
+            ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err,'company coordinates not found');
+                return res.send(data);
+            } else if (links) {
+                data.proj_coordinates = links;
+                callback(null, data);
+            } else {
+                data.errorList.push({type: "Company", message: 'company coordinates not found'})
+                callback(null, data);
+            }
+        });
+    }
+    function getCompanyTransfers(data, callback) {
+        Link.aggregate([
+                {$match: {company:id}},
+                {
+                    $group: {
+                        _id: '$company',
+                        project: {$addToSet: '$project'},
+                        site: {$addToSet: '$site'},
+                        concession: {$addToSet: '$concession'},
+                        company: {$addToSet: '$company'}
+                    }
+                },
+                {$project:{
+                    _id:0,
+                    transfers_query: { $setUnion: [ "$project", "$site", "$concession" , "$company" ] }
+                }}
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Company links');
+                return res.send(data);
+            } else {
+                if (links.length > 0) {
+                    transfersQuery = links[0].transfers_query
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Company links', message: 'company links not found'})
+                    callback(null, data);
+                }
+            }
+        });
+    }
+    function getTransfers(data,callback) {
+        if (transfersQuery.length > 0) {
+            Transfer.aggregate([
+                {$match: {company: {$in: transfersQuery}}},
+                {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+                {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$lookup: {from: "countries", localField: "country", foreignField: "_id", as: "country"}},
+                {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {
+                    $project: {
+                        _id: 1, transfer_year: 1,
+                        country: {name: "$country.name", iso2: "$country.iso2"},
+                        company: {
+                            $cond: {
+                                if: {$not: "$company"},
+                                then: '',
+                                else: {_id: "$company._id", company_name: "$company.company_name"}
+                            }
+                        },
+                        proj_site: {
+                            $cond: {
+                                if: {$not: "$site"},
+                                then: {
+                                    $cond: {
+                                        if: {$not: "$project"},
+                                        then: [], else: {
+                                            _id: "$project.proj_id", name: "$project.proj_name",
+                                            type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                        }
+                                    }
+                                },
+                                else: {
+                                    _id: "$site._id", name: "$site.site_name",
+                                    type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                                }
+                            }
+                        },
+                        transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        transfer_year: {$first: '$transfer_year'},
+                        transfer_type: {$first: '$transfer_type'},
+                        transfer_unit: {$first: '$transfer_unit'},
+                        transfer_value: {$first: '$transfer_value'},
+                        country: {$first: '$country'},
+                        company: {$first: '$company'},
+                        proj_site: {$first: '$proj_site'}
+                    }
+                },
+                {$skip: 0},
+                {$limit: 50}
+            ]).exec(function (err, transfers) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'Transfers by Project');
+                    callback(null, data);
+                } else {
+                    if (transfers.length > 0) {
+                        data.transfers = transfers;
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: 'Transfers by Project', message: 'transfers by project not found'})
+                        callback(null, data);
+                    }
                 }
             });
+        } else {
+            callback(null, data);
+
+        }
+    }
+    function getProduction(data, callback) {
+            Production.aggregate([
+                {$match: {$or: [{project: {$in: transfersQuery}},
+                    {site: {$in: transfersQuery}},
+                    {concession: {$in: transfersQuery}}]}},
+                {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+                {$lookup: {from: "commodities", localField: "production_commodity", foreignField: "_id", as: "production_commodity"}},
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$unwind: {"path": "$production_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {       $project: {
+                    _id: 1,
+                    production_commodity: {_id: "$production_commodity._id", commodity_name: "$production_commodity.commodity_name",
+                        commodity_id: "$production_commodity.commodity_id"},
+                    company: {
+                        $cond: {
+                            if: {$not: "$company"},
+                            then: '',
+                            else: {_id: "$company._id", company_name: "$company.company_name"}
+                        }
+                    },
+                    proj_site: {
+                        $cond: {
+                            if: {$not: "$site"},
+                            then: {
+                                $cond: {
+                                    if: {$not: "$project"},
+                                    then: [], else: {
+                                        _id: "$project.proj_id", name: "$project.proj_name",
+                                        type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                    }
+                                }
+                            },
+                            else: {
+                                _id: "$site._id", name: "$site.site_name",
+                                type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                            }
+                        }
+                    },
+                    production_year: 1, production_volume: 1, production_unit: 1, production_price: 1,
+                    production_price_unit: 1, production_level: 1
+                }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        production_year: {$first: '$production_year'},
+                        production_volume: {$first: '$production_volume'},
+                        production_unit: {$first: '$production_unit'},
+                        production_price: {$first: '$production_price'},
+                        production_price_unit: {$first: '$production_price_unit'},
+                        production_level: {$first: '$production_level'},
+                        country: {$first: '$country'},
+                        production_commodity: {$first: '$production_commodity'},
+                        proj_site: {$first: '$proj_site'}
+                    }
+                },
+                {$skip: 0},
+                {$limit: 50}
+            ]).exec(function (err, production) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'Company productions');
+                    return res.send(data);
+                } else {
+                    if (production.length > 0) {
+                        data.production = production;
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: 'Company productions', message: 'company productions not found'})
+                        callback(null, data);
+                    }
+                }
+            })
     }
 }
 
-exports.createCompany = function(req, res, next) {
+exports.createCompany = function(req, res) {
     var companyData = req.body;
-    Company.create(companyData, function(err, company) {
+    Company.create(companyData, function(err) {
         if(err){
             res.status(400);
             err = new Error('Error');
@@ -323,19 +687,18 @@ exports.createCompany = function(req, res, next) {
 };
 
 exports.updateCompany = function(req, res) {
-    var companyUpdates = req.body;
     Company.findOne({_id:req.body._id}).exec(function(err, company) {
         if(err) {
             res.status(400);
             err = new Error('Error');
             return res.send({ reason: err.toString() });
         }
-        company.company_name= companyUpdates.company_name;
-        company.company_aliases= companyUpdates.company_aliases;
-        company.company_established_source= companyUpdates.company_established_source;
-        company.country_of_incorporation= companyUpdates.country_of_incorporation;
-        company.countries_of_operation= companyUpdates.countries_of_operation;
-        company.description= companyUpdates.description;
+        company.company_name= req.body.company_name;
+        company.company_aliases= req.body.company_aliases;
+        company.company_established_source= req.body.company_established_source;
+        company.country_of_incorporation= req.body.country_of_incorporation;
+        company.countries_of_operation= req.body.countries_of_operation;
+        company.description= req.body.description;
         company.save(function(err) {
             if(err) {
                 err = new Error('Error');

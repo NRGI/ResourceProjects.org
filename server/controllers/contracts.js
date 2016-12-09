@@ -66,6 +66,7 @@ exports.getContracts = function(req, res) {
                 contract.rc_info=[];
                 contract.commodities=[];
                 request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
+                    console.log(body)
                     ++contract_counter;
                     var body = JSON.parse(body);
                     contract.rc_info.push({

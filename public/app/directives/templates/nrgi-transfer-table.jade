@@ -21,13 +21,13 @@ data-target="#transfers")
                 th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
                 th.tablesort-sortable-th(ts-criteria='transfer_value') Value
         tbody.transfersScrollContainer
-            //span(
-            //us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
-            //spinner-start-active="true"
-            //spinner-key="spinner-transfers")
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-transfers")
             tr(
             ng-repeat="transfer in transfers | unique: '_id'"
-            ts-repeat)
+            ts-repeat ng-class="expression")
                 td.transfer_year {{transfer.transfer_year}}
                 td.transfer_company: a(href='company/{{transfer.company._id}}')
                     span(ng-bind-html="transfer.company.company_name|sanitize")
