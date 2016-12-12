@@ -18,7 +18,11 @@ angular
         $scope.company_of_operation=[];
 
         $scope.$watch('id', function(value) {
+<<<<<<< HEAD
             if($scope.type=='country_of_incorporation'&&value!=undefined || $scope.type=='site'&&value!=undefined) {
+=======
+            if($scope.type=='country_of_incorporation'&&value!=undefined) {
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                 $scope.companies = value;
                 usSpinnerService.stop('spinner-company');
                 if ($scope.companies.length == 0 ) {
@@ -29,7 +33,11 @@ angular
                     currentPage = 1;
                 }
             }
+<<<<<<< HEAD
             if($scope.type!='country_of_incorporation' && value!=undefined && $scope.type!='site'){
+=======
+            if($scope.type!='country_of_incorporation'&&value!=undefined){
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                 $scope.loading = false;
                 $scope.getCompany($scope.id, $scope.type);
             }

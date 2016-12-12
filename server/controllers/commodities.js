@@ -46,7 +46,6 @@ exports.getCommodities = function(req, res) {
             .lean()
             .exec(function(err, commodities) {
                 if(commodities) {
-                    console.log(DSFDS)
                     callback(null, commodity_count, commodities);
                 } else {
                     return res.send(err);

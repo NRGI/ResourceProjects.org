@@ -53,10 +53,16 @@ data-target="#projects")
                 td.proj_status(ng-if="status==true")
                     em(ng-if="project.proj_status.length<1") ..
                     text(
+<<<<<<< HEAD
                     ng-if="project.proj_status"
                     ng-repeat='status in project.proj_status')
                         | {{status.string | ucfirst | addSpaces}}
                         text.small(ng-if="status.timestamp")  (true at {{status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+=======
+                    ng-if="project.proj_status")
+                        | {{project.proj_status.string | ucfirst | addSpaces}}
+                        text.small(ng-if="project.proj_status.timestamp")  (true at {{project.proj_status.timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                 td.text-center(ng-if="companies==true && project.companies.length>0 && project.companies_count<3"): span(ng-repeat="company in project.companies ")
                     a(href='company/{{company._id}}')
                         span(ng-bind-html="company.company_name|sanitize")

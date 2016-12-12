@@ -70,8 +70,8 @@ exports.getCompanies = function(req, res) {
                 } else {
                     data.errorList.push({type: 'Companies', message: 'companies not found'})
                     return res.send(data);
-                }
             }
+                }
         });
     }
     function getCompanyLinks(data, callback) {

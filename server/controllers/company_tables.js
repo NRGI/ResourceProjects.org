@@ -99,10 +99,10 @@ exports.getCompanyTable = function(req, res) {
                     }
                 }
             });
-        } else {
-            callback(null, companies,errorList);
+                    } else {
+                        callback(null, companies,errorList);
+                    }
         }
-    }
 
     function getCommodityLinks(companies,errorList, callback) {
         if (type == 'commodity') {

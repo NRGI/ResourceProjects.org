@@ -89,7 +89,11 @@ angular.module('app')
                              }
                          }
                          if (field == 'proj_status'||field == 'site_status' || field == 'concession_status') {
+<<<<<<< HEAD
                              if (p[field] && p[field].timestamp && p[field].string) {
+=======
+                             if (p[field]) {
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                                  str = '';
                                  var date = new Date(p[field].timestamp);
                                  date = $filter('date')(date, "MM/dd/yyyy @ h:mma");
@@ -102,13 +106,21 @@ angular.module('app')
                              }
                          }
                          if (field == 'proj_country' || field == 'site_country' || field == 'concession_country') {
+<<<<<<< HEAD
                              console.log(p[field])
+=======
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                              if (p[field] && p[field].length > 0) {
                                  str = '';
                                  angular.forEach(p[field], function (country, i) {
                                      countryName = '';
+<<<<<<< HEAD
                                      if (country != undefined) {
                                          countryName = country.name.toString();
+=======
+                                     if (country.country != undefined) {
+                                         countryName = country.country.name.toString();
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                                          countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
                                      }
                                      if (i != p[field].length - 1) {

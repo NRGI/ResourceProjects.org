@@ -5,8 +5,12 @@ var Project 		= require('mongoose').model('Project'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Production 	    = require('mongoose').model('Production'),
     async           = require('async'),
+    GoogleSpreadsheet = require('google-spreadsheet'),
     _               = require("underscore"),
-    request         = require('request');
+    request         = require('request'),
+    util            = require('util');
+
+var creds = require('../config/ResourceProjectsPersistIDs.json');
 
 exports.getProjects = function(req, res) {
     var project_len, link_len, project_counter, link_counter,
@@ -1179,6 +1183,86 @@ exports.getAllProjects = function(req, res) {
         });
         callback(null, {data: projects, count: project_count});
     }
+};
+
+exports.persist = function(req, res) {
+    var gdoc = new GoogleSpreadsheet('1xj04qdTxMdPfWWX2l4sM902gtloygwEomWNIzC_BMto');
+    
+    async.series([
+        function (gscallback) {
+            gdoc.useServiceAccountAuth(creds, function(err) {
+                if (err) {
+                    return gscallback("Failed to auth Google Sheet for project IDs");
+                }
+                else {
+                    console.log('Authed doc');
+                    return gscallback(null);
+                }
+            });
+        },
+        function (gscallback) {
+            gdoc.getInfo(function(err, info) {
+                if (err) {
+                    return gscallback("Failed to open Google Sheet for project IDs");
+                }
+                else {
+                    console.log('Loaded doc: '+info.title);
+                    sheet = info.worksheets[0];
+                    console.log("got sheet");
+                    return gscallback(null);
+                }
+            });
+        },
+        function (gscallback) {
+            Project.find({})
+            .populate('proj_country.country', 'iso2')
+            .exec(function (err, result) {
+							if (err) gscallback(err)
+							else {
+							    var numRows = result.length;
+									sheet.resize({rowCount: numRows + 1, colCount: 3}, function (err) {
+                  if (err) gscallback(err);
+                  else {
+                      sheet.getCells({
+                      'min-row': 2,
+                      'max-row': numRows + 1,
+                      'min-col': 1,
+                      'max-col': 3,
+                      'return-empty': true
+                    }, function(err, cells) {
+                      for (var i=2; i<numRows + 2; i++) {
+                          //console.log(util.inspect(result[i-2], {depth: 6}));
+                          for (var j=1; j<4; j++) {
+                              var index = (((i-2)*3) + j) - 1;
+                              switch(j) {
+                                   case 1:
+                                       if (result[i-2].proj_country.length == 0) cells[index].value = 'NULL';
+                                       else cells[index].value = result[i-2].proj_country[0].country.iso2;
+                                       break;
+                                   case 2:
+                                       cells[index].value = result[i-2].proj_name;
+                                       break;
+                                   case 3:
+                                       cells[index].value = result[i-2].proj_id;
+                                       break;
+                              }
+                          }
+                      }
+                      sheet.bulkUpdateCells(cells, function (err) {
+                          if (err) gscallback(err);
+                          else return gscallback(null);
+                      });
+                    });
+                  }
+              });
+							}
+					  });
+         }
+    ],
+    function (err) {
+        if (err) res.send(err);
+        else res.send("complete");       
+    });
 };
 
 

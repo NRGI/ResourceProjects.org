@@ -50,12 +50,22 @@ data-target="#sites")
                 td.site_country(ng-if="type==true")
                     text(ng-if='site.field') field
                     text(ng-if='!site.field') site
+<<<<<<< HEAD
                 td.site_country(ng-if="country==true")
                     a(href='country/{{site.site_country.iso2}}')
                         span(ng-bind-html="site.site_country.name|sanitize")
                 td.site_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
                     | {{commodity.commodity_type | ucfirst | addSpaces}}
                     | {{$last ? '' : ', '}}
+=======
+                td.site_country(ng-if="country==true"): span(ng-repeat="country in site.site_country | unique: '_id'")
+                    a(href='country/{{country.iso2}}')
+                        span(ng-bind-html="country.name|sanitize")
+                    | {{$last ? '' : ', '}}
+                td.site_type(ng-if="commoditytype==true"): text(ng-repeat="commodity in site.site_commodity | unique: 'commodity_type'")
+                    | {{commodity.commodity_type | ucfirst | addSpaces}}
+                    | {{$last ? '' : ', '}}
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                 td.site_commodity(ng-if="commodity==true"): span(ng-repeat="commodity in site.site_commodity | unique: '_id'")
                     a(href='commodity/{{commodity.commodity_id}}')
                         span(ng-bind-html="commodity.commodity_name|sanitize")

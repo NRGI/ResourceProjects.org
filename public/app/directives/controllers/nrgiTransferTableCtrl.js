@@ -33,11 +33,15 @@ angular
 
         usSpinnerService.spin('spinner-transfers');
         $scope.$watch('id', function(value) {
+<<<<<<< HEAD
             if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined || $scope.type == 'site' && value == undefined) {
                 usSpinnerService.stop('spinner-transfers');
                 $scope.expression = 'showLast';
             }
             if ($scope.type == 'country' && value != undefined || $scope.type == 'company' && value != undefined|| $scope.type == 'site' && value != undefined) {
+=======
+            if($scope.type=='country'&&value!=undefined) {
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                 $scope.transfers = value;
                 usSpinnerService.stop('spinner-transfers');
                 if ($scope.transfers.length == 0 ) {
@@ -47,7 +51,11 @@ angular
                     currentPage = 1;
                 }
             }
+<<<<<<< HEAD
             if ($scope.type != 'country' && value != undefined && $scope.type!= 'company'&& $scope.type!= 'site') {
+=======
+            if($scope.type!='country'&&value!=undefined){
+>>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
                 $scope.loading = false;
                 $scope.getTransfers($scope.id, $scope.type);
             }

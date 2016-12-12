@@ -32,6 +32,7 @@
     "express-session": "^1.9.1",
     "forever": "~0.15.1",
     "fuse.js": "^2.2.0 ",
+    "google-spreadsheet": "^2.0.3",
     "i18n-iso-countries": "~0.14.1 ",
     "jade": "^1.7.0",
     "just.randomstring": "^0.1.1",
