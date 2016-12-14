@@ -359,6 +359,8 @@ var makeNewTransfer = function(newRow) {
 
     transfer.transfer_year = parseInt(newRow['#payment+year']);
     
+    var transfer_type_code_parts = newRow['#governmentReceipt+paymentType+identifier'].split('/');
+    
     if (transfer_type_code_parts.length !== 2) {
         //Require this field and require that it's well formatted into class/type
         error = "ERROR for payment: payment type code is not formatted correctly (class/type)";
