@@ -287,7 +287,11 @@ function fillInGenericFields(newRow, object, name) {
                     object[dbName + '_level'] = "project";
                     object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
                 }
-                else object[dbName + '_level'] = "unknown";
+                else {
+                    object[dbName + '_level'] = "unknown";
+                    //Store the text
+                    object[dbName + '_label'] = newRow['#' + name + '+entity+name'];
+                }
             }
             else if (newRow['#company'] !== "") object[dbName + '_level'] = "company"; //Implied company level. Company filled elsewhere.
             //Otherwise we only have country to go on. Country must be present. Country filled elsewhere.
@@ -309,10 +313,12 @@ function fillInGenericFields(newRow, object, name) {
             object.site = sites[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "company":
-            object[dbName + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere.
+            object[dbName + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere, but store text if present.
+            if (newRow['#' + name + '+entity+name'] !== "") object[dbName + '_label'] = newRow['#' + name + '+entity+name'];
             break;
         case "country":
-            object[dbName + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere.
+            object[dbName + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere, but store text if present.
+            if (newRow['#' + name + '+entity+name'] !== "") object[dbName + '_label'] = newRow['#' + name + '+entity+name'];
             break;
         default:
             return false; //Unsupported input!

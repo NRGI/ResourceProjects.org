@@ -57,6 +57,7 @@ productionSchema = new Schema ({
         enum: transfer_level_enu},
     //production_note: htmlSettings
     production_note: String,
+    production_label: String,
     //LINKS
     country: country,
     project: project,

@@ -41,6 +41,7 @@ transferSchema = new Schema ({
     transfer_value: Number,
     //transfer_note: htmlSettings,
     transfer_note: String,
+    transfer_label: String,
     transfer_gov_entity: String,
     transfer_gov_entity_id: String,
     //transfer_line_item: String,
