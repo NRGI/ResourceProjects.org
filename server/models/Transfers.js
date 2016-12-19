@@ -31,6 +31,7 @@ var transferSchema, Transfer,
 
 transferSchema = new Schema ({
     transfer_type: String,
+    transfer_type_classification: String,
     source: source,
     transfer_audit_type: {
         type: String,
@@ -41,6 +42,7 @@ transferSchema = new Schema ({
     transfer_value: Number,
     //transfer_note: htmlSettings,
     transfer_note: String,
+    transfer_label: String,
     transfer_gov_entity: String,
     transfer_gov_entity_id: String,
     //transfer_line_item: String,

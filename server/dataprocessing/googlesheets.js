@@ -287,7 +287,11 @@ function fillInGenericFields(newRow, object, name) {
                     object[dbName + '_level'] = "project";
                     object.project = projects[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
                 }
-                else object[dbName + '_level'] = "unknown";
+                else {
+                    object[dbName + '_level'] = "unknown";
+                    //Store the text
+                    object[dbName + '_label'] = newRow['#' + name + '+entity+name'];
+                }
             }
             else if (newRow['#company'] !== "") object[dbName + '_level'] = "company"; //Implied company level. Company filled elsewhere.
             //Otherwise we only have country to go on. Country must be present. Country filled elsewhere.
@@ -309,10 +313,12 @@ function fillInGenericFields(newRow, object, name) {
             object.site = sites[newRow['#' + name + '+entity+name'].toLowerCase()]._id;
             break;
         case "company":
-            object[dbName + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere.
+            object[dbName + '_level'] = "company"; //Explicit company level. Value will be taken from company column elsewhere, but store text if present.
+            if (newRow['#' + name + '+entity+name'] !== "") object[dbName + '_label'] = newRow['#' + name + '+entity+name'];
             break;
         case "country":
-            object[dbName + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere.
+            object[dbName + '_level'] = "country"; //Explicit country level. Value will be taken from company column elsewhere, but store text if present.
+            if (newRow['#' + name + '+entity+name'] !== "") object[dbName + '_label'] = newRow['#' + name + '+entity+name'];
             break;
         default:
             return false; //Unsupported input!
@@ -326,6 +332,9 @@ var makeNewTransfer = function(newRow) {
         source: sources[newRow['#source'].toLowerCase()]._id,
         country: countries[newRow['#country+identifier']]._id,
     };
+    
+    var warning = null;
+    var error = null;
     
     if (newRow['#payment-category'].toLowerCase() == "receipt") {
         transfer.transfer_audit_type = "government_receipt";
@@ -349,7 +358,58 @@ var makeNewTransfer = function(newRow) {
     if (!transfer) return false;
 
     transfer.transfer_year = parseInt(newRow['#payment+year']);
-    transfer.transfer_type = newRow['#payment+paymentType']; //TODO - these have identifiers but we are not using them, and hence no validating the input (Issue #151)
+    
+    var transfer_type_code_parts = newRow['#governmentReceipt+paymentType+identifier'].split('/');
+    
+    if (transfer_type_code_parts.length !== 2) {
+        //Require this field and require that it's well formatted into class/type
+        error = "ERROR for payment: payment type code is not formatted correctly (class/type)";
+        return {transfer: null, warning: null, error: error};
+    }
+    
+    transfer.transfer_type_classification = transfer_type_code_parts[0];
+    
+	//We validate for this classification scheme
+	if (transfer_type_code_parts[0] === "eurd") {
+        //Check and convert types
+        switch (transfer_type_code_parts[1]) {
+            case "tax":
+                transfer.transfer_type = "Tax";
+                break;
+            case "license":
+                transfer.transfer_type = "Fees";
+                break;
+            case "dividend":
+                transfer.transfer_type = "Dividends";
+                break;
+            case "royalty":
+                transfer.transfer_type = "Royalties";
+                break;
+            case "bonus":
+                transfer.transfer_type = "Bonuses";
+                break;
+            case "entitlement":
+                transfer.transfer_type = "Production Entitlements";
+                break;
+            case "infrastructure":
+                transfer.transfer_type = "Infrastructure";
+                break;
+            case "other":
+                transfer.transfer_type = "Other";
+                break;
+            case "total":
+                transfer.transfer_type = "Total";
+                break;
+            default:
+                error = "ERROR for payment: invalid payment type (in payment type column). Should be one of (eurd/) + tax, license, dividend, royalty, bonus, entitlement, infrastructure, other or total";
+                return {transfer: null, warning: null, error: error};
+        }
+    }
+    else {
+        warning = "WARNING: A classification system for payment types for which we have no validation is in use; Proper Case values will be imported directly without validation";
+        transfer.transfer_type = transfer_type_code_parts[1].toProperCase();
+    }
+
     transfer.transfer_unit = newRow['#payment+currency'];
     transfer.transfer_value = newRow['#payment+value'].replace(/,/g, "");
     if (newRow['#payment+governmentParty'] !== "") transfer.transfer_gov_entity = newRow['#payment+governmentParty'];
@@ -357,7 +417,7 @@ var makeNewTransfer = function(newRow) {
     if (newRow['#payment+basisOfAccounting'] !== "") transfer.transfer_accounting_basis = newRow['#payment+basisOfAccounting'];
     if (newRow['#payment+notes'] !== "") transfer.transfer_note = newRow['#payment+notes'];
 
-    return transfer;
+    return {transfer: transfer, warning: warning, error: null};
 };
 
 //This handles companies and company groups
@@ -1333,16 +1393,19 @@ function parseData(sheets, report, finalcallback) {
             //Transfer - many possible ways to match
             //Determine if payment or receipt
             
-            var newTransfer = makeNewTransfer(row);
-
-            if (!newTransfer) {
-                transReport.add(`Invalid or missing data in row: ${util.inspect(row)}. Aborting.\n`);
+            var newTransferObj = makeNewTransfer(row);
+            
+            if (newTransferObj.error) {
+                transReport.add(`Invalid or missing data in row: ${util.inspect(row)}. Error message was: ${newTransferObj.error}. Aborting.\n`);
                 return callback(`Failed: ${transReport.report}`);
+            }
+            else if (newTransferObj.warning) {
+                transReport.add(`Warning for data in row: ${util.inspect(row)}. Warning message was: ${newTransferObj.warning}. Continuing.\n`);  
             }
             
             //Note: no checking for existing entries but blanket acceptance of data as rows themselves can duplicate. If we ever want back (for 0.5), look in git 18/7/16
             Transfer.create(
-                newTransfer,
+                newTransferObj.transfer,
                 function(err, tmodel) {
                     if (err) {
                         transReport.add(`Encountered an error while updating the DB: ${err}. Aborting.\n`);

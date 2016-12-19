@@ -791,7 +791,8 @@ function makeNewTransfer(paymentData, projects, company, currency, transfer_audi
 		transfer_year: year,
 		transfer_unit: currency,
 		transfer_level: transfer_level,
-		transfer_type: paymentData.paymentType,
+		transfer_type: paymentData.paymentType.replace('ProductionEntitlements', 'Production Entitlements'),
+		transfer_type_classification: "eurd",
 		transfer_note: paymentData.notes,
 		transfer_value: parseFloat(paymentData.amount.replace(/,/g, ""))
 	};
