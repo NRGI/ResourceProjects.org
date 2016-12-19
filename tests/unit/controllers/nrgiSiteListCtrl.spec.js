@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         sitesData = {
             "count": 1,
-            "data": [
+            "sites": [
                 {
                     _id: "56fcd3d8be65cd01000bd7c9",
                     site_name: "Obuasi",
@@ -97,7 +97,7 @@ describe("Unit: Testing Controllers", function() {
     it("loads the site or field data", function () {
         siteQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(siteQueryStub, expectedParams);
-        scope.sites.should.be.equal(sitesData.data);
+        scope.sites.should.be.equal(sitesData.sites);
 
         scope.loadMore();
         siteQueryStub.called.should.be.equal(true);

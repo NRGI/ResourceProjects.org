@@ -20,7 +20,7 @@
                             td {{source.retrieve_date| date:'yyyy-MM-dd'}}
                         tr
                             td.project-label.part-of Access source:
-                            td
+                            td(ng-if='source.source_url')
                                 a(
                                 href='{{source.source_url}}'
                                 target='_blank') Link
@@ -28,7 +28,7 @@
                                 | (Direct link to data in HTML report)
                         tr
                             td.project-label.part-of Access archive:
-                            td
+                            td(ng-if='source.source_archive_url')
                                 a(
                                 href='{{source.source_archive_url}}'
                                 target='_blank') Link

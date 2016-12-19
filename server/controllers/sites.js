@@ -661,7 +661,7 @@ exports.getSiteData = function(req, res) {
                                 }
                             }
                         },
-                        transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
+                        transfer_level: 1,transfer_label: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
                     }
                 },
                 {
@@ -671,11 +671,26 @@ exports.getSiteData = function(req, res) {
                         transfer_type: {$first: '$transfer_type'},
                         transfer_unit: {$first: '$transfer_unit'},
                         transfer_value: {$first: '$transfer_value'},
+                        transfer_label: {$first: '$transfer_label'},
+                        transfer_level: {$first: '$transfer_level'},
                         country: {$first: '$country'},
                         company: {$first: '$company'},
                         proj_site: {$first: '$proj_site'}
                     }
                 },
+                {$unwind: {"path": "$proj_site", "preserveNullAndEmptyArrays": true}},
+                {$project:{_id:1,transfer_year:1,transfer_type:1,transfer_unit:1,transfer_level:1,transfer_value:1,country:1,
+                    company:1,
+                    proj_site:{$cond: { if: {$not: "$transfer_label"},
+                        then: { $cond: {if: {$not: "$proj_site"},
+                            then: [],
+                            else:
+                            {_id:"$proj_site._id",name:"$proj_site.name",
+                                type:'$proj_site.type'}}},
+                        else: {name:"$transfer_label",
+                            type:'$transfer_label'}
+                    }}, transfer_label:1
+                }},
                 {$skip: 0},
                 {$limit: 50}
             ]).exec(function (err, transfers) {

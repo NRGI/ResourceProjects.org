@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         projectsData = {
             "count": 2,
-            "data": [
+            "projects": [
                 {
                     company_group_name: "African Petroleum",
                     company_group_record_established: "56fcd406be65cd01000bdca8",
@@ -53,7 +53,7 @@ describe("Unit: Testing Controllers", function() {
     it("loads the project data", function () {
         projectQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(projectQueryStub, expectedParams);
-        scope.projects.should.be.equal(projectsData.data);
+        scope.projects.should.be.equal(projectsData.projects);
 
         scope.loadMore();
         projectQueryStub.called.should.be.equal(true);

@@ -188,6 +188,7 @@ exports.getTransferTable = function(req, res){
                 {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+
                 {$unwind: {"path": "$project.proj_country", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$company.countries_of_operation", "preserveNullAndEmptyArrays": true}},
                 {$unwind: {"path": "$company.country_of_incorporation", "preserveNullAndEmptyArrays": true}},
@@ -207,17 +208,56 @@ exports.getTransferTable = function(req, res){
                     "country":{$first:"$country"},
                     "project":{$first:"$project"},
                     "site":{$first:"$site"},
+                    "transfer_label":{$first:"$transfer_label"},
                     "transfer_level":{$first:"$transfer_level"},
                     "transfer_type":{$first:"$transfer_type"},
                     "transfer_unit":{$first:"$transfer_unit"},
                     "transfer_value":{$first:"$transfer_value"}
                 }},
-                {$project:{_id:1,transfer_year:1,
-                    country: { name:"$country.name",iso2:"$country.iso2"},
-                    company:{$cond:[{$eq:["$company", null]}, null, {_id:"$company._id",company_name:"$company.company_name"}]},
-                    project:{$cond:[{$eq:["$project", null]}, null, {proj_id:"$project.proj_id",name:"$project.proj_name"}]},
-                    site:{$cond:[{$eq:["$site", null]}, null, {_id:"$site._id",name:"$site.site_name",field:'$site.field'}]},
-                    transfer_level:1,transfer_type:1,transfer_unit:1,transfer_value:1
+                {
+                    $project: {
+                        _id: 1, transfer_year: 1,
+                        country: {name: "$country.name", iso2: "$country.iso2"},
+                        company: {
+                            $cond: {
+                                if: {$not: "$company"},
+                                then: '',
+                                else: {_id: "$company._id", company_name: "$company.company_name"}
+                            }
+                        },
+                        proj_site: {
+                            $cond: {
+                                if: {$not: "$site"},
+                                then: {
+                                    $cond: {
+                                        if: {$not: "$project"},
+                                        then: [], else: {
+                                            _id: "$project.proj_id", name: "$project.proj_name",
+                                            type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                        }
+                                    }
+                                },
+                                else: {
+                                    _id: "$site._id", name: "$site.site_name",
+                                    type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                                }
+                            }
+                        },
+                        transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1, transfer_label: 1
+                    }
+                },
+                {$unwind: {"path": "$proj_site", "preserveNullAndEmptyArrays": true}},
+                {$project:{_id:1,transfer_year:1,transfer_type:1,transfer_unit:1,transfer_level:1,transfer_value:1,country:1,
+                    company:1,
+                    proj_site:{$cond: { if: {$not: "$transfer_label"},
+                        then: { $cond: {if: {$not: "$proj_site"},
+                            then: [],
+                            else:
+                            {_id:"$proj_site._id",name:"$proj_site.name",
+                                type:'$proj_site.type'}}},
+                        else: {name:"$transfer_label",
+                            type:'$transfer_label'}
+                    }}, transfer_label:1
                 }},
                 {$skip: skip},
                 {$limit: limit}
@@ -327,13 +367,15 @@ exports.getTransferTable = function(req, res){
                                     }
                                 }
                             },
-                            transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
+                            transfer_level: 1,transfer_label: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
                         }
                     },
                     {
                         $group: {
                             _id: '$_id',
                             transfer_year: {$first: '$transfer_year'},
+                            transfer_label: {$first: '$transfer_label'},
+                            transfer_level: {$first: '$transfer_level'},
                             transfer_type: {$first: '$transfer_type'},
                             transfer_unit: {$first: '$transfer_unit'},
                             transfer_value: {$first: '$transfer_value'},
@@ -342,6 +384,19 @@ exports.getTransferTable = function(req, res){
                             proj_site: {$first: '$proj_site'}
                         }
                     },
+                    {$unwind: {"path": "$proj_site", "preserveNullAndEmptyArrays": true}},
+                    {$project:{_id:1,transfer_year:1,transfer_type:1,transfer_unit:1,transfer_level:1,transfer_value:1,country:1,
+                        company:1,
+                        proj_site:{$cond: { if: {$not: "$transfer_label"},
+                            then: { $cond: {if: {$not: "$proj_site"},
+                                then: [],
+                                else:
+                                {_id:"$proj_site._id",name:"$proj_site.name",
+                                    type:'$proj_site.type'}}},
+                            else: {name:"$transfer_label",
+                                type:'$transfer_label'}
+                        }}, transfer_label:1
+                    }},
                     {$skip: skip},
                     {$limit: limit}
                 ]).exec(function (err, transfers) {

@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         countriesData = {
             "count": 2,
-            "data": [
+            "countries": [
                 {
                     iso2: "MX",
                     name: "Mexico",
@@ -51,7 +51,7 @@ describe("Unit: Testing Controllers", function() {
     it("loads the country data", function () {
         countryQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(countryQueryStub, expectedParams);
-        scope.countries.should.be.equal(countriesData.data);
+        scope.countries.should.be.equal(countriesData.countries);
 
         // scope.loadMore();
         countryQueryStub.called.should.be.equal(true);

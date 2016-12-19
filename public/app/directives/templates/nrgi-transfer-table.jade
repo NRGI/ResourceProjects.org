@@ -33,8 +33,9 @@ data-target="#transfers")
                     span(ng-bind-html="transfer.company.company_name|sanitize")
                 td.transfer_country: a(href='country/{{transfer.country.iso2}}')
                     span(ng-bind-html="transfer.country.name|sanitize")
-                td.transfer_type: a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}
-                td.transfer_level {{transfer.proj_site.type}}
+                td.transfer_type(ng-if='transfer.proj_site._id'): a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}
+                td.transfer_type(ng-if='!transfer.proj_site._id'): {{transfer.proj_site.name}}
+                td.transfer_level {{transfer.transfer_level}}
                 td.transfer_type {{transfer.transfer_type}}
                 td.transfer_currency {{transfer.transfer_unit}}
                 td.transfer_value {{transfer.transfer_value | currency:"":0}}

@@ -6,7 +6,7 @@ describe("Unit: Testing Admin Controllers", function() {
         scope,
         sourceTypesData = {
             "count": 2,
-            "data": [
+            "sourceTypes": [
                 {
                     _id: "56e873691d1d2a3824141431",
                     source_type_authority: "non-authoritative",
@@ -44,7 +44,7 @@ describe("Unit: Testing Admin Controllers", function() {
     it("loads the admin source type data", function () {
         sourceTypeQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(sourceTypeQueryStub, expectedParams);
-        scope.sourceTypes.should.be.equal(sourceTypesData.data);
+        scope.sourceTypes.should.be.equal(sourceTypesData.sourceTypes);
     });
 
     afterEach(function () {

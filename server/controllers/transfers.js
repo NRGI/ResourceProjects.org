@@ -55,6 +55,7 @@ exports.getTransferFilters = function(req, res) {
                     });
                     callback(null, data);
                 } else {
+                    data.errorList = errors.errorFunction('Transfers', 'not found');
                     res.send(data);
                 }
             }
@@ -108,35 +109,50 @@ exports.getTransfers = function(req, res) {
     function getTransferSet(data, callback) {
         Transfer.aggregate([
             {$match:req.query},
-                {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
-                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
-                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
-                {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
-                {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
-                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
-                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
-                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
-                {$project:{_id:1,transfer_year:1,
-                    country: { name:"$country.name",iso2:"$country.iso2"},
-                    company:{$cond: { if:  {$not: "$company" }, then: '', else: {_id:"$company._id",company_name:"$company.company_name"}}},
-                    proj_site:{$cond: { if:  {$not: "$site" },
-                        then:  {_id:"$project.proj_id",name:"$project.proj_name",
-                            type:{$cond: { if: {$not: "$project"}, then: '', else: 'project'}}},
-                        else: {_id:"$site._id",name:"$site.site_name",
-                            type:{$cond: { if: { $gte: [ "$site.field", true ] }, then: 'field', else: 'site' }}}}
-                    },
-                    transfer_level:1,transfer_type:1,transfer_unit:1,transfer_value:1
-                }},
-                {$group:{
-                    _id:'$_id',
-                    transfer_year:{$first:'$transfer_year'},
-                    transfer_type:{$first:'$transfer_type'},
-                    transfer_unit:{$first:'$transfer_unit'},
-                    transfer_value:{$first:'$transfer_value'},
-                    country:{$first:'$country'},
-                    company:{$first:'$company'},
-                    proj_site:{$first:'$proj_site'}
-                }},
+            {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+            {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+            {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+            {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
+            {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+            {$project:{_id:1,transfer_year:1,
+                country: { name:"$country.name",iso2:"$country.iso2"},
+                company:{$cond: { if:  {$not: "$company" }, then: '', else: {_id:"$company._id",company_name:"$company.company_name"}}},
+                proj_site:{$cond: { if:  {$not: "$site" },
+                    then:  {
+                        $cond: { if:  {$not: "$project" },  then: '', else:{
+                            _id:"$project.proj_id",name:"$project.proj_name",
+                            type:{$cond: { if: {$not: "$project"}, then: '', else: 'project'}}}
+
+                        }},
+                    else: {_id:"$site._id",name:"$site.site_name",
+                        type:{$cond: { if: { $gte: [ "$site.field", true ] }, then: 'field', else: 'site' }}}}
+                },
+                transfer_level:1,transfer_type:1,transfer_unit:1,transfer_value:1, transfer_label:1
+            }},
+            {$group:{
+                _id:'$_id',
+                transfer_year:{$first:'$transfer_year'},
+                transfer_type:{$first:'$transfer_type'},
+                transfer_unit:{$first:'$transfer_unit'},
+                transfer_label:{$first:'$transfer_label'},
+                transfer_level:{$first:'$transfer_level'},
+                transfer_value:{$first:'$transfer_value'},
+                country:{$first:'$country'},
+                company:{$first:'$company'},
+                proj_site:{$first:'$proj_site'}
+            }},
+            {$project:{_id:1,transfer_year:1,transfer_type:1,transfer_unit:1,transfer_level:1,transfer_value:1,country:1,
+                company:1,
+                proj_site:{$cond: { if: {$not: "$transfer_label"},
+                    then:  {_id:"$proj_site._id",name:"$proj_site.name",
+                        type:'$proj_site.type'},
+                    else: {name:"$transfer_label",
+                        type:'$transfer_level'}
+                }}, transfer_label:1
+            }},
             {$skip: skip},
             {$limit: limit}
         ]).exec(function(err, transfers) {

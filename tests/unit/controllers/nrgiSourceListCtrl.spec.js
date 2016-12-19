@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         sourcesData = {
             "count": 1,
-            "data": [
+            "sources": [
                 {
                     _id: "571654330ef3fc0100672a6e",
                     source_name: "2015 Total mandatory disclosure",
@@ -61,7 +61,7 @@ describe("Unit: Testing Controllers", function() {
     it("loads the source data", function () {
         sourceQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(sourceQueryStub, expectedParams);
-        scope.sources.should.be.equal(sourcesData.data);
+        scope.sources.should.be.equal(sourcesData.sources);
 
         scope.loadMore();
         sourceQueryStub.called.should.be.equal(true);

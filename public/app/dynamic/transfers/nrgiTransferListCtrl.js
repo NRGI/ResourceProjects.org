@@ -42,19 +42,19 @@ angular.module('app')
                 });
         }
         nrgiTransferFilters.query({country:false}, function (response) {
-            if(response.filters) {
+            if(response.filters && Object.keys(response.filters).length>0) {
                 $scope.year_selector = response.filters.year_selector;
                 $scope.currency_selector = response.filters.currency_selector;
                 $scope.type_selector = response.filters.type_selector;
                 $scope.company_selector = response.filters.company_selector;
                 if (_.has($scope.currency_selector, "USD")) {
                     $scope.currency_filter = 'USD';
-                } else if (Object.keys($scope.currency_selector)[0]) {
+                } else if ($scope.currency_selector && Object.keys($scope.currency_selector)[0]) {
                     $scope.currency_filter = Object.keys($scope.currency_selector)[0];
                 }
                 if (_.has($scope.year_selector, "2015")) {
                     $scope.year_filter = '2015';
-                } else if (Object.keys($scope.year_selector)[0]) {
+                } else if ($scope.year_selector && Object.keys($scope.year_selector)[0]) {
                     $scope.year_filter = Object.keys($scope.year_selector)[0];
                 }
                 searchOptions = {
@@ -64,6 +64,8 @@ angular.module('app')
                     transfer_unit: $scope.currency_filter
                 };
             } else{
+                $scope.currency_filter = 'Show all currency';
+                $scope.year_filter = 'Show all years';
                 searchOptions = {
                     skip: $scope.skip,
                     limit: $scope.limit
@@ -75,7 +77,7 @@ angular.module('app')
         $scope.$watch('year_filter', function(year) {
             $scope.year = year;
             $scope.new =true;
-            if(year && year!='Show all years') {
+            if(searchOptions.transfer_year!=year && year&&year!='Show all years') {
                 $scope.skip=0;
                 searchOptions.skip=0;
                 searchOptions.limit= 500;currentPage = 0;
@@ -92,7 +94,7 @@ angular.module('app')
         $scope.$watch('currency_filter', function(currency) {
             $scope.currency = currency;
             $scope.new =true;
-            if(currency && currency!='Show all currency') {
+            if(searchOptions.transfer_unit!=currency && currency&&currency!='Show all currency') {
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_unit = currency;
                 $scope.load(searchOptions);

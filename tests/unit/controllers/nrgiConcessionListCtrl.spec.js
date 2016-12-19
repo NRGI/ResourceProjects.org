@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         concessionsData = {
             "count": 2,
-            "data": [{
+            "concessions": [{
                 _id: "56a2b8236e585b7316655794",
                 concession_name: "Block A",
                 concession_established_source: {
@@ -128,7 +128,7 @@ describe("Unit: Testing Controllers", function() {
     it("loads the concession data", function () {
         concessionsQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(concessionsQueryStub, expectedParams);
-        scope.concessions.should.be.equal(concessionsData.data);
+        scope.concessions.should.be.equal(concessionsData.concessions);
 
         scope.loadMore();
         concessionsQueryStub.called.should.be.equal(true);

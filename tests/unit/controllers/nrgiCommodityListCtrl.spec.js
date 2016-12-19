@@ -6,7 +6,7 @@ describe("Unit: Testing Controllers", function() {
         scope,
         commoditiesData = {
             "count": 200,
-            "data": [
+            "commodities": [
                 {
                     "_id": "5734d18b3dbaf9c32c313963",
                     "commodity_name": "3PGM+Au",
@@ -53,7 +53,7 @@ describe("Unit: Testing Controllers", function() {
 
         commoditiesQueryStub.called.should.be.equal(true);
         sinon.assert.calledWith(commoditiesQueryStub, expectedParams);
-        scope.commodities.should.be.equal(commoditiesData.data);
+        scope.commodities.should.be.equal(commoditiesData.commodities);
         scope.loadMore();
         commoditiesQueryStub.called.should.be.equal(true);
     });
