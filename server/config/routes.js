@@ -62,6 +62,7 @@ module.exports	= function(app) {
 	/// PROJECTS CRUD ///
 	/////////////////////
 	app.get('/api/projects/:limit/:skip', projects.getProjects);
+	app.get('/api/project/data/:id', projects.getProjectData);
 	app.get('/api/all_projects/:limit/:skip', projects.getAllProjects);
 	app.get('/api/projects/:id', projects.getProjectByID);
 

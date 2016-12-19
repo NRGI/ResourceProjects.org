@@ -34,15 +34,11 @@ angular
 
         usSpinnerService.spin('spinner-project');
         $scope.$watch('id', function (value) {
-<<<<<<< HEAD
-            if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined) {
+            if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined || $scope.type == 'concession' && value == undefined) {
                 usSpinnerService.stop('spinner-project');
                 $scope.expression = 'showLast';
             }
-            if ($scope.type == 'country' && value != undefined || $scope.type == 'company' && value != undefined) {
-=======
-            if ($scope.type == 'country' && value != undefined) {
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
+            if ($scope.type == 'country' && value != undefined || $scope.type == 'company' && value != undefined || $scope.type == 'concession' && value != undefined) {
                 $scope.projects = value;
                 usSpinnerService.stop('spinner-project');
                 if ($scope.projects.length == 0) {
@@ -53,11 +49,7 @@ angular
                     currentPage = 1;
                 }
             }
-<<<<<<< HEAD
-            if ($scope.type != 'country' && value != undefined && $scope.type!= 'company') {
-=======
-            if ($scope.type != 'country' && value != undefined) {
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
+            if ($scope.type != 'country' && value != undefined && $scope.type!= 'company' && $scope.type!= 'concession') {
                 $scope.loading = false;
                 $scope.getProjects($scope.id, $scope.type);
             }

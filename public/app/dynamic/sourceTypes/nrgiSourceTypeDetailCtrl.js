@@ -7,6 +7,6 @@ angular.module('app')
         $routeParams
     ) {
         nrgiSourceTypesSrvc.get({_id: $routeParams.id}, function (success) {
-            $scope.source_type = success;
+            $scope.source_type = success.sourceTypes;
         });
     });

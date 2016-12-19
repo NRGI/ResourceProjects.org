@@ -9,16 +9,20 @@ var SourceType 		= require('mongoose').model('SourceType'),
 
 //Get all source types
 exports.getSourceTypes = function(req, res) {
-    var errorList=[],
+    var data = {},
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
+    data.sourceTypes = [];
+    data.count =0;
+    data.errorList =[];
 
     async.waterfall([
         sourceTypeCount,
         getSourceTypeSet
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Source Types');
+            return res.send(data);
         } else{
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -31,32 +35,35 @@ exports.getSourceTypes = function(req, res) {
     function sourceTypeCount(callback) {
         SourceType.find({}).count().exec(function(err, sourceTypesCount) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({reason: err.toString()});
+                data.errorList = errors.errorFunction(err,'Source Types');
+                res.send(data);
             } else if (sourceTypesCount == 0) {
-                return res.send({reason: 'not found'});
+                data.errorList = errors.errorFunction('Source Types','source types not found');
+                res.send(data);
             } else {
-                callback(null, sourceTypesCount);
+                data.count = sourceTypesCount;
+                callback(null, data);
             }
         });
     }
 
-    function getSourceTypeSet(sourceTypesCount, callback) {
-        if(limit == 0){limit = sourceTypesCount}
+    function getSourceTypeSet(data, callback) {
+        if(limit == 0){limit = data.count}
         SourceType.aggregate([
             {$sort: {source_type_authority: -1}},
             {$skip: skip},
             {$limit: limit}
         ]).exec(function(err, sourceTypes) {
             if (err) {
-                errorList = errors.errorFunction(err,'Source Types');
-                return res.send({error: errorList});
+                data.errorList = errors.errorFunction(err,'Source Types');
+                res.send(data);
             } else {
                 if (sourceTypes.length>0) {
-                    callback(null, {data: sourceTypes, count: sourceTypesCount, errorList:errorList} );
+                    data.sourceTypes = sourceTypes;
+                    callback(null, data);
                 } else {
-                    errorList.push({type: 'Source Types', message: 'source types not found'})
-                    return res.send({error: errorList});
+                    data.errorList.push({type: 'Source Types', message: 'source types not found'})
+                    res.send(data);
                 }
             }
         });
@@ -65,12 +72,16 @@ exports.getSourceTypes = function(req, res) {
 
 //Get source type by ID
 exports.getSourceTypeByID = function(req, res) {
+    var data = {};
+    data.errorList = [];
+    data.source = [];
 
     async.waterfall([
         getSource
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Source Types');
+            return res.send(data);
         } else{
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -84,12 +95,14 @@ exports.getSourceTypeByID = function(req, res) {
         SourceType.findOne({_id:req.params.id})
             .exec(function(err, source) {
                 if (err) {
-                    err = new Error('Error: '+ err);
-                    return res.send({reason: err.toString()});
+                    data.errorList = errors.errorFunction(err,'Source Types');
+                    res.send(data);
                 } else if (source) {
-                    callback(source);
+                    data.source = source;
+                    callback(data);
                 } else {
-                    return res.send({reason: 'not found'});
+                    data.errorList.push({type: 'Source Types', message: 'source types not found'})
+                    res.send(data);
                 }
             });
     }

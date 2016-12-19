@@ -7,9 +7,10 @@ var Transfer 		= require('mongoose').model('Transfer'),
 
 //Get payment filters
 exports.getTransferFilters = function(req, res) {
-
-    var paymentsFilter={},
-        country={};
+    var data ={};
+    data.filters={};
+    data.errorList=[];
+    var country={};
     country.company = {$exists: true, $nin: [null]};
     country.transfer_type = {$exists: true, $nin: [null]};
 
@@ -23,7 +24,8 @@ exports.getTransferFilters = function(req, res) {
         getFilters
     ], function (err, result) {
         if (err) {
-            return res.send({filters:[],error: err});
+            data.errorList = errors.errorFunction(err,'Transfers');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -39,16 +41,22 @@ exports.getTransferFilters = function(req, res) {
             {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}}
         ]).exec(function (err, transfers) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({filters:[],error: err.toString()});
-            } else if (transfers.length>0) {
-                paymentsFilter.year_selector = _.countBy(transfers, "transfer_year");
-                paymentsFilter.currency_selector = _.countBy(transfers, "transfer_unit");
-                paymentsFilter.type_selector=_.countBy(transfers, "transfer_type");
-                paymentsFilter.company_selector=_.groupBy(transfers, function (doc) {if(doc&&doc.company&&doc.company._id){return doc.company._id;}});
-                callback(null, {filters: paymentsFilter});
+                data.errorList = errors.errorFunction(err,'Transfers');
+                res.send(data);
             } else {
-                return res.send({filters:[],error: 'not found'});
+                if (transfers.length > 0) {
+                    data.filters.year_selector = _.countBy(transfers, "transfer_year");
+                    data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
+                    data.filters.type_selector = _.countBy(transfers, "transfer_type");
+                    data.filters.company_selector = _.groupBy(transfers, function (doc) {
+                        if (doc && doc.company && doc.company._id) {
+                            return doc.company._id;
+                        }
+                    });
+                    callback(null, data);
+                } else {
+                    res.send(data);
+                }
             }
         })
     }
@@ -56,20 +64,23 @@ exports.getTransferFilters = function(req, res) {
 
 //Get payments by project
 exports.getTransfers = function(req, res) {
-    var errorList=[],
+    var data = {},
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     req.query.transfer_level={ $nin: [ 'country' ] };
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
     if(req.query.company){req.query.company = mongoose.Types.ObjectId(req.query.company);}
+    data.errorList = [];
+    data.transfers = [];
+    data.count = 0;
 
     async.waterfall([
         transferCount,
         getTransferSet
     ], function (err, result) {
         if (err) {
-            res.send(err);
-            return res.send({data: [], count: 0, error: err});
+            data.errorList = errors.errorFunction(err,'Transfers');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -82,17 +93,19 @@ exports.getTransfers = function(req, res) {
     function transferCount(callback) {
         Transfer.find(req.query).count().exec(function(err, transfersCount) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({data: [], count: 0, error: err.toString()});
+                data.errorList = errors.errorFunction(err,'Transfers');
+                res.send(data);
             } else if (transfersCount == 0) {
-                return res.send({data: [], count: 0, error: 'not found'});
+                data.errorList.push({type: 'Transfers', message: 'transfers not found'})
+                res.send(data);
             } else {
-                callback(null, transfersCount);
+                data.count = transfersCount;
+                callback(null, data);
             }
         });
     }
 
-    function getTransferSet(transfersCount, callback) {
+    function getTransferSet(data, callback) {
         Transfer.aggregate([
             {$match:req.query},
                 {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
@@ -128,14 +141,15 @@ exports.getTransfers = function(req, res) {
             {$limit: limit}
         ]).exec(function(err, transfers) {
             if (err) {
-                errorList = errors.errorFunction(err,'Transfers by Project');
-                callback(null,{data: transfers, count: transfersCount,errorList:errorList});
+                data.errorList = errors.errorFunction(err,'Transfers by Project');
+                callback(null, data);
             }else {
                 if (transfers.length > 0) {
-                    callback(null,{data: transfers, count: transfersCount,errorList:errorList});
+                    data.transfers = transfers;
+                    callback(null,data);
                 } else {
-                    errorList.push({type: 'Transfers by Project', message: 'transfers by project not found'})
-                    callback(null, {data: transfers, count: transfersCount,errorList:errorList});
+                    data.errorList.push({type: 'Transfers by Project', message: 'transfers by project not found'})
+                    callback(null, data);
                 }
             }
         });
@@ -144,19 +158,24 @@ exports.getTransfers = function(req, res) {
 
 //Get payment by recipient
 exports.getTransfersByGov = function(req, res) {
-    var errorList=[],
+    var data = {},
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     req.query.transfer_level='country';
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
     if(req.query.company){req.query.company = mongoose.Types.ObjectId(req.query.company);}
 
+    data.errorList = [];
+    data.transfers = [];
+    data.count = 0;
+
     async.waterfall([
         transferCount,
         getTransferSet
     ], function (err, result) {
         if (err) {
-            return res.send({data: [], count: 0, error: err});
+            data.errorList = errors.errorFunction(err,'Transfers');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -168,16 +187,18 @@ exports.getTransfersByGov = function(req, res) {
     function transferCount(callback) {
         Transfer.find(req.query).count().exec(function(err, transfersCount) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({data: [], count: 0,  error: err.toString()});
+                data.errorList = errors.errorFunction(err,'Transfers');
+                return res.send(data);
             } else if (transfersCount == 0) {
-                return res.send({data: [], count: 0, error: 'not found'});
+                data.errorList.push({type: 'Transfers by Recipient', message: 'transfers by recipient not found'})
+                return res.send(data);
             } else {
-                callback(null, transfersCount);
+                data.count = transfersCount;
+                callback(null, data);
             }
         });
     }
-    function getTransferSet(transfersCount,  callback) {
+    function getTransferSet(data,  callback) {
         Transfer.aggregate([
                 {$match:req.query},
                 {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
@@ -215,14 +236,15 @@ exports.getTransfersByGov = function(req, res) {
                 {$limit: limit}
         ]).exec(function(err, transfers) {
                 if (err) {
-                    errorList = errors.errorFunction(err,'Transfers by Recipient');
-                    callback(null,{data: transfers, count: transfersCount,errorList:errorList});
+                    data.errorList = errors.errorFunction(err,'Transfers by Recipient');
+                    callback(null, data);
                 }else {
                     if (transfers.length > 0) {
-                        callback(null,{data: transfers, count: transfersCount,errorList:errorList});
+                        data.transfers = transfers;
+                        callback(null, data);
                     } else {
-                        errorList.push({type: 'Transfers by Recipient', message: 'transfers by recipient not found'})
-                        callback(null, {data: transfers, count: transfersCount,errorList:errorList});
+                        data.errorList.push({type: 'Transfers by Recipient', message: 'transfers by recipient not found'})
+                        callback(null, data);
                     }
                 }
             });

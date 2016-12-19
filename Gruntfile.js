@@ -48,7 +48,7 @@ var style = [
     "public/vendor/nvd3/build/nv.d3.min.css",
     "public/vendor/textAngular/dist/textAngular.css",
     "public/vendor/bootstrap-select/dist/css/bootstrap-select.css"]
-var port = 3032;
+var port = 3033;
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),

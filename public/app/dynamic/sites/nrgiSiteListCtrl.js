@@ -143,7 +143,7 @@ angular.module('app')
 
         nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
             $scope.count = response.count;
-            $scope.sites = response.data;
+            $scope.sites = response.sites;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
             $scope.createDownloadList($scope.sites);
@@ -154,7 +154,7 @@ angular.module('app')
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
-                    $scope.sites = _.union($scope.sites, response.data);
+                    $scope.sites = _.union($scope.sites, response.sites);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
                     $scope.createDownloadList($scope.sites);

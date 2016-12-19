@@ -86,36 +86,41 @@
                                     span(ng-bind-html="concession.description|sanitize")
             .row
                 nrgi-company-table(
-                id="concession._id"
+                id="data.companies"
                 type="'concession'"
+                countryid="id"
                 group='true'
                 stake='true')
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if='data')
         .col-md-6
             nrgi-project-table(
             type="'concession'"
-            id="concession._id"
+            id="data.projects"
             commodity="true"
             status="true"
             country="false"
+            countryid="id"
             commoditytype="false"
             companies="false")
         .col-md-6
             nrgi-site-table(
             name="'concession'"
-            id="concession._id"
+            id="data.sites"
+            countryid="id"
             status="true")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if='data')
         .col-md-12
             nrgi-production-table(
             type="'concession'"
-            id="concession._id"
+            countryid="id"
+            id="data.productions"
             projectlink="true")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if='data')
         .col-md-12
             nrgi-transfer-table(
             type="'concession'"
-            id="concession._id"
+            countryid="id"
+            id="data.transfers"
             projectlink="true")
 
     .row.top-padding-lg

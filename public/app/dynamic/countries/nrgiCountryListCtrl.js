@@ -34,7 +34,7 @@ angular.module('app')
 
         nrgiCountriesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
-            $scope.countries = response.data;
+            $scope.countries = response.countries;
             totalPages = Math.ceil(response.count / limit);
             ++currentPage;
             $scope.createDownloadList($scope.countries);

@@ -8,17 +8,20 @@ var Source	 		= require('mongoose').model('Source'),
 
 //Get Pie chart
 exports.getPayments = function(req, res) {
-
-    var paymentsFilter={};
+    var data ={};
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
     req.query.transfer_value={$gt: 0};
+    data.transfers = [];
+    data.filters = {};
+    data.errorList = [];
 
     async.waterfall([
         getAllPayment,
         getPayment
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Pie chart');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -33,19 +36,20 @@ exports.getPayments = function(req, res) {
             {$match:{transfer_level:{ $nin: [ 'country' ] }}}
         ]).exec(function (err, transfers) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({error: err.toString()});
+                data.errorList = errors.errorFunction(err,'Pie chart');
+                res.send(data);
             } else if (transfers.length>0) {
-                paymentsFilter.year_selector=_.countBy(transfers, "transfer_year");
-                paymentsFilter.currency_selector=_.countBy(transfers, "transfer_unit");
-                callback(null, paymentsFilter);
+                data.filters.year_selector=_.countBy(transfers, "transfer_year");
+                data.filters.currency_selector=_.countBy(transfers, "transfer_unit");
+                callback(null, data);
             } else {
-                return res.send({error: 'not found'});
+                data.errorList = errors.errorFunction(err,'Pie chart data not found');
+                res.send(data);
             }
         })
     }
 
-    function getPayment(paymentsFilter,callback) {
+    function getPayment(data, callback) {
         Transfer.aggregate([
             {$match:req.query},
             {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
@@ -83,12 +87,14 @@ exports.getPayments = function(req, res) {
             }
         ]).exec(function (err, transfers) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({reason: err.toString()});
+                data.errorList = errors.errorFunction(err,'Pie chart');
+                res.send(data);
             } else if (transfers.length>0) {
-                callback(null, {data:transfers,filters:paymentsFilter})
+                data.transfers = transfers;
+                callback(null, data)
             } else {
-                return res.send({reason: 'not found'});
+                data.errorList.push({type: 'Pie chart', message: 'pie chart data not found'})
+                res.send(data);
             }
         });
     }

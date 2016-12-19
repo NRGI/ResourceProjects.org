@@ -10,9 +10,9 @@ angular.module('app')
         $routeParams
     ) {
         nrgiSitesSrvc.get({_id: $routeParams.id}, function (success,error) {
-            if(success.data){
-                $scope.id = success.data._id;
-                $scope.site = success.data;
+            if(success.site){
+                $scope.id = success.site._id;
+                $scope.site = success.site;
             } else{
                 console.log(error)
             }
@@ -35,6 +35,7 @@ angular.module('app')
         nrgiSitesSrvc.get({data:'data',_id: $routeParams.id}, function (success,error) {
             if(success) {
                 $scope.data = success;
+
             } else{
                 console.log(error)
             }

@@ -11,6 +11,7 @@ angular.module('app')
 
     ) {
         nrgiCommoditiesSrvc.get({_id: $routeParams.id}, function (response) {
-            $scope.commodity=response;
+            $scope.commodity=response.commodity;
+            $scope.id=response.commodity._id;
         });
     });

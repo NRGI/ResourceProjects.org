@@ -42,7 +42,7 @@ angular.module('app')
                             angular.forEach(project[field], function (proj, i) {
                                 country_name = '';
                                 if (proj != undefined) {
-                                    country_name = proj.country.name.toString();
+                                    country_name = proj.name.toString();
                                     country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                                 }
                                 if (i != project[field].length - 1 && country_name != '') {
@@ -60,14 +60,16 @@ angular.module('app')
                         if(project['proj_commodity']!=undefined&&project['proj_commodity'].length > 0) {
                             str = '';
                             project['proj_commodity'] = _.map(_.groupBy(project['proj_commodity'],function(doc){
-                                return doc.commodity.commodity_type;
+                                if(doc && doc!=null) {
+                                    return doc.commodity_type;
+                                }
                             }),function(grouped){
                                 return grouped[0];
                             });
                             angular.forEach(project['proj_commodity'], function (commodity, i) {
                                 proj_commodity_type = '';
                                 if (commodity != undefined) {
-                                    proj_commodity_type = commodity.commodity.commodity_type.toString();
+                                    proj_commodity_type = commodity.commodity_type.toString();
                                     proj_commodity_type = proj_commodity_type.charAt(0).toUpperCase() + proj_commodity_type.substr(1);
                                 }
                                 if (i != project['proj_commodity'].length - 1 && proj_commodity_type != '') {
@@ -85,14 +87,16 @@ angular.module('app')
                         if(project[field]!=undefined&&project[field].length > 0) {
                             str = '';
                             project[field] = _.map(_.groupBy(project[field],function(doc){
-                                return doc.commodity.commodity_name;
+                                if(doc && doc!=null) {
+                                    return doc.commodity_name;
+                                }
                             }),function(grouped){
                                 return grouped[0];
                             });
                             angular.forEach(project[field], function (commodity, i) {
                                 commodity_name = '';
                                 if (commodity != undefined) {
-                                    commodity_name = commodity.commodity.commodity_name.toString();
+                                    commodity_name = commodity.commodity_name.toString();
                                     commodity_name = commodity_name.charAt(0).toUpperCase() + commodity_name.substr(1);
                                 }
                                 if (i != project[field].length - 1 && commodity_name != '') {
@@ -132,22 +136,17 @@ angular.module('app')
 
         nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
-            $scope.projects = response.data;
+            $scope.projects = response.projects;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
             $scope.createDownloadList($scope.projects);
         });
-        //var iso = 'MX';
-        //nrgiProjectsWithIsoSrvc.get({_iso2: iso,skip: 0, limit: 0}, function (response) {
-        //    console.log(response)
-        //});
-
         $scope.loadMore = function() {
             if ($scope.busy) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
-                    $scope.projects = _.union($scope.projects, response.data);
+                    $scope.projects = _.union($scope.projects, response.projects);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
                     $scope.createDownloadList($scope.projects);

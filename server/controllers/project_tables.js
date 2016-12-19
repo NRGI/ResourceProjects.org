@@ -17,7 +17,7 @@ var Project 		= require('mongoose').model('Project'),
 exports.getProjectTable = function(req, res){
     var _id = mongoose.Types.ObjectId(req.params.id);
     var link_counter, link_len, companies_len, companies_counter;
-    var company ={},errorList={};
+    var company ={},errorList=[];
     var type = req.params.type;
     var limit = parseInt(req.params.limit);
     var skip = parseInt(req.params.skip);
@@ -101,43 +101,50 @@ exports.getProjectTable = function(req, res){
     }
     function getCommodityProjects(projects,errorList, callback) {
         if(type=='commodity') {
-            Project.find(query)
-                .populate('commodity country')
-                .deepPopulate('proj_commodity.commodity proj_country.country')
-                .exec(function (err, proj) {
-                    link_len = proj.length;
-                    link_counter = 0;
-                    if(link_len>0) {
-                        _.each(proj, function (project) {
-                            ++link_counter;
-                            projects.projects.push({
-                                proj_id: project.proj_id,
-                                proj_name: project.proj_name,
-                                proj_country: project.proj_country,
-                                proj_commodity: project.proj_commodity,
-                                proj_status: project.proj_status,
-                                _id: project._id,
-                                companies_count: 0,
-                                companies: []
-                            });
-                            if (link_len == link_counter) {
-                                projects.projects = _.map(_.groupBy(projects.projects,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, projects);
-                            }
-                        })
-                    }else{
-                        callback(null, projects);
+            Project.aggregate([
+                {$match: query},
+                {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "proj_commodity"}},
+                {$lookup: {from: "countries",localField: "proj_country.country",foreignField: "_id",as: "proj_country"}},
+                {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+                {$group:{
+                    _id: '$proj_id',
+                    proj_id: {$first:'$proj_id'},
+                    proj_name: {$first:'$proj_name'},
+                    proj_commodity: {$addToSet:'$proj_commodity'},
+                    proj_country: {$addToSet:'$proj_country'},
+                    proj_status: {$addToSet:'$proj_status'},
+                    project_id:{$first:"$_id"}
+                }},
+                {$project:{
+                    _id:1, proj_site:{_id:'$proj_id'}, proj_name:1,
+                    proj_id:1,project_id:1, proj_commodity:1,proj_country:1,proj_status:1,companies_count:{$literal:0},companies:{$literal:[]}
+                }},
+                { $skip : skip},
+                { $limit : limit }
+            ]).exec(function (err, links) {
+                if (err) {
+                    errorList = errors.errorFunction(err, 'project links');
+                    res.send({data: [], errorList: errorList});
+                } else {
+                    if (links.length > 0) {
+                        projects.projects =links;
+                        projects.project_id = _.pluck(links, 'project_id');
+                        callback(null, projects, errorList);
+                    } else {
+                        errorList.push({type: 'project links', message: 'project links not found'})
+                        callback(null, projects, errorList);
                     }
-                });
+                }
+            });
         } else{
-            callback(null, projects);
+            callback(null, projects,errorList);
         }
     }
-    function getCountryProjects(projects, callback) {
+    function getCountryProjects(projects, errorList, callback) {
         if(type=='country') {
             projects.projects = [];
             projects.project_id = [];

@@ -33,7 +33,6 @@ angular
             }
 
         };
-        ;
 
         var headers = [
             {name: 'Year', status: true, field: 'transfer_year'},

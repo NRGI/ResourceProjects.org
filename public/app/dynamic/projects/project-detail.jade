@@ -18,7 +18,6 @@
                 text.text-success(ng-if="project.source_type.c && project.source_type.p") Verified
                 | )
 
-
     .row(ng-if="project.coordinates.length>0")
         .col-md-12
             nrgi-leaflet(
@@ -53,9 +52,9 @@
                                 | {{$last ? '' : ', '}}
                         tr(ng-if="project.proj_country.length>0")
                             td.detail_label.small Country:
-                            td.project_country: text(ng-repeat="country in project.proj_country | unique: 'iso2'")
-                                a(href='country/{{country.country.iso2}}')
-                                    span(ng-bind-html="country.country.name|sanitize")
+                            td.project_country: span(ng-repeat="country in project.proj_country | unique: 'iso2'")
+                                a(href='country/{{country.iso2}}')
+                                    span(ng-bind-html="country.name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="project.proj_aliases.length>0")
                             td.detail_label.small Aliases:
@@ -66,17 +65,14 @@
                             td.detail_label.small Commodity Type:
                             td.project_type
                                 text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity.commodity_type'")
-                                    | {{commodity.commodity.commodity_type | ucfirst | addSpaces}}
+                                    | {{commodity.commodity_type | ucfirst | addSpaces}}
                                     | {{$last ? '' : ', '}}
-                                //span(ng-repeat='type in project.proj_type')
-                                //    span {{type.string | ucfirst}}
-                                //    | {{$last ? '' : ', '}}
                         tr(ng-if="project.proj_commodity.length>0")
                             td.detail_label.small Commodities:
                             td.project_commodities
-                                text(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
-                                    a(href='commodity/{{commodity.commodity.commodity_id}}')
-                                        span(ng-bind-html="commodity.commodity.commodity_name|sanitize")
+                                span(ng-repeat="commodity in project.proj_commodity | unique: 'commodity._id'")
+                                    a(href='commodity/{{commodity.commodity_id}}')
+                                        span(ng-bind-html="commodity.commodity_name|sanitize")
                                     | {{$last ? '' : ', '}}
                         tr(ng-if="project.proj_status.length>0")
                             td.detail_label.small Status:
@@ -138,23 +134,26 @@
                             td.project-label.our-id Desctiption:
                             td.project-description
                                 span(ng-bind-html="project.description|sanitize")
-            .row
+            .row(ng-if="data")
                 .col-md-12
                     nrgi-company-table(
-                    id="project._id"
+                    id="data.companies"
                     type="'project'"
+                    countryid="id"
                     stake="false"
                     group="true")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-production-table(
-            id="project._id"
+            id="data.productions"
+            countryid="id"
             type="'project'")
-    .row.top-padding-lg
+    .row.top-padding-lg(ng-if="data")
         .col-md-12
             nrgi-transfer-table(
-            id="project._id"
+            id="data.transfers"
             type="'project'"
+            countryid="id"
             projectlink="false"
             project="false")
 

@@ -4,9 +4,9 @@
             span(ng-bind-html="commodity.commodity_name|sanitize")
             =' '
             small Commodity
-    .row(ng-if='commodity.location.length>0')
-        .col-md-12
-            nrgi-leaflet(data='commodity.location')
+    //.row(ng-if='commodity.location.length>0')
+    //    .col-md-12
+    //        nrgi-leaflet(data='commodity.location')
     .info-box
         h2 Commodity Info
         table#commodity-info
@@ -22,14 +22,14 @@
                     td.detail_label.small Commodity type:
                     td.commodity_type
                         span(ng-bind-html="commodity.commodity_type|sanitize")
-                tr
-                    td.detail_label.small Aliases:
-                    td.commodity_aliases
-                        span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
-                            span {{alias.code}}
-                                span.text-uppercase  ({{alias.reference}})
-                            span(ng-if="!$last") ,
-                            =" "
+                //tr(ng-if='commodity.commodity_aliases.length>0')
+                //    td.detail_label.small Aliases:
+                //    td.commodity_aliases
+                //        span(ng-repeat="alias in commodity.commodity_aliases | unique: 'code'")
+                //            span {{alias.code}}
+                //                span.text-uppercase  ({{alias.reference}})
+                //            span(ng-if="!$last") ,
+                //            =" "
     .row.top-padding-lg
         .col-md-6
             nrgi-project-table(
@@ -37,20 +37,21 @@
             commoditytype="false"
             type="'commodity'"
             id="commodity._id"
+            countryid="id"
             companies="true"
             commodity="false"
             status="true")
-        .col-md-6
-            nrgi-site-table(
-            name="'commodity'"
-            id="commodity._id"
-            country="true"
-            commoditytype="false"
-            company="true"
-            type="true"
-            commodity="false"
-            status="true")
-    .row.top-padding-lg
+        //.col-md-6
+        //    nrgi-site-table(
+        //    name="'commodity'"
+        //    id="commodity._id"
+        //    country="true"
+        //    commoditytype="false"
+        //    company="true"
+        //    type="true"
+        //    commodity="false"
+        //    status="true")
+            //.row.top-padding-lg
         .col-md-6
             nrgi-contract-table(
             type="'commodity'"
@@ -58,20 +59,21 @@
             companies="true"
             commodity="false"
             country="true")
-        .col-md-6
-            nrgi-concession-table(
-            name="'commodity'"
-            id="commodity._id"
-            country="true"
-            type="false"
-            commodity="false"
-            status="true"
-            projects="true")
+        //.col-md-6
+        //    nrgi-concession-table(
+        //    name="'commodity'"
+        //    id="commodity._id"
+        //    country="true"
+        //    type="false"
+        //    commodity="false"
+        //    status="true"
+        //    projects="true")
     .row.top-padding-lg
         .col-md-12
             nrgi-company-table(
             type="'commodity'"
             id="commodity._id"
+            countryid="id"
             stake="false"
             group="true"
             project="true"

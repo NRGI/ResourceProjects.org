@@ -2,17 +2,20 @@ var Company 		= require('mongoose').model('Company'),
     Link 	        = require('mongoose').model('Link'),
     Transfer 	    = require('mongoose').model('Transfer'),
     Production      = require('mongoose').model('Production'),
-    Commodity 	    = require('mongoose').model('Commodity'),
     async           = require('async'),
     mongoose 		= require('mongoose'),
     errors 	        = require('./errorList'),
     _               = require("underscore"),
     request         = require('request');
 
+//Get all companies
 exports.getCompanies = function(req, res) {
     var data={},
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
+    data.errorList = [];
+    data.companies = [];
+    data.company_count = 0;
 
     async.waterfall([
         companyCount,
@@ -21,7 +24,8 @@ exports.getCompanies = function(req, res) {
         getTransfersCount
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Companies');
+            res.send(data);
         }else{
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -32,15 +36,13 @@ exports.getCompanies = function(req, res) {
     });
 
     function companyCount(callback) {
-        data.errorList = [];
-        data.companies = [];
-        data.company_count = 0;
         Company.find({}).count().exec(function(err, companiesCount) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({companies:[], company_count:0, errorList: err.toString()});
+                data.errorList = errors.errorFunction(err,'Companies');
+                res.send(data);
             } else if (companiesCount == 0) {
-                return res.send({companies:[], company_count:0, errorList: 'not found'});
+                data.errorList.push({type: 'Companies', message: 'companies not found'})
+                res.send(data);
             } else {
                 data.company_count = companiesCount;
                 callback(null, data);
@@ -62,14 +64,14 @@ exports.getCompanies = function(req, res) {
             data.companies = companies;
             if (err) {
                 data.errorList = errors.errorFunction(err,'Companies');
-                return res.send(data);
+                res.send(data);
             }
             else {
                 if (companies.length>0) {
                     callback(null, data);
                 } else {
                     data.errorList.push({type: 'Companies', message: 'companies not found'})
-                    return res.send(data);
+                    res.send(data);
             }
                 }
         });
@@ -186,14 +188,19 @@ exports.getCompanies = function(req, res) {
     }
 };
 
+//Get company by id
 exports.getCompanyID = function(req, res) {
     var data = {};
+    var id = mongoose.Types.ObjectId(req.params.id);
+    data.errorList = [];
+    data.company = [];
 
     async.waterfall([
         getCompany
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Company '+ id);
+            res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -204,13 +211,11 @@ exports.getCompanyID = function(req, res) {
     });
 
     function getCompany(callback) {
-        data.errorList = [];
-        data.company = [];
         Company.aggregate([
-            {$match:{_id:mongoose.Types.ObjectId(req.params.id)}}
+            {$match:{_id:id}}
         ]).exec(function(err, company) {
             if (err) {
-                data.errorList = errors.errorFunction(err, 'Company');
+                data.errorList = errors.errorFunction(err, 'Company ' + id);
                 res.send(data);
             } else {
                 if (company.length > 0) {
@@ -225,9 +230,19 @@ exports.getCompanyID = function(req, res) {
     }
 };
 
+//Get company tables(projects, sites and fields, concessions, production stats, payments) and coordinates. Limit = 50
 exports.getCompanyByID = function(req, res) {
     var data={}, transfersQuery=[];
     var id = mongoose.Types.ObjectId(req.params.id)
+    data.errorList=[];
+    data.company_commodity = [];
+    data.projects = [];
+    data.sites=[];
+    data.concessions=[];
+    data.proj_coordinates = [];
+    data.transfers = [];
+    data.production = [];
+
     async.waterfall([
         getCompanyLinks,
         getCompanyProjectTable,
@@ -239,7 +254,8 @@ exports.getCompanyByID = function(req, res) {
         getProduction
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Company '+ id);
+            res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -248,16 +264,8 @@ exports.getCompanyByID = function(req, res) {
             }
         }
     });
-    function getCompanyLinks(callback) {
-        data.errorList=[];
-        data.company_commodity = [];
-        data.projects = [];
-        data.sites=[];
-        data.concessions=[];
-        data.proj_coordinates = [];
-        data.transfers = [];
-        data.production = [];
 
+    function getCompanyLinks(callback) {
         Link.aggregate([
             {$match:  {company:id}},
             {$lookup: {from: "companygroups", localField: "company_group",foreignField: "_id",as: "company_group"}},
@@ -291,7 +299,7 @@ exports.getCompanyByID = function(req, res) {
         ]).exec(function (err, links) {
             if (err) {
                 data.errorList = errors.errorFunction(err, 'Company links');
-                return res.send(data);
+                res.send(data);
             } else {
                 if (links.length > 0) {
                     data.company_commodity = links[0].company_commodity
@@ -336,7 +344,7 @@ exports.getCompanyByID = function(req, res) {
         ]).exec(function (err, links) {
             if (err) {
                 data.errorList = errors.errorFunction(err, 'Company project links');
-                return res.send(data);
+                res.send(data);
             } else {
                 if (links.length > 0) {
                     data.projects =links;
@@ -389,7 +397,7 @@ exports.getCompanyByID = function(req, res) {
             ]).exec(function (err, links) {
                 if (err) {
                     data.errorList = errors.errorFunction(err, 'company site links not found');
-                    return  res.send(data);
+                    res.send(data);
                 } else {
                     if (links.length > 0) {
                         data.sites = links
@@ -441,7 +449,7 @@ exports.getCompanyByID = function(req, res) {
             ]).exec(function (err, links) {
                 if (err) {
                     data.errorList = errors.errorFunction(err,'company concession links not found');
-                    return res.send(data);
+                    res.send(data);
                 } else {
                     if (links.length > 0) {
                         data.concessions = links;
@@ -478,7 +486,7 @@ exports.getCompanyByID = function(req, res) {
             ]).exec(function (err, links) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'company coordinates not found');
-                return res.send(data);
+                res.send(data);
             } else if (links) {
                 data.proj_coordinates = links;
                 callback(null, data);
@@ -507,7 +515,7 @@ exports.getCompanyByID = function(req, res) {
         ]).exec(function (err, links) {
             if (err) {
                 data.errorList = errors.errorFunction(err, 'Company links');
-                return res.send(data);
+                res.send(data);
             } else {
                 if (links.length > 0) {
                     transfersQuery = links[0].transfers_query
@@ -659,7 +667,7 @@ exports.getCompanyByID = function(req, res) {
             ]).exec(function (err, production) {
                 if (err) {
                     data.errorList = errors.errorFunction(err, 'Company productions');
-                    return res.send(data);
+                    res.send(data);
                 } else {
                     if (production.length > 0) {
                         data.production = production;
@@ -672,51 +680,3 @@ exports.getCompanyByID = function(req, res) {
             })
     }
 }
-
-exports.createCompany = function(req, res) {
-    var companyData = req.body;
-    Company.create(companyData, function(err) {
-        if(err){
-            res.status(400);
-            err = new Error('Error');
-            return res.send({reason:err.toString()})
-        } else {
-            res.send();
-        }
-    });
-};
-
-exports.updateCompany = function(req, res) {
-    Company.findOne({_id:req.body._id}).exec(function(err, company) {
-        if(err) {
-            res.status(400);
-            err = new Error('Error');
-            return res.send({ reason: err.toString() });
-        }
-        company.company_name= req.body.company_name;
-        company.company_aliases= req.body.company_aliases;
-        company.company_established_source= req.body.company_established_source;
-        company.country_of_incorporation= req.body.country_of_incorporation;
-        company.countries_of_operation= req.body.countries_of_operation;
-        company.description= req.body.description;
-        company.save(function(err) {
-            if(err) {
-                err = new Error('Error');
-                return res.send({reason: err.toString()});
-            } else {
-                res.send();
-            }
-        })
-    });
-};
-
-exports.deleteCompany = function(req, res) {
-    Company.remove({_id: req.params.id}, function(err) {
-        if(!err) {
-            res.send();
-        } else{
-            err = new Error('Error');
-            return res.send({ reason: err.toString() });
-        }
-    });
-};

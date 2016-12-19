@@ -32,15 +32,14 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
     usSpinnerService.spin('spinner-production');
 
     $scope.$watch('id', function(value) {
-<<<<<<< HEAD
-        if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined || $scope.type == 'site' && value == undefined) {
+        if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined
+            || $scope.type == 'site' && value == undefined || $scope.type == 'concession' && value == undefined || $scope.type == 'project' && value == undefined) {
             usSpinnerService.stop('spinner-transfers');
             $scope.expression = 'showLast';
         }
-        if ($scope.type == 'country' && value != undefined || $scope.type == 'company' && value != undefined || $scope.type == 'site' && value != undefined) {
-=======
-        if($scope.type=='country'&&value!=undefined) {
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
+        if ($scope.type == 'country' && value != undefined || $scope.type == 'company' && value != undefined || $scope.type == 'site' &&
+            value != undefined || $scope.type == 'concession' && value != undefined
+            || $scope.type == 'project' && value != undefined) {
             $scope.production = value;
             usSpinnerService.stop('spinner-production');
             if ($scope.production.length == 0 ) {
@@ -50,11 +49,7 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                 currentPage = 1;
             }
         }
-<<<<<<< HEAD
-        if ($scope.type != 'country' && value != undefined && $scope.type!= 'company' && $scope.type!= 'site') {
-=======
-        if($scope.type!='country'&&value!=undefined){
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
+        if ($scope.type != 'country' && value != undefined && $scope.type!= 'company' && $scope.type!= 'site' && $scope.type!= 'concession' && $scope.type!= 'project') {
             $scope.loading = false;
             $scope.getProduction($scope.id, $scope.type);
         }

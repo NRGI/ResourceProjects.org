@@ -8,7 +8,12 @@ var Source	 		= require('mongoose').model('Source'),
 
 //GET Sunburst Chart on Payments by Project
 exports.getPayments = function(req, res) {
-    var sunburstNew = [], errorList=[], paymentsFilter={};
+    var data = {};
+    data.sunburstNew = []; 
+    data.errorList=[]; 
+    data.transfers=[]; 
+    data.total=[]; 
+    data.filters={};
     var company = req.query.company;
     if(company){
         req.query.company=mongoose.Types.ObjectId(company);
@@ -18,13 +23,15 @@ exports.getPayments = function(req, res) {
     req.query.transfer_level={ $nin: [ 'country' ] };
     req.query.transfer_value={$gt: 0};
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
+    
     async.waterfall([
         getAllPayment,
         getCurrency,
         getPayment
     ], function (err, result) {
         if (err) {
-            return res.send({data: [], total: 0, filters: paymentsFilter,  transfers:  [], errorList:err});
+            data.errorList = errors.errorFunction(err,'Sunburst');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -40,20 +47,21 @@ exports.getPayments = function(req, res) {
             {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}}
         ]).exec(function (err, transfers) {
             if (err) {
-                err = new Error('Error: '+ err);
-                return res.send({data: [], total: 0, filters: [],  transfers:  [], errorList:err});
+                data.errorList = errors.errorFunction(err,'Sunburst');
+                res.send(data);
             } else if (transfers.length>0) {
-                paymentsFilter.year_selector = _.countBy(transfers, "transfer_year");
-                paymentsFilter.currency_selector = _.countBy(transfers, "transfer_unit");
-                paymentsFilter.type_selector=_.countBy(transfers, "transfer_type");
-                paymentsFilter.company_selector=_.groupBy(transfers, function (doc) {if(doc&&doc.company&&doc.company._id){return doc.company._id;}});
-                callback(null, paymentsFilter);
+                data.filters.year_selector = _.countBy(transfers, "transfer_year");
+                data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
+                data.filters.type_selector=_.countBy(transfers, "transfer_type");
+                data.filters.company_selector=_.groupBy(transfers, function (doc) {if(doc&&doc.company&&doc.company._id){return doc.company._id;}});
+                callback(null, data);
             } else {
-                return res.send({data: [], total: 0, filters: [],  transfers:  [], errorList:'not found'});
+                data.errorList = errors.errorFunction('Sunburst','data not found');
+                res.send(data);
             }
         })
     }
-    function getCurrency(paymentsFilter, callback) {
+    function getCurrency(data, callback) {
         Transfer.aggregate([
             {$match: req.query},
             {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
@@ -63,20 +71,21 @@ exports.getPayments = function(req, res) {
             { $project :{ _id:0, currency:'$_id', total_value:{$divide:['$total_value',1000000]}}}
         ]).exec(function (err, transfers) {
             if (err) {
-                errorList = errors.errorFunction(err,'Transfer currency');
-                return res.send({data: [], total: 0, filters: paymentsFilter,  transfers:  [], errorList:errorList});
+                data.errorList = errors.errorFunction(err,'Transfer currency');
+                res.send(data);
             }
             else {
                 if (transfers.length>0) {
-                    callback(null, paymentsFilter, transfers, errorList);
+                    data.transfers = transfers;
+                    callback(null, data);
                 } else {
-                    errorList.push({type: 'Transfer currency', message: 'transfer currency not found'})
-                    return res.send({data: [], total: 0, filters: paymentsFilter,  transfers:  [], errorList:errorList});
+                    data.errorList.push({type: 'Transfer currency', message: 'transfer currency not found'})
+                    res.send(data);
                 }
             }
         })
     }
-    function getPayment(paymentsFilter, total, errorList, callback) {
+    function getPayment(data, callback) {
         Transfer.aggregate([
             {$match : req.query},
             {$lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
@@ -101,9 +110,6 @@ exports.getPayments = function(req, res) {
                     else: {_id:"$project.proj_id",name:"$project.proj_name",
                         type:{$cond: { if: {$not: "$project"}, then: '', else: 'project'}}}
                 }},
-
-
-
                 transfer_level:1,transfer_type:1,transfer_unit:1,transfer_value:1
             }},
             {$group:{
@@ -258,28 +264,35 @@ exports.getPayments = function(req, res) {
             }
         ]).exec(function (err, transfers) {
             if (err) {
-                errorList = errors.errorFunction(err,'Transfers');
-                return res.send({data: [], total: 0, filters: paymentsFilter,  transfers:  [], errorList:errorList});
+                data.errorList = errors.errorFunction(err,'Transfers');
+                res.send(data);
             }
             else {
                 if (transfers.length>0 && transfers[0]&& transfers[0].total_value&& transfers[0].children) {
-                    sunburstNew.push({
+                    data.sunburstNew.push({
                         name: '<b>Payment to</b><br> Payments<br> ' + transfers[0].total_value.toFixed(1)+ ' Million',
                         children:  transfers[0].children,
                         size:  transfers[0].total_value.toFixed(1).toString(),
                         total_value:  transfers[0].total_value.toFixed(1).toString()
                     });
-                    callback(null, {data: sunburstNew, total: total, filters: paymentsFilter,  transfers:  transfers[0].transfers, errorList:errorList})
+                    callback(null, data)
                 } else {
-                    errorList.push({type: 'Transfers', message: 'transfers not found'})
-                    callback(null, {data: sunburstNew, total: total, filters: paymentsFilter,  transfers:  transfers[0].transfers, errorList:errorList})
+                    data.errorList.push({type: 'Transfers', message: 'transfers not found'})
+                    callback(null, data)
                 }
             }
-            });
+        });
     }
 };
 exports.getPaymentsByGov = function(req, res) {
-    var sunburst_new = [],count=[], counter = 0,sunburst=[], payments_filter={};
+    var data = {};
+    data.sunburstNew = [];
+    data.errorList=[];
+    data.transfers=[];
+    data.total=[];
+    data.filters={};
+
+    var sunburstNew = [], counter = 0,sunburst=[], paymentsFilter={};
     var company = req.query.company;
     if(company){
         req.query.company=company;
@@ -293,7 +306,8 @@ exports.getPaymentsByGov = function(req, res) {
         getPayment
     ], function (err, result) {
         if (err) {
-            res.send({data: [], total: total, filters: [],  transfers:  [], errorList:err});
+            data.errorList = errors.errorFunction(err,'Sunburst');
+            res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -308,19 +322,20 @@ exports.getPaymentsByGov = function(req, res) {
             .exec(function (err, transfers) {
                 if (err) {
                     err = new Error('Error: '+ err);
-                    return res.send({data: [], total: 0, filters: [],  transfers:  [], errorList:err});
+                    res.send({data: [], total: 0, filters: [],  transfers:  [], errorList:err});
                 } else if (transfers.length>0) {
-                    payments_filter.year_selector=_.countBy(transfers, "transfer_year");
-                    payments_filter.currency_selector=_.countBy(transfers, "transfer_unit");
-                    payments_filter.type_selector=_.countBy(transfers, "transfer_type");
-                    payments_filter.company_selector=_.groupBy(transfers, function (doc) {return doc.company._id;});
-                    callback(null, payments_filter);
+                    data.filters.year_selector=_.countBy(transfers, "transfer_year");
+                    data.filters.currency_selector=_.countBy(transfers, "transfer_unit");
+                    data.filters.type_selector=_.countBy(transfers, "transfer_type");
+                    data.filters.company_selector=_.groupBy(transfers, function (doc) {return doc.company._id;});
+                    callback(null, data);
                 } else {
-                    return res.send({data: [], total: 0, filters: [],  transfers:  [], errorList:'not found'});
+                    data.errorList = errors.errorFunction('Sunburst','data not found');
+                    res.send(data);
                 }
             })
     }
-    function getPayment(payments_filter,callback) {
+    function getPayment(data, callback) {
         Transfer.find(req.query)
             .populate('country', '_id iso2 name')
             .populate('company', ' _id company_name')
@@ -420,7 +435,7 @@ exports.getPaymentsByGov = function(req, res) {
                                     transfers_value = (value / 1000000).toFixed(1)
                                 }
                             }
-                            sunburst_new.push({
+                            sunburstNew.push({
                                 name: '<b>Payment to</b><br>Payments<br>' + transfers_value + ' Million',
                                 children: [],
                                 size: value,
@@ -456,7 +471,7 @@ exports.getPaymentsByGov = function(req, res) {
                                         } else {
                                             transfers_value = (value / 1000000).toFixed(1)
                                         }
-                                        sunburst_new[0].children.push({
+                                        sunburstNew[0].children.push({
                                             name: '<b>Payment to</b><br>' + grouped[0].country.name + '<br>' + transfers_value + ' Million',
                                             children: [],
                                             size: value
@@ -471,7 +486,7 @@ exports.getPaymentsByGov = function(req, res) {
                                                 } else {
                                                     transfers_value = (size / 1000000).toFixed(1)
                                                 }
-                                                sunburst_new[0].children[counter].children.push({
+                                                sunburstNew[0].children[counter].children.push({
                                                     name: '<b>Payment to</b><br>' + transfer.transfer_gov_entity + '<br>' + transfers_value + ' Million',
                                                     'size': transfer.values
                                                 })
@@ -479,20 +494,20 @@ exports.getPaymentsByGov = function(req, res) {
                                         })
                                         ++counter;
                                     }
-                                    return sunburst_new;
+                                    return sunburstNew;
                                 });
-                                sunburst = sunburst_new;
+                                sunburst = sunburstNew;
                                 callback(null, {
                                     data: sunburst,
                                     total: currency_value,
-                                    filters: payments_filter,
+                                    filters: data.filters,
                                     transfers: transfers
                                 })
                             }
                         }
                     })
                 } else {
-                    callback(null, {data: '', total: '', filters: payments_filter, transfers: ''})
+                    callback(null, {data: '', total: '', filters: paymentsFilter, transfers: ''})
 
                 }
             });

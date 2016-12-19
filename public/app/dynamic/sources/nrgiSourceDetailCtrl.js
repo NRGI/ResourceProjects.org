@@ -9,7 +9,7 @@ angular.module('app')
         $routeParams
     ) {
         nrgiSourcesSrvc.get({_id: $routeParams.id}, function (success) {
-            $scope.source = success;
+            $scope.source = success.source;
         });
     });
 

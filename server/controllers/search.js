@@ -36,8 +36,8 @@ exports.searchText = function(req, res) {
 		modelsLen = models.length;
 		_.each(models, function(model) {
 			var name = require('mongoose').model(model.name);
-			var $field = model.field;
-			name.find().where( $field ,{$regex: new RegExp((req.query.query).toLowerCase(),'i')}).exec(function (err, responce) {
+			var field = model.field;
+			name.find().where( field ,{$regex: new RegExp((req.query.query).toLowerCase(),'i')}).exec(function (err, responce) {
 				if(err){
 					modelsCounter++;
 					errorList = errors.errorFunction(err, name);
@@ -57,7 +57,7 @@ exports.searchText = function(req, res) {
 							else{
 								type = model.name.toLowerCase()
 							}
-							result[counter-1]={name:re[$field],
+							result[counter-1]={name:re[field],
 								type:type,
 								_id: re.id,
 								iso2:re.iso2,

@@ -18,9 +18,11 @@ var Project 		= require('mongoose').model('Project'),
 exports.getSiteFieldTable = function(req, res){
 
     var id = mongoose.Types.ObjectId(req.params.id);
-    var link_counter, link_len,site_counter,site_len, companies_len,companies_counter;
-    var site ={}, errorList=[];
-    site.sites=[];
+    var link_counter, link_len, companies_len,companies_counter;
+    var data ={};
+    var company =[];
+    data.sites=[];
+    data.errorList=[];
     var limit = parseInt(req.params.limit);
     var skip = parseInt(req.params.skip);
     var type = req.params.type;
@@ -41,7 +43,8 @@ exports.getSiteFieldTable = function(req, res){
         getGroupLinkedProjects
     ], function (err, result) {
         if (err) {
-            res.send({sites:[],error:err});
+            data.errorList = errors.errorFunction(err, 'Sites');
+            res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -91,26 +94,25 @@ exports.getSiteFieldTable = function(req, res){
                 { $limit : limit }
             ]).exec(function (err, links) {
                 if (err) {
-                    errorList = errors.errorFunction(err,type+ ' site links not found');
+                    data.errorList = errors.errorFunction(err,type+ ' site links not found');
                     return res.send({sites:[], error: errorList});
                 } else {
                     if (links.length > 0) {
-                        site.sites = links
-                        callback(null, site);
+                        data.sites = links
+                        callback(null, data);
                     } else {
-                        errorList.push({type: type, message: type + ' site links not found'})
-                        return res.send({sites:[], error: errorList});
+                        data.errorList.push({type: type, message: type + ' site links not found'})
+                        return res.send(data);
                     }
                 }
             })
         }else {
-            callback(null, site);
+            callback(null, data);
         }
     }
 
-    function getSites(site, callback) {
+    function getSites(data, callback) {
         if(type=='commodity') {
-            site.sites = [];
             Site.aggregate([
                 { $sort : { site_name : -1 } },
                 {$unwind: '$site_commodity'},
@@ -134,26 +136,26 @@ exports.getSiteFieldTable = function(req, res){
                 { $limit : limit }
             ]).exec(function (err, sites) {
                 if (err) {
-                    errorList = errors.errorFunction(err,type+ ' site not found');
-                    callback(null, site, errorList);
+                    data.errorList = errors.errorFunction(err,type+ ' site not found');
+                    callback(null, data);
                 } else {
                     if (sites.length > 0) {
-                        site.sites = sites
-                        callback(null, site, errorList);
+                        data.sites = sites
+                        callback(null, data);
                     } else {
-                        errorList.push({type: type, message: type + ' site not found'})
-                        callback(null, site, errorList);
+                        data.errorList.push({type: type, message: type + ' site not found'})
+                        callback(null, data);
                     }
                 }
             });
         }else {
-            callback(null, site, errorList);
+            callback(null, data);
         }
     }
 
-    function getCountrySites(site, errorList, callback) {
+    function getCountrySites(data, callback) {
         if(type=='country') {
-            site.sites = [];
+            data.sites = [];
             Site.aggregate([
                 { $sort : { site_name : -1 } },
                 {$unwind: '$site_country'},
@@ -174,27 +176,27 @@ exports.getSiteFieldTable = function(req, res){
                 { $limit : limit }
             ]).exec(function (err, proj) {
                 if (err) {
-                    errorList = errors.errorFunction(err, type + ' site not found');
-                    callback(null, site, errorList);
+                    data.errorList = errors.errorFunction(err, type + ' site not found');
+                    callback(null, data);
                 } else {
                     if (proj.length > 0) {
-                        site.sites = proj
-                        callback(null, site, errorList);
+                        data.sites = proj
+                        callback(null, data);
                     } else {
-                        errorList.push({type: type, message: type + ' site not found'})
-                        callback(null, site, errorList);
+                        data.errorList.push({type: type, message: type + ' site not found'})
+                        callback(null, data);
                     }
                 }
             });
         } else{
-            callback(null, site,errorList);
+            callback(null, data);
         }
     }
-    function getCompanyCount(sites,errorList, callback) {
+    function getCompanyCount(data, callback) {
         if (type == 'commodity'||type=='country') {
-            var _ids = _.pluck(sites.sites, '_id');
+            var ids = _.pluck(data.sites, '_id');
             Link.aggregate([
-                {$match: {$or: [{site: {$in: _ids}}], entities: 'company'}},
+                {$match: {$or: [{site: {$in: ids}}], entities: 'company'}},
                 {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
                 {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
                 {$unwind: '$site'},
@@ -224,99 +226,136 @@ exports.getSiteFieldTable = function(req, res){
                 { $skip : skip},
                 { $limit : limit }
             ]).exec(function (err, links) {
-                _.map(sites.sites, function(site){
-                    var list = _.find(links, function(link){
-                        return link._id.toString() == site._id.toString(); });
-                    if(list && list.companies) {
-                        site.companies = list.companies;
-                        site.companies_count = list.companies_count;
+                if (err) {
+                    data.errorList = errors.errorFunction(err, type + ' site not found');
+                    callback(null, data);
+                } else {
+                    if (links && links.length > 0) {
+                        _.map(data.sites, function(site) {
+                            var list = _.find(links, function (link) {
+                                return link._id.toString() == site._id.toString();
+                            });
+                            if (list && list.companies) {
+                                site.companies = list.companies;
+                                site.companies_count = list.companies_count;
+                            }
+                            return site;
+                        });
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: type, message: type + ' site not found'})
+                        callback(null, data);
                     }
-                    return site;
-                });
-                callback(null, sites);
+                }
             })
         } else {
-            callback(null, sites);
+            callback(null, data);
         }
     }
-    function getGroupLinkedCompanies(site,callback) {
-        var company =[];
+    function getGroupLinkedCompanies(data,callback) {
         if(type=='group') {
             Link.find(query)
                 .exec(function (err, links) {
-                    if (links.length>0) {
-                        link_len = links.length;
-                        link_counter = 0;
-                        _.each(links, function (link) {
-                            ++link_counter;
-                            if(link.company!=undefined) {
-                                company.push({_id: link.company});
-                            }
-                            if (link_len == link_counter) {
-                                company = _.map(_.groupBy(company,function(doc){
-                                    return doc._id;
-                                }),function(grouped){
-                                    return grouped[0];
-                                });
-                                callback(null, company);
-                            }
-                        })
+                    if (err) {
+                        data.errorList = errors.errorFunction(err, type + ' site not found');
+                        callback(null, data);
                     } else {
-                        callback(null, site);
+                        if (links && links.length>0) {
+                            link_len = links.length;
+                            link_counter = 0;
+                            _.each(links, function (link) {
+                                ++link_counter;
+                                if(link.company!=undefined) {
+                                    company.push({_id: link.company});
+                                }
+                                if (link_len == link_counter) {
+                                    company = _.map(_.groupBy(company,function(doc){
+                                        return doc._id;
+                                    }),function(grouped){
+                                        return grouped[0];
+                                    });
+                                    callback(null, data);
+                                }
+                            })
+                        } else {
+                            data.errorList.push({type: type, message: type + ' site not found'})
+                            callback(null, data);
+                        }
                     }
                 });
         } else{
-            callback(null, site);
+            callback(null, data);
         }
     }
-    function getGroupLinkedProjects(companies,callback) {
+    function getGroupLinkedProjects(data,callback) {
         if(type=='group') {
-            if(companies.length>0) {
-                companies_len = companies.length;
+            if(company.length>0) {
+                companies_len = company.length;
                 companies_counter = 0;
-                _.each(companies, function (company) {
-                    if(company._id!=undefined){
-                    query = {company: company._id, entities: "site"};
+                _.each(company, function (c) {
+                    if(c._id!=undefined){
+                    query = {company: c._id, entities: "site"};
                     Link.find(query)
                         .populate('site commodity country')
                         .deepPopulate('site.site_country.country site.site_commodity.commodity')
                         .exec(function (err, links) {
-                            ++companies_counter;
-                            if (links.length>0) {
-                                link_len = links.length;
-                                link_counter = 0;
-                                _.each(links, function (link) {
-                                    ++link_counter;
-                                    site.sites.push({
-                                        _id: link.site._id,
-                                        field: link.site.field,
-                                        site_name: link.site.site_name,
-                                        site_status: link.site.site_status,
-                                        site_country: link.site.site_country,
-                                        site_commodity: link.site.site_commodity
+                            if (err) {
+                                ++companies_counter;
+                                data.errorList = errors.errorFunction(err, type + ' site not found');
+                                if (companies_counter == companies_len) {
+                                    data.sites = _.map(_.groupBy(data.sites, function (doc) {
+                                        return doc._id;
+                                    }), function (grouped) {
+                                        return grouped[0];
                                     });
-
-                                    if (link_len == link_counter && companies_counter == companies_len) {
-                                        site.sites = _.map(_.groupBy(site.sites,function(doc){
-                                            return doc._id;
-                                        }),function(grouped){
-                                            return grouped[0];
-                                        });
-                                        callback(null, site);
-                                    }
-
-                                })
+                                    callback(null, data);
+                                }
                             } else {
-                                callback(null, site);
+                                ++companies_counter;
+                                if (links.length > 0) {
+                                    link_len = links.length;
+                                    link_counter = 0;
+                                    _.each(links, function (link) {
+                                        ++link_counter;
+                                        data.sites.push({
+                                            _id: link.site._id,
+                                            field: link.site.field,
+                                            site_name: link.site.site_name,
+                                            site_status: link.site.site_status,
+                                            site_country: link.site.site_country,
+                                            site_commodity: link.site.site_commodity
+                                        });
+
+                                        if (link_len == link_counter && companies_counter == companies_len) {
+                                            data.sites = _.map(_.groupBy(data.sites, function (doc) {
+                                                return doc._id;
+                                            }), function (grouped) {
+                                                return grouped[0];
+                                            });
+                                            callback(null, data);
+                                        }
+
+                                    })
+                                } else {
+                                    ++companies_counter;
+                                    if (companies_counter == companies_len) {
+                                        data.sites = _.map(_.groupBy(data.sites, function (doc) {
+                                            return doc._id;
+                                        }), function (grouped) {
+                                            return grouped[0];
+                                        })
+                                        callback(null, data);
+                                    }
+                                }
                             }
                         });
                     }
                 })
             } else{
-                callback(null, site);
+                callback(null, data);
             }
         } else{
-            callback(null, site);
+            callback(null, data);
         }
     }
 };

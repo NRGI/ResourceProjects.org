@@ -24,14 +24,16 @@ angular.module('app')
         $scope.load = function(searchOptions) {
             searchOptions.skip = $scope.skip;
             nrgiTransfersByGovSrvc.query(searchOptions, function (response) {
-                if(response.data) {
+                if(response.transfers) {
                     $scope.count = response.count;
-                    if($scope.new){ $scope.transfers = response.data; }else { $scope.transfers = _.union($scope.transfers, response.data);}
-                    $scope.transfer_count = response.data.length;
+                    if($scope.new){ $scope.transfers = response.transfers; }else { $scope.transfers = _.union($scope.transfers, response.transfers);}
+                    $scope.transfer_count = response.transfers.length;
                     totalPages = Math.ceil(response.count / $scope.limit);
                     currentPage = currentPage + 1;
                     $scope.skip = currentPage * $scope.limit;
                     $scope.busy = false;
+                }else{
+                    $scope.transfers =[];
                 }
             });
         }
@@ -66,59 +68,40 @@ angular.module('app')
             }
             $scope.load(searchOptions);
         })
-
         $scope.$watch('year_filter', function(year) {
-            $scope.new =true;
             $scope.year = year;
-            if(year && year!=searchOptions.transfer_year) {
-                $scope.skip=0;
+            $scope.new =true;
+            if(year && year!='Show all years') {
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_year = year;
-                if($scope.currency) {
-                    searchOptions.transfer_unit = $scope.currency;
-                }
                 $scope.load(searchOptions);
-            }
-            if($scope.year=='' && $scope.currency){
-                $scope.skip=0;
-                searchOptions = {skip: currentPage * $scope.limit, limit: $scope.limit, transfer_unit:searchOptions.transfer_unit }
-                $scope.load(searchOptions);
-            } else if($scope.year=='' && $scope.currency==''){
-                $scope.skip=0;
-                searchOptions = {skip: currentPage * $scope.limit, limit: $scope.limit}
+            }else if(searchOptions.transfer_year&&year=='Show all years'){
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
+                delete searchOptions.transfer_year;
                 $scope.load(searchOptions);
             }
         });
         $scope.$watch('currency_filter', function(currency) {
-            $scope.new =true;
             $scope.currency = currency;
-            if(currency && currency!=searchOptions.transfer_unit) {
-                $scope.skip=0;
-                searchOptions.skip=0;
-                searchOptions.limit=0;
+            $scope.new =true;
+            if(currency && currency!='Show all currency') {
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_unit = currency;
-                if($scope.year) {
-                    searchOptions.transfer_year = $scope.year;
-                }
                 $scope.load(searchOptions);
-            }
-            if($scope.currency=='' && $scope.year){
-                $scope.skip=0;
-                searchOptions = {skip:0, limit:0, transfer_year:searchOptions.transfer_year }
-                $scope.load(searchOptions);
-            } else if($scope.year=='' && $scope.currency==''){
-                $scope.skip=0;
-                searchOptions = {skip:0, limit:0}
+            }else if(searchOptions.transfer_unit&&currency=='Show all currency'){
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
+                delete searchOptions.transfer_unit;
                 $scope.load(searchOptions);
             }
         });
         $scope.$watch('type_filter', function(type) {
             $scope.type = type;
             if(type && type!='Show all types') {
-                $scope.skip=0;
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_type = type;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_type&&type=='Show all types'){
-                $scope.skip=0;
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_type;
                 $scope.load(searchOptions);
             }
@@ -126,11 +109,11 @@ angular.module('app')
         $scope.$watch('company_filter', function(company) {
             $scope.company = company;
             if(company&&company!='Show all companies') {
-                $scope.skip=0;
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.company = company;
                 $scope.load(searchOptions);
             }else if(searchOptions.company&&company=='Show all companies'){
-                $scope.skip=0;
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.company;
                 $scope.load(searchOptions);
             }
@@ -169,7 +152,7 @@ angular.module('app')
             $scope.busy = true;
             nrgiTransfersByGovSrvc.query({skip: 0, limit: $scope.count}, function (response) {
                 $scope.csv_transfers = [];
-                angular.forEach(response.data, function (transfer, key) {
+                angular.forEach(response.transfers, function (transfer, key) {
                     $scope.csv_transfers[key] = [];
                     angular.forEach(fields, function (field) {
                         if(field =='transfer_value'){

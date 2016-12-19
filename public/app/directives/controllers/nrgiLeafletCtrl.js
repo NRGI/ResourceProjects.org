@@ -37,7 +37,6 @@ angular
             }
         });
         $scope.$watch('id', function(value) {
-<<<<<<< HEAD
             if ($scope.type == 'country' && value != undefined||$scope.type == 'company' && value != undefined) {
                 $scope.alldata = value;
                 $scope.loadCoordinate($scope.alldata, $scope.polygon)
@@ -46,21 +45,6 @@ angular
                 $scope.getCoordinate(value, $scope.type);
             }
         });
-=======
-            if(value!=undefined) {
-
-            }
-            $scope.$watch('id', function(value) {
-                if($scope.type=='country'&&value!=undefined) {
-                    $scope.alldata = value;
-                    $scope.loadCoordinate($scope.alldata,$scope.polygon)
-                }
-                if($scope.type!='country'&&value!=undefined){
-                    $scope.getCoordinate(value, $scope.type);
-                }
-            });
-        })
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
         $scope.$watch('data', function(value) {
             if(value!=undefined) {
                 $scope.alldata = value;

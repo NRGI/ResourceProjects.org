@@ -76,10 +76,10 @@ angular.module('app')
 
         nrgiAllProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
-            $scope.projects = response.data;
+            $scope.projects = response.projects;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.projects);
+            //$scope.createDownloadList($scope.projects);
         });
 
         $scope.loadMore = function() {
@@ -87,10 +87,10 @@ angular.module('app')
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiAllProjectsSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
-                    $scope.projects = _.union($scope.projects, response.data);
+                    $scope.projects = _.union($scope.projects, response.projects);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.projects);
+                    //$scope.createDownloadList($scope.projects);
                 });
             }
         };

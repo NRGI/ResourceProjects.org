@@ -7,7 +7,11 @@ var Source	 		= require('mongoose').model('Source'),
 
 //GET TREEMAP
 exports.getPayments = function(req, res) {
-    var sunburstNew = [], paymentsFilter={},errorList=[];
+    var  data={};
+    data.sunburstNew =[];
+    data.total =0;
+    data.filters ={};
+    data.errorList =[];
     req.query.transfer_level = {$nin: ['country']};
     req.query.project = {$exists: true, $nin: [null]};
     req.query.company = {$exists: true, $nin: [null]};
@@ -19,7 +23,8 @@ exports.getPayments = function(req, res) {
         getPayment
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Treemap');
+            res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -40,9 +45,9 @@ exports.getPayments = function(req, res) {
                     err = new Error('Error: '+ err);
                     return res.send({reason: err.toString()});
                 } else if(transfers.length>0) {
-                    paymentsFilter.year_selector = _.countBy(transfers, "transfer_year");
-                    paymentsFilter.currency_selector = _.countBy(transfers, "transfer_unit");
-                    callback(null, paymentsFilter);
+                    data.filters.year_selector = _.countBy(transfers, "transfer_year");
+                    data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
+                    callback(null, data);
                 } else {
                     return res.send({reason: 'not found'});
                 }
@@ -50,7 +55,7 @@ exports.getPayments = function(req, res) {
     }
 
     //Grouping of all transfers by transfer_unit field.
-    function getCurrency(paymentsFilter,callback) {
+    function getCurrency(data,callback) {
         Transfer.aggregate([
             {$match : req.query},
             {$group:{
@@ -67,14 +72,15 @@ exports.getPayments = function(req, res) {
             100]}}}
         ]).exec(function (err, currencyValue) {
             if (err) {
-                errorList = errors.errorFunction(err, 'Transfer units');
-                callback(null, paymentsFilter, currencyValue, errorList);
+                data.errorList = errors.errorFunction(err, 'Transfer units');
+                callback(null, data);
             }
             else {
                 if (currencyValue.length > 0) {
-                    callback(null, paymentsFilter, currencyValue, errorList);
+                    data.total = currencyValue;
+                    callback(null, data);
                 } else {
-                    errorList.push({type: 'Transfer units', message: 'transfer units not found'})
+                    data.errorList.push({type: 'Transfer units', message: 'transfer units not found'})
                     return res.send({reason: 'transfer units not found'});
                 }
             }
@@ -82,7 +88,7 @@ exports.getPayments = function(req, res) {
     }
 
     // Get all payments
-    function getPayment(paymentsFilter, currencyValue, errorList, callback) {
+    function getPayment(data, callback) {
         Transfer.aggregate([
             { $match : req.query},
             { $lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
@@ -143,8 +149,8 @@ exports.getPayments = function(req, res) {
             }
         ]).exec(function (err, transfers) {
             if (err) {
-                errorList = errors.errorFunction(err, 'Transfers');
-                callback(null, {data: sunburstNew, total: currencyValue, filters: paymentsFilter, errorList:errorList});
+                data.errorList = errors.errorFunction(err, 'Transfers');
+                callback(null, data);
             }
             else {
                 if (transfers) {
@@ -154,7 +160,7 @@ exports.getPayments = function(req, res) {
                         }
                     }, 0);
                     if(sum) {
-                        sunburstNew.push({
+                        data.sunburstNew.push({
                             name: 'Payments',
                             children: transfers,
                             size: sum,
@@ -163,10 +169,10 @@ exports.getPayments = function(req, res) {
 
                         });
                     }
-                    callback(null, {data: sunburstNew, total: currencyValue, filters: paymentsFilter, errorList:errorList});
+                    callback(null, data);
                 } else {
-                    errorList.push({type: 'Transfers', message: 'transfers not found'})
-                    callback(null, {data: sunburstNew, total: currencyValue, filters: paymentsFilter, errorList:errorList});
+                    data.errorList.push({type: 'Transfers', message: 'transfers not found'})
+                    callback(null, data);
                 }
             }
         })

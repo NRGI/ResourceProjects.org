@@ -29,13 +29,13 @@
                             span(ng-bind-html="project.proj_name|sanitize")
                     td.project_id {{project.proj_id}}
                     td.proj_country: text(ng-repeat="country in project.proj_country | unique: 'country._id'")
-                        a( href='/country/{{country.country.iso2}}')
-                            span(ng-bind-html="country.country.name|sanitize")
-                        | {{$last ? '' : ', '}}
+                        a( href='/country/{{country.iso2}}')
+                            span(ng-bind-html="country.name|sanitize")
+                        |{{$last ? '' : ', '}}
                     td.companies: text(ng-repeat="company in project.companies")
-                        a(ng-if="company.company.company_name" href='/company/{{company.company._id}}')
-                            span(ng-bind-html="company.company.company_name|sanitize")
-                        span(ng-if="company.company.company_name && !$last")  {{$last ? '' : ', '}}
+                        a(ng-if="company.company_name" href='/company/{{company._id}}')
+                            span(ng-bind-html="company.company_name|sanitize")
+                        span(ng-if="company.company_name && !$last") {{$last ? '' : ', '}}
 
     div(ng-if='projects.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
     div(ng-if="projects.length>0")

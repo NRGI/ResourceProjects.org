@@ -5,20 +5,26 @@ var Commodity 		=   require('mongoose').model('Commodity'),
     async           =   require('async'),
     _               =   require("underscore"),
     request         =   require('request'),
-    encrypt 		=   require('../utilities/encryption');
+    mongoose 		=   require('mongoose'),
+    errors 	        =   require('./errorList');
 
+//Get all commodities
 exports.getCommodities = function(req, res) {
-    var commodity_len, models_len, commodity_counter, models_counter,
+    var data = {},
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
+    data.errorList = [];
+    data.commodities = [];
+    data.count = 0;
     async.waterfall([
         commodityCount,
         getCommoditySet,
-        getCommodityLinks
+        getProjectCount
     ], function (err, result) {
         if (err) {
-            res.send(err);
-        } else{
+            data.errorList = errors.errorFunction(err, 'Commodity');
+            res.send(data);
+        } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
             } else {
@@ -28,76 +34,94 @@ exports.getCommodities = function(req, res) {
     });
 
     function commodityCount(callback) {
-        Commodity.find({}).count().exec(function(err, commodity_count) {
-            if(commodity_count) {
-                callback(null, commodity_count);
+        Commodity.find({}).count().exec(function (err, commodity_count) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Commodity');
+                res.send(data);
+            } else if (commodity_count == 0) {
+                data.errorList = errors.errorFunction(err, 'Commodity not found');
+                res.send(data);
             } else {
-                return res.send(err);
+                data.count = commodity_count;
+                callback(null, data);
             }
         });
     }
-    function getCommoditySet(commodity_count, callback) {
-        Commodity.find({}, {commodity_name: 1, commodity_id: 1, commodity_type: 1})
-            .sort({
-                commodity_name: 'asc'
-            })
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .exec(function(err, commodities) {
-                if(commodities) {
-                    callback(null, commodity_count, commodities);
-                } else {
-                    return res.send(err);
-                }
-            });
-    }
-    function getCommodityLinks(commodity_count, commodities, callback) {
-        commodity_len = commodities.length;
-        commodity_counter = 0;
-        if(commodity_len>0) {
-            commodities.forEach(function (c) {
-                var models = [
-                    {name:'Concession',field:{'concession_commodity.commodity':c._id},params:'concession'},
-                    {name:'Project',field:{'proj_commodity.commodity':c._id},params:'project'},
-                    {name:'Site',field:{'site_commodity.commodity':c._id,field:true},params:'field'},
-                    {name:'Site',field:{'site_commodity.commodity':c._id,field:false},params:'site'}
-                ];
-                c.concessions=0;
-                c.projects=0;
-                c.fields=0;
-                c.sites=0;
-                c.contract =0;
-                models_len = models.length;
 
-                async.eachOf(models, function(model) {
-                    ++commodity_counter;
-                    models_counter=0;
-                    var name = require('mongoose').model(model.name);
-                    var $field = model.field;
-                    name.find($field).count().exec(function (err, count) {
-                        ++models_counter;
-                        if(model.params=='concession'){c.concessions = count;}
-                        if(model.params=='project'){c.projects = count;}
-                        if(model.params=='field'){c.fields = count;}
-                        if(model.params=='site'){c.sites =count;}
-                        if(commodity_counter==models_counter) {
-                            callback(null, {data: commodities, count: commodity_count});
-                        }
-                    });
-                });
-            });
+    function getCommoditySet(data, callback) {
+        Commodity.aggregate([
+            {$sort: {commodity_name: -1}},
+            {$project: {_id: 1, commodity_name: 1, commodity_id: 1, commodity_type: 1,
+                projects:{$literal:0}
+            }},
+            {$skip: skip},
+            {$limit: limit}
+        ]).exec(function (err, commodities) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Commodities');
+                res.send(data);
+            }
+            else {
+                if (commodities && commodities.length > 0) {
+                    data.commodities = commodities;
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Commodities', message: 'commodities not found'})
+                    res.send(data)
+                }
+            }
+        });
+    }
+
+    function getProjectCount(data, callback) {
+        var commoditiesId = _.pluck(data.commodities, '_id');
+        if (commoditiesId.length > 0) {
+            Project.aggregate([
+                {$match: {$or: [{'proj_commodity.commodity': {$in: commoditiesId}}]}},
+                {$unwind:'$proj_commodity'},
+                {$group:{
+                    _id:'$proj_commodity.commodity',
+                    project:{$addToSet:'$proj_id'}
+                }},
+                {$project:{_id:1, proj_count:{$size:'$project'}}}
+            ]).exec(function(err, projects) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err,'Projects');
+                    callback(null,  data);
+                }
+                else {
+                    if (projects && projects.length>0) {
+                        _.map(data.commodities, function (commodity) {
+                            var list = _.find(projects, function (link) {
+                                return link._id.toString() == commodity._id.toString();
+                            });
+                            if (list) {
+                                commodity.projects = list.proj_count;
+                            }
+                            return commodity;
+                        });
+                        callback(null,  data);
+                    } else {
+                        data.errorList.push({type: 'Projects', message: 'projects not found'})
+                        callback(null,  data);
+                    }
+                }
+            })
         }
     }
-};
+}
 
+//Get commodity by commodity_id
 exports.getCommodityByID = function(req, res) {
+    var data = {};
+    data.commodity = [];
 
     async.waterfall([
         getCommodity
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err, 'Projects');
+            res.send(data);
         } else{
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -108,59 +132,27 @@ exports.getCommodityByID = function(req, res) {
     });
 
     function getCommodity(callback) {
-        Commodity.findOne({commodity_id:req.params.id})
-            .populate('commodity_aliases', ' _id code reference')
-            .lean()
-            .exec(function(err, commodity) {
+        Commodity.aggregate([
+            {$match:{commodity_id:req.params.id}}
+        ]).exec(function(err, commodity) {
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Commodity');
+                res.send(data);
+            }
+            else {
+                if (commodity && commodity.length>0) {
+                    data.commodity = commodity[0];
+                    callback(null,  data);
+                } else {
+                    data.errorList.push({type: 'Commodity', message: 'Commodity '+ req.params.id+' not found'})
+                    res.send(data)
+                }
+            }
                 if(commodity) {
-                    callback(null, commodity);
+                    callback(null, data);
                 } else {
                     callback(err);
                 }
             });
     }
-};
-
-exports.createCommodity = function(req, res, next) {
-    var commodityData = req.body;
-    Commodity.create(commodityData, function(err, commodity) {
-        if(err){
-            res.status(400);
-            err = new Error('Error');
-            return res.send({reason:err.toString()})
-        }else {
-            res.send();
-        }
-    });
-};
-
-exports.updateCommodity = function(req, res) {
-    var commodityUpdates = req.body;
-    Commodity.findOne({_id:req.body._id}).exec(function(err, commodity) {
-        if(err) {
-            res.status(400);
-            err = new Error('Error');
-            return res.send({ reason: err.toString() });
-        }
-        commodity.commodity_name= commodityUpdates.commodity_name;
-        commodity.save(function(err) {
-            if(err) {
-                err = new Error('Error');
-                return res.send({reason: err.toString()});
-            } else {
-                res.send();
-            }
-        })
-    });
-};
-
-exports.deleteCommodity = function(req, res) {
-    Commodity.remove({_id: req.params.id}, function(err) {
-        if(!err) {
-            res.send();
-        }else{
-            err = new Error('Error');
-            return res.send({ reason: err.toString() });
-        }
-    });
 };

@@ -33,7 +33,7 @@ data-target="#productions")
                 td.production_unit {{prod.production_unit}}
                 td.production_commodity
                     a(href='commodity/{{prod.production_commodity.commodity_id}}')
-                        span(ng-bind-html="prod.production_commodity.name|sanitize")
+                        span(ng-bind-html="prod.production_commodity.commodity_name|sanitize")
                 td.text-right.production_price
                     text(ng-if="prod.production_price") {{prod.production_price}}
                     em(ng-if="!prod.production_price") ..

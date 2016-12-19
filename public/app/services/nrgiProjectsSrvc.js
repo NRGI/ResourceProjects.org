@@ -17,6 +17,13 @@ angular.module('app')
 
         return ProjectResource;
     })
+    .factory('nrgiProjectDataSrvc', function($resource) {
+        var ProjectResource = $resource('/api/project/data/:_id', {_id: "@id"}, {
+            query:  {method:'GET', isArray: false}
+        });
+
+        return ProjectResource;
+    });
     //.factory('nrgiProjectsWithIsoSrvc', function($resource) {
     //    var ProjectResource = $resource('/api/projects/:_iso2/:limit/:skip', {_iso2: "@iso2", limit: "@limit", skip: "@skip"}, {
     //        query:  {method:'GET', isArray: false},

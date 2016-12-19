@@ -9,10 +9,12 @@ var Source 		= require('mongoose').model('Source'),
 
 // Get all sources
 exports.getSources = function(req, res) {
-	var errorList=[],
+	var data = {},
 		limit = Number(req.params.limit),
 		skip = Number(req.params.skip);
-
+	data.sources = [];
+	data.count = 0;
+	data.errorList = [];
 	if(req.query.source_type_id){req.query.source_type_id =mongoose.Types.ObjectId(req.query.source_type_id)}
 
 	async.waterfall([
@@ -33,16 +35,17 @@ exports.getSources = function(req, res) {
 	function sourceCount(callback) {
 		Source.find({}).count().exec(function(err, sourcesCount) {
 			if (err) {
-				err = new Error('Error: '+ err);
-				return res.send({reason: err.toString()});
+				data.errorList = errors.errorFunction(err,'Sources');
+				return res.send(data);
 			} else if (sourcesCount == 0) {
-				return res.send({reason: 'not found'});
+				data.errorList = errors.errorFunction('Sources','sources not found');
 			} else {
-				callback(null, sourcesCount);
+				data.count = sourcesCount;
+				callback(null, data);
 			}
 		});
 	}
-	function getSourceSet(sourcesCount, callback) {
+	function getSourceSet(data, callback) {
 		Source.aggregate([
 			{$match:req.query},
 			{$lookup: {from: "sourcetypes", localField: "source_type_id", foreignField: "_id", as: "source_type_id"}},
@@ -61,15 +64,16 @@ exports.getSources = function(req, res) {
 			{$limit: limit}
 		]).exec(function(err, sources) {
 				if (err) {
-					errorList = errors.errorFunction(err,'Sources');
-					callback(null, {data:sources, count:sourcesCount,errorList:errorList});
+					data.errorList = errors.errorFunction(err,'Sources');
+					callback(null, data);
 				}
 				else {
 					if (sources.length > 0) {
-						callback(null, {data: sources, count: sourcesCount, errorList: errorList});
+						data.sources = sources;
+						callback(null, data);
 					} else {
-						errorList.push({type: 'Sources', message: 'sources not found'})
-						return res.send({reason: 'sources not found'});
+						data.errorList.push({type: 'Sources', message: 'sources not found'})
+						res.send(data);
 					}
 				}
 			});
@@ -78,11 +82,16 @@ exports.getSources = function(req, res) {
 
 //Get source by ID
 exports.getSourceByID = function(req, res) {
+	var data = {};
+	data.errorList= [];
+	data.source= [];
+
 	async.waterfall([
 		getSource
 	], function (err, result) {
 		if (err) {
-			res.send(err);
+			data.errorList = errors.errorFunction(err,'Source ' + req.params.id);
+			return res.send(data);
 		} else{
 			if (req.query && req.query.callback) {
 				return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -129,12 +138,14 @@ exports.getSourceByID = function(req, res) {
 			}
 		]).exec(function(err, source) {
 			if (err) {
-				err = new Error('Error: '+ err);
-				return res.send({reason: err.toString()});
+				data.errorList = errors.errorFunction(err,'Source ' + req.params.id);
+				res.send(data);
 			} else if (source.length>0) {
-				callback(null, source[0]);
+				data.source = source[0];
+				callback(null, data);
 			} else {
-				return res.send({reason: 'not found'});
+				data.errorList.push({type: 'Source', message: 'source ' + req.params.id + ' not found'})
+				res.send(data);
 			}
 		});
 	}

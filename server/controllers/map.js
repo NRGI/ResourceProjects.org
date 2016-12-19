@@ -18,9 +18,11 @@ var Country 		= require('mongoose').model('Country'),
 //Get map
 exports.getCoordinateCountryByID = function(req, res) {
 
+    var data = {};
     var countryId = mongoose.Types.ObjectId(req.params.id);
-    var country={};
     var type = req.params.type;
+    data.errorList = [];
+    data.proj_coordinates = [];
 
     async.waterfall([
         getSites,
@@ -28,7 +30,8 @@ exports.getCoordinateCountryByID = function(req, res) {
         getCompanyGroupLinks
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Coordinates');
+            return res.send(err);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -40,7 +43,6 @@ exports.getCoordinateCountryByID = function(req, res) {
 
     //Get site coordinates
     function getSites(callback) {
-        country.proj_coordinates = [];
         if (type == 'country') {
             Site.aggregate([
                 {$unwind: '$site_country'},
@@ -55,24 +57,25 @@ exports.getCoordinateCountryByID = function(req, res) {
                 }}
             ]).exec(function (err, sites) {
                 if (err) {
-                    err = new Error('Error: '+ err);
-                    return res.send({reason: err.toString()});
+                    data.errorList = errors.errorFunction(err,'Coordinates');
+                    res.send(data);
                 } else if (sites) {
-                    country.proj_coordinates = sites;
-                    callback(null, country);
+                    data.proj_coordinates = sites;
+                    callback(null, data);
                 } else {
-                    return res.send({reason: 'not found'});
+                    data.errorList = errors.errorFunction('Coordinates','Coordinates not found');
+                    res.send(data);
                 }
             });
         }else {
-            callback(null, country);
+            callback(null, data);
         }
     }
 
     //Get company map coordinates
-    function getCompanyLinks(map, callback) {
+    function getCompanyLinks(data, callback) {
         if (type == 'company') {
-            map.proj_coordinates = [];
+            data.proj_coordinates = [];
             Link.aggregate([
                 {$match:{company: mongoose.Types.ObjectId(req.params.id),entities:'site'}},
                 {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
@@ -96,24 +99,25 @@ exports.getCoordinateCountryByID = function(req, res) {
                 }}
             ]).exec(function (err, links) {
                 if (err) {
-                    err = new Error('Error: '+ err);
-                    return res.send({reason: err.toString()});
+                    data.errorList = errors.errorFunction(err,'Coordinates');
+                    res.send(data);
                 } else if (links) {
-                    map.proj_coordinates = links;
-                    callback(null, map);
+                    data.proj_coordinates = links;
+                    callback(null, data);
                 } else {
-                    return res.send({reason: 'not found'});
+                    data.errorList = errors.errorFunction('Coordinates','Coordinates not found');
+                    res.send(data)
                 }
                 });
         }else {
-            callback(null, map);
+            callback(null, data);
         }
     }
 
     //Get group map coordinates
-    function getCompanyGroupLinks(map,callback) {
+    function getCompanyGroupLinks(data,callback) {
         if(type=='group') {
-            map.proj_coordinates = [];
+            data.proj_coordinates = [];
             Link.aggregate([
                 {$match:{entities:'company'}},
                 {$group:{
@@ -146,17 +150,18 @@ exports.getCoordinateCountryByID = function(req, res) {
                 }}
             ]).exec(function (err, links) {
                 if (err) {
-                    err = new Error('Error: '+ err);
-                    return res.send({reason: err.toString()});
+                    data.errorList = errors.errorFunction(err,'Coordinates');
+                    res.send(data);
                 } else if (links) {
-                    map.proj_coordinates = links;
-                    callback(null, map);
+                    data.proj_coordinates = links;
+                    callback(null, data);
                 } else {
-                    return res.send({reason: 'not found'});
+                    data.errorList = errors.errorFunction('Coordinates','Coordinates not found');
+                    res.send(data)
                 }
             });
         } else{
-            callback(null, map)
+            callback(null, data)
         }
     }
 };

@@ -8,14 +8,22 @@ var Project 		= require('mongoose').model('Project'),
     GoogleSpreadsheet = require('google-spreadsheet'),
     _               = require("underscore"),
     request         = require('request'),
+    mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList')
     util            = require('util');
 
 var creds = require('../config/ResourceProjectsPersistIDs.json');
 
+//Get all projects
 exports.getProjects = function(req, res) {
-    var project_len, link_len, project_counter, link_counter,
+    var projectLen,  projectCounter,
+        data={},
         limit = Number(req.params.limit),
         skip = Number(req.params.skip);
+
+    data.projects=[];
+    data.errorList =[];
+    data.count =0;
 
     async.waterfall([
         projectCount,
@@ -23,11 +31,11 @@ exports.getProjects = function(req, res) {
         getProjectLinks,
         getTransfersCount,
         getProductionCount,
-        getCompanyGroup,
         getVerified
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Projects');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -38,354 +46,371 @@ exports.getProjects = function(req, res) {
     });
     function projectCount(callback) {
         Project.find({}).count().exec(function(err, project_count) {
-            if(project_count) {
-                callback(null, project_count);
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Projects');
+                res.send(data);
+            } else if (project_count == 0) {
+                data.errorList = errors.errorFunction('Coordinates','Projects not found');
+                res.send(data);
             } else {
-                return res.send(err);
+                data.count = project_count;
+                callback(null, data);
             }
         });
     }
-    function getProjectSet(project_count, callback) {
-        Project.find({})
-            .sort({
-                proj_name: 'asc'
-            })
-            .skip(skip)
-            .limit(limit)
-            .populate('proj_country.country', '_id iso2 name')
-            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id commodity_type')
-            .deepPopulate('proj_established_source.source_type_id')
-            .lean()
-            .exec(function(err, projects) {
-                if(projects.length>0) {
-                    //TODO clean up returned data if we see performance lags
-                    callback(null, project_count, projects);
-                } else {
-                    return res.send(err);
+    function getProjectSet(data, callback) {
+        Project.aggregate([
+            {$sort: {proj_name: -1}},
+            {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "countries",localField: "proj_country.country",foreignField: "_id",as: "proj_country"}},
+            {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "proj_commodity"}},
+            {$lookup: {from: "sources",localField: "proj_established_source",foreignField: "_id",as: "proj_established_source"}},
+            {$unwind: {"path": "$proj_established_source", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "sourcetypes",localField: "proj_established_source.source_type_id",foreignField: "_id", as: "proj_established_source.source_type_id"}},
+            {$unwind: {"path": "$proj_established_source.source_type_id", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$group: {
+                _id: '$_id',
+                proj_established_source:{$first:'$proj_established_source.source_type_id'},
+                proj_name:{$first:'$proj_name'},
+                proj_id:{$first:'$proj_id'},
+                proj_country:{$addToSet:'$proj_country'},
+                proj_status:{$addToSet:'$proj_status'},
+                proj_commodity:{$addToSet:'$proj_commodity'}
+            }},
+            {$project:{
+                _id:1, proj_established_source:1, proj_name:1, proj_id:1,
+                proj_country:1,proj_status:1,proj_commodity:1,
+                source_type:
+                {$cond: { if:  {$not: "$proj_established_source" },
+                    then: {p: {$literal: false}, c: {$literal: false}},
+                    else:{
+                        $cond: { if:  {$or: [ { $eq: [ "$proj_established_source.source_type_authority", 'authoritative' ] },
+                            { $eq: [ "$proj_established_source.source_type_authority", 'non-authoritative'] } ]},then:{p: {$literal: false}, c: {$literal: true}} , else:
+                        {p: {$literal: true}, c: {$literal: false}}
+                        }}
+
                 }
-            });
+                },
+                company_count: {$literal: 0},
+                transfer_count: {$literal: 0},
+                production_count: {$literal: 0},
+                queries:{$literal:[]}
+            }
+            },
+            {$skip: skip},
+            {$limit: limit}
+        ]).exec(function(err, projects) {
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Projects');
+                res.send(data);
+            }
+            else {
+                if (projects && projects.length>0) {
+                    data.projects = projects;
+                    callback(null,  data);
+                } else {
+                    data.errorList.push({type: 'Projects', message: 'projects not found'})
+                    res.send(data)
+                }
+            }
+        })
     }
-    function getProjectLinks(project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0) {
-            projects.forEach(function (project) {
-                project.transfers_query = [project._id];
-                project.source_type = {p: false, c: false};
-                if(project.proj_established_source!=null){
-                if (project.proj_established_source.source_type_id.source_type_authority === 'authoritative') {
-                    project.source_type.c = true;
-                } else if (project.proj_established_source.source_type_id.source_type_authority === 'non-authoritative') {
-                    project.source_type.c = true;
-                } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
-                    project.source_type.p = true;
-                }}
-                project.companies = [];
-                Link.find({project: project._id})
-                    .populate('company')
-                    .deepPopulate('company_group source.source_type_id site.site_commodity.commodity concession.concession_commodity.commodity')
-                    .exec(function (err, links) {
-                        ++project_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        project.company_count = 0;
-                        project.contract_count = 0;
-                        project.site_count = 0;
-                        project.field_count = 0;
-                        var company =[];
-                        project.concession_count = 0;
-                        if(link_len>0) {
-                            links.forEach(function (link) {
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'project')[0];
-                                if (!project.source_type.p || !project.source_type.c) {
-                                    if (link.source != null) {
-                                        if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                            project.source_type.p = true;
-                                        }
-                                    }
-                                }
-                                switch (entity) {
-                                    case 'company':
-                                        if (link.company && link.company._id) {
-                                            company.push({
-                                                _id: link.company._id,
-                                                company_name: link.company.company_name
-                                            });
-                                        }
-                                        company = _.map(_.groupBy(company, function (doc) {
-                                            return doc._id;
-                                        }), function (grouped) {
-                                            return grouped[0];
-                                        });
-                                        project.company_count = company.length;
-                                        project.companies = company;
-                                        break;
-                                    case 'contract':
-                                        project.contract_count += 1;
-                                        break;
-                                    case 'site':
-                                        if (link.site.site_commodity.length > 0) {
-                                            if (_.where(project.proj_commodity, {_id: _.last(link.site.site_commodity).commodity._id}).length < 1) {
-                                                project.proj_commodity.push({
-                                                    commodity: {
-                                                        _id: _.last(link.site.site_commodity).commodity._id,
-                                                        commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
-                                                        commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
-                                                        commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        if (!_.contains(project.transfers_query, link.site)) {
-                                            project.transfers_query.push(link.site);
-                                        }
-                                        if (link.site.field) {
-                                            project.site_count += 1;
-                                        } else if (!link.site.field) {
-                                            project.field_count += 1;
-                                        }
-                                        break;
-                                    case 'concession':
-                                        if (link.concession.concession_commodity.length > 0) {
-                                            if (_.where(project.proj_commodity, {_id: _.last(link.concession.concession_commodity).commodity._id}).length < 1) {
-                                                if (link.site != undefined) {
-                                                    project.proj_commodity.push({
-                                                        _id: _.last(link.site.site_commodity).commodity._id,
-                                                        commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
-                                                        commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
-                                                        commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
-                                                    });
-                                                }
-                                            }
-                                        }
-                                        project.concession_count += 1;
-                                        break;
-                                    default:
-                                        console.log(entity, 'skipped...');
-                                }
-                            });
-                            if (project_counter == project_len && link_counter == link_len) {
-                                callback(null, project_count, projects);
-                            }
-                        } else {
-                            if (project_counter == project_len){
-                                callback(null, project_count, projects);
+    function getProjectLinks(data, callback) {
+        var projectsId = _.pluck(data.projects, '_id');
+        if(projectsId.length>0) {
+            Link.aggregate([
+                {$match: {$or: [{project:{$in: projectsId}}]}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+                {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities",localField: "site.site_commodity.commodity",foreignField: "_id",as: "site_commodity"}},
+                {$lookup: {from: "commodities",localField: "concession.concession_commodity.commodity",foreignField: "_id",as: "concession_commodity"}},
+                {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "sources",localField: "source",foreignField: "_id",as: "source"}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "sourcetypes",localField: "source.source_type_id",foreignField: "_id", as: "source"}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$project: {
+                    commodity: {$setUnion: ["$concession_commodity", "$site_commodity"]},
+                    project: 1, site: 1, company:1,
+                    source:1,
+                    source_type:
+                    {$cond: {
+                        if: {$not: "$source"},
+                        then: {p: {$literal: false}, c: {$literal: false}},
+                        else: {
+                            $cond: {
+                                if: {
+                                    $or: [{$eq: ["$source.source_type_authority", 'authoritative']},
+                                        {$eq: ["$source.source_type_authority", 'non-authoritative']}]
+                                }, then: {c: {$literal: true}}, else: {p: {$literal: true}}
                             }
                         }
-                    });
-            });
-        } else{
-            callback(null, project_count, projects);
-        }
-    }
-    function getTransfersCount(project_count, projects, callback) {
-        var transfer_counter, transfer_len;
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0) {
-            _.each(projects, function (project) {
-                if (!project.source_type.p || !project.source_type.c) {
-                    project.transfer_count = 0;
-                    Transfer.find({
-                        $or: [
-                            {project: {$in: project.transfers_query}},
-                            {site: {$in: project.transfers_query}}]
-                    })
-                        .deepPopulate('source.source_type_id')
-                        .exec(function (err, transfers) {
-                            transfer_len = transfers.length;
-                            transfer_counter = 0;
-                            ++project_counter;
-                            if (transfer_len > 0) {
-                                _.each(transfers, function (transfer) {
-                                    ++transfer_counter;
-                                    if (!project.source_type.p || !project.source_type.c) {
-                                        if (transfer.source.source_type_id.source_type_authority === 'authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (transfer.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (transfer.source.source_type_id.source_type_authority === 'disclosure') {
-                                            project.source_type.p = true;
-                                        }
-                                    }
-                                    project.transfer_count += 1;
-                                    if (project_counter === project_len && transfer_counter === transfer_len) {
-                                        callback(null, project_count, projects);
-                                    }
-                                });
-                            } else {
-                                if (project_counter === project_len && transfer_counter === transfer_len) {
-                                    callback(null, project_count, projects);
-                                }
-                            }
-
-                        });
-                } else {
-                    Transfer.find({
-                        $or: [
-                            {project: {$in: project.transfers_query}},
-                            {site: {$in: project.transfers_query}}]
-                    })
-                        .count()
-                        .exec(function (err, transfer_count) {
-                            ++project_counter;
-                            project.transfer_count = transfer_count;
-                            if (project_counter === project_len) {
-                                callback(null, project_count, projects);
-                            }
-                        });
+                    }}
+                }},
+                {$group:{
+                    _id:'$project',
+                    commodity:{$addToSet:'$commodity'},
+                    site:{$addToSet:'$site._id'},
+                    company:{$addToSet:'$company._id'},
+                    p:{$addToSet:'$source_type.p'},
+                    c:{$addToSet:'$source_type.c'}
+                }},
+                {$unwind: {"path": "$p", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$c", "preserveNullAndEmptyArrays": true}},
+                {$project: {
+                    source_type: {p:{$cond: { if:  {$eq: ["$p", true] },then:  true ,else:false}}, c:{$cond: { if:  {$eq: ["$c", true] },then:  true ,else:false}}},
+                    site: 1,commodity:1,
+                    company_count:{$size:'$company'}
+                }}
+            ]).exec(function(err, links) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err,'Project links');
+                    callback(null,  data);
                 }
-            });
-        }else{
-            callback(null, project_count, projects);
-        }
-    }
-    function getProductionCount(project_count, projects, callback) {
-        var prod_counter, prod_len;
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0) {
-            _.each(projects, function (project) {
-                if (!project.source_type.p || !project.source_type.c) {
-                    project.production_count = 0;
-                    Production.find({
-                        $or: [
-                            {project: {$in: project.transfers_query}},
-                            {site: {$in: project.transfers_query}}]
-                    })
-                        .deepPopulate('source.source_type_id')
-                        .exec(function (err, production) {
-                            prod_len = production.length;
-                            prod_counter = 0;
-                            ++project_counter;
-                            if (prod_len > 0) {
-                                _.each(production, function (prod) {
-                                    ++prod_counter;
-                                    if (!project.source_type.p || !project.source_type.c) {
-                                        if (prod.source.source_type_id.source_type_authority === 'authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (prod.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (prod.source.source_type_id.source_type_authority === 'disclosure') {
-                                            project.source_type.p = true;
-                                        }
-                                    }
-                                    project.production_count += 1;
-                                    if (project_counter === project_len && prod_counter === prod_len) {
-                                        callback(null, project_count, projects);
-                                    }
-                                });
-                            } else {
-                                if (project_counter === project_len && prod_counter === prod_len) {
-                                    callback(null, project_count, projects);
-                                }
-                            }
-
-                        });
-                } else {
-                    Production.find({
-                        $or: [
-                            {project: {$in: project.transfers_query}},
-                            {site: {$in: project.transfers_query}}]
-                    })
-                        .count()
-                        .exec(function (err, production_count) {
-                            ++project_counter;
-                            project.production_count = production_count;
-                            if (project_counter === project_len) {
-                                callback(null, project_count, projects);
-                            }
-                        });
-                }
-            });
-        }else{
-            callback(null, project_count, projects);
-        }
-    }
-    function getCompanyGroup(project_count, projects, callback) {
-        var company_groups =[];
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0){
-            _.each(projects, function(project) {
-                var companies_len = project.companies.length;
-                var companies_counter = 0;
-                if (companies_len > 0) {
-                    project.companies.forEach(function (company) {
-                        company.company_groups=[];
-                        Link.find({company: company._id, entities: 'company_group'})
-                            .populate('company_group', '_id company_group_name')
-                            .deepPopulate('source.source_type_id')
-                            .exec(function (err, links) {
-                                ++companies_counter;
-                                link_len = links.length;
-                                link_counter = 0;
-                                if (link_len > 0) {
-                                    links.forEach(function (link) {
-                                        ++link_counter;
-                                        if(companies_counter==1&&link_counter==1){
-                                            company_groups =[];
-                                            ++project_counter;
-                                        }
-                                        var entity = _.without(link.entities, 'company')[0];
-                                        switch (entity) {
-                                            case 'company_group':
-                                                if(link.company_group) {
-                                                    company_groups.push({
-                                                        _id: link.company_group._id,
-                                                        company_group_name: link.company_group.company_group_name
-                                                    });
-                                                }
-                                                if(companies_counter==companies_len&&link_counter==link_len) {
-                                                    company_groups = _.map(_.groupBy(company_groups, function (doc) {
-                                                        return doc._id;
-                                                    }), function (grouped) {
-                                                        return grouped[0];
-                                                    });
-                                                    company.company_groups = company_groups;
-                                                }
-                                                break;
-                                            default:
-                                                console.log('link doesn\'t specify a company_group but rather a ${entity}');
-                                        }
-                                        if (companies_counter == companies_len && link_counter == link_len && project_counter == project_len) {
-                                            callback(null, project_count, projects);
-                                        }
-                                    });
-                                }else{
-                                    if(companies_counter==1){
-                                        ++project_counter;
-                                    }
-                                    if (project_counter == project_len) {
-                                        callback(null, project_count, projects);
-                                    }
-
-                                }
-
+                else {
+                    if (links && links.length>0) {
+                        _.map(data.projects, function (project) {
+                            project.queries.push(project._id);
+                            var list = _.find(links, function (link) {
+                                return link._id.toString() == project._id.toString();
                             });
-                    });
-                }else{
-                    ++project_counter;
-                    if (project_counter == project_len) {
-                        callback(null, project_count, projects);
+                            if (list) {
+                                project.proj_commodity.push(list.commodity[0]);
+                                project.company_count = list.company_count;
+                                project.queries = _.union(project.queries,list.site);
+                                if(project.source_type.p!=true){
+                                    project.source_type.p = list.source_type.p
+                                }if(project.source_type.c!=true){
+                                    project.source_type.c = list.source_type.c
+                                }
+                            }
+                            return project;
+                        });
+                        callback(null,  data);
+                    } else {
+                        data.errorList.push({type: 'Project links', message: 'project links not found'})
+                        callback(null,  data);
                     }
                 }
-            });
-        }else {
-            callback(null, project_count, projects);
+            })
+        } else{
+            res.send(data);
         }
     }
-    function getVerified (project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
-        if (project_len > 0) {
-            _.each(projects, function (project) {
-                ++project_counter;
+    function getTransfersCount(data, callback) {
+        var projectLen = data.projects.length;
+        var projectCounter = 0;
+        _.each(data.projects, function(project) {
+            if (project.queries) {
+                Transfer.aggregate([
+                    {$match: {$or: [{project: {$in: project.queries}}, {site: {$in: project.queries}}]}},
+                    {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                    {$lookup: {from: "sources", localField: "source", foreignField: "_id", as: "source"}},
+                    {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $lookup: {
+                            from: "sourcetypes",
+                            localField: "source.source_type_id",
+                            foreignField: "_id",
+                            as: "source"
+                        }
+                    },
+                    {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $project: {
+                            source: 1,
+                            project: 1,
+                            source_type: {
+                                $cond: {
+                                    if: {$not: "$source"},
+                                    then: {p: {$literal: false}, c: {$literal: false}},
+                                    else: {
+                                        $cond: {
+                                            if: {
+                                                $or: [{$eq: ["$source.source_type_authority", 'authoritative']},
+                                                    {$eq: ["$source.source_type_authority", 'non-authoritative']}]
+                                            }, then: {c: {$literal: true}}, else: {p: {$literal: true}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            project: {$addToSet: '$project'},
+                            p: {$addToSet: '$source_type.p'},
+                            c: {$addToSet: '$source_type.c'}
+                        }
+                    },
+                    {$unwind: {"path": "$p", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$c", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $group: {
+                            _id: null,
+                            count: {$addToSet: '$_id'},
+                            p: {$addToSet: '$p'},
+                            c: {$addToSet: '$c'}
+
+                        }
+                    },
+                    {
+                        $project: {
+                            source_type: {
+                                p: {$cond: {if: {$eq: ["$p", true]}, then: true, else: false}},
+                                c: {$cond: {if: {$eq: ["$c", true]}, then: true, else: false}}
+                            },
+                            count: {$size: '$count'}
+                        }
+                    }]).exec(function (err, transfer_count) {
+                    if (err) {
+                        data.errorList = errors.errorFunction(err, 'Project transfers');
+                        ++projectCounter;
+                        if (projectCounter === projectLen) {
+                            callback(null, data);
+                        }
+                    }
+                    else {
+                        ++projectCounter;
+                        if (transfer_count.length > 0) {
+                            if (project.source_type.p != true) {
+                                project.source_type.p = transfer_count[0].source_type.p
+                            }
+                            if (project.source_type.c != true) {
+                                project.source_type.c = transfer_count[0].source_type.c
+                            }
+                            project.transfer_count = transfer_count[0].count;
+                        }
+                        if (projectCounter === projectLen) {
+                            callback(null, data);
+                        }
+                    }
+                });
+            } else {
+                ++projectCounter;
+                if (projectCounter === projectLen) {
+                    callback(null, data);
+                }
+            }
+        });
+    }
+    function getProductionCount(data, callback) {
+        var projectLen = data.projects.length;
+        var projectCounter = 0;
+        _.each(data.projects, function(project) {
+            if (project.queries) {
+                Production.aggregate([
+                    {$match: {$or: [{project: {$in: project.queries}}, {site: {$in: project.queries}}]}},
+                    {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                    {$lookup: {from: "sources", localField: "source", foreignField: "_id", as: "source"}},
+                    {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $lookup: {
+                            from: "sourcetypes",
+                            localField: "source.source_type_id",
+                            foreignField: "_id",
+                            as: "source"
+                        }
+                    },
+                    {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $project: {
+                            source: 1,
+                            project: 1,
+                            source_type: {
+                                $cond: {
+                                    if: {$not: "$source"},
+                                    then: {p: {$literal: false}, c: {$literal: false}},
+                                    else: {
+                                        $cond: {
+                                            if: {
+                                                $or: [{$eq: ["$source.source_type_authority", 'authoritative']},
+                                                    {$eq: ["$source.source_type_authority", 'non-authoritative']}]
+                                            }, then: {c: {$literal: true}}, else: {p: {$literal: true}}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            project: {$addToSet: '$project'},
+                            p: {$addToSet: '$source_type.p'},
+                            c: {$addToSet: '$source_type.c'}
+                        }
+                    },
+                    {$unwind: {"path": "$p", "preserveNullAndEmptyArrays": true}},
+                    {$unwind: {"path": "$c", "preserveNullAndEmptyArrays": true}},
+                    {
+                        $group: {
+                            _id: null,
+                            count: {$addToSet: '$_id'},
+                            p: {$addToSet: '$p'},
+                            c: {$addToSet: '$c'}
+
+                        }
+                    },
+                    {
+                        $project: {
+                            source_type: {
+                                p: {$cond: {if: {$eq: ["$p", true]}, then: true, else: false}},
+                                c: {$cond: {if: {$eq: ["$c", true]}, then: true, else: false}}
+                            },
+                            count: {$size: '$count'}
+                        }
+                    }]).exec(function (err, production_count) {
+                    if (err) {
+                        data.errorList = errors.errorFunction(err, 'Project production');
+                        ++projectCounter;
+                        if (projectCounter === projectLen) {
+                            callback(null, data);
+                        }
+                    }
+                    else {
+                        ++projectCounter;
+                        if (production_count.length > 0) {
+                            if (project.source_type.p != true) {
+                                project.source_type.p = production_count[0].source_type.p
+                            }
+                            if (project.source_type.c != true) {
+                                project.source_type.c = production_count[0].source_type.c
+                            }
+                            project.production_count = production_count[0].count;
+                        }
+                        if (projectCounter === projectLen) {
+                            callback(null, data);
+                        }
+                    }
+                });
+            } else {
+                ++projectCounter;
+                if (projectCounter === projectLen) {
+                    callback(null, data);
+                }
+            }
+        });
+    }
+    function getVerified (data, callback) {
+        projectLen = data.projects.length;
+        projectCounter = 0;
+        if (projectLen > 0) {
+            _.each(data.projects, function (project) {
+                ++projectCounter;
                 if (!project.source_type.c && !project.source_type.p) {
                     project.verified = 'none';
                 } else if (project.source_type.c && !project.source_type.p) {
@@ -395,26 +420,29 @@ exports.getProjects = function(req, res) {
                 } else if (project.source_type.c && project.source_type.p) {
                     project.verified = 'verified';
                 }
-                if (project_counter === project_len) {
-                    callback(null, {data: projects, count: project_count});
+                if (projectCounter === projectLen) {
+                    callback(null, data);
                 }
             });
         } else {
-            callback(null, {data: projects, count: project_count});
+            callback(null, data);
         }
     }
 };
 
+//Get project by id
 exports.getProjectByID = function(req, res) {
-    var link_counter, link_len,  companies_len, companies_counter;
+    var data = {};
+    data.project = [];
+    data.errorList = [];
 
     async.waterfall([
         getProject,
-        getProjectLinks,
-        getCompanyGroup
+        getProjectLinks
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Project');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -424,713 +452,487 @@ exports.getProjectByID = function(req, res) {
         }
     });
 	function getProject(callback) {
-        Project.findOne({proj_id:req.params.id})
-            .populate('proj_country.country')
-            .populate('proj_aliases', '_id alias')
-            .populate('proj_commodity.commodity')
-            .deepPopulate('proj_established_source.source_type_id')
-            .lean()
-            .exec(function(err, project) {
-                if(project) {
-                    callback(null, project);
+        Project.aggregate([
+            {$match: {proj_id: req.params.id}},
+            {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_status", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "countries",localField: "proj_country.country",foreignField: "_id",as: "proj_country"}},
+            {$lookup: {from: "commodities",localField: "proj_commodity.commodity",foreignField: "_id",as: "proj_commodity"}},
+            {$lookup: {from: "sources",localField: "proj_established_source",foreignField: "_id",as: "proj_established_source"}},
+            {$unwind: {"path": "$proj_established_source", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "sourcetypes",localField: "proj_established_source.source_type_id",foreignField: "_id", as: "proj_established_source.source_type_id"}},
+            {$unwind: {"path": "$proj_established_source.source_type_id", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$proj_commodity", "preserveNullAndEmptyArrays": true}},
+            {$group: {
+                _id: '$_id',
+                proj_established_source:{$first:'$proj_established_source.source_type_id'},
+                proj_name:{$first:'$proj_name'},
+                proj_id:{$first:'$proj_id'},
+                proj_country:{$addToSet:'$proj_country'},
+                proj_status:{$addToSet:'$proj_status'},
+                proj_commodity:{$addToSet:'$proj_commodity'}
+            }},
+            {$project:{
+                _id:1, proj_established_source:1, proj_name:1, proj_id:1,
+                proj_country:1,proj_status:1,proj_commodity:1,
+                source_type:
+                {$cond: { if:  {$not: "$proj_established_source" },
+                    then: {p: {$literal: false}, c: {$literal: false}},
+                    else:{
+                        $cond: { if:  {$or: [ { $eq: [ "$proj_established_source.source_type_authority", 'authoritative' ] },
+                            { $eq: [ "$proj_established_source.source_type_authority", 'non-authoritative'] } ]},then:{p: {$literal: false}, c: {$literal: true}} , else:
+                        {p: {$literal: true}, c: {$literal: false}}
+                        }}
+
+                }
+                },
+                company_count: {$literal: 0},
+                transfer_count: {$literal: 0},
+                production_count: {$literal: 0},
+                concessions:{$literal:[]},
+                contracts:{$literal:[]},
+                coordinates:{$literal:[]}
+            }}
+        ]).exec(function(err, project) {
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Projects');
+                res.send(data);
+            }
+            else {
+                if (project && project.length>0) {
+                    data.project = project[0];
+                    callback(null,  data);
                 } else {
-                    callback(null, project);
+                    data.errorList.push({type: 'Projects', message: 'projects not found'})
+                    res.send(data)
                 }
-            });
-    }
-    function getProjectLinks(project, callback) {
-        if(project) {
-            project.companies = [];
-            project.concessions = [];
-            project.contracts = [];
-            project.coordinates = [];
-            project.source_type = {p: false, c: false};
-            if (project && project.proj_established_source && project.proj_established_source.source_type_id) {
-                if (project.proj_established_source.source_type_id.source_type_authority === 'authoritative') {
-                    project.source_type.c = true;
-                } else if (project.proj_established_source.source_type_id.source_type_authority === 'non-authoritative') {
-                    project.source_type.c = true;
-                } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
-                    project.source_type.p = true;
-                }
-            }
-            if (project) {
-                Link.find({project: project._id})
-                    .populate('company contract concession site project')
-                    .deepPopulate('company_group source.source_type_id')
-                    .exec(function (err, links) {
-                        if (links.length > 0) {
-                            link_len = links.length;
-                            link_counter = 0;
-                            links.forEach(function (link) {
-                                ++link_counter;
-                                var entity = _.without(link.entities, 'project')[0];
-
-                                if (!project.source_type.p || !project.source_type.c) {
-                                    if (link.source != null) {
-                                        if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                            project.source_type.c = true;
-                                        } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                            project.source_type.p = true;
-                                        }
-                                    }
-                                }
-                                switch (entity) {
-                                    case 'site':
-                                        if (link.site.field && link.site.site_coordinates && link.site.site_coordinates.length > 0) {
-                                            link.site.site_coordinates.forEach(function (loc) {
-                                                if (loc && loc.loc) {
-                                                    project.coordinates.push({
-                                                        'lat': loc.loc[0],
-                                                        'lng': loc.loc[1],
-                                                        'message': link.site.site_name,
-                                                        'timestamp': loc.timestamp,
-                                                        'type': 'field',
-                                                        'id': link.site._id
-                                                    });
-                                                }
-                                            });
-                                        } else if (!link.site.field && link.site.site_coordinates.length > 0) {
-                                            link.site.site_coordinates.forEach(function (loc) {
-                                                if (loc && loc.loc) {
-                                                    project.coordinates.push({
-                                                        'lat': loc.loc[0],
-                                                        'lng': loc.loc[1],
-                                                        'message': link.site.site_name,
-                                                        'timestamp': loc.timestamp,
-                                                        'type': 'site',
-                                                        'id': link.site._id
-                                                    });
-                                                }
-                                            });
-                                        }
-                                        break;
-                                    case 'company':
-                                        if (!project.companies.hasOwnProperty(link.company._id)) {
-                                            project.companies.push({
-                                                _id: link.company._id,
-                                                company_name: link.company.company_name
-                                            });
-                                        }
-                                        break;
-                                    case 'concession':
-                                        //project.transfers_query.push(link.concession._id);
-                                        project.concessions.push({
-                                            _id: link.concession._id,
-                                            concession_name: link.concession.concession_name
-                                        });
-                                        break;
-                                    case 'contract':
-                                        project.contracts.push(link.contract);
-                                        break;
-                                    default:
-                                        console.log('switch (entity) error');
-                                }
-                                if (link_counter == link_len) {
-                                    callback(null, project);
-                                }
-                            });
-                        } else {
-                            callback(null, project);
-                        }
-                    });
-            } else {
-                callback(null, project);
-            }
-        } else {
-            callback(null, project);
-        }
-    }
-    function getCompanyGroup(project, callback) {
-        if(project) {
-            companies_len = project.companies.length;
-            companies_counter = 0;
-            if (companies_len > 0) {
-                project.companies.forEach(function (company) {
-                    Link.find({company: company._id, entities: 'company_group'})
-                        .populate('company_group', '_id company_group_name')
-                        .deepPopulate('source.source_type_id')
-                        .exec(function (err, links) {
-                            ++companies_counter;
-                            link_len = links.length;
-                            link_counter = 0;
-                            company.company_groups = [];
-                            if (link_len > 0) {
-                                links.forEach(function (link) {
-                                    ++link_counter;
-                                    var entity = _.without(link.entities, 'company')[0];
-                                    switch (entity) {
-                                        case 'company_group':
-                                            if (!company.company_groups.hasOwnProperty(link.company_group.company_group_name)) {
-                                                company.company_groups.push({
-                                                    _id: link.company_group._id,
-                                                    company_group_name: link.company_group.company_group_name
-                                                });
-                                            }
-                                            break;
-                                        default:
-                                            console.log('link doesn\'t specify a company_group but rather a ${entity}');
-                                    }
-                                    if (companies_counter == companies_len && link_counter == link_len) {
-                                        callback(null, project);
-                                    }
-                                });
-                            } else if (companies_counter == companies_len) {
-                                callback(null, project);
-                            }
-                        });
-                });
-            } else {
-                callback(null, project);
-            }
-        } else {
-            callback(null, {error:'error'});
-        }
-    }
-};
-
-exports.getProjectsMap = function(req, res) {
-    var project_len, project_counter, coord_counter, coord_len;
-    async.waterfall([
-        projectCount,
-        getProjectSet,
-        //getProjectLinks,
-        getProjectCoordinate
-    ], function (err, result) {
-        if (err) {
-            res.send(err);
-        } else {
-            if (req.query && req.query.callback) {
-                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
-            } else {
-                return res.send(result);
-            }
-        }
-    });
-
-    function projectCount(callback) {
-        Project.find().count().exec(function(err, project_count) {
-            if(project_count) {
-                callback(null, project_count);
-            } else {
-                callback(null, 0);
             }
         });
     }
-    function getProjectSet(project_count, callback) {
-        Project.find()
-            .lean()
-            .exec(function(err, projects) {
-                var projects_data = [];
-                if(projects.length>0) {
-                    project_len = projects.length;
-                    project_counter = 0;
-                    //TODO clean up returned data if we see performance lags
-                    projects.forEach(function (project) {
-                        ++project_counter;
-                        projects_data.push({
-                            '_id': project._id,
-                            'proj_id': project.proj_id,
-                            'proj_name': project.proj_name,
-                            'proj_coordinates': project.proj_coordinates
-                        });
-                        if (project_counter == project_len) {
-                            callback(null, project_count, projects_data);
+    function getProjectLinks(data, callback) {
+        if(data.project) {
+            Link.aggregate([
+                {$match: {project:data.project._id}},
+                {$lookup: {from: "sites",localField: "site",foreignField: "_id",as: "site"}},
+                {$lookup: {from: "concessions",localField: "concession",foreignField: "_id",as: "concession"}},
+                {$lookup: {from: "contracts",localField: "contract",foreignField: "_id",as: "contract"}},
+                {$unwind: {"path": "$contract", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession.concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_commodity", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "commodities",localField: "site.site_commodity.commodity",foreignField: "_id",as: "site_commodity"}},
+                {$lookup: {from: "commodities",localField: "concession.concession_commodity.commodity",foreignField: "_id",as: "concession_commodity"}},
+                {$unwind: {"path": "$site_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$concession_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "sources",localField: "source",foreignField: "_id",as: "source"}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$lookup: {from: "sourcetypes",localField: "source.source_type_id",foreignField: "_id", as: "source"}},
+                {$unwind: {"path": "$source", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site.site_coordinates", "preserveNullAndEmptyArrays": true}},
+                {$project: {
+                    commodity: {$setUnion: ["$concession_commodity", "$site_commodity"]},
+                    project: 1, site: 1,  contract: 1, concession:{
+                        _id:'$concession._id',concession_name:'$concession.concession_name'
+                    },
+                    source:1,
+                    proj_coordinate:{
+                        $cond: { if: { $not:  "$site.site_coordinates" }, then:[],
+                            else:{
+                                'lat':  { "$arrayElemAt": [ "$site.site_coordinates.loc", -2 ] },
+                                'lng': { "$arrayElemAt": [ "$site.site_coordinates.loc", -1 ] },
+                                'message': "$site.site_name",
+                                'timestamp': "$site.site_coordinates.timestamp",
+                                'type': {$cond: { if: { $gte: [ "$site.field", true ] }, then: 'field', else: 'site' }
+                                }}
+                        }},
+                    source_type:
+                    {$cond: {
+                        if: {$not: "$source"},
+                        then: {p: {$literal: false}, c: {$literal: false}},
+                        else: {
+                            $cond: {
+                                if: {
+                                    $or: [{$eq: ["$source.source_type_authority", 'authoritative']},
+                                        {$eq: ["$source.source_type_authority", 'non-authoritative']}]
+                                }, then: {c: {$literal: true}}, else: {p: {$literal: true}}
+                            }
                         }
-                    })
-                } else {
-                    callback(null, project_count, []);
-                }
-            });
-    }
-
-    function getProjectCoordinate(project_count, projects, callback) {
-        project_counter = 0;
-        project_len = projects.length;
-        if (project_len>0) {
-            _.each(projects, function(project) {
-                project.coordinates = [];
-                ++project_counter;
-                coord_counter = 0;
-                coord_len = project.proj_coordinates.length;
-                if(coord_len>0) {
-                    _.each(project.proj_coordinates, function (loc) {
-                        ++coord_counter;
-                        project.coordinates.push({
-                            'lat': loc.loc[0],
-                            'lng': loc.loc[1],
-                            'message': "<a href='project/" + project.proj_id + "'>" + project.proj_name + "</a></br>" + project.proj_name,
-                            'timestamp': loc.timestamp,
-                            'type': 'project',
-                            'id': project.proj_id
-                        });
-                        if (coord_counter == coord_len && project_counter == project_len) {
-                            callback(null, {count: project_count, data: projects});
-                        }
-                    });
-
-                } else {
-                    if (coord_counter == coord_len && project_counter == project_len) {
-                        callback(null, {count: project_count, data: projects});
-                    }
-                }
-
-            });
-        } else {
-            callback(null, {count: project_count, data: projects});
-        }
-    }
-
-};
-
-exports.createProject = function(req, res, next) {
-	var projectData = req.body;
-	Project.create(projectData, function(err, project) {
-		if(err){
-			err = new Error('Error');
-			res.status(400);
-			return res.send({reason:err.toString()})
-		} else{
-			res.send();
-		}
-	});
-};
-
-exports.updateProject = function(req, res) {
-	var projectUpdates = req.body;
-	Project.findOne({_id:req.body._id}).exec(function(err, project) {
-		if(err) {
-			err = new Error('Error');
-			res.status(400);
-			return res.send({ reason: err.toString() });
-		}
-		project.proj_name= projectUpdates.proj_name;
-		//project.proj_aliases= projectUpdates.proj_aliases;
-		//project.proj_established_source= projectUpdates.proj_established_source;
-		//project.proj_country= projectUpdates.proj_country;
-		//project.proj_type= projectUpdates.proj_type;
-		////project.proj_commodity= projectUpdates.proj_commodity;
-		//project.proj_site_name= projectUpdates.proj_site_name;
-		//project.proj_address= projectUpdates.proj_address;
-		//project.proj_coordinates= projectUpdates.proj_coordinates;
-		//project.proj_status= projectUpdates.proj_status;
-		//project.description= projectUpdates.description;
-		project.save(function(err) {
-			if(err) {
-				err = new Error('Error');
-				return res.send({reason: err.toString()});
-			} else{
-				res.send();
-			}
-		})
-	});
-};
-
-exports.deleteProject = function(req, res) {
-    Project.remove({_id: req.params.id}, function(err) {
-        if(!err) {
-            res.send();
-        }else{
-            return res.send({ reason: err.toString() });
-        }
-    });
-};
-
-exports.getProjectsWithIso = function(req, res) {
-    var project_len, link_len, project_counter, link_counter,
-        limit = Number(req.params.limit),
-        skip = Number(req.params.skip),
-        iso2 = req.params.iso2;
-    async.waterfall([
-        getProjectSet,
-        getProjectWithIso,
-        getProjectLinks,
-        getTransfersCount,
-        getProductionCount,
-        getCompanyGroup,
-        getVerified
-    ], function (err, result) {
-        if (err) {
-            res.send(err);
-        } else {
-            if (req.query && req.query.callback) {
-                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
-            } else {
-                return res.send(result);
-            }
-        }
-    });
-    function getProjectSet(callback) {
-        Project.find({})
-            .sort({
-                proj_name: 'asc'
-            })
-            .skip(skip)
-            .limit(limit)
-            .populate('proj_country.country', '_id iso2 name')
-            .populate('proj_commodity.commodity', ' _id commodity_name commodity_id commodity_type')
-            .deepPopulate('proj_established_source.source_type_id')
-            .lean()
-            .exec(function(err, projects) {
-                if(projects.length>0) {
-                    //TODO clean up returned data if we see performance lags
-                    callback(null, projects);
-                } else {
-                    callback({data: projects, count: 0});
-                }
-            });
-    }
-    function getProjectWithIso(projects, callback) {
-        var projectByCountryIso =[];
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0) {
-            projects.forEach(function (project) {
-                ++project_counter;
-                if(project.proj_country.length>0) {
-                    project.proj_country.forEach(function (proj_country) {
-                        if (proj_country.country.iso2 == iso2) {
-                            projectByCountryIso.push(project);
-                        }
-                    })
-                    if(project_counter == project_len) {
-                        callback(null, projectByCountryIso);
-                    }
-                }
-                else{
-                    if(project_counter == project_len) {
-                        callback(null, projectByCountryIso);
-                    }
-                }
-            });
-        } else{
-            callback(null, projectByCountryIso);
-        }
-    }
-    function getProjectLinks(projects, callback) {
-        project_len = projects.length;
-        var project_count = project_len;
-        project_counter = 0;
-        if(project_len>0) {
-            projects.forEach(function (project) {
-                project.transfers_query = [project._id];
-                project.source_type = {p: false, c: false};
-                if(project.proj_established_source!=null){
-                    if (project.proj_established_source.source_type_id.source_type_authority === 'authoritative') {
-                        project.source_type.c = true;
-                    } else if (project.proj_established_source.source_type_id.source_type_authority === 'non-authoritative') {
-                        project.source_type.c = true;
-                    } else if (project.proj_established_source.source_type_id.source_type_authority === 'disclosure') {
-                        project.source_type.p = true;
                     }}
-                Link.find({project: project._id})
-                    // .populate('commodity', '_id commodity_name commodity_type commodity_id')
-                    .populate('company')
-                    .deepPopulate('source.source_type_id site.site_commodity.commodity concession.concession_commodity.commodity')
-                    .exec(function (err, links) {
-                        ++project_counter;
-                        link_len = links.length;
-                        link_counter = 0;
-                        project.company_count = 0;
-                        project.companies = [];
-                        project.contract_count = 0;
-                        project.site_count = 0;
-                        project.field_count = 0;
-                        var company =[];
-                        project.concession_count = 0;
-                        links.forEach(function (link) {
-                            ++link_counter;
-                            var entity = _.without(link.entities, 'project')[0];
-                            if (!project.source_type.p || !project.source_type.c) {
-                                if(link.source!=null) {
-                                    if (link.source.source_type_id.source_type_authority === 'authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (link.source.source_type_id.source_type_authority === 'disclosure') {
-                                        project.source_type.p = true;
-                                    }
-                                }
-                            }
-                            switch (entity) {
-                                case 'company':
-                                    company.push({
-                                        _id: link.company._id,
-                                        company_name: link.company.company_name
-                                    });
-                                    company = _.map(_.groupBy(company,function(doc){
-                                        return doc._id;
-                                    }),function(grouped){
-                                        return grouped[0];
-                                    });
-                                    project.company_count =company.length;
-                                    project.companies = company;
-                                    break;
-                                case 'contract':
-                                    project.contract_count += 1;
-                                    break;
-                                case 'site':
-                                    if (link.site.site_commodity.length>0) {
-                                        if (_.where(project.proj_commodity, {_id:_.last(link.site.site_commodity).commodity._id}).length<1) {
-                                            project.proj_commodity.push({commodity: {
-                                                _id: _.last(link.site.site_commodity).commodity._id,
-                                                commodity_name: _.last(link.site.site_commodity).commodity.commodity_name,
-                                                commodity_type: _.last(link.site.site_commodity).commodity.commodity_type,
-                                                commodity_id: _.last(link.site.site_commodity).commodity.commodity_id
-                                            }
-                                            });
-                                        }
-                                    }
-                                    if (!_.contains(project.transfers_query, link.site)) {
-                                        project.transfers_query.push(link.site);
-                                    }
-                                    if (link.site.field) {
-                                        project.site_count += 1;
-                                    } else if (!link.site.field) {
-                                        project.field_count += 1;
-                                    }
-                                    break;
-                                case 'concession':
-                                    if (link.concession.concession_commodity.length>0) {
-                                        if (_.where(project.proj_commodity, {_id:_.last(link.concession.concession_commodity).commodity._id}).length<1) {
-                                            if(link.site!=undefined) {
-                                                project.proj_commodity.push({
-                                                    _id: _.last(link.site.site_commodity).commodity._id,
-                                                    commodity_name: _.last(link.concession.concession_commodity).commodity.commodity_name,
-                                                    commodity_type: _.last(link.concession.concession_commodity).commodity.commodity_type,
-                                                    commodity_id: _.last(link.concession.concession_commodity).commodity.commodity_id
-                                                });
-                                            }
-                                        }
-                                    }
-                                    project.concession_count += 1;
-                                    break;
-                                default:
-                                    console.log(entity, 'skipped...');
-                            }
-                        });
-                        if (project_counter == project_len && link_counter == link_len) {
-                            callback(null, project_count, projects);
+                }},
+
+                {$unwind: {"path": "$proj_coordinate", "preserveNullAndEmptyArrays": true}},
+                {$group:{
+                    _id:'$project',
+                    concession:{$addToSet:'$concession'},
+                    commodity:{$addToSet:'$commodity'},
+                    contract:{$addToSet:'$contract'},
+                    proj_coordinate:{$addToSet:'$proj_coordinate'},
+                    p:{$addToSet:'$source_type.p'},
+                    c:{$addToSet:'$source_type.c'}
+                }},
+                {$unwind: {"path": "$p", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$c", "preserveNullAndEmptyArrays": true}},
+                {$project: {
+                    concession:1, contract:1, proj_coordinate:1,
+                    source_type: {p:{$cond: { if:  {$eq: ["$p", true] },then:  true ,else:false}}, c:{$cond: { if:  {$eq: ["$c", true] },then:  true ,else:false}}},
+                    site: 1,commodity:1
+                }}
+            ]).exec(function(err, links) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err,'Project links');
+                    callback(null,  data);
+                }
+                else {
+                    if (links && links.length>0) {
+                        if(links[0].commodity && links[0].commodity.length>0 && _.isEmpty(links[0].commodity)) {
+                            data.project.proj_commodity.push(links[0].commodity);
                         }
-                    });
-            });
-        } else{
-            callback(null, project_count, projects);
+                        data.project.concessions = links[0].concession;
+                        data.project.contracts = links[0].contract;
+                        data.project.coordinates = links[0].proj_coordinate;
+                        data.project.queries = _.union(data.project.queries,links[0].site);
+                        if(data.project.source_type.p!=true){
+                            data.project.source_type.p = links[0].source_type.p
+                        }if(data.project.source_type.c!=true){
+                            data.project.source_type.c = links[0].source_type.c
+                        }
+                        callback(null,  data);
+                    } else {
+                        data.errorList.push({type: 'Project links', message: 'project links not found'})
+                        callback(null,  data);
+                    }
+                }
+            })
+        } else {
+            callback(null, data);
         }
     }
-    function getTransfersCount(project_count, projects, callback) {
-        var transfer_counter, transfer_len;
-        project_len = projects.length;
-        project_counter = 0;
-        _.each(projects, function(project) {
-            if (!project.source_type.p || !project.source_type.c) {
-                project.transfer_count = 0;
-                Transfer.find({$or: [
-                    {project:{$in: project.transfers_query}},
-                    {site:{$in: project.transfers_query}}]})
-                    .deepPopulate('source.source_type_id')
-                    .exec(function (err, transfers) {
-                        transfer_len = transfers.length;
-                        transfer_counter = 0;
-                        ++project_counter;
-                        if (transfer_len>0) {
-                            _.each(transfers, function (transfer) {
-                                ++transfer_counter;
-                                if (!project.source_type.p || !project.source_type.c) {
-                                    if (transfer.source.source_type_id.source_type_authority === 'authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (transfer.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (transfer.source.source_type_id.source_type_authority === 'disclosure') {
-                                        project.source_type.p = true;
-                                    }
-                                }
-                                project.transfer_count += 1;
-                                if (project_counter === project_len && transfer_counter === transfer_len) {
-                                    callback(null, project_count, projects);
-                                }
-                            });
-                        } else {
-                            if (project_counter === project_len && transfer_counter === transfer_len) {
-                                callback(null, project_count, projects);
-                            }
-                        }
+};
 
-                    });
+//Get project tables(transfers, production, companies).
+exports.getProjectData = function(req, res) {
+    var data = {}, queries = [];
+    data.transfers = [];
+    data.productions = [];
+    data.companies = [];
+    data.errorList = [];
+    var id = mongoose.Types.ObjectId(req.params.id);
+
+    async.waterfall([
+        getCompanies,
+        getCompanyGroup,
+        getPaymentsProductionsQuery,
+        getProductions,
+        getTransfers
+    ], function (err, result) {
+        if (err) {
+            data.errorList = errors.errorFunction(err,'Projects');
+            return res.send(data);
+        } else {
+            if (req.query && req.query.callback) {
+                return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
             } else {
-                Transfer.find({$or: [
-                    {project:{$in: project.transfers_query}},
-                    {site:{$in: project.transfers_query}}]})
-                    .count()
-                    .exec(function (err, transfer_count) {
-                        ++project_counter;
-                        project.transfer_count = transfer_count;
-                        if (project_counter === project_len) {
-                            callback(null, project_count, projects);
-                        }
-                    });
+                return res.send(result);
+            }
+        }
+    });
+    function getCompanies(callback) {
+        Link.aggregate([
+            {$match: {project: id, entities: "company"}},
+            {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+            {$unwind: "$company"},
+            {
+                $project: {
+                    _id: 1, company: {
+                        company_name: '$company.company_name', _id: '$company._id',
+                        company_groups: {$literal: []}
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    company: {$addToSet: '$company'}
+                }
+            },
+            {$skip: 0},
+            {$limit: 50}
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'project companies links');
+                callback(null, data);
+            } else {
+                if (links.length > 0) {
+                    data.companies = links[0].company;
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'project companies links', message: 'project companies links not found'})
+                    callback(null, data);
+                }
             }
         });
     }
-    function getProductionCount(project_count, projects, callback) {
-        var prod_counter, prod_len;
-        project_len = projects.length;
-        project_counter = 0;
-        _.each(projects, function(project) {
-            if (!project.source_type.p || !project.source_type.c) {
-                project.production_count = 0;
-                Production.find({$or: [
-                    {project:{$in: project.transfers_query}},
-                    {site:{$in: project.transfers_query}}]})
-                    .deepPopulate('source.source_type_id')
-                    .exec(function (err, production) {
-                        prod_len = production.length;
-                        prod_counter = 0;
-                        ++project_counter;
-                        if (prod_len>0) {
-                            _.each(production, function (prod) {
-                                ++prod_counter;
-                                if (!project.source_type.p || !project.source_type.c) {
-                                    if (prod.source.source_type_id.source_type_authority === 'authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (prod.source.source_type_id.source_type_authority === 'non-authoritative') {
-                                        project.source_type.c = true;
-                                    } else if (prod.source.source_type_id.source_type_authority === 'disclosure') {
-                                        project.source_type.p = true;
-                                    }
-                                }
-                                project.production_count += 1;
-                                if (project_counter === project_len && prod_counter === prod_len) {
-                                    callback(null, project_count, projects);
-                                }
-                            });
-                        } else {
-                            if (project_counter === project_len && prod_counter === prod_len) {
-                                callback(null, project_count, projects);
-                            }
-                        }
-
-                    });
+    function getCompanyGroup(data, callback) {
+        var companiesId = _.pluck(data.companies, '_id');
+        Link.aggregate([
+            {$match: {$or: [{company: {$in: companiesId}}], entities: 'company_group'}},
+            {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+            {$lookup: {from: "companygroups", localField: "company_group", foreignField: "_id", as: "company_group"}},
+            {$unwind: '$company'},
+            {$unwind: '$company_group'},
+            {
+                $group: {
+                    _id: '$company._id', company_name: {$first: '$company.company_name'},
+                    company_groups: {$addToSet: '$company_group'}
+                }
+            },
+            {
+                $project: {
+                    _id: 1, company_name: 1,
+                    company_groups: 1
+                }
+            }
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Company groups');
+                callback(null, data);
             } else {
-                Production.find({$or: [
-                    {project:{$in: project.transfers_query}},
-                    {site:{$in: project.transfers_query}}]})
-                    .count()
-                    .exec(function (err, production_count) {
-                        ++project_counter;
-                        project.production_count = production_count;
-                        if (project_counter === project_len) {
-                            callback(null, project_count, projects);
+                if (links.length > 0) {
+                    _.map(data.companies.companies, function (company) {
+                        var list = _.find(links, function (link) {
+                            return company._id.toString() == link._id.toString();
+                        });
+                        if (list && list.company_groups) {
+                            company.company_groups = list.company_groups;
                         }
+                        return company;
                     });
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Company groups', message: 'company groups not found'})
+                    callback(null, data);
+                }
             }
         });
     }
-
-    function getCompanyGroup(project_count, projects, callback) {
-        var company_groups =[];
-        project_len = projects.length;
-        project_counter = 0;
-        if(project_len>0){
-            _.each(projects, function(project) {
-                var companies_len = project.companies.length;
-                var companies_counter = 0;
-                if (companies_len > 0) {
-                    project.companies.forEach(function (company) {
-                        company.company_groups=[];
-                        Link.find({company: company._id, entities: 'company_group'})
-                            .populate('company_group', '_id company_group_name')
-                            .deepPopulate('source.source_type_id')
-                            .exec(function (err, links) {
-                                ++companies_counter;
-                                link_len = links.length;
-                                link_counter = 0;
-                                if (link_len > 0) {
-                                    links.forEach(function (link) {
-                                        ++link_counter;
-                                        if(companies_counter==1&&link_counter==1){
-                                            company_groups =[];
-                                            ++project_counter;
+    function getPaymentsProductionsQuery(data, callback) {
+        Link.aggregate([
+            {$match: {project: id}},
+            {
+                $group: {
+                    _id: null,
+                    project: {$addToSet: '$project'},
+                    site: {$addToSet: '$site'},
+                    concession: {$addToSet: '$concession'},
+                    company: {$addToSet: '$company'}
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    transfers_query: {$setUnion: ["$project", "$site", "$concession", "$company"]}
+                }
+            }
+        ]).exec(function (err, links) {
+            if (err) {
+                data.errorList = errors.errorFunction(err, 'Company links');
+                res.send(data);
+            } else {
+                if (links && links.length > 0) {
+                    queries = links[0].transfers_query
+                    callback(null, data);
+                } else {
+                    data.errorList.push({type: 'Company links', message: 'company links not found'})
+                    res.send(data);
+                }
+            }
+        });
+    }
+    function getProductions(data, callback) {
+        if (queries && queries.length>0) {
+            Production.aggregate([
+                {$match: {$or: [{project: {$in: queries}}, {site: {$in: queries}}]}},
+                {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+                {
+                    $lookup: {
+                        from: "commodities",
+                        localField: "production_commodity",
+                        foreignField: "_id",
+                        as: "production_commodity"
+                    }
+                },
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$unwind: {"path": "$production_commodity", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {
+                    $project: {
+                        _id: 1,
+                        production_commodity: {
+                            _id: "$production_commodity._id", commodity_name: "$production_commodity.commodity_name",
+                            commodity_id: "$production_commodity.commodity_id"
+                        },
+                        company: {
+                            $cond: {
+                                if: {$not: "$company"},
+                                then: '',
+                                else: {_id: "$company._id", company_name: "$company.company_name"}
+                            }
+                        },
+                        proj_site: {
+                            $cond: {
+                                if: {$not: "$site"},
+                                then: {
+                                    $cond: {
+                                        if: {$not: "$project"},
+                                        then: [], else: {
+                                            _id: "$project.proj_id", name: "$project.proj_name",
+                                            type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
                                         }
-                                        var entity = _.without(link.entities, 'company')[0];
-                                        switch (entity) {
-                                            case 'company_group':
-                                                company_groups.push({
-                                                    _id: link.company_group._id,
-                                                    company_group_name: link.company_group.company_group_name
-                                                });
-                                                if(companies_counter==companies_len&&link_counter==link_len) {
-                                                    company_groups = _.map(_.groupBy(company_groups, function (doc) {
-                                                        return doc._id;
-                                                    }), function (grouped) {
-                                                        return grouped[0];
-                                                    });
-                                                    company.company_groups = company_groups;
-                                                }
-                                                break;
-                                            default:
-                                                console.log('link doesn\'t specify a company_group but rather a ${entity}');
-                                        }
-                                        if (companies_counter == companies_len && link_counter == link_len && project_counter == project_len) {
-                                            callback(null, project_count, projects);
-                                        }
-                                    });
-                                }else{
-                                    if (project_counter == project_len) {
-                                        callback(null, project_count, projects);
                                     }
-                                    if(companies_counter==1){
-                                        ++project_counter;
-                                    }
+                                },
+                                else: {
+                                    _id: "$site._id", name: "$site.site_name",
+                                    type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
                                 }
-                            });
-                    });
-                }else{
-                    ++project_counter;
-                    if (project_counter == project_len) {
-                        callback(null, project_count, projects);
+                            }
+                        },
+                        production_year: 1, production_volume: 1, production_unit: 1, production_price: 1,
+                        production_price_unit: 1, production_level: 1
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        production_year: {$first: '$production_year'},
+                        production_volume: {$first: '$production_volume'},
+                        production_unit: {$first: '$production_unit'},
+                        production_price: {$first: '$production_price'},
+                        production_price_unit: {$first: '$production_price_unit'},
+                        production_level: {$first: '$production_level'},
+                        country: {$first: '$country'},
+                        production_commodity: {$first: '$production_commodity'},
+                        proj_site: {$first: '$proj_site'}
+                    }
+                },
+                {$skip: 0},
+                {$limit: 50}
+            ]).exec(function (err, production) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'Productions');
+                    callback(null, data);
+                } else {
+                    if (production.length > 0) {
+                        data.productions = production;
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: 'Productions', message: 'productions not found'})
+                        callback(null, data);
+                    }
+                }
+            })
+        } else{
+            callback(null, data);
+        }
+    }
+    function getTransfers(data, callback) {
+        if (queries && queries.length>0) {
+            Transfer.aggregate([
+                {$match: {$or: [{project: {$in: queries}}, {site: {$in: queries}}]}},
+                {$lookup: {from: "projects", localField: "project", foreignField: "_id", as: "project"}},
+                {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+                {$lookup: {from: "sites", localField: "site", foreignField: "_id", as: "site"}},
+                {$lookup: {from: "countries", localField: "country", foreignField: "_id", as: "country"}},
+                {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {$unwind: {"path": "$site", "preserveNullAndEmptyArrays": true}},
+                {
+                    $project: {
+                        _id: 1, transfer_year: 1,
+                        country: {name: "$country.name", iso2: "$country.iso2"},
+                        company: {
+                            $cond: {
+                                if: {$not: "$company"},
+                                then: '',
+                                else: {_id: "$company._id", company_name: "$company.company_name"}
+                            }
+                        },
+                        proj_site: {
+                            $cond: {
+                                if: {$not: "$site"},
+                                then: {
+                                    $cond: {
+                                        if: {$not: "$project"},
+                                        then: [], else: {
+                                            _id: "$project.proj_id", name: "$project.proj_name",
+                                            type: {$cond: {if: {$not: "$project"}, then: '', else: 'project'}}
+                                        }
+                                    }
+                                },
+                                else: {
+                                    _id: "$site._id", name: "$site.site_name",
+                                    type: {$cond: {if: {$gte: ["$site.field", true]}, then: 'field', else: 'site'}}
+                                }
+                            }
+                        },
+                        transfer_level: 1, transfer_type: 1, transfer_unit: 1, transfer_value: 1
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        transfer_year: {$first: '$transfer_year'},
+                        transfer_type: {$first: '$transfer_type'},
+                        transfer_unit: {$first: '$transfer_unit'},
+                        transfer_value: {$first: '$transfer_value'},
+                        country: {$first: '$country'},
+                        company: {$first: '$company'},
+                        proj_site: {$first: '$proj_site'}
+                    }
+                },
+                {$skip: 0},
+                {$limit: 50}
+            ]).exec(function (err, transfers) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err, 'Transfers');
+                    callback(null, data);
+                } else {
+                    if (transfers.length > 0) {
+                        data.transfers = transfers
+                        callback(null, data);
+                    } else {
+                        data.errorList.push({type: 'Transfers', message: 'transfers not found'})
+                        callback(null, data);
                     }
                 }
             });
-        }else {
-            callback(null, project_count, projects);
+        } else {
+            callback(null, data);
         }
     }
-    function getVerified (project_count, projects, callback) {
-        project_len = projects.length;
-        project_counter = 0;
-        _.each(projects, function(project) {
-            ++project_counter;
-            if (!project.source_type.c && !project.source_type.p) {
-                project.verified = 'none';
-            } else if (project.source_type.c && !project.source_type.p) {
-                project.verified = 'context';
-            } else if (!project.source_type.c && project.source_type.p) {
-                project.verified = 'payment';
-            } else if (project.source_type.c && project.source_type.p) {
-                project.verified = 'verified';
-            }
-            if (project_counter === project_len) {
-                callback(null, {data: projects, count: project_count});
-            }
-        });
-    }
+
 };
 
 exports.getAllProjects = function(req, res) {
     var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
-
+    var data={};
+    data.projects =[];
+    data.errorList =[];
+    data.count = 0;
     async.waterfall([
         projectCount,
         getProjectSet,
-        getProjectLinks,
-        unionProjectAndCompany
+        getProjectLinks
     ], function (err, result) {
         if (err) {
-            res.send(err);
+            data.errorList = errors.errorFunction(err,'Projects');
+            return res.send(data);
         } else {
             if (req.query && req.query.callback) {
                 return res.jsonp("" + req.query.callback + "(" + JSON.stringify(result) + ");");
@@ -1141,47 +943,97 @@ exports.getAllProjects = function(req, res) {
     });
     function projectCount(callback) {
         Project.find({}).count().exec(function(err, project_count) {
-            if(project_count) {
-                callback(null, project_count);
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Projects');
+                res.send(data);
+            } else if (project_count == 0) {
+                data.errorList = errors.errorFunction(err,'Projects not found');
+                res.send(data);
             } else {
-                return res.send(err);
+                data.count = project_count;
+                callback(null, data);
             }
         });
     }
-    function getProjectSet(project_count, callback) {
-        Project.find({})
-            .sort({
-                proj_name: 'asc'
-            })
-            .skip(skip)
-            .limit(limit)
-            .populate('proj_country.country', '_id iso2 name')
-            .lean()
-            .exec(function(err, projects) {
-                if(projects.length>0) {
-                    callback(null, project_count, projects);
+    function getProjectSet(data, callback) {
+        Project.aggregate([
+            {$sort: {proj_name: -1}},
+            {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+            {$lookup: {from: "countries",localField: "proj_country.country",foreignField: "_id",as: "proj_country"}},
+            {$unwind: {"path": "$proj_country", "preserveNullAndEmptyArrays": true}},
+            {$group: {
+                _id: '$_id',
+                proj_name:{$first:'$proj_name'},
+                proj_id:{$first:'$proj_id'},
+                proj_country:{$addToSet:'$proj_country'}
+            }},
+            {$project: { _id: 1, proj_name:1, proj_id:1, proj_country:1, companies:{$literal:[]} }},
+            {$skip: skip},
+            {$limit: limit}
+        ]).exec(function(err, projects) {
+            if (err) {
+                data.errorList = errors.errorFunction(err,'Projects');
+                res.send(data);
+            }
+            else {
+                if (projects && projects.length>0) {
+                    data.projects = projects;
+                    callback(null,  data);
                 } else {
-                    return res.send(err);
+                    data.errorList.push({type: 'Projects', message: 'projects not found'})
+                    res.send(data)
                 }
+            }
             });
     }
-    function getProjectLinks(project_count, projects, callback) {
-        Link.find({'project':{ $exists: true,$nin: [ null ]},'company':{ $exists: true,$nin: [ null ]}})
-            .populate('company', '_id company_name')
-            .exec(function (err, links) {
-                callback(null,  project_count, projects, links);
+    function getProjectLinks(data, callback) {
+        var projectsId = _.pluck(data.projects, '_id');
+        if(projectsId.length>0) {
+            Link.aggregate([
+                {
+                    $match: {
+                        $or: [{project: {$in: projectsId}}],
+                        'company': {$exists: true, $nin: [null]}
+                    }
+                },
+                {$lookup: {from: "companies", localField: "company", foreignField: "_id", as: "company"}},
+                {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+                {
+                    $project: {
+                        company: {_id: '$company._id', company_name: '$company.company_name'},
+                        project: 1
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$project',
+                        company: {$addToSet: '$company'}
+                    }
+                }
+            ]).exec(function (err, links) {
+                if (err) {
+                    data.errorList = errors.errorFunction(err,'Project links');
+                    callback(null,  data);
+                }
+                else {
+                    if (links && links.length>0) {
+                        _.map(data.projects, function (project) {
+                            var list = _.find(links, function (link) {
+                                return link._id.toString() == project._id.toString();
+                            });
+                            if (list) {
+                                project.companies = list.company;
+                            }
+                            return project;
+                        });
+                        callback(null,  data);
+                    } else {
+                        data.errorList.push({type: 'Project links', message: 'project links not found'})
+                        callback(null,  data);
+                    }
+                }
             })
-    }
-    function unionProjectAndCompany(project_count, projects, links, callback) {
-        _.map(projects, function(item){
-            item.companies = [];
-            var company = _.filter(links, function(i){
-                return i.project.toString() == item._id.toString()
-            })
-            item.companies = company
-            return item;
-        });
-        callback(null, {data: projects, count: project_count});
+        }
     }
 };
 

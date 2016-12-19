@@ -47,12 +47,12 @@ angular.module('app')
 
         nrgiSourcesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
-            $scope.sources = response.data;
+            $scope.sources = response.sources;
             $scope.types = [];
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
             $scope.createDownloadList($scope.sources);
-            _.each(response.data, function(sources) {
+            _.each(response.sources, function(sources) {
                 $scope.types.push(sources.source_type_id);
             });
             $scope.source_type_id = _.countBy($scope.types, "source_type_name");
@@ -73,7 +73,7 @@ angular.module('app')
                         nrgiNotifier.error('Load document data failure');
                     } else {
                         $scope.count = response.count;
-                        $scope.sources = response.data;
+                        $scope.sources = response.sources;
                         totalPages = Math.ceil(response.count / limit);
                         currentPage = currentPage + 1;
                         $scope.createDownloadList($scope.sources);
@@ -86,7 +86,7 @@ angular.module('app')
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiSourcesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.sources = _.union($scope.sources, response.data);
+                    $scope.sources = _.union($scope.sources, response.sources);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
                     $scope.createDownloadList($scope.sources);

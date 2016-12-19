@@ -30,15 +30,11 @@ angular
         };
         usSpinnerService.spin('spinner-site');
         $scope.$watch('id', function(value) {
-<<<<<<< HEAD
-            if ($scope.name == 'country' && value == undefined || $scope.name == 'company' && value == undefined) {
+            if ($scope.name == 'country' && value == undefined || $scope.name == 'company' && value == undefined || $scope.name == 'concession' && value == undefined) {
                 usSpinnerService.stop('spinner-site');
                 $scope.expression = 'showLast';
             }
-            if ($scope.name == 'country' && value != undefined || $scope.name == 'company' && value != undefined) {
-=======
-            if($scope.name=='country'&&value!=undefined) {
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
+            if ($scope.name == 'country' && value != undefined || $scope.name == 'company' && value != undefined|| $scope.name == 'concession' && value != undefined) {
                 $scope.sites = value;
                 usSpinnerService.stop('spinner-site');
                 if ($scope.sites.length == 0 ) {
@@ -49,11 +45,7 @@ angular
                     currentPage = 1;
                 }
             }
-<<<<<<< HEAD
-            if($scope.name!='country' && value!=undefined&& $scope.name!= 'company'){
-=======
-            if($scope.name!='country'&&value!=undefined){
->>>>>>> fc8c34301d2c3ae0e57d70ab338b1dfa2caac5a4
+            if($scope.name!='country' && value!=undefined && $scope.name!= 'company' && $scope.name!= 'concession'){
                 $scope.loading = false;
                 $scope.getSites($scope.id, $scope.name);
             }

@@ -32,10 +32,10 @@ angular.module('app')
 
         nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
             $scope.count = response.count;
-            $scope.commodities = response.data;
+            $scope.commodities = response.commodities;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.commodities);
+            //$scope.createDownloadList($scope.commodities);
         });
 
         $scope.loadMore = function() {
@@ -43,10 +43,10 @@ angular.module('app')
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiCommoditiesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-                    $scope.commodities = _.union($scope.commodities, response.data);
+                    $scope.commodities = _.union($scope.commodities, response.commodities);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.commodities);
+                    //$scope.createDownloadList($scope.commodities);
                 });
             }
         };
