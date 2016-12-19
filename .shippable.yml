@@ -17,7 +17,7 @@ env:
 before_script:
   - npm install --dev
   - npm install -g bower
-  - bower install --allow-root
+  - bower install --allow-root -V
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
 
