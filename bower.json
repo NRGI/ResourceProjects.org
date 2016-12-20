@@ -16,7 +16,7 @@
     "angular-mocks": "^1.3.2",
     "angular-plotly": "~0.1.2",
     "angular-resource": "~1.3.2",
-    "angular-route": "~1.3.2",
+    "angular-route": "~1.5.9",
     "angular-sanitize": "1.4.10",
     "angular-spinner": "^0.8.1",
     "angular-tablesort": "~1.1.2",
