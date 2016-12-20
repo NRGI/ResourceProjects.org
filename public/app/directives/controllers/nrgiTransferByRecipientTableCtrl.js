@@ -57,7 +57,7 @@ angular
             $scope.busy = true;
             nrgiTransferTablesSrvc.query({_id: $scope.countryid,
                 type: $scope.type,skip: currentPage*limit, limit: limit}, function (response) {
-                $scope.transfersByRecipient = _.union($scope.transfersByRecipient, response.transfersByRecipient);
+                $scope.transfersByRecipient = _.union($scope.transfersByRecipient, response.transfers);
                 if( response.transfersByRecipient.length>49){
                     currentPage = currentPage + 1;
                     $scope.busy = false;
