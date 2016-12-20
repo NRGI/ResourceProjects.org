@@ -15,7 +15,8 @@
                 th.text-center(ts-criteria='site_count|parseInt') Sites
                 th.text-center(ts-criteria='field_count|parseInt') Fields
                 th.text-center(ts-criteria='concession_count|parseInt') Concessions
-                th.text-center(ts-criteria='transfer_count|parseInt') Payments
+                th.text-center(ts-criteria='transfer_count|parseInt') Payments by Project
+                th.text-center(ts-criteria='transfer_by_recipient_count|parseInt') Payments by Recipient
         thead.header-copy.header.hide
             tr
                 th(ts-criteria='name') Country
@@ -23,7 +24,8 @@
                 th.text-center(ts-criteria='site_count|parseInt') Sites
                 th.text-center(ts-criteria='field_count|parseInt') Fields
                 th.text-center(ts-criteria='concession_count|parseInt') Concessions
-                th.text-center(ts-criteria='transfer_count|parseInt') Payments
+                th.text-center(ts-criteria='transfer_count|parseInt') Payments by Project
+                th.text-center(ts-criteria='transfer_by_recipient_count|parseInt') Payments by Recipient
         tbody
             tr(
             ng-repeat="country in countries | unique: 'iso2'"
@@ -34,6 +36,7 @@
                 td.text-center.country_fields {{country.field_count}}
                 td.text-center.country_concessions {{country.concession_count}}
                 td.text-center.country_transfers {{country.transfer_count}}
+                td.text-center.country_transfers {{country.transfer_by_recipient_count}}
                 //td.text-center.country_productions {{country.production_count}}
 
     //div(ng-if='countries.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='20')

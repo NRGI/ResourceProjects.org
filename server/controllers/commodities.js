@@ -42,6 +42,7 @@ exports.getCommodities = function(req, res) {
                 data.errorList = errors.errorFunction(err, 'Commodity not found');
                 res.send(data);
             } else {
+                console.log(qq)
                 data.count = commodity_count;
                 callback(null, data);
             }

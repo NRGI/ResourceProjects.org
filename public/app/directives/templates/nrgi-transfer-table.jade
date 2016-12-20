@@ -3,7 +3,8 @@ type="button"
 data-toggle="collapse"
 ng-click='openClose=!openClose; getTransfers(id,type)'
 data-target="#transfers")
-    h4.text-justify Payments
+    h4.text-justify(ng-if='type=="country"') Payments by Project
+    h4.text-justify(ng-if='type!="country"') Payments
 #transfers.panel-collapse.collapse.in
     table.load_table.table.table-striped.projects(
     ng-class="transfers.length >= 8 ? 'header-fixed' : ''"
@@ -34,7 +35,7 @@ data-target="#transfers")
                 td.transfer_country: a(href='country/{{transfer.country.iso2}}')
                     span(ng-bind-html="transfer.country.name|sanitize")
                 td.transfer_type(ng-if='transfer.proj_site._id'): a(href='{{transfer.proj_site.type}}/{{transfer.proj_site._id}}') {{transfer.proj_site.name}}
-                td.transfer_type(ng-if='!transfer.proj_site._id'): {{transfer.proj_site.name}}
+                td.transfer_type(ng-if='!transfer.proj_site._id') {{transfer.proj_site.name}}
                 td.transfer_level {{transfer.transfer_level}}
                 td.transfer_type {{transfer.transfer_type}}
                 td.transfer_currency {{transfer.transfer_unit}}

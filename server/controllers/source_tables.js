@@ -9,6 +9,7 @@ var Project 		= require('mongoose').model('Project'),
     Site 	        = require('mongoose').model('Site'),
     Concession 	    = require('mongoose').model('Concession'),
     mongoose 		= require('mongoose'),
+    errors 	        = require('./errorList'),
     async           = require('async'),
     _               = require("underscore"),
     request         = require('request');
@@ -34,19 +35,19 @@ exports.getSourceTable = function(req, res){
     data.queries=[];
     var modelsLen,modelsCounter=0,counter=0;
     var countryModels = [
-        {name:'Site',field:{'site_country.country':req.params.id},params:'site'},
-        {name:'Company',field:{'countries_of_operation.country':req.params.id},params:'company'},
-        {name:'Company',field:{'country_of_incorporation.country':req.params.id},params:'company'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Concession',field:{'concession_country.country':req.params.id},params:'concession'},
-        {name:'Project',field:{'proj_country.country':req.params.id},params:'project'}
+        {name:'Site',field:{'site_country.country':id},params:'site'},
+        {name:'Company',field:{'countries_of_operation.country':id},params:'company'},
+        {name:'Company',field:{'country_of_incorporation.country':id},params:'company'},
+        {name:'Concession',field:{'concession_country.country':id},params:'concession'},
+        {name:'Concession',field:{'concession_country.country':id},params:'concession'},
+        {name:'Project',field:{'proj_country.country':id},params:'project'}
     ];
     var establishedSource = [
-        {name:'Site',field:{'_id':req.params.id},params:'site'},
-        {name:'Company',field:{'_id':req.params.id},params:'company'},
-        {name:'Concession',field:{'_id':req.params.id},params:'concession'},
-        {name:'Project',field:{'_id':req.params.id},params:'project'},
-        {name:'CompanyGroup',field:{'_id':req.params.id},params:'group'}
+        {name:'Site',field:{'_id':id},params:'site'},
+        {name:'Company',field:{'_id':id},params:'company'},
+        {name:'Concession',field:{'_id':id},params:'concession'},
+        {name:'Project',field:{'_id':id},params:'project'},
+        {name:'CompanyGroup',field:{'_id':id},params:'group'}
     ];
     async.waterfall([
         getEstablishedSource,
@@ -335,6 +336,7 @@ exports.getSourceTable = function(req, res){
                 var name = require('mongoose').model(model.name);
                 var $field = model.field;
                 name.find($field).exec(function (err, responce) {
+                    console.log(err,responce)
                     if (err) {
                         modelsCounter++;
                         data.errorList = errors.errorFunction(err,'Source');

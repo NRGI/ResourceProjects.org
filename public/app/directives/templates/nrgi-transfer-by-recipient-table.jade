@@ -1,0 +1,59 @@
+button.btn.btn-primary-outline.btn-block(
+type="button"
+data-toggle="collapse"
+ng-click='openClose=!openClose; getTransfersByRecipient(id,type)'
+data-target="#transfers")
+    h4.text-justify Payments by Recipient
+#transfers.panel-collapse.collapse.in
+    table.load_table.table.table-striped.projects(
+    ng-class="transfersByRecipient.length >= 8 ? 'header-fixed' : ''"
+    ts-wrapper
+    width="100%"
+    height="100%")#transfer-info
+        thead
+            tr
+                th.tablesort-sortable-th(ts-criteria='transfer_year') Year
+                th.tablesort-sortable-th(ts-criteria='company.company_name') Paid By
+                th.tablesort-sortable-th(ts-criteria='country.name') Paid To
+                th.tablesort-sortable-th(ts-criteria='transfer_gov_entity') Government entity
+                th.tablesort-sortable-th(ts-criteria='transfer_level') Level
+                th.tablesort-sortable-th(ts-criteria='transfer_type') Payment Type
+                th.tablesort-sortable-th(ts-criteria='transfer_unit') Currency
+                th.tablesort-sortable-th(ts-criteria='transfer_value') Value
+        tbody.transfersByRecipientScrollContainer
+            span(
+            us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+            spinner-start-active="true"
+            spinner-key="spinner-transfers")
+            tr(
+            ng-repeat="transfer in transfersByRecipient | unique: '_id'"
+            ts-repeat ng-class="expression")
+                td.transfer_year {{transfer.transfer_year}}
+                td.transfer_company: a(href='company/{{transfer.company._id}}')
+                    span(ng-bind-html="transfer.company.company_name|sanitize")
+                td.transfer_country: a(href='country/{{transfer.country.iso2}}')
+                    span(ng-bind-html="transfer.country.name|sanitize")
+                td.transfer_type {{transfer.transfer_gov_entity}}
+                td.transfer_level {{transfer.transfer_level}}
+                td.transfer_type {{transfer.transfer_type}}
+                td.transfer_currency {{transfer.transfer_unit}}
+                td.transfer_value {{transfer.transfer_value | currency:"":0}}
+    div(ng-if='transfersByRecipient.length>49' infinite-scroll='loadMoreTransfersByRecipient()' infinite-scroll-distance='3' infinite-scroll-container='".transfersByRecipientScrollContainer"')
+    div(ng-if="transfersByRecipient.length>0")
+        .download
+            span.glyphicon.glyphicon-download(aria-hidden='true')
+            span
+                |  Download:
+                =' '
+                a(
+                href=""
+                ng-click="getAllPaymentsByRecipient()") Payments by Recipient CSV
+                button(
+                class='hidden'
+                id='loadPaymentByRecipientCSV'
+                href=""
+                ng-csv="loadPaymentsByRecipientCSV()"
+                lazy-load='true'
+                csv-header="getHeaderTransfersByRecipient()"
+                filename="transfers.csv")
+
