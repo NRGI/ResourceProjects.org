@@ -13,7 +13,7 @@ exports.getPayments = function(req, res) {
     data.filters ={};
     data.errorList =[];
     req.query.transfer_level = {$nin: ['country']};
-    req.query.project = {$exists: true, $nin: [null]};
+    //req.query.project = {$exists: true, $nin: [null]};
     req.query.company = {$exists: true, $nin: [null]};
     req.query.transfer_value = {$gt: 1};
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
@@ -93,59 +93,66 @@ exports.getPayments = function(req, res) {
             { $match : req.query},
             { $lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
             { $lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
+            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
             { $project :
-                {
-                    'company.company_name':1,
-                    'company._id':1,
-                    project:{_id:1, name:'$project.proj_name', transfer_type:'$transfer_type', transfer_value:'$transfer_value'},
-                    total_value:1,
-                    name:'$transfer_type',
-                    size:'$transfer_value',
-                    transfer_value:1
-                }
+            {
+                'company.company_name':1,
+                'company._id':1,
+                project:{$cond: { if: {$not: "$transfer_label"},
+                    then:  {name:'$project.proj_name', transfer_type:'$transfer_type',
+                        transfer_value:'$transfer_value'},
+                    else: {name:'$transfer_label', transfer_type:'$transfer_type',
+                        transfer_value:'$transfer_value'}
+                }},
+                total_value:1,
+                name:'$transfer_type',
+                size:'$transfer_value',
+                transfer_value:1
+            }
             },
             { $group:
-                {
-                    "_id": "$project._id",
-                    "project":{
-                        $first:"$project"
-                    },
-                    'type':{$push:{name:'$name',size:'$size',value:'$size'}},
-                    "company":{
-                        $first:"$company"
-                    },
-                    "size":{ $sum: '$transfer_value' }
+            {
+                "_id": "$project.name",
+                "project":{
+                    $first:"$project"
+                },
+                'type':{$push:{name:'$name',size:'$size',value:'$size'}},
+                "company":{
+                    $first:"$company"
+                },
+                "size":{ $sum: '$transfer_value' }
 
-                }
+            }
             },
             { $project :
-                {
-                    'company.company_name':1,
-                    'company._id':1,
-                    project:{_id:1, name:1, children:'$type', transfer_value:'$size', size:'$size', value:'$size'},
-                    total_value:1,
-                    transfer_value:1
-                }
+            {
+                'company.company_name':1,
+                'company._id':1,
+                project:{_id:1, name:1, children:'$type', transfer_value:'$size', size:'$size', value:'$size'},
+                total_value:1,
+                transfer_value:1
+            }
             },
             { $unwind : "$project" },
             { $unwind : "$project.name" },
             { $group: {
-                    "_id": "$company._id",
-                    "company": {
-                        $first: "$company"
-                    },
-                    "project": {$push: "$project"},
-                    "transfer_type": {$addToSet: "$transfer_type"},
-                    "total_value": {$sum: '$project.transfer_value'}
-                }
+                "_id": "$company._id",
+                "company": {
+                    $first: "$company"
+                },
+                "project": {$push: "$project"},
+                "transfer_type": {$addToSet: "$transfer_type"},
+                "total_value": {$sum: '$project.transfer_value'}
+            }
             },
             { $unwind : "$company" },
             { $project :
-                {
-                    name:'$company.company_name', size:'$total_value',value:'$total_value', children:'$project' ,
-                    _id:0
+            {
+                name:'$company.company_name', size:'$total_value',value:'$total_value', children:'$project' ,
+                _id:0
 
-                }
+            }
             }
         ]).exec(function (err, transfers) {
             if (err) {

@@ -63,9 +63,9 @@ angular
             $scope.sunburst=[];
             nrgiPaymentsByGovSrvc.query(searchOptions,function (response) {
                 $scope.total=0;
-                if(response.data&&response.data[0].children) {
-                    $scope.sunburst = response.data;
-                    $scope.total = response.data[0].total_value;
+                if(response.sunburstNew&&response.sunburstNew[0].children) {
+                    $scope.sunburst = response.sunburstNew;
+                    $scope.total = response.sunburstNew[0].total_value;
                     $scope.all_currency_value = response.total;
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-sunburst-by-gov');

@@ -12,10 +12,10 @@ angular
             usSpinnerService.spin('spinner-treemap');
             $('.tree-map-data').empty()
             nrgiTreeMapSrvc.query(searchOptions, function (success) {
-                if(success.data && success.data[0].children && success.data[0].children.length>0) {
+                if(success.sunburstNew && success.sunburstNew[0].children && success.sunburstNew[0].children.length>0) {
                     $scope.show_total = true;
-                    $scope.treemapData = success.data[0];
-                    $scope.total = success.data[0].total_value;
+                    $scope.treemapData = success.sunburstNew[0];
+                    $scope.total = success.sunburstNew[0].total_value;
                     $scope.all_currency_value = success.total;
                     usSpinnerService.stop('spinner-treemap');
                     drawmap($scope.treemapData)
