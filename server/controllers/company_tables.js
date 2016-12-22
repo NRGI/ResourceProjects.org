@@ -8,7 +8,6 @@ var Link 	        = require('mongoose').model('Link'),
 
 //Get company table
 exports.getCompanyTable = function(req, res) {
-    var  errorList=[];
     var limit = Number(req.params.limit),
         skip = Number(req.params.skip);
     var type = req.params.type;
@@ -242,7 +241,7 @@ exports.getCompanyTable = function(req, res) {
                     });
                     callback(null, companies);
                 } else {
-                    errorList.push({type: 'Company groups links', message: 'company groups links not found'})
+                    companies.errorList.push({type: 'Company groups links', message: 'company groups links not found'})
                     callback(null, companies);
                 }
             }

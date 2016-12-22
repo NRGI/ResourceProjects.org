@@ -78,7 +78,7 @@ exports.getTransferTable = function(req, res){
                         transfersQuery = links[0].transfersQuery
                         callback(null, data);
                     } else {
-                        errorList.push({type: 'Company links', message: 'company links not found'})
+                        data.errorList.push({type: 'Company links', message: 'company links not found'})
                         res.send(data);
                     }
                 }
@@ -259,7 +259,7 @@ exports.getTransferTable = function(req, res){
             ]).exec(function (err, transfers) {
                 if (err) {
                     data.errorList = errors.errorFunction(err,'Payments');
-                    callback(null, transfers,errorList);
+                    callback(null, data);
                 }else {
                     if (transfers.length > 0) {
                         data.transfers = transfers;
@@ -358,7 +358,7 @@ exports.getTransferTable = function(req, res){
             ]).exec(function (err, transfers) {
                 if (err) {
                     data.errorList = errors.errorFunction(err,'Payments');
-                    callback(null, transfers,errorList);
+                    callback(null, data);
                 }else {
                     if (transfers.length > 0) {
                         data.transfers = transfers;
@@ -502,7 +502,7 @@ exports.getTransferTable = function(req, res){
                             data.transfers = transfers
                             callback(null, data);
                         } else {
-                            errorList.push({type: 'Transfers by Project', message: 'transfers by project not found'})
+                            data.errorList.push({type: 'Transfers by Project', message: 'transfers by project not found'})
                             callback(null, data);
                         }
                     }

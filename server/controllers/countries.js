@@ -167,7 +167,7 @@ exports.getCountries = function(req, res) {
                     data.countries = union(data.countries, fields, 'field_count')
                     callback(null, data);
                 } else {
-                    errorList.push({type: 'Fields', message: 'fields not found'})
+                    data.errorList.push({type: 'Fields', message: 'fields not found'})
                     callback(null, data);
                 }
             }
@@ -249,7 +249,7 @@ exports.getCountries = function(req, res) {
                     data.countries = union(data.countries, transfers, 'transfer_by_recipient_count')
                     callback(null, data);
                 } else {
-                    errorList.push({type: 'Transfers', message: 'transfers not found'})
+                    data.errorList.push({type: 'Transfers', message: 'transfers not found'})
                     callback(null, data);
                 }
             }

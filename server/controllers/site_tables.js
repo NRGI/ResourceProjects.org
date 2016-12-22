@@ -95,7 +95,7 @@ exports.getSiteFieldTable = function(req, res){
             ]).exec(function (err, links) {
                 if (err) {
                     data.errorList = errors.errorFunction(err,type+ ' site links not found');
-                    return res.send({sites:[], error: errorList});
+                    return res.send(data);
                 } else {
                     if (links.length > 0) {
                         data.sites = links
