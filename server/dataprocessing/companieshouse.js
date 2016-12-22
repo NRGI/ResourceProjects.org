@@ -38,7 +38,7 @@ function makeProjId (countryIso, name) {
         return {projId: idRow.projId, newIdCreated: false};
 	}
 	else { 
-		var pid = countryIso.toLowerCase() + name.trim().toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
+		var pid = countryIso.toLowerCase() + "-" + name.trim().toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
 		console.log("Createing a new ID: " + pid + " using ISO " + countryIso + " and projName " + name);
 		return {projId: pid, newIdCreated: true};
 	}

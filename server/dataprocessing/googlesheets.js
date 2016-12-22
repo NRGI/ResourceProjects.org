@@ -854,7 +854,7 @@ function parseData(sheets, report, finalcallback) {
                                 projects[project] = pmodel; //Internal update switching from update format to saved format. Also gets us _id "back"
                                 
                                 if (!pmodel.proj_id) {
-                                    var newProjId = countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.toLowerCase().slice(0, 4) + '-' + randomstring(6).toLowerCase();
+                                    var newProjId = countriesById[pmodel.proj_country[0].country].iso2.toLowerCase() + '-' + pmodel.proj_name.trim().toLowerCase().replace(" ","").replace("/","").slice(0, 4) + '-' + randomstring(6).toLowerCase();
                                     console.log("After creation or update, project " + pmodel.proj_name + "did not have an ID: creating one now and updating");
                                     Project.update({_id: pmodel._id}, {proj_id: newProjId}, {},
                                         function(err) {
