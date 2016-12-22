@@ -336,7 +336,6 @@ exports.getSourceTable = function(req, res){
                 var name = require('mongoose').model(model.name);
                 var $field = model.field;
                 name.find($field).exec(function (err, responce) {
-                    console.log(err,responce)
                     if (err) {
                         modelsCounter++;
                         data.errorList = errors.errorFunction(err,'Source');

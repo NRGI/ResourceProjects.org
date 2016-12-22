@@ -3,7 +3,7 @@
 angular
     .module('app')
     .controller('nrgiTransferByRecipientTableCtrl', function ($scope,nrgiTransferTablesSrvc,usSpinnerService, nrgiCSV) {
-        $scope.transfersByRecipient=[];
+        $scope.transfers=[];
         $scope.loading=false;
         $scope.openClose=true;
         var headerTransfer = [];
@@ -37,9 +37,9 @@ angular
                 $scope.expression = 'showLast';
             }
             if ($scope.type == 'countries' && value != undefined) {
-                $scope.transfersByRecipient = value;
+                $scope.transfers = value;
                 usSpinnerService.stop('spinner-transfers');
-                if ($scope.transfersByRecipient.length == 0 ) {
+                if ($scope.transfers.length == 0 ) {
                     $scope.expression = 'showLast';
                 }else {
                     $scope.busy = false;
@@ -57,8 +57,8 @@ angular
             $scope.busy = true;
             nrgiTransferTablesSrvc.query({_id: $scope.countryid,
                 type: $scope.type,skip: currentPage*limit, limit: limit}, function (response) {
-                $scope.transfersByRecipient = _.union($scope.transfersByRecipient, response.transfers);
-                if( response.transfersByRecipient.length>49){
+                $scope.transfers = _.union($scope.transfers, response.transfers);
+                if( response.transfers.length>49){
                     currentPage = currentPage + 1;
                     $scope.busy = false;
                 }else{
@@ -68,18 +68,18 @@ angular
         };
 
         $scope.loadPaymentsByRecipientCSV = function() {
-            nrgiCSV.setCsv(fields,$scope.transfersByRecipient)
+            nrgiCSV.setCsv(fields,$scope.transfers)
             return nrgiCSV.getResult()
         };
         $scope.getAllPaymentsByRecipient= function() {
-            if($scope.busy == true && $scope.transfersByRecipient.length>49 || $scope.transfersByRecipient.length<49) {
+            if($scope.busy == true && $scope.transfers.length>49 || $scope.transfers.length<49) {
                 setTimeout(function () {angular.element(document.getElementById("loadPaymentByRecipientCSV")).trigger('click');},0)
             } else {
                 nrgiTransferTablesSrvc.query({
                     _id: $scope.countryid,
                     type: $scope.type, skip: 0, limit: 5000000
                 }, function (data) {
-                    $scope.transfersByRecipient = data.transfers
+                    $scope.transfers = data.transfers
                     $scope.busy = true;
                     setTimeout(function () {angular.element(document.getElementById("loadPaymentByRecipientCSV")).trigger('click');},0)
                 })

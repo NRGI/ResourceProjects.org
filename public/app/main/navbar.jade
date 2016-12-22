@@ -44,10 +44,22 @@
                                         a(href='/sites').dropdown-item Sites
                                     li
                                         a(href='/fields').dropdown-item Fields
+                                    li
+                                        a(href='/sources').dropdown-item Sources
                                     //li
                                     //    a(href='/groups').dropdown-item Company Groups
                                     //li
                                     //    a(href='/source_types').dropdown-item Disclosures & Context
+                            li.nav-item
+                                a.nav-link.dropdown-toggle(data-toggle="dropdown") Charts
+                                    b.caret
+                                ul.dropdown-menu
+                                    li
+                                        a(href='/sunburst-chart').dropdown-item Sunburst Chart on Payments by Project
+                                    li
+                                        a(href='/sunburst-chart-by-gov').dropdown-item Sunburst Chart on Payments by Recipient
+                                    li
+                                        a(href='/treemap').dropdown-item Treemap on Payments by Company
                             li.nav-item
                                 a.nav-link.dropdown-toggle(data-toggle="dropdown") About
                                     b.caret
@@ -58,8 +70,6 @@
                                     li
                                         a(href='/glossary'
                                         target='_blank').dropdown-item Glossary
-                                    li
-                                        a(href='/sources').dropdown-item Sources
                             li.nav-item(ng-hide="!identity.isAuthenticated()")
                                 a.nav-link.dropdown-toggle(data-toggle="dropdown") Admin
                                     b.caret
