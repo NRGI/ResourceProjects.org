@@ -246,6 +246,7 @@ exports.getSiteByID = function(req, res) {
     var data = {}, projectId =[];
     data.concessions = [];
     data.contracts = [];
+    data.errorList = [];
     data.site = [];
     data.projects = [];
     data.site_commodity = [];
