@@ -272,7 +272,7 @@ exports.getPayments = function(req, res) {
                     {$substr:["$total_value",0,1000000000000000000000]}, ' Million' ]  }
             }
             }
-        ]).exec(function (err, transfers) {
+        ]).allowDiskUse(true).exec(function (err, transfers) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'Transfers');
                 res.send(data);
@@ -529,7 +529,7 @@ exports.getPaymentsByGov = function(req, res) {
                     {$substr:["$total_value",0,1000000000000000000000]}, ' Million' ]  }
             }
             }
-        ]).exec(function (err, transfers) {
+        ]).allowDiskUse(true).exec(function (err, transfers) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'Transfers');
                 res.send(data);
