@@ -5,6 +5,7 @@ angular
         $scope.sunburst=[];
         $scope.csv_transfers = [];
         var header_transfer = [];
+        var total = '';
         var fields = [];
         var country_name = '';
         var company_name = '';
@@ -18,13 +19,35 @@ angular
                 duration: 250,
                 mode: 'size',
                 noData: '',
+                sunburst: {
+                    dispatch: {
+                        chartClick: function (e) {
+                            if(e.pos.target.previousSibling == null){
+                                total = e.data[0].name.split('<br>')
+                                total = total[1];
+                                e.data[0].name = 'All payments<br>'+total;
+                            } else{
+                                total = e.data[0].name.split('<br>')
+                                total = total[1];
+                                e.data[0].name = 'All payments(click to zoom out)<br>'+ total
+                            }
+                        },
+                        elementMousemove: function (e) {
+                            angular.element('path').css('opacity',0.3)
+                            angular.element('.hover').css('opacity',1)
+                        },
+                        elementMouseout: function (e) {
+                            angular.element('path').css('opacity',1)
+                        }
+                    }
+                },
                 tooltip: {
                     valueFormatter: function (d, i) {
                         return '';
                     },
                     keyFormatter: function (d, i) {
                         if ($scope.currency_filter && $scope.currency_filter != 'Show all currency') {
-                            return  d +  $scope.currency_filter
+                            return  d + ' ' +$scope.currency_filter
                         } else {
                             return d
                         }
@@ -61,7 +84,7 @@ angular
             $scope.sunburst=[];
             nrgiPaymentsSrvc.query(searchOptions,function (response) {
                 $scope.total=0;
-                if(response.sunburstNew && response.sunburstNew[0].children) {
+                if(response.sunburstNew &&response.sunburstNew[0] && response.sunburstNew[0].children) {
                     $scope.sunburst = response.sunburstNew;
                     $scope.total = response.sunburstNew[0].total_value;
                     $scope.all_currency_value = response.total;

@@ -2,45 +2,54 @@ div
     .page-header
         h3(class="text-center") Sunburst Chart on Payments by Project
     .row.top-padding-med
-        .right-padding-lg: b Filter by:
-    .row.top-padding-med
-        .col-md-2
-            .row: b Year
-            .row
-                form.form-inline
-                    .form-group
-                        select.form-control(ng-model="year_filter")
-                            option(value="Show all years") Show all years
-                            option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
-        .col-md-2
-            .row: b Currency
-            .row
-                form.form-inline
-                    .form-group
-                        select.form-control(ng-model="currency_filter")
-                            option(value="Show all currency") Show all currency
-                            option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
-        .col-md-3
-            .row: b Type
-            .row
-                form.form-inline
-                    .form-group
-                        select.type_filter.form-control(ng-model="type_filter")
-                            option(value="Show all types") Show all types
-                            option(ng-repeat="(key, value) in type_selector" value="{{key}}") {{key}}
-        .col-md-3
-            .row: b Paid by
-            .row
-                form.form-inline
-                    .form-group
-                        select.company_filter.form-control(ng-model="company_filter")
-                            option(value="Show all companies") Show all companies
-                            option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{value[0].company.company_name}}
+        fieldset.scheduler-border
+            legend.scheduler-border Filter by:
+            .col-lg-2
+                .row: b Year
+                .row
+                    form.form-inline
+                        .form-group
+                            select.company_filter.form-control(ng-model="year_filter")
+                                option(value="Show all years") Show all years
+                                option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
+            .col-lg-2
+                .row: b Currency
+                .row
+                    form.form-inline
+                        .form-group
+                            select.company_filter.form-control(ng-model="currency_filter")
+                                option(value="Show all currency") Show all currency
+                                option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
+            .col-lg-2
+                .row: b Type
+                .row
+                    form.form-inline
+                        .form-group
+                            select.type_filter.form-control(ng-model="type_filter")
+                                option(value="Show all types") Show all types
+                                option(ng-repeat="(key, value) in type_selector" value="{{key}}") {{key}}
+            .col-lg-2
+                .row: b Paid by
+                .row
+                    form.form-inline
+                        .form-group
+                            select.company_filter.form-control(ng-model="company_filter")
+                                option(value="Show all companies") Show all companies
+                                option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{value[0].company.company_name}}
+            .col-lg-4
+                .row.top-padding-med(ng-if="sunburst.length>0")
+                    h5(class="text-center total")
+                        span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
+            .col-lg-12
+                .row.top-padding-med(ng-if="sunburst.length>0 && currency_filter=='Show all currency'")
+                    h5(class="text-center") Total:
+                        = ' '
+                        text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
     span(
     us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
     spinner-start-active="true"
     spinner-key="spinner-sunburst")
-    nvd3(options="options" data="sunburst" api='api' class="with-3d-shadow with-transitions")
+    nvd3(options="options" data="sunburst" api='api' config="{refreshDataOnly: false}"  class="with-3d-shadow with-transitions")
     div(ng-if="sunburst.length>0")
         .download.text-center
             span.glyphicon.glyphicon-download(aria-hidden='true')
@@ -52,9 +61,4 @@ div
                 ng-csv="csv_transfers"
                 csv-header="getHeaderTransfers()"
                 filename="transfers.csv") Payments by Project CSV
-    .row.top-padding-med(ng-if="sunburst.length>0")
-        h5(class="text-center")
-            span(ng-if="currency_filter!='Show all currency'") Total: {{total}} million {{currency_filter}}
-            span(ng-if="currency_filter=='Show all currency'") Total:
-                = ' '
-                text(ng-repeat="currency in all_currency_value") {{currency.total_value}} million {{currency.currency}}{{$last ? '' : ', '}}
+

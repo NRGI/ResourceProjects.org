@@ -76,7 +76,7 @@ exports.getPayments = function(req, res) {
             }
             else {
                 if (transfers.length>0) {
-                    data.transfers = transfers;
+                    data.total = transfers;
                     callback(null, data);
                 } else {
                     data.errorList.push({type: 'Transfer currency', message: 'transfer currency not found'})
@@ -187,10 +187,11 @@ exports.getPayments = function(req, res) {
                 "size":{ $sum: '$type.size' }
             }
             },
+            {$unwind: "$country"},
             { $project :
             {
                 _id:1,
-                name: { $concat: [ {$literal: '<b>Payment to</b><br>' }, "", "$name",'<br> ',
+                name: { $concat: [ {$literal: '<b>Payment to</b><br>' }, "", "$name"," <br> Country: ", "$country.name",'<br> ',
                     {$substr:[{ $sum: '$size' },0,100000000000000]}, ' Million' ]  },
                 country: 1,
                 transfers: 1,
@@ -199,7 +200,6 @@ exports.getPayments = function(req, res) {
             }
             },
 
-            {$unwind: "$country"},
             { $group:
             {
                 "_id": "$country.iso2",
@@ -268,7 +268,7 @@ exports.getPayments = function(req, res) {
                         {$mod:[{$multiply:['$total_value',100]}, 10]}
                     ]},
                     100]},
-                name: { $concat: [ {$literal: '<b>Payment to</b><br> Payments<br>' },' ',
+                name: { $concat: [ {$literal: 'All payments<br>' },' ',
                     {$substr:["$total_value",0,1000000000000000000000]}, ' Million' ]  }
             }
             }
@@ -280,11 +280,12 @@ exports.getPayments = function(req, res) {
             else {
                 if (transfers.length>0 && transfers[0]&& transfers[0].total_value&& transfers[0].children) {
                     data.sunburstNew.push({
-                        name: '<b>Payment to</b><br> Payments<br> ' + transfers[0].total_value.toFixed(1)+ ' Million',
+                        name: transfers[0].name,
                         children:  transfers[0].children,
                         size:  transfers[0].total_value.toFixed(1).toString(),
                         total_value:  transfers[0].total_value.toFixed(1).toString()
                     });
+                    data.transfers = transfers[0].transfers
                     callback(null, data)
                 } else {
                     data.errorList.push({type: 'Transfers', message: 'transfers not found'})
@@ -365,7 +366,7 @@ exports.getPaymentsByGov = function(req, res) {
             }
             else {
                 if (transfers.length>0) {
-                    data.transfers = transfers;
+                    data.total = transfers;
                     callback(null, data);
                 } else {
                     data.errorList.push({type: 'Transfer currency', message: 'transfer currency not found'})
@@ -444,10 +445,11 @@ exports.getPaymentsByGov = function(req, res) {
                 "size":{ $sum: '$type.size' }
             }
             },
+            {$unwind: "$country"},
             { $project :
             {
                 _id:1,
-                name: { $concat: [ {$literal: '<b>Payment to</b><br>' }, "", "$name",'<br> ',
+                name: { $concat: [ {$literal: '<b>Payment to</b><br>' }, "", "$name"," <br> Country: ", "$country.name",'<br> ',
                     {$substr:[{ $sum: '$size' },0,100000000000000]}, ' Million' ]  },
                 country: 1,
                 transfers: 1,
@@ -455,8 +457,6 @@ exports.getPaymentsByGov = function(req, res) {
                 "size":1
             }
             },
-
-            {$unwind: "$country"},
             { $group:
             {
                 "_id": "$country.iso2",
@@ -525,7 +525,7 @@ exports.getPaymentsByGov = function(req, res) {
                         {$mod:[{$multiply:['$total_value',100]}, 10]}
                     ]},
                     100]},
-                name: { $concat: [ {$literal: '<b>Payment to</b><br> Payments<br>' },' ',
+                name: { $concat: [ {$literal: 'All payments<br>' },' ',
                     {$substr:["$total_value",0,1000000000000000000000]}, ' Million' ]  }
             }
             }
@@ -537,11 +537,12 @@ exports.getPaymentsByGov = function(req, res) {
             else {
                 if (transfers.length>0 && transfers[0]&& transfers[0].total_value&& transfers[0].children) {
                     data.sunburstNew.push({
-                        name: '<b>Payment to</b><br> Payments<br> ' + transfers[0].total_value.toFixed(1)+ ' Million',
+                        name: transfers[0].name,
                         children:  transfers[0].children,
                         size:  transfers[0].total_value.toFixed(1).toString(),
                         total_value:  transfers[0].total_value.toFixed(1).toString()
                     });
+                    data.transfers = transfers[0].transfers;
                     callback(null, data)
                 } else {
                     data.errorList.push({type: 'Transfers', message: 'transfers not found'})

@@ -6,6 +6,7 @@ angular
 
         $scope.csv_transfers = [];
         var header_transfer = [];
+        var total = '';
         var fields = [];
         var country_name = '';
         var company_name = '';
@@ -18,6 +19,28 @@ angular
                 duration: 250,
                 mode: 'size',
                 noData: '',
+                sunburst: {
+                    dispatch: {
+                        chartClick: function (e) {
+                            if(e.pos.target.previousSibling == null){
+                                total = e.data[0].name.split('<br>');
+                                total = total[1];
+                                e.data[0].name = 'All payments<br>'+ total;
+                            } else{
+                                total = e.data[0].name.split('<br>');
+                                total = total[1];
+                                e.data[0].name = 'All payments(click to zoom out)<br>'+ total
+                            }
+                        },
+                        elementMousemove: function (e) {
+                            angular.element('path').css('opacity',0.3)
+                            angular.element('.hover').css('opacity',1)
+                        },
+                        elementMouseout: function (e) {
+                            angular.element('path').css('opacity',1)
+                        }
+                    }
+                },
                 tooltip:{
                     valueFormatter:function (d, i) {
                         return '';
