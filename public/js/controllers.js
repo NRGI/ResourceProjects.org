@@ -2895,6 +2895,7 @@ angular.module('app').controller('nrgiSunburstByGovCtrl', [
     $scope.sunburst = [];
     $scope.csv_transfers = [];
     var header_transfer = [];
+    var total = '';
     var fields = [];
     var country_name = '';
     var company_name = '';
@@ -2906,6 +2907,28 @@ angular.module('app').controller('nrgiSunburstByGovCtrl', [
         duration: 250,
         mode: 'size',
         noData: '',
+        sunburst: {
+          dispatch: {
+            chartClick: function (e) {
+              if (e.pos.target.previousSibling == null) {
+                total = e.data[0].name.split('<br>');
+                total = total[1];
+                e.data[0].name = 'All payments<br>' + total;
+              } else {
+                total = e.data[0].name.split('<br>');
+                total = total[1];
+                e.data[0].name = 'All payments(click to zoom out)<br>' + total;
+              }
+            },
+            elementMousemove: function (e) {
+              angular.element('path').css('opacity', 0.3);
+              angular.element('.hover').css('opacity', 1);
+            },
+            elementMouseout: function (e) {
+              angular.element('path').css('opacity', 1);
+            }
+          }
+        },
         tooltip: {
           valueFormatter: function (d, i) {
             return '';
@@ -3083,6 +3106,7 @@ angular.module('app').controller('nrgiSunburstCtrl', [
     $scope.sunburst = [];
     $scope.csv_transfers = [];
     var header_transfer = [];
+    var total = '';
     var fields = [];
     var country_name = '';
     var company_name = '';
@@ -3102,13 +3126,35 @@ angular.module('app').controller('nrgiSunburstCtrl', [
         duration: 250,
         mode: 'size',
         noData: '',
+        sunburst: {
+          dispatch: {
+            chartClick: function (e) {
+              if (e.pos.target.previousSibling == null) {
+                total = e.data[0].name.split('<br>');
+                total = total[1];
+                e.data[0].name = 'All payments<br>' + total;
+              } else {
+                total = e.data[0].name.split('<br>');
+                total = total[1];
+                e.data[0].name = 'All payments(click to zoom out)<br>' + total;
+              }
+            },
+            elementMousemove: function (e) {
+              angular.element('path').css('opacity', 0.3);
+              angular.element('.hover').css('opacity', 1);
+            },
+            elementMouseout: function (e) {
+              angular.element('path').css('opacity', 1);
+            }
+          }
+        },
         tooltip: {
           valueFormatter: function (d, i) {
             return '';
           },
           keyFormatter: function (d, i) {
             if ($scope.currency_filter && $scope.currency_filter != 'Show all currency') {
-              return d + $scope.currency_filter;
+              return d + ' ' + $scope.currency_filter;
             } else {
               return d;
             }
@@ -3178,7 +3224,7 @@ angular.module('app').controller('nrgiSunburstCtrl', [
       $scope.sunburst = [];
       nrgiPaymentsSrvc.query(searchOptions, function (response) {
         $scope.total = 0;
-        if (response.sunburstNew && response.sunburstNew[0].children) {
+        if (response.sunburstNew && response.sunburstNew[0] && response.sunburstNew[0].children) {
           $scope.sunburst = response.sunburstNew;
           $scope.total = response.sunburstNew[0].total_value;
           $scope.all_currency_value = response.total;
@@ -3629,6 +3675,8 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       $('.tree-map-data').empty();
       nrgiTreeMapSrvc.query(searchOptions, function (success) {
         if (success.sunburstNew && success.sunburstNew[0].children && success.sunburstNew[0].children.length > 0) {
+          $scope.year_selector = success.filters.year_selector;
+          $scope.currency_selector = success.filters.currency_selector;
           $scope.show_total = true;
           $scope.treemapData = success.sunburstNew[0];
           $scope.total = success.sunburstNew[0].total_value;
@@ -3636,11 +3684,10 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
           usSpinnerService.stop('spinner-treemap');
           drawmap($scope.treemapData);
         } else {
+          $scope.treemapData = [];
           $scope.show_total = false;
           usSpinnerService.stop('spinner-treemap');
         }
-        $scope.year_selector = success.filters.year_selector;
-        $scope.currency_selector = success.filters.currency_selector;
       });
     };
     $scope.load(searchOptions);
@@ -3670,7 +3717,7 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       ]);
     var color = d3.scale.category20c();
     $scope.$watch('year_filter', function (year) {
-      if (year && year != 'Show all years' && $scope.year_filter != year) {
+      if (year && year != 'Show all years' && searchOptions.transfer_year != year) {
         searchOptions.transfer_year = year;
         $scope.load(searchOptions);
       } else if (searchOptions.transfer_year && year == 'Show all years') {
@@ -3679,7 +3726,7 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       }
     });
     $scope.$watch('currency_filter', function (currency) {
-      if (currency && currency != 'Show all currency' && $scope.currency_filter != currency) {
+      if (currency && currency != 'Show all currency' && searchOptions.transfer_unit != currency) {
         searchOptions.transfer_unit = currency;
         $scope.load(searchOptions);
       } else if (searchOptions.transfer_unit && currency == 'Show all currency') {
@@ -3697,6 +3744,11 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       $scope.grandparent = $scope.svg.append('g').attr('class', 'grandparent');
       $scope.grandparent.append('rect').attr('y', -margin.top).attr('width', width).attr('height', margin.top);
       $scope.grandparent.append('text').attr('x', 6).attr('y', 6 - margin.top).attr('dy', '.75em');
+      $scope.grandparent.append('text').attr('font-size', function (d) {
+        return 'x-large';
+      }).attr('class', 'back_button').attr('x', width - 30).attr('y', -1).text(function (d) {
+        return '\u2b05';
+      });
       initialize(treemap);
       accumulate(treemap);
       layout(treemap);
@@ -3745,18 +3797,27 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       g.filter(function (d) {
         return d.children;
       }).classed('children', true).on('click', transition);
+      g.filter(function (d) {
+        return d;
+      }).classed('children', true);
       /* write children rectangles */
       g.selectAll('.child').data(function (d) {
         return d.children || [d];
       }).enter().append('rect').attr('class', 'child').call(rect);
       g.append('rect').attr('class', 'parent').call(rect);
       g.append('foreignObject').call(rect).attr('class', 'foreignobj').append('xhtml:div').attr('dy', '.75em').html(function (d) {
-        return 'Payment to <b>' + d.name + '</b> ' + (d.value / 1000000).toFixed(1) + ' Million';
+        return '<i style="font-size: 10px;">Payments To</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b>';
       }).attr('class', 'textdiv');
       function transition(d) {
+        console.log(d);
         if (transitioning || !d)
           return;
         transitioning = true;
+        if (d.name == 'Payments') {
+          d3.select('.back_button').style('visibility', 'hidden');
+        } else {
+          d3.select('.back_button').style('visibility', 'visible');
+        }
         var g2 = display(d), t1 = g1.transition().duration(750), t2 = g2.transition().duration(750);
         x.domain([
           d.x,
@@ -3823,17 +3884,30 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       });
     }
     function name(d) {
+      if (d.parent) {
+      }
       return d.parent ? name(d.parent) + ' > ' + d.name : d.name;
     }
     var mousemove = function (d) {
       var xPosition = d3.event.pageX + 5;
       var yPosition = d3.event.pageY + 5;
+      d3.selectAll('.children').style('opacity', 0.5);
+      if (d3.event.target && d3.event.target.parentNode && d3.event.target.parentNode.nodeName == 'g') {
+        d3.select(d3.event.target.parentNode).style('opacity', 1);
+      }
+      if (d3.event.target && d3.event.target.parentNode && d3.event.target.parentNode.parentNode && d3.event.target.parentNode.parentNode.nodeName == 'g') {
+        d3.select(d3.event.target.parentNode.parentNode).style('opacity', 1);
+      }
+      if (d3.event.target && d3.event.target.parentNode && d3.event.target.parentNode.parentNode && d3.event.target.parentNode.parentNode.parentNode && d3.event.target.parentNode.parentNode.parentNode.nodeName == 'g') {
+        d3.select(d3.event.target.parentNode.parentNode.parentNode).style('opacity', 1);
+      }
       d3.select('#tooltip').style('left', xPosition + 'px').style('top', yPosition + 'px');
-      d3.select('#tooltip').html('<span class="text-center">Payment to </br><b>' + d.name + '</b></br> ' + (d.value / 1000000).toFixed(1) + ' Million</p>');
-      d3.select('#tooltip').classed('hidden', false);
+      d3.select('#tooltip').html('<span class="text-center"><i style="font-size: 12px;">Payments To</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b></p>');
+      d3.select('#tooltip').style('visibility', 'visible');
     };
     var mouseout = function () {
-      d3.select('#tooltip').classed('hidden', true);
+      d3.selectAll('.children').style('opacity', 1);
+      d3.select('#tooltip').style('visibility', 'hidden');
     };
   }
 ]);'use strict';

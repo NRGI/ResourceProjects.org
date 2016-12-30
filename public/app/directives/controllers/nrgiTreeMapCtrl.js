@@ -13,6 +13,8 @@ angular
             $('.tree-map-data').empty()
             nrgiTreeMapSrvc.query(searchOptions, function (success) {
                 if(success.sunburstNew && success.sunburstNew[0].children && success.sunburstNew[0].children.length>0) {
+                    $scope.year_selector = success.filters.year_selector;
+                    $scope.currency_selector = success.filters.currency_selector;
                     $scope.show_total = true;
                     $scope.treemapData = success.sunburstNew[0];
                     $scope.total = success.sunburstNew[0].total_value;
@@ -20,13 +22,10 @@ angular
                     usSpinnerService.stop('spinner-treemap');
                     drawmap($scope.treemapData)
                 } else{
+                    $scope.treemapData = []
                     $scope.show_total = false;
                     usSpinnerService.stop('spinner-treemap');
                 }
-
-                $scope.year_selector = success.filters.year_selector;
-                $scope.currency_selector = success.filters.currency_selector;
-
             });
         }
 
@@ -52,7 +51,7 @@ angular
 
         var color = d3.scale.category20c();
         $scope.$watch('year_filter', function(year) {
-            if(year&&year!='Show all years'&&$scope.year_filter!=year) {
+            if(year&&year!='Show all years'&&searchOptions.transfer_year!=year) {
                 searchOptions.transfer_year = year;
                 $scope.load(searchOptions);
 
@@ -62,7 +61,7 @@ angular
             }
         });
         $scope.$watch('currency_filter', function(currency) {
-            if(currency&&currency!='Show all currency'&&$scope.currency_filter!=currency) {
+            if(currency&&currency!='Show all currency'&&searchOptions.transfer_unit!=currency) {
                 searchOptions.transfer_unit = currency;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_unit&&currency=='Show all currency'){
@@ -89,15 +88,21 @@ angular
 
             $scope.grandparent = $scope.svg.append("g")
                 .attr("class", "grandparent");
+
             $scope.grandparent.append("rect")
                 .attr("y", -margin.top)
                 .attr("width", width)
-                .attr("height", margin.top);
-
+                .attr("height", margin.top)
             $scope.grandparent.append("text")
                 .attr("x", 6)
                 .attr("y", 6 - margin.top)
                 .attr("dy", ".75em");
+            $scope.grandparent.append("text")
+                .attr('font-size', function(d) { return 'x-large';} )
+                .attr("class", "back_button")
+                .attr("x", width-30)
+                .attr("y", -1)
+                .text(function(d) { return  "\u2B05" ; })
 
             initialize(treemap);
             accumulate(treemap);
@@ -111,7 +116,6 @@ angular
             root.dy = height;
         }
         function accumulate(d) {
-
             return d.children
                 ? d.size = d.children.reduce(function(p, v) { return p + accumulate(v); }, 0)
                         : d.size;
@@ -165,6 +169,9 @@ angular
                 .classed("children", true)
                 .on("click", transition);
 
+            g.filter(function(d) { return d; })
+                .classed("children", true)
+
             /* write children rectangles */
             g.selectAll(".child")
                 .data(function(d) { return d.children || [d]; })
@@ -183,13 +190,17 @@ angular
                 .attr("class","foreignobj")
                 .append("xhtml:div")
                 .attr("dy", ".75em")
-                .html(function(d) { return 'Payment to <b>' + d.name +'</b> '+ (d.value / 1000000).toFixed(1)+' Million'; })
+                .html(function(d) { return '<i style="font-size: 10px;">Payments To</i> </br>' + d.name +'</br> <b>'+ (d.value / 1000000).toFixed(1)+' Million</b>'; })
                 .attr("class","textdiv");
 
             function transition(d) {
                 if (transitioning || !d) return;
                 transitioning = true;
-
+                if(d.name == "Payments"){
+                    d3.select(".back_button").style("visibility", 'hidden');
+                }else{
+                    d3.select(".back_button").style("visibility", 'visible');
+                }
                 var g2 = display(d),
                     t1 = g1.transition().duration(750),
                     t2 = g2.transition().duration(750);
@@ -246,26 +257,37 @@ angular
         }
 
         function name(d) {
+            if(d.parent) {
+            }
             return d.parent
                 ? name(d.parent) + " > " + d.name
                 : d.name;
         }
 
-
         var mousemove = function(d) {
             var xPosition = d3.event.pageX + 5;
             var yPosition = d3.event.pageY + 5;
-
+            d3.selectAll(".children").style("opacity", 0.5);
+            if(d3.event.target && d3.event.target.parentNode && d3.event.target.parentNode.nodeName =='g'){
+                d3.select(d3.event.target.parentNode).style("opacity", 1);
+            }
+            if(d3.event.target && d3.event.target.parentNode && d3.event.target.parentNode.parentNode && d3.event.target.parentNode.parentNode.nodeName =='g') {
+                d3.select(d3.event.target.parentNode.parentNode).style("opacity", 1);
+            }
+            if(d3.event.target && d3.event.target.parentNode && d3.event.target.parentNode.parentNode&& d3.event.target.parentNode.parentNode.parentNode && d3.event.target.parentNode.parentNode.parentNode.nodeName =='g') {
+                d3.select(d3.event.target.parentNode.parentNode.parentNode).style("opacity", 1);
+            }
             d3.select("#tooltip")
                 .style("left", xPosition + "px")
                 .style("top", yPosition + "px");
             d3.select("#tooltip")
-                .html('<span class="text-center">Payment to </br><b>' + d.name +'</b></br> '+ (d.value / 1000000).toFixed(1)+' Million</p>');
-            d3.select("#tooltip").classed("hidden", false);
+                .html('<span class="text-center"><i style="font-size: 12px;">Payments To</i> </br>' + d.name +'</br> <b>'+ (d.value / 1000000).toFixed(1)+' Million</b></p>');
+            d3.select("#tooltip").style("visibility", 'visible');
         };
 
         var mouseout = function() {
-            d3.select("#tooltip").classed("hidden", true);
+            d3.selectAll(".children").style("opacity", 1);
+            d3.select("#tooltip").style("visibility", 'hidden');
         };
     });
 
