@@ -10,7 +10,7 @@
   "private": true,
   "dependencies": {
     "jquery": "~2.1.1",
-    "angular": "~1.5.9",
+    "angular": "~1.5.10",
     "angular-filter": "~0.5.8",
     "angular-google-analytics": "^1.1.7",
     "angular-mocks": "^1.3.2",
@@ -39,8 +39,9 @@
     "node"
   ],
   "resolutions": {
-    "angular": "~1.5.9",
-    "tether": "1.3.4"
+    "angular": "~1.5.10",
+    "tether": "1.3.4",
+    "lodash": "~3.9.0"
   },
   "devDependencies": {
     "esri-leaflet": "~1.0.1",
