@@ -281,7 +281,7 @@ angular
                 .style("left", xPosition + "px")
                 .style("top", yPosition + "px");
             d3.select("#tooltip")
-                .html('<span class="text-center"><i style="font-size: 12px;">Payments To</i> </br>' + d.name +'</br> <b>'+ (d.value / 1000000).toFixed(1)+' Million</b></p>');
+                .html('<span class="text-center"><i style="font-size: 12px;">Payment:</i> </br>' + d.name +'</br> <b>'+ (d.value / 1000000).toFixed(1)+' Million</b></p>');
             d3.select("#tooltip").style("visibility", 'visible');
         };
 

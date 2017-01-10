@@ -3809,7 +3809,6 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
         return '<i style="font-size: 10px;">Payments To</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b>';
       }).attr('class', 'textdiv');
       function transition(d) {
-        console.log(d);
         if (transitioning || !d)
           return;
         transitioning = true;
@@ -3902,7 +3901,7 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
         d3.select(d3.event.target.parentNode.parentNode.parentNode).style('opacity', 1);
       }
       d3.select('#tooltip').style('left', xPosition + 'px').style('top', yPosition + 'px');
-      d3.select('#tooltip').html('<span class="text-center"><i style="font-size: 12px;">Payments To</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b></p>');
+      d3.select('#tooltip').html('<span class="text-center"><i style="font-size: 12px;">Payment:</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b></p>');
       d3.select('#tooltip').style('visibility', 'visible');
     };
     var mouseout = function () {
