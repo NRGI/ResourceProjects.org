@@ -156,7 +156,20 @@
             countryid="id"
             projectlink="false"
             project="false")
-
+    .row.top-padding-lg(ng-if="data")
+        .col-md-12
+            button.btn.btn-primary-outline.btn-block(
+            type="button"
+            data-toggle="collapse"
+            ng-click='openClose=!openClose'
+            data-target="#filing")
+                h4.text-justify Filing Documents
+            #filing.panel-collapse.collapse.in
+                span(
+                    us-spinner="{radius:32, width:12, length: 0, lines:17, scale: 0.25}"
+                    spinner-start-active="true"
+                    spinner-key="spinner-filing")
+                iframe(ng-src="{{trustSrc(url)}}" width='100%' iframe-onload="iframeLoadedCallBack()" scrolling="no" style="border: 0px")
     .row.top-padding-lg
         .col-md-12
             nrgi-sources-table(
