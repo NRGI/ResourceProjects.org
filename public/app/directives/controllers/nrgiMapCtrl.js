@@ -5,94 +5,111 @@ angular
     .controller('nrgiMapCtrl', function ($scope,$rootScope, nrgiMainMapSrvc, $http,usSpinnerService) {
 
         usSpinnerService.spin('spinner-map');
-        nrgiMainMapSrvc.get({ }, function (success) {
-            $scope.resourceproject = success.data;
-            $scope.world = success.world;
-            $scope.subunits = topojson.feature($scope.world,$scope.world.objects.world_subunits).features;
-            $scope.countrycodes = $scope.world.objects.world_subunits.geometries;
-            angular.forEach($scope.subunits,function(subunits){
-                angular.forEach($scope.countrycodes,function(countrycodes){
-                    if(subunits.id == countrycodes.id){
-                        subunits.iso2 = countrycodes.iso2;
-                        subunits.project_count = 0;
-                        subunits.transfer_count = 0;
-                    }
-                })
-                angular.forEach($scope.resourceproject,function(resourceproject){
-                    if(subunits.iso2 == resourceproject.iso2){
-                        subunits.project_count = resourceproject.project_count;
-                        subunits.transfer_count = resourceproject.transfer_count;
-                    }
-                })
-            });
-            $scope.path = d3.geo.path()
-                .projection(projection);
-            g = svg.append("g")
-            $scope.countries = g.selectAll(".subunit")
-                .data($scope.subunits)
-                .enter();
-            drawmap();
-            usSpinnerService.stop('spinner-map');
-
-        })
+        var zoom = d3.behavior.zoom()
+            .scaleExtent([0.7, 8])
+            .on("zoom", zoomed);
+        var width = 635,
+            height = 450;
+        var tooltip = d3.select('.map_data').append('div')
+            .attr('class', 'hidden tooltip');
         $scope.projCheckbox =true;
         $scope.paymentsCheckbox =true;
         $scope.count = 2;
+        var g, color, coords, circle, element, mouse;
 
-        var width = 635,
-             height = 450;
-
-        var projection = d3.geo.mercator()
-            .translate([width / 2, height / 2])
-            .scale((width - 1) / 2 / Math.PI);
-
-        var zoom = d3.behavior.zoom()
-            .scaleExtent([1, 8])
-            .on("zoom", zoomed);
-
-        var svg = d3.select(".map_data").append("svg")
-            .attr("width", width)
-            .attr("height", height)
-
-        var g = svg.append("g")
-
-        var tooltip = d3.select('.map_data').append('div')
-            .attr('class', 'hidden tooltip');
-
-        svg.append("rect")
-            .attr("class", "overlay")
-            .attr("width", width)
-            .attr("height", height)
-            .call(zoom)
-            .call(zoom.event);
+        nrgiMainMapSrvc.get({ }, function (success) {
+            if(success.data && success.world ) {
+                $scope.resourceproject = success.data;
+                $scope.capitals = success.world;
+                drawmap();
+            }else{
+                console.log('Error')
+            }
+        })
 
         function drawmap() {
-            $scope.countries.append("path")
-                .attr("class", function (d) {
-                    var color = getGroup(d.project_count);
-                    return "subunit-boundary subunit Group" + color + " " + d.id;
+            d3.xml("../../assets/worldWithAntarcticaHigh.svg", function(xml) {
+                d3.select(".map_data").node()
+                    .appendChild(xml.documentElement)
+                d3.select("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                d3.select("g").attr("transform", "translate(0,0)scale(0.7)")
+                d3.select("rect")
+                    .attr("class", "overlay")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .call(zoom)
+                g = d3.select("g")
+                $scope.countries = g.selectAll(".land")
+                    .attr("project_count", function () {
+                        return 0;
+                    })
+                    .attr("transfer_count", function () {
+                        return 0
+                    })
+                    .on("mousemove", mouseover)
+                    .on("mouseout", mouseout)
+                angular.forEach($scope.resourceproject,function(resourceproject){
+                    angular.forEach($scope.countries[0],function(country){
+                        if(country.id == resourceproject.iso2) {
+                            d3.select('#' + country.id)
+                                .attr("class", function () {
+                                    color = getGroup(resourceproject.project_count);
+                                    return "subunit-boundary subunit Group" + color + " " + country.id;
+                                })
+                                .attr("project_count", function () {
+                                    return resourceproject.project_count;
+                                })
+                                .attr("transfer_count", function () {
+                                    return resourceproject.transfer_count;
+                                })
+                                .on("mousemove", mouseover)
+                                .on("mouseout", mouseout)
+                            coords = $scope.capitals.filter(function (item) {
+                                return item.iso2 === country.id;
+                            });
+                            coords = coords[0];
+                            if (coords) {
+                                circle = d3.select("g").append('circle')
+                                    .attr("class", function (d) {
+                                        color = 0;
+                                        if (resourceproject.transfer_count > 0) {
+                                            color = 1
+                                        }
+                                        return "bubble-boundary bubble Group" + color + " " + country.id;
+                                    })
+                                    .attr("transfer_count", function () {
+                                        return resourceproject.transfer_count;
+                                    }).attr("project_count", function () {
+                                        return resourceproject.project_count;
+                                    }).attr("title", function () {
+                                        return  d3.select('#' + country.id).attr('title');
+                                    })
+                                    .attr("d", $scope.path)
+                                    .attr("transform", function (d) {
+                                        element = d3.select('#' + country.id).node();
+                                        if(element.getBBox().width>50 && element.getBBox().height>50) {
+                                            if (coords.lat >= 0 && coords.long >= 0) {
+                                                return "translate(" + [element.getBBox().x + coords.lat / 2, element.getBBox().y + coords.long / 2] + ")";
+                                            } else {
+                                                return "translate(" + [element.getBBox().x + element.getBBox().width - Math.abs(coords.lat),
+                                                        element.getBBox().y + element.getBBox().height - Math.abs(coords.long) / 2] + ")";
+                                            }
+                                        }else{
+                                            return "translate(" + [element.getBBox().x  + element.getBBox().width/2, element.getBBox().y + element.getBBox().height/2] + ")";
+                                        }
+                                    })
+                                    .attr("r", function (d) {
+                                        return radius(resourceproject.transfer_count);
+                                    })
+                                    .on("mousemove", mouseover)
+                                    .on("mouseout", mouseout)
+                            }
+                        }
+                    })
                 })
-                .attr("d", $scope.path)
-                .on("mousemove", mouseover)
-                .on("mouseout", mouseout)
-
-            var circle = $scope.countries.append('circle')
-                .attr("class", function (d) {
-                    var color = 0;
-                    if (d.transfer_count > 0) {
-                        color = 1
-                    }
-                    return "bubble-boundary bubble Group" + color + " " + d.id;
-                })
-                .attr("transform", function (d) {
-                    return "translate(" + $scope.path.centroid(d) + ")";
-                })
-                .attr("r", function (d) {
-                    return radius(d.transfer_count);
-                })
-                .attr("d", $scope.path)
-                .on("mousemove", mouseover)
-                .on("mouseout", mouseout)
+            });
             usSpinnerService.stop('spinner-map');
         }
 
@@ -101,25 +118,18 @@ angular
                 "translate(" + zoom.translate() + ")" +
                 "scale(" + zoom.scale() + ")"
             );
-            g.select("subunit-boundary").style("stroke-width", 1 / zoom.scale() + "px");
+            g.select("land").style("stroke-width", 1 / zoom.scale() + "px");
         }
-
+        //
         function mouseover(d) {
-            var mouse = d3.mouse(g.node()).map(function(d) { return parseInt(d); });
-            //g.selectAll("." + d.id)
-            //    .attr("class", function(d) { return "subunit-boundary subunit Group0" + " " + d.id});
+            mouse = d3.mouse(d3.select('rect').node()).map(function(d) { return parseInt(d); });
             tooltip.classed('hidden', false)
                 .attr('style', 'left:' + (mouse[0] +35) + 'px; top:' + (mouse[1] ) + 'px')
-                .html("<p>" + d.properties.name +  "<br> Projects: " + d.project_count + "<br> Payments:"  + d.transfer_count + "</p>");
+                .html("<p>" + d3.select(this).attr("title") +  "<br> Projects: " + d3.select(this).attr("project_count") + "<br> Payments:"  + d3.select(this).attr("transfer_count") + "</p>");
         }
 
         function mouseout(d) {
-            g.selectAll("." + d.id)
-                //.attr("class", function(d) {
-                //    iso2 = getiso2(d.id)
-                //    var value = getprojectnum(iso2);
-                //    var color = getGroup(value);
-                //    return "subunit-boundary subunit Group" + color + " " + d.id});
+            g.selectAll("." +d3.select(this).attr("id"))
             tooltip.classed('hidden', true);
 
         }
@@ -137,18 +147,19 @@ angular
         }
         function radius(value) {
             if (value < 0) return 0;
-            else if (value < 1) return 1;
-            else if (value < 10) return 2
-            else if (value < 15) return 3;
-            else if (value < 30) return 4;
-            else if (value < 50) return 5;
-            else return 6;
+            else if (value < 1) return 4;
+            else if (value < 10) return 5
+            else if (value < 15) return 6;
+            else if (value < 30) return 7;
+            else if (value < 50) return 8;
+            else return 9;
         }
         function interpolateZoom (translate, scale) {
             var self = this;
             return d3.transition().duration(350).tween("zoom", function () {
                 var iTranslate = d3.interpolate(zoom.translate(), translate),
                     iScale = d3.interpolate(zoom.scale(), scale);
+
                 return function (t) {
                     zoom
                         .scale(iScale(t))
@@ -173,50 +184,44 @@ angular
             d3.event.preventDefault();
             direction = (this.id === 'zoomIn') ? 1 : -1;
             target_zoom = zoom.scale() * (1 + factor * direction);
-
             if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
-
             translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
             view.k = target_zoom;
             l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
-
             view.x += center[0] - l[0];
             view.y += center[1] - l[1];
-
             interpolateZoom([view.x, view.y], view.k);
         }
-
         d3.selectAll('button').on('click', zoomClick);
         d3.select(self.frameElement).style("height", height + "px");
-
         $scope.checked = function(check,type){
             if(check==false){$scope.count--;}else{ $scope.count++;}
             if(type =='paymentsCheckbox' && check==false){
                 d3.select('.map_data').selectAll('.bubble').attr("class", function (d) {
-                    return "bubble-boundary bubble Group0 " + d.id;
+                    return "bubble-boundary bubble Group0 " + d3.select(this).attr("id");
                 })
             }
             if(type =='projCheckbox' && check==false){
                 d3.select('.map_data').selectAll('.subunit')
                     .attr("class", function (d) {
-                        return "subunit-boundary subunit Group1 " + d.id;
+                        return "subunit-boundary subunit Group1 " + d3.select(this).attr("id");
                     })
             }
             if(type =='projCheckbox' && check==true){
                 g.selectAll(".subunit")
                     .attr("class", function (d) {
-                        var color = getGroup(d.project_count);
-                        return "subunit-boundary subunit Group" + color + " " + d.id;
+                        color = getGroup(d3.select(this).attr("project_count"));
+                        return "subunit-boundary subunit Group" + color + " " + d3.select(this).attr("id");
                     })
             }
             if(type =='paymentsCheckbox' && check==true) {
                 g.selectAll(".bubble")
                     .attr("class", function (d) {
-                        var color = 0;
-                        if (d.transfer_count > 0) {
+                        color = 0;
+                        if (d3.select(this).attr("transfer_count") > 0) {
                             color = 1
                         }
-                        return "bubble-boundary bubble Group" + color + " " + d.id;
+                        return "bubble-boundary bubble Group" + color + " " + d3.select(this).attr("id");
                     })
             }
         }

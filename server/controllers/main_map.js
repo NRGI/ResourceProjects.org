@@ -16,7 +16,7 @@ var Country 		= require('mongoose').model('Country'),
 //Get main map
 exports.getMainMap = function(req, res) {
 
-    var config = require('../includes/newworld.json');
+    var config = require('../includes/capitals.json');
     var finalCountrySet,errorList=[];
 
     async.waterfall([

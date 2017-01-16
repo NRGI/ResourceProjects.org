@@ -867,10 +867,6 @@ a.layers {
   position: relative width 40px;
   -webkit-user-select: none -moz-user-select none -ms-user-select none;
 }
-.onoffswitch-checkbox,
-.onoffswitch-proj-checkbox {
-  display: none;
-}
 .onoffswitch-label,
 .onoffswitch-proj-label {
   display: block overflow hidden cursor pointer;
