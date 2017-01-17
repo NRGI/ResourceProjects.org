@@ -2,7 +2,7 @@
 
 angular
     .module('app')
-    .controller('nrgiMapCtrl', function ($scope,$rootScope, nrgiMainMapSrvc, $http,usSpinnerService) {
+    .controller('nrgiMapCtrl', function ($scope,$rootScope, nrgiMainMapSrvc, $http,usSpinnerService,$location) {
 
         usSpinnerService.spin('spinner-map');
         var zoom = d3.behavior.zoom()
@@ -26,7 +26,6 @@ angular
                 console.log('Error')
             }
         })
-
         function drawmap() {
             d3.xml("../../assets/worldWithAntarcticaHigh.svg", function(xml) {
                 d3.select(".map_data").node()
@@ -50,6 +49,7 @@ angular
                     })
                     .on("mousemove", mouseover)
                     .on("mouseout", mouseout)
+                    .on('click', clickCountry)
                 angular.forEach($scope.resourceproject,function(resourceproject){
                     angular.forEach($scope.countries[0],function(country){
                         if(country.id == resourceproject.iso2) {
@@ -66,13 +66,14 @@ angular
                                 })
                                 .on("mousemove", mouseover)
                                 .on("mouseout", mouseout)
+                                .on('click', clickCountry)
                             coords = $scope.capitals.filter(function (item) {
                                 return item.iso2 === country.id;
                             });
                             coords = coords[0];
                             if (coords) {
                                 circle = d3.select("g").append('circle')
-                                    .attr("class", function (d) {
+                                    .attr("class", function () {
                                         color = 0;
                                         if (resourceproject.transfer_count > 0) {
                                             color = 1
@@ -85,6 +86,8 @@ angular
                                         return resourceproject.project_count;
                                     }).attr("title", function () {
                                         return  d3.select('#' + country.id).attr('title');
+                                    }).attr("id", function () {
+                                        return  country.id;
                                     })
                                     .attr("d", $scope.path)
                                     .attr("transform", function (d) {
@@ -103,6 +106,7 @@ angular
                                     .attr("r", function (d) {
                                         return radius(resourceproject.transfer_count);
                                     })
+                                    .on('click', clickCountry)
                                     .on("mousemove", mouseover)
                                     .on("mouseout", mouseout)
                             }
@@ -120,18 +124,23 @@ angular
             );
             g.select("land").style("stroke-width", 1 / zoom.scale() + "px");
         }
-        //
-        function mouseover(d) {
+        function mouseover() {
             mouse = d3.mouse(d3.select('rect').node()).map(function(d) { return parseInt(d); });
+            d3.select(this).style("cursor", "pointer")
             tooltip.classed('hidden', false)
                 .attr('style', 'left:' + (mouse[0] +35) + 'px; top:' + (mouse[1] ) + 'px')
                 .html("<p>" + d3.select(this).attr("title") +  "<br> Projects: " + d3.select(this).attr("project_count") + "<br> Payments:"  + d3.select(this).attr("transfer_count") + "</p>");
         }
-
-        function mouseout(d) {
+        function mouseout() {
             g.selectAll("." +d3.select(this).attr("id"))
+            d3.select(this).style("cursor", "default")
             tooltip.classed('hidden', true);
 
+        }
+        function clickCountry() {
+            console.log(d3.select(this).attr("id"))
+            $location.path('/country/'+d3.select(this).attr("id"));
+            $scope.$apply()
         }
         function getGroup(value) {
             if (value < 1) return 1;

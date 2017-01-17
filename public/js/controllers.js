@@ -2143,7 +2143,8 @@ angular.module('app').controller('nrgiMapCtrl', [
   'nrgiMainMapSrvc',
   '$http',
   'usSpinnerService',
-  function ($scope, $rootScope, nrgiMainMapSrvc, $http, usSpinnerService) {
+  '$location',
+  function ($scope, $rootScope, nrgiMainMapSrvc, $http, usSpinnerService, $location) {
     usSpinnerService.spin('spinner-map');
     var zoom = d3.behavior.zoom().scaleExtent([
         0.7,
@@ -2254,6 +2255,8 @@ angular.module('app').controller('nrgiMapCtrl', [
     }
     function clickCountry() {
       console.log(d3.select(this).attr('id'));
+      $location.path('/country/' + d3.select(this).attr('id'));
+      $scope.$apply();
     }
     function getGroup(value) {
       if (value < 1)
