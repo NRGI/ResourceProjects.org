@@ -190,7 +190,7 @@ angular
                 .attr("class","foreignobj")
                 .append("xhtml:div")
                 .attr("dy", ".75em")
-                .html(function(d) { return '<i style="font-size: 10px;">Payments To</i> </br>' + d.name +'</br> <b>'+ (d.value / 1000000).toFixed(1)+' Million</b>'; })
+                .html(function(d) { return '<i style="font-size: 10px;">Payment:</i> </br>' + d.name +'</br> <b>'+ (d.value / 1000000).toFixed(1)+' Million</b>'; })
                 .attr("class","textdiv");
 
             function transition(d) {

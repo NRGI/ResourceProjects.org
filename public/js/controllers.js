@@ -3829,7 +3829,7 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
       }).enter().append('rect').attr('class', 'child').call(rect);
       g.append('rect').attr('class', 'parent').call(rect);
       g.append('foreignObject').call(rect).attr('class', 'foreignobj').append('xhtml:div').attr('dy', '.75em').html(function (d) {
-        return '<i style="font-size: 10px;">Payments To</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b>';
+        return '<i style="font-size: 10px;">Payment:</i> </br>' + d.name + '</br> <b>' + (d.value / 1000000).toFixed(1) + ' Million</b>';
       }).attr('class', 'textdiv');
       function transition(d) {
         if (transitioning || !d)
