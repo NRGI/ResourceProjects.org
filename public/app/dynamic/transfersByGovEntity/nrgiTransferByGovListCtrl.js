@@ -73,11 +73,13 @@ angular.module('app')
         $scope.$watch('year_filter', function(year) {
             $scope.year = year;
             $scope.new =true;
-            if(year && year!='Show all years') {
+            if(searchOptions.transfer_year!=year && year && year!='Show all years') {
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_year = year;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_year&&year=='Show all years'){
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_year;
                 $scope.load(searchOptions);
@@ -86,11 +88,13 @@ angular.module('app')
         $scope.$watch('currency_filter', function(currency) {
             $scope.currency = currency;
             $scope.new =true;
-            if(currency && currency!='Show all currency') {
+            if(searchOptions.transfer_unit!=currency && currency && currency!='Show all currency') {
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_unit = currency;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_unit&&currency=='Show all currency'){
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_unit;
                 $scope.load(searchOptions);
@@ -99,10 +103,12 @@ angular.module('app')
         $scope.$watch('type_filter', function(type) {
             $scope.type = type;
             if(type && type!='Show all types') {
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_type = type;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_type&&type=='Show all types'){
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_type;
                 $scope.load(searchOptions);
@@ -111,10 +117,12 @@ angular.module('app')
         $scope.$watch('company_filter', function(company) {
             $scope.company = company;
             if(company&&company!='Show all companies') {
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.company = company;
                 $scope.load(searchOptions);
             }else if(searchOptions.company&&company=='Show all companies'){
+                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.company;
                 $scope.load(searchOptions);
@@ -133,7 +141,7 @@ angular.module('app')
             {name: 'Year', status: true, field: 'transfer_year'},
             {name: 'Paid by', status: true, field: 'company'},
             {name: 'Paid to', status: true, field: 'country'},
-            {name: 'Gov entity', status: true, field: 'transfer_gov_entity'},
+            {name: 'Government entity', status: true, field: 'transfer_gov_entity'},
             {name: 'Level ', status: true, field: 'transfer_level'},
             {name: 'Payment Type', status: true, field: 'transfer_type'},
             {name: 'Currency', status: true, field: 'transfer_unit'},

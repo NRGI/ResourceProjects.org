@@ -2175,7 +2175,7 @@ angular.module('app').controller('nrgiMapCtrl', [
           return 0;
         }).attr('transfer_count', function () {
           return 0;
-        }).on('mousemove', mouseover).on('mouseout', mouseout);
+        }).on('mousemove', mouseover).on('mouseout', mouseout).on('click', clickCountry);
         angular.forEach($scope.resourceproject, function (resourceproject) {
           angular.forEach($scope.countries[0], function (country) {
             if (country.id == resourceproject.iso2) {
@@ -2186,13 +2186,13 @@ angular.module('app').controller('nrgiMapCtrl', [
                 return resourceproject.project_count;
               }).attr('transfer_count', function () {
                 return resourceproject.transfer_count;
-              }).on('mousemove', mouseover).on('mouseout', mouseout);
+              }).on('mousemove', mouseover).on('mouseout', mouseout).on('click', clickCountry);
               coords = $scope.capitals.filter(function (item) {
                 return item.iso2 === country.id;
               });
               coords = coords[0];
               if (coords) {
-                circle = d3.select('g').append('circle').attr('class', function (d) {
+                circle = d3.select('g').append('circle').attr('class', function () {
                   color = 0;
                   if (resourceproject.transfer_count > 0) {
                     color = 1;
@@ -2204,6 +2204,8 @@ angular.module('app').controller('nrgiMapCtrl', [
                   return resourceproject.project_count;
                 }).attr('title', function () {
                   return d3.select('#' + country.id).attr('title');
+                }).attr('id', function () {
+                  return country.id;
                 }).attr('d', $scope.path).attr('transform', function (d) {
                   element = d3.select('#' + country.id).node();
                   if (element.getBBox().width > 50 && element.getBBox().height > 50) {
@@ -2226,7 +2228,7 @@ angular.module('app').controller('nrgiMapCtrl', [
                   }
                 }).attr('r', function (d) {
                   return radius(resourceproject.transfer_count);
-                }).on('mousemove', mouseover).on('mouseout', mouseout);
+                }).on('click', clickCountry).on('mousemove', mouseover).on('mouseout', mouseout);
               }
             }
           });
@@ -2238,16 +2240,20 @@ angular.module('app').controller('nrgiMapCtrl', [
       g.attr('transform', 'translate(' + zoom.translate() + ')' + 'scale(' + zoom.scale() + ')');
       g.select('land').style('stroke-width', 1 / zoom.scale() + 'px');
     }
-    //
-    function mouseover(d) {
+    function mouseover() {
       mouse = d3.mouse(d3.select('rect').node()).map(function (d) {
         return parseInt(d);
       });
+      d3.select(this).style('cursor', 'pointer');
       tooltip.classed('hidden', false).attr('style', 'left:' + (mouse[0] + 35) + 'px; top:' + mouse[1] + 'px').html('<p>' + d3.select(this).attr('title') + '<br> Projects: ' + d3.select(this).attr('project_count') + '<br> Payments:' + d3.select(this).attr('transfer_count') + '</p>');
     }
-    function mouseout(d) {
+    function mouseout() {
       g.selectAll('.' + d3.select(this).attr('id'));
+      d3.select(this).style('cursor', 'default');
       tooltip.classed('hidden', true);
+    }
+    function clickCountry() {
+      console.log(d3.select(this).attr('id'));
     }
     function getGroup(value) {
       if (value < 1)
@@ -6031,7 +6037,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         {
           name: 'Value ',
           status: true,
-          field: 'transferValue'
+          field: 'transfer_value'
         }
       ];
     angular.forEach(headers, function (header) {
@@ -6055,7 +6061,8 @@ angular.module('app').controller('nrgiTransferListCtrl', [
         angular.forEach(response.transfers, function (transfer, key) {
           $scope.csv_transfers[key] = [];
           angular.forEach(fields, function (field) {
-            if (field == 'transferValue') {
+            if (field == 'transfer_value') {
+              console.log(transfer[field]);
               transferValue = '';
               transferValue = $filter('currency')(transfer[field], '', 0);
               $scope.csv_transfers[key].push(transferValue);
@@ -6070,8 +6077,8 @@ angular.module('app').controller('nrgiTransferListCtrl', [
             }
             if (field == 'company') {
               companyName = '';
-              if (transfer[field] != undefined && transfer[field].companyName) {
-                companyName = transfer[field].companyName.toString();
+              if (transfer[field] != undefined && transfer[field].company_name) {
+                companyName = transfer[field].company_name.toString();
                 companyName = companyName.charAt(0).toUpperCase() + companyName.substr(1);
               }
               $scope.csv_transfers[key].push(companyName);
@@ -6103,7 +6110,7 @@ angular.module('app').controller('nrgiTransferListCtrl', [
               }
               $scope.csv_transfers[key].push(id);
             }
-            if (field != 'company' && field != 'transfer_gov_entity' && field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transferValue') {
+            if (field != 'company' && field != 'transfer_gov_entity' && field != 'country' && field != 'proj_site' && field != 'proj_id' && field != 'transfer_value') {
               $scope.csv_transfers[key].push(transfer[field]);
             }
           });
@@ -6187,7 +6194,8 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
     $scope.$watch('year_filter', function (year) {
       $scope.year = year;
       $scope.new = true;
-      if (year && year != 'Show all years') {
+      if (searchOptions.transfer_year != year && year && year != 'Show all years') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6195,6 +6203,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
         searchOptions.transfer_year = year;
         $scope.load(searchOptions);
       } else if (searchOptions.transfer_year && year == 'Show all years') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6206,7 +6215,8 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
     $scope.$watch('currency_filter', function (currency) {
       $scope.currency = currency;
       $scope.new = true;
-      if (currency && currency != 'Show all currency') {
+      if (searchOptions.transfer_unit != currency && currency && currency != 'Show all currency') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6214,6 +6224,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
         searchOptions.transfer_unit = currency;
         $scope.load(searchOptions);
       } else if (searchOptions.transfer_unit && currency == 'Show all currency') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6225,6 +6236,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
     $scope.$watch('type_filter', function (type) {
       $scope.type = type;
       if (type && type != 'Show all types') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6232,6 +6244,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
         searchOptions.transfer_type = type;
         $scope.load(searchOptions);
       } else if (searchOptions.transfer_type && type == 'Show all types') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6243,6 +6256,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
     $scope.$watch('company_filter', function (company) {
       $scope.company = company;
       if (company && company != 'Show all companies') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6250,6 +6264,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
         searchOptions.company = company;
         $scope.load(searchOptions);
       } else if (searchOptions.company && company == 'Show all companies') {
+        $scope.transfers = [];
         $scope.skip = 0;
         searchOptions.skip = 0;
         searchOptions.limit = 500;
@@ -6284,7 +6299,7 @@ angular.module('app').controller('nrgiTransferByGovListCtrl', [
           field: 'country'
         },
         {
-          name: 'Gov entity',
+          name: 'Government entity',
           status: true,
           field: 'transfer_gov_entity'
         },
