@@ -13,7 +13,7 @@ angular
         var fields = [];
         var limit = 50,
             currentPage = 0;
-        var headers = [{name: 'Project ID', status: true, field: 'proj_id'},
+        var headers = [{name: 'Project ID', status: true, field: 'project_id'},
             {name: 'Name', status: true, field: 'proj_name'},
             {name: 'Country', status: $scope.country, field: 'proj_country'},
             {name: 'Commodity Type ', status: $scope.type, field: 'proj_type'},

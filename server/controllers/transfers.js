@@ -38,7 +38,9 @@ exports.getTransferFilters = function(req, res) {
         Transfer.aggregate([
             {$match: country},
             {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
-            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}}
+            {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
+            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+            {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}}
         ]).exec(function (err, transfers) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'Transfers');
@@ -51,6 +53,11 @@ exports.getTransferFilters = function(req, res) {
                     data.filters.company_selector = _.groupBy(transfers, function (doc) {
                         if (doc && doc.company && doc.company._id) {
                             return doc.company._id;
+                        }
+                    });
+                    data.filters.country_selector = _.groupBy(transfers, function (doc) {
+                        if (doc && doc.country && doc.country._id) {
+                            return doc.country._id;
                         }
                     });
                     callback(null, data);
@@ -71,6 +78,7 @@ exports.getTransfers = function(req, res) {
     req.query.transfer_level={ $nin: [ 'country' ] };
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
     if(req.query.company){req.query.company = mongoose.Types.ObjectId(req.query.company);}
+    if(req.query.country){req.query.country = mongoose.Types.ObjectId(req.query.country);}
     data.errorList = [];
     data.transfers = [];
     data.count = 0;
@@ -180,6 +188,7 @@ exports.getTransfersByGov = function(req, res) {
     req.query.transfer_level='country';
     if(req.query.transfer_year){req.query.transfer_year = parseInt(req.query.transfer_year);}
     if(req.query.company){req.query.company = mongoose.Types.ObjectId(req.query.company);}
+    if(req.query.country){req.query.country = mongoose.Types.ObjectId(req.query.country);}
 
     data.errorList = [];
     data.transfers = [];

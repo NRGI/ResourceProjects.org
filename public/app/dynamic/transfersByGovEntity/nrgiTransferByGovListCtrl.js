@@ -19,7 +19,7 @@ angular.module('app')
         $scope.transfers=[];
         $scope.currency = '';
         $scope.year = '';
-        $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
+        $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';$scope.country_filter='Show all countries';
 
         $scope.load = function(searchOptions) {
             searchOptions.skip = $scope.skip;
@@ -44,6 +44,7 @@ angular.module('app')
                 $scope.currency_selector = response.filters.currency_selector;
                 $scope.type_selector = response.filters.type_selector;
                 $scope.company_selector = response.filters.company_selector;
+                $scope.country_selector = response.filters.country_selector;
                 if (_.has($scope.currency_selector, "USD")) {
                     $scope.currency_filter = 'USD';
                 } else if ($scope.currency_selector && Object.keys($scope.currency_selector)[0]) {
@@ -74,12 +75,10 @@ angular.module('app')
             $scope.year = year;
             $scope.new =true;
             if(searchOptions.transfer_year!=year && year && year!='Show all years') {
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_year = year;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_year&&year=='Show all years'){
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_year;
                 $scope.load(searchOptions);
@@ -89,12 +88,10 @@ angular.module('app')
             $scope.currency = currency;
             $scope.new =true;
             if(searchOptions.transfer_unit!=currency && currency && currency!='Show all currency') {
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_unit = currency;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_unit&&currency=='Show all currency'){
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_unit;
                 $scope.load(searchOptions);
@@ -103,12 +100,10 @@ angular.module('app')
         $scope.$watch('type_filter', function(type) {
             $scope.type = type;
             if(type && type!='Show all types') {
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.transfer_type = type;
                 $scope.load(searchOptions);
             }else if(searchOptions.transfer_type&&type=='Show all types'){
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.transfer_type;
                 $scope.load(searchOptions);
@@ -117,14 +112,24 @@ angular.module('app')
         $scope.$watch('company_filter', function(company) {
             $scope.company = company;
             if(company&&company!='Show all companies') {
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 searchOptions.company = company;
                 $scope.load(searchOptions);
             }else if(searchOptions.company&&company=='Show all companies'){
-                $scope.transfers=[];
                 $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
                 delete searchOptions.company;
+                $scope.load(searchOptions);
+            }
+        });
+        $scope.$watch('country_filter', function(country) {
+            $scope.country = country;
+            if(country&&country!='Show all countries') {
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
+                searchOptions.country = country;
+                $scope.load(searchOptions);
+            }else if(searchOptions.country&&country=='Show all countries'){
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
+                delete searchOptions.country;
                 $scope.load(searchOptions);
             }
         });
@@ -139,8 +144,8 @@ angular.module('app')
 
         var headers = [
             {name: 'Year', status: true, field: 'transfer_year'},
-            {name: 'Paid by', status: true, field: 'company'},
-            {name: 'Paid to', status: true, field: 'country'},
+            {name: 'Company', status: true, field: 'company'},
+            {name: 'Country', status: true, field: 'country'},
             {name: 'Government entity', status: true, field: 'transfer_gov_entity'},
             {name: 'Level ', status: true, field: 'transfer_level'},
             {name: 'Payment Type', status: true, field: 'transfer_type'},

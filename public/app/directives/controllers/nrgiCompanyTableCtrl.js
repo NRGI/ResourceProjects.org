@@ -1,7 +1,7 @@
 'use strict';
 angular
     .module('app')
-    .controller('nrgiCompanyTableCtrl', function ($scope, nrgiTablesSrvc, usSpinnerService) {
+    .controller('nrgiCompanyTableCtrl', function ($scope, nrgiTablesSrvc, usSpinnerService,nrgiCSV) {
         $scope.companies=[];
         $scope.openClose=true;
         $scope.loading = false;
@@ -14,6 +14,18 @@ angular
         var limit = 50,
             currentPage = 0;
         var company_group_name='';
+        var headers = [{name: 'Name', status: true, field: 'company_name'},
+            {name: 'Group', status: $scope.group, field: 'company_groups'},
+            {name: 'Stake ', status: $scope.stake, field: 'stake'}];
+        angular.forEach(headers, function (header) {
+            if (header.status != false && header.status != undefined) {
+                header_company.push(header.name);
+                fields.push(header.field);
+            }
+        });
+        $scope.getHeaderCompanyInc = function () {
+            return header_company
+        };
         usSpinnerService.spin('spinner-company');
         $scope.company_of_operation=[];
 
@@ -48,6 +60,25 @@ angular
                 }
             });
         };
+        $scope.loadCompaniesIncCSV = function () {
+            nrgiCSV.setCsv(fields, $scope.companies)
+            return nrgiCSV.getResult()
+        };
+
+        $scope.getAllCompaniesInc = function () {
+            if ($scope.busy == true && $scope.companies.length > 49 || $scope.companies.length < 49) {
+                setTimeout(function () {angular.element(document.getElementById("loadCompanyIncCSV")).trigger('click');}, 0)
+            } else {
+                nrgiTablesSrvc.query({
+                    _id: $scope.countryid,
+                    type: $scope.type, skip: 0, limit: 5000000
+                }, function (data) {
+                    $scope.companies = data.companies
+                    $scope.busy = true;
+                    setTimeout(function () {angular.element(document.getElementById("loadCompanyIncCSV")).trigger('click');}, 0)
+                })
+            }
+        }
         $scope.getCompany=function(id,type) {
             if ($scope.id!=undefined){
                 if ($scope.openClose == true) {

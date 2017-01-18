@@ -6,6 +6,7 @@ angular.module('app')
         var commodityName='';
         var companyName='';
         var countryName='';
+        var groupsName='';
         var typeName='';
         var name='';
         var transferValue='';
@@ -101,7 +102,7 @@ angular.module('app')
                                  csv[key].push('');
                              }
                          }
-                         if (field == 'proj_country' || field == 'site_country' || field == 'concession_country') {
+                         if (field == 'proj_country') {
                              if (p[field] && p[field].length > 0) {
                                  str = '';
                                  angular.forEach(p[field], function (country, i) {
@@ -117,6 +118,36 @@ angular.module('app')
                                          csv[key].push(str);
                                      }
                                  })
+                             } else {
+                                 csv[key].push('');
+                             }
+                         }
+                         if (field == 'company_groups') {
+                             if (p[field] && p[field].length > 0) {
+                                 str = '';
+                                 angular.forEach(p[field], function (groups, i) {
+                                     groupsName = '';
+                                     if (groups != undefined) {
+                                         groupsName = groups.company_group_name.toString();
+                                         groupsName = groupsName.charAt(0).toUpperCase() + groupsName.substr(1);
+                                     }
+                                     if (i != p[field].length - 1) {
+                                         str = str + groupsName + com;
+                                     } else {
+                                         str = str + groupsName;
+                                         csv[key].push(str);
+                                     }
+                                 })
+                             } else {
+                                 csv[key].push('');
+                             }
+                         }
+                         if (field == 'concession_country'|| field == 'site_country') {
+                             if (p[field]) {
+                                 countryName = '';
+                                 countryName = p[field].name.toString();
+                                 countryName = countryName.charAt(0).toUpperCase() + countryName.substr(1);
+                                 csv[key].push(countryName);
                              } else {
                                  csv[key].push('');
                              }
@@ -213,6 +244,13 @@ angular.module('app')
                              }
                              csv[key].push(id);
                          }
+                         if (field == 'project_id') {
+                             id = '';
+                             if (p != undefined && p.proj_id != undefined) {
+                                 id = p.proj_id.toString();
+                             }
+                             csv[key].push(id);
+                         }
                          if (field == 'proj_site') {
                              name = '';
                              if (p[field] != undefined && p[field].name != undefined) {
@@ -224,7 +262,7 @@ angular.module('app')
                              field != 'site_status' && field != 'site_commodity' && field != 'site_commodity_type' && field != 'site_country' &&
                              field != 'concession_status' && field != 'concession_commodities' && field != 'concession_type' && field != 'concession_country' &&
                              field != 'production_commodity' && field != 'proj_site' && field != 'production_level' && field != 'proj_id' &&
-                             field != 'company' && field != 'country' &&  field != 'proj_site_type' && field != 'proj_site_id' && field != 'transfer_value') {
+                             field != 'company' &&field != 'company_groups' && field != 'country' &&  field != 'proj_site_type' && field != 'proj_site_id' && field != 'transfer_value' && field != 'project_id') {
                              csv[key].push(p[field]);
                          }
                          if (data.length - 1 == key && fields.length - 1 == i) {

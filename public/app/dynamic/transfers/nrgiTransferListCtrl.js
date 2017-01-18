@@ -19,7 +19,7 @@ angular.module('app')
         $scope.transfers=[];
         $scope.currency = '';
         $scope.year = '';
-        $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
+        $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';$scope.country_filter='Show all countries';
 
         $scope.load = function(searchOptions) {
             searchOptions.skip = $scope.skip;
@@ -47,6 +47,7 @@ angular.module('app')
                 $scope.currency_selector = response.filters.currency_selector;
                 $scope.type_selector = response.filters.type_selector;
                 $scope.company_selector = response.filters.company_selector;
+                $scope.country_selector = response.filters.country_selector;
                 if (_.has($scope.currency_selector, "USD")) {
                     $scope.currency_filter = 'USD';
                 } else if ($scope.currency_selector && Object.keys($scope.currency_selector)[0]) {
@@ -128,6 +129,18 @@ angular.module('app')
                 $scope.load(searchOptions);
             }
         });
+        $scope.$watch('country_filter', function(country) {
+            $scope.country = country;
+            if(country&&country!='Show all countries') {
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
+                searchOptions.country = country;
+                $scope.load(searchOptions);
+            }else if(searchOptions.country&&country=='Show all countries'){
+                $scope.skip=0; searchOptions.skip=0; searchOptions.limit= 500; currentPage = 0;
+                delete searchOptions.country;
+                $scope.load(searchOptions);
+            }
+        });
         $scope.loadMore = function() {
             if ($scope.busy) return;
             $scope.busy = true;
@@ -139,8 +152,8 @@ angular.module('app')
 
         var headers = [
             {name: 'Year', status: true, field: 'transfer_year'},
-            {name: 'Paid by', status: true, field: 'company'},
-            {name: 'Paid to', status: true, field: 'country'},
+            {name: 'Company', status: true, field: 'company'},
+            {name: 'Country', status: true, field: 'country'},
             {name: 'Project', status: true, field: 'proj_site'},
             {name: 'Project ID', status: true, field: 'proj_id'},
             {name: 'Level ', status: true, field: 'transfer_gov_entity'},

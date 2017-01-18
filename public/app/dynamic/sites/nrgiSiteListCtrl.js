@@ -48,8 +48,8 @@ angular.module('app')
                             str = '';
                             angular.forEach(site[field], function (country, i) {
                                 country_name = '';
-                                if (country != undefined && country.country && country.country.name) {
-                                    country_name = country.country.name.toString();
+                                if (country != undefined &&  country.name) {
+                                    country_name = country.name.toString();
                                     country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                                 }
                                 if (i != site[field].length - 1 && country_name != '') {

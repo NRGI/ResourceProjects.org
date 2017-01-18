@@ -537,6 +537,9 @@ table .table-header-fixed {
   min-height: 330px;
   border: 1px solid #d3d3d3;
 }
+.right_button {
+  float: right !important;
+}
 @-moz-keyframes sk-bounce {
   0%, 100% {
     transform: scale(0);

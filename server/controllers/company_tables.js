@@ -142,7 +142,7 @@ exports.getCompanyTable = function(req, res) {
             companies.companies_of_operation = [];
             Company.aggregate([
                 {$unwind: '$countries_of_operation'},
-                {$match: {'countries_of_operation.country': _id}},
+                {$match: {'countries_of_operation.country': id}},
                 {
                     $group: {
                         _id: '$_id', company_name: {$first: '$company_name'},
@@ -181,7 +181,7 @@ exports.getCompanyTable = function(req, res) {
             companies.companies = [];
             Company.aggregate([
                 {$unwind:"$country_of_incorporation"},
-                {$match:{'country_of_incorporation.country':_id}},
+                {$match:{'country_of_incorporation.country':id}},
                 {$group:{
                     _id:'$_id',company_name:{$first:'$company_name'},
                     country_of_incorporation:{$first:'$country_of_incorporation'}

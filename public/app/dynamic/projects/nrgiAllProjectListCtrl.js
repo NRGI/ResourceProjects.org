@@ -33,7 +33,7 @@ angular.module('app')
                             angular.forEach(project[field], function (proj, i) {
                                 country_name = '';
                                 if (proj != undefined) {
-                                    country_name = proj.country.name.toString();
+                                    country_name = proj.name.toString();
                                     country_name = country_name.charAt(0).toUpperCase() + country_name.substr(1);
                                 }
                                 if (i != project[field].length - 1 && country_name != '') {
@@ -52,8 +52,8 @@ angular.module('app')
                             str = '';
                             angular.forEach(project[field], function (proj, i) {
                                 company_name = '';
-                                if (proj != undefined &&  proj.company &&  proj.company.company_name) {
-                                    company_name = proj.company.company_name.toString();
+                                if (proj != undefined &&  proj &&  proj.company_name) {
+                                    company_name = proj.company_name.toString();
                                     company_name = company_name.charAt(0).toUpperCase() + company_name.substr(1);
                                 }
                                 if (i != project[field].length - 1 && company_name != '') {
@@ -79,7 +79,7 @@ angular.module('app')
             $scope.projects = response.projects;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
-            //$scope.createDownloadList($scope.projects);
+            $scope.createDownloadList($scope.projects);
         });
 
         $scope.loadMore = function() {
@@ -90,7 +90,7 @@ angular.module('app')
                     $scope.projects = _.union($scope.projects, response.projects);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    //$scope.createDownloadList($scope.projects);
+                    $scope.createDownloadList($scope.projects);
                 });
             }
         };

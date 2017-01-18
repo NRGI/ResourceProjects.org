@@ -1,7 +1,7 @@
 'use strict';
 angular
     .module('app')
-    .controller('nrgiCompanyOperationTableCtrl', function ($scope,nrgiTablesSrvc,usSpinnerService) {
+    .controller('nrgiCompanyOperationTableCtrl', function ($scope,nrgiTablesSrvc,usSpinnerService,nrgiCSV) {
         $scope.companies=[];
         $scope.openClose=true;
         $scope.loading = false;
@@ -14,6 +14,18 @@ angular
         var com = ', ';
         var limit = 50,
             currentPage = 0;
+        var headers = [{name: 'Name', status: true, field: 'company_name'},
+            {name: 'Group', status: $scope.group, field: 'company_groups'},
+            {name: 'Stake ', status: $scope.stake, field: 'stake'}];
+        angular.forEach(headers, function (header) {
+            if (header.status != false && header.status != undefined) {
+                header_company.push(header.name);
+                fields.push(header.field);
+            }
+        });
+        $scope.getHeaderCompany = function () {
+            return header_company
+        };
         usSpinnerService.spin('spinner-companyOperation');
         $scope.$watch('id', function(value) {
             if($scope.type=='countries_of_operation'&&value!=undefined){
@@ -46,6 +58,27 @@ angular
                 }
             });
         };
+
+        $scope.loadCompaniesCSV = function () {
+            nrgiCSV.setCsv(fields, $scope.companies)
+            return nrgiCSV.getResult()
+        };
+
+        $scope.getAllCompanies = function () {
+            if ($scope.busy == true && $scope.companies.length > 49 || $scope.companies.length < 49) {
+                setTimeout(function () {angular.element(document.getElementById("loadCompanyCSV")).trigger('click');}, 0)
+            } else {
+                nrgiTablesSrvc.query({
+                    _id: $scope.countryid,
+                    type: $scope.type, skip: 0, limit: 5000000
+                }, function (data) {
+                    $scope.companies = data.companies
+                    $scope.busy = true;
+                    setTimeout(function () {angular.element(document.getElementById("loadCompanyCSV")).trigger('click');}, 0)
+                })
+            }
+        }
+
         $scope.getCompanyOperation=function(id,type) {
             if ($scope.id != undefined) {
                 if ($scope.openClose == true) {

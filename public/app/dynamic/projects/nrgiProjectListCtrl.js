@@ -10,7 +10,7 @@ angular.module('app')
         //nrgiProjectsWithIsoSrvc,
         $filter
     ) {
-        var limit = 50,
+        var limit = 5000,
             currentPage = 0,
             totalPages = 0;
 
@@ -113,16 +113,17 @@ angular.module('app')
                     if (field == 'proj_status') {
                         if(project[field]!=undefined&&project[field].length > 0) {
                             str = '';
-                            angular.forEach(project[field], function (proj_status, i) {
-                                status = '';
-                                if (proj_status != undefined) {
-                                    status = proj_status.string.toString();
-                                    status = status.charAt(0).toUpperCase() + status.substr(1);
-                                    timestamp = $filter('date')(proj_status.timestamp,'MM/dd/yyyy @ h:mma');
-                                    str = status + '(true at '+timestamp+')';
-                                    $scope.csv_projects[key].push(str);
-                                }
-                            });
+                            var proj_status = project[field];
+                            status = '';
+                            if (proj_status[project[field].length-1] != undefined) {
+                                status = proj_status[project[field].length-1].string.toString();
+                                status = status.charAt(0).toUpperCase() + status.substr(1);
+                                timestamp = $filter('date')(status[project[field].length-1].timestamp,'MM/dd/yyyy @ h:mma');
+                                str = status + '(true at '+timestamp+')';
+                                $scope.csv_projects[key].push(str);
+                            } else {
+                                $scope.csv_projects[key].push(str)
+                            }
                         } else {
                             $scope.csv_projects[key].push('')
                         }

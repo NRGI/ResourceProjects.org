@@ -42,6 +42,12 @@ data-target="#companies")
                 =' '
                 a(
                 href=""
-                ng-csv="csv_company"
-                csv-header="getHeaderCompany()"
-                filename="companies.csv") Companies CSV
+                ng-click='getAllCompaniesInc()') Companies CSV
+                button(
+                class='hidden'
+                id='loadCompanyIncCSV'
+                href=""
+                ng-csv="loadCompaniesIncCSV()"
+                lazy-load='true'
+                csv-header="getHeaderCompanyInc()"
+                filename="companies.csv")

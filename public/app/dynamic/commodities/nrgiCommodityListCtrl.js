@@ -12,8 +12,8 @@ angular.module('app')
             totalPages = 0;
 
         $scope.csv_commodities = [];
-        var fields = ['commodity_name', 'projects', 'fields', 'sites', 'contract', 'concessions'];
-        var header_commodities = ['Name', 'No. Projects', 'No. Fields', 'No. Sites', 'No. Contracts', 'No. Concessions'];
+        var fields = ['commodity_name', 'projects'];
+        var header_commodities = ['Name', 'No. Projects'];
         $scope.getHeaderCommodities = function () {
             return header_commodities
         };
@@ -35,7 +35,7 @@ angular.module('app')
             $scope.commodities = response.commodities;
             totalPages = Math.ceil(response.count / limit);
             currentPage = currentPage + 1;
-            //$scope.createDownloadList($scope.commodities);
+            $scope.createDownloadList($scope.commodities);
         });
 
         $scope.loadMore = function() {
@@ -46,7 +46,7 @@ angular.module('app')
                     $scope.commodities = _.union($scope.commodities, response.commodities);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    //$scope.createDownloadList($scope.commodities);
+                    $scope.createDownloadList($scope.commodities);
                 });
             }
         };
