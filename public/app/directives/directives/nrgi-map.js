@@ -6,7 +6,8 @@ angular
             restrict: 'EA',
             controller: 'nrgiMapCtrl',
             scope: {
-                data:'='
+                height:'=',
+                type:'='
             },
             templateUrl: '/partials/directives/templates/nrgi-map'
         };

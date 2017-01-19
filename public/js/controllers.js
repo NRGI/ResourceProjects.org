@@ -169,7 +169,7 @@ angular.module('app').config([
     }).when('/pie-chart', {
       templateUrl: '/partials/dynamic/pieChart/pie-chart',
       controller: 'nrgiPieChartCtrl'
-    }).when('/treemap', { templateUrl: '/partials/dynamic/treemap/tree-map' }).when('/sunburst-chart', { templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart' }).when('/sunburst-chart-by-gov', { templateUrl: '/partials/dynamic/sunburstChartByGovEntity/sunburst-chart' }).otherwise('/', {
+    }).when('/treemap', { templateUrl: '/partials/dynamic/treemap/tree-map' }).when('/sunburst-chart', { templateUrl: '/partials/dynamic/sunburstChart/sunburst-chart' }).when('/sunburst-chart-by-gov', { templateUrl: '/partials/dynamic/sunburstChartByGovEntity/sunburst-chart' }).when('/map', { templateUrl: '/partials/dynamic/map/map' }).otherwise('/', {
       templateUrl: '/partials/main/main',
       controller: 'nrgiMainCtrl'
     });
@@ -2285,12 +2285,12 @@ angular.module('app').controller('nrgiMapCtrl', [
   'usSpinnerService',
   '$location',
   function ($scope, $rootScope, nrgiMainMapSrvc, $http, usSpinnerService, $location) {
-    usSpinnerService.spin('spinner-map');
     var zoom = d3.behavior.zoom().scaleExtent([
         0.7,
         8
       ]).on('zoom', zoomed);
-    var width = 635, height = 450;
+    usSpinnerService.spin('spinner-map');
+    var width = angular.element('.map_data').width(), height = $scope.height;
     var tooltip = d3.select('.map_data').append('div').attr('class', 'hidden tooltip');
     $scope.projCheckbox = true;
     $scope.paymentsCheckbox = true;
@@ -2309,7 +2309,9 @@ angular.module('app').controller('nrgiMapCtrl', [
       d3.xml('../../assets/worldWithAntarcticaHigh.svg', function (xml) {
         d3.select('.map_data').node().appendChild(xml.documentElement);
         d3.select('svg').attr('width', width).attr('height', height);
-        d3.select('g').attr('transform', 'translate(0,0)scale(0.7)');
+        if ($scope.type != 'map') {
+          d3.select('g').attr('transform', 'translate(0,0)scale(0.7)');
+        }
         d3.select('rect').attr('class', 'overlay').attr('width', width).attr('height', height).call(zoom);
         g = d3.select('g');
         $scope.countries = g.selectAll('.land').attr('project_count', function () {
@@ -2394,7 +2396,6 @@ angular.module('app').controller('nrgiMapCtrl', [
       tooltip.classed('hidden', true);
     }
     function clickCountry() {
-      console.log(d3.select(this).attr('id'));
       $location.path('/country/' + d3.select(this).attr('id'));
       $scope.$apply();
     }
@@ -4229,7 +4230,10 @@ angular.module('app').directive('nrgiMap', function () {
   return {
     restrict: 'EA',
     controller: 'nrgiMapCtrl',
-    scope: { data: '=' },
+    scope: {
+      height: '=',
+      type: '='
+    },
     templateUrl: '/partials/directives/templates/nrgi-map'
   };
 });'use strict';
@@ -6222,7 +6226,6 @@ angular.module('app').controller('nrgiTransferListCtrl', [
           $scope.csv_transfers[key] = [];
           angular.forEach(fields, function (field) {
             if (field == 'transfer_value') {
-              console.log(transfer[field]);
               transferValue = '';
               transferValue = $filter('currency')(transfer[field], '', 0);
               $scope.csv_transfers[key].push(transferValue);

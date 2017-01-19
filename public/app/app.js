@@ -259,6 +259,9 @@ angular.module('app')
             .when('/sunburst-chart-by-gov', {
                 templateUrl: '/partials/dynamic/sunburstChartByGovEntity/sunburst-chart'
             })
+            .when('/map', {
+                templateUrl: '/partials/dynamic/map/map'
+            })
             .otherwise('/', {
                 templateUrl: '/partials/main/main',
                 controller: 'nrgiMainCtrl'

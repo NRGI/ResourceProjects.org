@@ -4,12 +4,12 @@ angular
     .module('app')
     .controller('nrgiMapCtrl', function ($scope,$rootScope, nrgiMainMapSrvc, $http,usSpinnerService,$location) {
 
-        usSpinnerService.spin('spinner-map');
         var zoom = d3.behavior.zoom()
             .scaleExtent([0.7, 8])
             .on("zoom", zoomed);
-        var width = 635,
-            height = 450;
+        usSpinnerService.spin('spinner-map');
+        var width = angular.element('.map_data').width(),
+            height = $scope.height;
         var tooltip = d3.select('.map_data').append('div')
             .attr('class', 'hidden tooltip');
         $scope.projCheckbox =true;
@@ -33,7 +33,9 @@ angular
                 d3.select("svg")
                     .attr("width", width)
                     .attr("height", height)
-                d3.select("g").attr("transform", "translate(0,0)scale(0.7)")
+                if($scope.type != 'map') {
+                    d3.select("g").attr("transform", "translate(0,0)scale(0.7)")
+                }
                 d3.select("rect")
                     .attr("class", "overlay")
                     .attr("width", width)
@@ -138,7 +140,6 @@ angular
 
         }
         function clickCountry() {
-            console.log(d3.select(this).attr("id"))
             $location.path('/country/'+d3.select(this).attr("id"));
             $scope.$apply()
         }

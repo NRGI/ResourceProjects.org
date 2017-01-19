@@ -179,7 +179,6 @@ angular.module('app')
                     $scope.csv_transfers[key] = [];
                     angular.forEach(fields, function (field) {
                         if (field == 'transfer_value') {
-                            console.log(transfer[field]);
                             transferValue = '';
                             transferValue = $filter('currency')(transfer[field], '', 0)
                             $scope.csv_transfers[key].push(transferValue);
