@@ -5365,7 +5365,7 @@ angular.module('app').controller('nrgiProjectListCtrl', [
   'nrgiProjectsSrvc',
   '$filter',
   function ($scope, $rootScope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiProjectsSrvc, $filter) {
-    var limit = 5000, currentPage = 0, totalPages = 0;
+    var limit = 50, currentPage = 0, totalPages = 0;
     $scope.count = 0;
     $scope.busy = false;
     var country_name, str, proj_commodity_type, commodity_name, timestamp, status, com = ', ';

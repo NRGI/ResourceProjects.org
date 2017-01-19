@@ -10,7 +10,8 @@ angular.module('app')
         //nrgiProjectsWithIsoSrvc,
         $filter
     ) {
-        var limit = 5000,
+
+        var limit = 50,
             currentPage = 0,
             totalPages = 0;
 
