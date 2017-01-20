@@ -45,15 +45,15 @@ angular.module('app')
                 $scope.type_selector = response.filters.type_selector;
                 $scope.company_selector = response.filters.company_selector;
                 $scope.country_selector = response.filters.country_selector;
-                if (_.has($scope.currency_selector, "USD")) {
+                if (_.indexOf($scope.currency_selector, "USD")) {
                     $scope.currency_filter = 'USD';
-                } else if ($scope.currency_selector && Object.keys($scope.currency_selector)[0]) {
-                    $scope.currency_filter = Object.keys($scope.currency_selector)[0];
+                } else if ($scope.currency_selector && $scope.currency_selector[0]) {
+                    $scope.currency_filter = $scope.currency_selector[0];
                 }
-                if (_.has($scope.year_selector, "2015")) {
+                if (_.indexOf($scope.year_selector, "2015")) {
                     $scope.year_filter = '2015';
-                } else if ($scope.year_selector && Object.keys($scope.year_selector)[0]) {
-                    $scope.year_filter = Object.keys($scope.year_selector)[0];
+                } else if ($scope.year_selector && $scope.year_selector[0]) {
+                    $scope.year_filter = $scope.year_selector[0];
                 }
                 searchOptions = {
                     skip: $scope.skip,

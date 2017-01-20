@@ -12,6 +12,7 @@ exports.getTransferFilters = function(req, res) {
     data.errorList=[];
     var country={};
     country.company = {$exists: true, $nin: [null]};
+    country.country = {$exists: true, $nin: [null]};
     country.transfer_type = {$exists: true, $nin: [null]};
 
     if(req.params.country == 'false'){
@@ -40,26 +41,33 @@ exports.getTransferFilters = function(req, res) {
             {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
             {$lookup: {from: "countries",localField: "country",foreignField: "_id",as: "country"}},
             {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
-            {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}}
+            {$unwind: {"path": "$country", "preserveNullAndEmptyArrays": true}},
+            {$project:{
+                transfer_year:{_id:'$transfer_year',name:'$transfer_year'},
+                transfer_unit:{_id:'$transfer_unit',name:'$transfer_unit'},
+                transfer_type:{_id:'$transfer_type',name:'$transfer_type'},
+                country:{_id:'$country._id',name:'$country.name'},
+                company:{_id:'$company._id',name:'$company.company_name'}
+            }},
+            {$group:{
+                _id:null,
+                country:{$addToSet:'$country'},
+                company:{$addToSet:'$company'},
+                transfer_unit:{$addToSet:'$transfer_unit'},
+                transfer_year:{$addToSet:'$transfer_year'},
+                transfer_type:{$addToSet:'$transfer_type'}
+            }}
         ]).exec(function (err, transfers) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'Transfers');
                 res.send(data);
             } else {
                 if (transfers.length > 0) {
-                    data.filters.year_selector = _.countBy(transfers, "transfer_year");
-                    data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
-                    data.filters.type_selector = _.countBy(transfers, "transfer_type");
-                    data.filters.company_selector = _.groupBy(transfers, function (doc) {
-                        if (doc && doc.company && doc.company._id) {
-                            return doc.company._id;
-                        }
-                    });
-                    data.filters.country_selector = _.groupBy(transfers, function (doc) {
-                        if (doc && doc.country && doc.country._id) {
-                            return doc.country._id;
-                        }
-                    });
+                    data.filters.year_selector = transfers[0].transfer_year;
+                    data.filters.currency_selector = transfers[0].transfer_unit;
+                    data.filters.type_selector = transfers[0].transfer_type;
+                    data.filters.country_selector = transfers[0].country;
+                    data.filters.company_selector = transfers[0].company;
                     callback(null, data);
                 } else {
                     data.errorList = errors.errorFunction('Transfers', 'not found');
