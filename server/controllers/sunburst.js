@@ -44,16 +44,29 @@ exports.getPayments = function(req, res) {
         Transfer.aggregate([
             {$match: {'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]}}},
             {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
-            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}}
+            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+            {$project:{
+                transfer_year:{_id:'$transfer_year',name:'$transfer_year'},
+                transfer_unit:{_id:'$transfer_unit',name:'$transfer_unit'},
+                transfer_type:{_id:'$transfer_type',name:'$transfer_type'},
+                company:{_id:'$company._id',name:'$company.company_name'}
+            }},
+            {$group:{
+                _id:null,
+                company:{$addToSet:'$company'},
+                transfer_unit:{$addToSet:'$transfer_unit'},
+                transfer_year:{$addToSet:'$transfer_year'},
+                transfer_type:{$addToSet:'$transfer_type'}
+            }}
         ]).exec(function (err, transfers) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'Sunburst');
                 res.send(data);
             } else if (transfers.length>0) {
-                data.filters.year_selector = _.countBy(transfers, "transfer_year");
-                data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
-                data.filters.type_selector=_.countBy(transfers, "transfer_type");
-                data.filters.company_selector=_.groupBy(transfers, function (doc) {if(doc&&doc.company&&doc.company._id){return doc.company._id;}});
+                data.filters.year_selector = transfers[0].transfer_year;
+                data.filters.currency_selector = transfers[0].transfer_unit;
+                data.filters.type_selector = transfers[0].transfer_type;
+                data.filters.company_selector = transfers[0].company;
                 callback(null, data);
             } else {
                 data.errorList = errors.errorFunction('Sunburst','data not found');
@@ -165,7 +178,6 @@ exports.getPayments = function(req, res) {
                 company:1
             }
             },
-
             { $group:
             {
                 "_id": "$country.iso2",
@@ -175,7 +187,6 @@ exports.getPayments = function(req, res) {
                 "size":{ $sum: '$transfer_value' }
             }
             },
-
             {$unwind: "$type"},
             { $group:
             {
@@ -199,7 +210,6 @@ exports.getPayments = function(req, res) {
                 "size":1
             }
             },
-
             { $group:
             {
                 "_id": "$country.iso2",
@@ -210,7 +220,6 @@ exports.getPayments = function(req, res) {
                 size: {$sum:"$size"}
             }
             },
-
             {$unwind: "$country"},
             { $project :
             {
@@ -333,16 +342,29 @@ exports.getPaymentsByGov = function(req, res) {
         Transfer.aggregate([
             {$match: {'transfer_level':'country','company':{ $exists: true,$nin: [ null ]}}},
             {$lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
-            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}}
+            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+            {$project:{
+                transfer_year:{_id:'$transfer_year',name:'$transfer_year'},
+                transfer_unit:{_id:'$transfer_unit',name:'$transfer_unit'},
+                transfer_type:{_id:'$transfer_type',name:'$transfer_type'},
+                company:{_id:'$company._id',name:'$company.company_name'}
+            }},
+            {$group:{
+                _id:null,
+                company:{$addToSet:'$company'},
+                transfer_unit:{$addToSet:'$transfer_unit'},
+                transfer_year:{$addToSet:'$transfer_year'},
+                transfer_type:{$addToSet:'$transfer_type'}
+            }}
         ]).exec(function (err, transfers) {
             if (err) {
                 data.errorList = errors.errorFunction(err,'Sunburst');
                 res.send(data);
             } else if (transfers.length>0) {
-                data.filters.year_selector = _.countBy(transfers, "transfer_year");
-                data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
-                data.filters.type_selector=_.countBy(transfers, "transfer_type");
-                data.filters.company_selector=_.groupBy(transfers, function (doc) {if(doc&&doc.company&&doc.company._id){return doc.company._id;}});
+                data.filters.year_selector = transfers[0].transfer_year;
+                data.filters.currency_selector = transfers[0].transfer_unit;
+                data.filters.type_selector = transfers[0].transfer_type;
+                data.filters.company_selector = transfers[0].company;
                 callback(null, data);
             } else {
                 data.errorList = errors.errorFunction('Sunburst','data not found');

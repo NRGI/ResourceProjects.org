@@ -75,10 +75,11 @@ angular
         $scope.getHeaderTransfers = function () {
             return header_transfer
         };
-
+        $scope.year_selector = []; $scope.currency_selector = []; $scope.type_selector = []; $scope.company_selector =[];
         $scope.year_filter = '2015';
         $scope.currency_filter = 'USD';
-        $scope.type_filter='Show all types'; $scope.company_filter='Show all companies';
+        $scope.type_filter='Show all types';
+        $scope.company_filter='Show all companies';
         var searchOptions = {transfer_unit:'USD',transfer_year:'2015'};
         $scope.load = function(searchOptions) {
             usSpinnerService.spin('spinner-sunburst-by-gov');
@@ -86,7 +87,7 @@ angular
             $scope.sunburst=[];
             nrgiPaymentsByGovSrvc.query(searchOptions,function (response) {
                 $scope.total=0;
-                if(response.sunburstNew&&response.sunburstNew[0].children) {
+                if(response.sunburstNew&&response.sunburstNew[0]&&response.sunburstNew[0].children) {
                     $scope.sunburst = response.sunburstNew;
                     $scope.total = response.sunburstNew[0].total_value;
                     $scope.all_currency_value = response.total;
@@ -122,10 +123,12 @@ angular
                     $scope.options.chart.noData = 'No Data Available.';
                     usSpinnerService.stop('spinner-sunburst-by-gov');
                 }
-                $scope.year_selector = response.filters.year_selector;
-                $scope.currency_selector = response.filters.currency_selector;
-                $scope.type_selector = response.filters.type_selector;
-                $scope.company_selector = response.filters.company_selector;
+                if(response && response.filters) {
+                    $scope.year_selector = response.filters.year_selector;
+                    $scope.currency_selector = response.filters.currency_selector;
+                    $scope.type_selector = response.filters.type_selector;
+                    $scope.company_selector = response.filters.company_selector;
+                }
             }, function(error) {
                 usSpinnerService.stop('spinner-sunburst-by-gov');
             });

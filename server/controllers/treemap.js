@@ -38,15 +38,24 @@ exports.getPayments = function(req, res) {
     function getAllPayment(callback) {
         Transfer.aggregate([
             { $match : {'transfer_level':{ $nin: [ 'country' ] },'company':{ $exists: true,$nin: [ null ]},
-              'project':{$exists: true, $nin: [null]},'transfer_value':{$gt: 1}
+                'project':{$exists: true, $nin: [null]},'transfer_value':{$gt: 1}
+            }},
+            {$project:{
+                transfer_year:{_id:'$transfer_year',name:'$transfer_year'},
+                transfer_unit:{_id:'$transfer_unit',name:'$transfer_unit'}
+            }},
+            {$group:{
+                _id:null,
+                transfer_unit:{$addToSet:'$transfer_unit'},
+                transfer_year:{$addToSet:'$transfer_year'}
             }}
         ]).exec(function (err, transfers) {
                 if (err) {
                     err = new Error('Error: '+ err);
                     return res.send({reason: err.toString()});
                 } else if(transfers.length>0) {
-                    data.filters.year_selector = _.countBy(transfers, "transfer_year");
-                    data.filters.currency_selector = _.countBy(transfers, "transfer_unit");
+                    data.filters.year_selector = transfers[0].transfer_year;
+                    data.filters.currency_selector = transfers[0].transfer_unit;
                     callback(null, data);
                 } else {
                     return res.send({reason: 'not found'});
@@ -93,8 +102,8 @@ exports.getPayments = function(req, res) {
             { $match : req.query},
             { $lookup: {from: "companies",localField: "company",foreignField: "_id",as: "company"}},
             { $lookup: {from: "projects",localField: "project",foreignField: "_id",as: "project"}},
-            {$unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
-            {$unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
+            { $unwind: {"path": "$project", "preserveNullAndEmptyArrays": true}},
+            { $unwind: {"path": "$company", "preserveNullAndEmptyArrays": true}},
             { $project :
             {
                 'company.company_name':1,

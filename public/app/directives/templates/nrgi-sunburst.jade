@@ -11,7 +11,7 @@ div
                         .form-group
                             select.company_filter.form-control(ng-model="year_filter")
                                 option(value="Show all years") Show all years
-                                option(ng-repeat="(key, value) in year_selector" value="{{key}}") {{key}}
+                                option(ng-repeat="year in year_selector| orderBy:'name'" value="{{year.name}}") {{year.name}}
             .col-lg-2
                 .row: b Currency
                 .row
@@ -19,7 +19,7 @@ div
                         .form-group
                             select.company_filter.form-control(ng-model="currency_filter")
                                 option(value="Show all currency") Show all currency
-                                option(ng-repeat="(key, value) in currency_selector" value="{{key}}") {{key}}
+                                
             .col-lg-2
                 .row: b Type
                 .row
@@ -27,7 +27,7 @@ div
                         .form-group
                             select.type_filter.form-control(ng-model="type_filter")
                                 option(value="Show all types") Show all types
-                                option(ng-repeat="(key, value) in type_selector" value="{{key}}") {{key}}
+                                option(ng-repeat="type in type_selector| orderBy:'name'" value="{{type.name}}") {{type.name}}
             .col-lg-2
                 .row: b Paid by
                 .row
@@ -35,7 +35,7 @@ div
                         .form-group
                             select.company_filter.form-control(ng-model="company_filter")
                                 option(value="Show all companies") Show all companies
-                                option(ng-repeat="(key, value) in company_selector" value="{{key}}") {{value[0].company.company_name}}
+                                option(ng-repeat="company in company_selector| orderBy:'name'" value="{{company._id}}") {{company.name}}
             .col-lg-4
                 .row.top-padding-med(ng-if="sunburst.length>0")
                     h5(class="text-center total")
