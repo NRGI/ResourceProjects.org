@@ -70,11 +70,14 @@
                         ng-if="project.proj_status[project.proj_status.length-1]")
                             | {{project.proj_status[project.proj_status.length-1].string | ucfirst | addSpaces}}
                             text.small(ng-if="project.proj_status[project.proj_status.length-1].timestamp")  (true at {{project.proj_status[project.proj_status.length-1].timestamp | date:'MM/dd/yyyy @ h:mma' : timezone}})
-                    td.text-center.proj_company_count {{project.company_count}}
+                    td.text-center(ng-if="project.companies.length>0 && project.company_count<3"): span(ng-repeat="company in project.companies ")
+                        a(href='company/{{company._id}}')
+                            span(ng-bind-html="company.company_name|sanitize")
+                        | {{$last ? '' : ', '}}
+                    td.text-center(ng-if="project.company_count>=3") ({{project.company_count}}) "companies"
+                    td.text-center(ng-if="project.company_count ==0 && project.companies.length==0")
                     td.text-center.proj_transfer_count {{project.transfer_count}}
                     td.text-center.proj_transfer_count {{project.production_count}}
-                    //td.col-md-1.text-center.proj_associated_transfer_count {{project.site_transfers}}
-
     div(ng-if='projects.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
     div(ng-if="projects.length>0")
         .download

@@ -95,6 +95,7 @@ exports.getProjects = function(req, res) {
 
                 }
                 },
+                companies: {$literal: []},
                 company_count: {$literal: 0},
                 transfer_count: {$literal: 0},
                 production_count: {$literal: 0},
@@ -163,7 +164,7 @@ exports.getProjects = function(req, res) {
                     _id:'$project',
                     commodity:{$addToSet:'$commodity'},
                     site:{$addToSet:'$site._id'},
-                    company:{$addToSet:'$company._id'},
+                    companies:{$addToSet:'$company'},
                     p:{$addToSet:'$source_type.p'},
                     c:{$addToSet:'$source_type.c'}
                 }},
@@ -172,7 +173,8 @@ exports.getProjects = function(req, res) {
                 {$project: {
                     source_type: {p:{$cond: { if:  {$eq: ["$p", true] },then:  true ,else:false}}, c:{$cond: { if:  {$eq: ["$c", true] },then:  true ,else:false}}},
                     site: 1,commodity:1,
-                    company_count:{$size:'$company'}
+                    companies:'$companies',
+                    company_count:{$size:'$companies'}
                 }}
             ]).exec(function(err, links) {
                 if (err) {
@@ -188,6 +190,7 @@ exports.getProjects = function(req, res) {
                             });
                             if (list) {
                                 project.proj_commodity.push(list.commodity[0]);
+                                project.companies = list.companies;
                                 project.company_count = list.company_count;
                                 project.queries = _.union(project.queries,list.site);
                                 if(project.source_type.p!=true){
@@ -563,7 +566,6 @@ exports.getProjectByID = function(req, res) {
                         }
                     }}
                 }},
-
                 {$unwind: {"path": "$proj_coordinate", "preserveNullAndEmptyArrays": true}},
                 {$group:{
                     _id:'$project',

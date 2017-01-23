@@ -3167,6 +3167,10 @@ angular.module('app').controller('nrgiSunburstByGovCtrl', [
     $scope.getHeaderTransfers = function () {
       return header_transfer;
     };
+    $scope.year_selector = [];
+    $scope.currency_selector = [];
+    $scope.type_selector = [];
+    $scope.company_selector = [];
     $scope.year_filter = '2015';
     $scope.currency_filter = 'USD';
     $scope.type_filter = 'Show all types';
@@ -3181,7 +3185,7 @@ angular.module('app').controller('nrgiSunburstByGovCtrl', [
       $scope.sunburst = [];
       nrgiPaymentsByGovSrvc.query(searchOptions, function (response) {
         $scope.total = 0;
-        if (response.sunburstNew && response.sunburstNew[0].children) {
+        if (response.sunburstNew && response.sunburstNew[0] && response.sunburstNew[0].children) {
           $scope.sunburst = response.sunburstNew;
           $scope.total = response.sunburstNew[0].total_value;
           $scope.all_currency_value = response.total;
@@ -3216,10 +3220,12 @@ angular.module('app').controller('nrgiSunburstByGovCtrl', [
           $scope.options.chart.noData = 'No Data Available.';
           usSpinnerService.stop('spinner-sunburst-by-gov');
         }
-        $scope.year_selector = response.filters.year_selector;
-        $scope.currency_selector = response.filters.currency_selector;
-        $scope.type_selector = response.filters.type_selector;
-        $scope.company_selector = response.filters.company_selector;
+        if (response && response.filters) {
+          $scope.year_selector = response.filters.year_selector;
+          $scope.currency_selector = response.filters.currency_selector;
+          $scope.type_selector = response.filters.type_selector;
+          $scope.company_selector = response.filters.company_selector;
+        }
       }, function (error) {
         usSpinnerService.stop('spinner-sunburst-by-gov');
       });
@@ -3283,6 +3289,10 @@ angular.module('app').controller('nrgiSunburstCtrl', [
     var fields = [];
     var country_name = '';
     var company_name = '';
+    $scope.year_selector = [];
+    $scope.currency_selector = [];
+    $scope.type_selector = [];
+    $scope.company_selector = [];
     $scope.currency_filter = 'USD';
     $scope.year_filter = '2015';
     $scope.type_filter = 'Show all types';
@@ -3459,10 +3469,12 @@ angular.module('app').controller('nrgiSunburstCtrl', [
           $scope.options.chart.noData = 'No Data Available.';
           usSpinnerService.stop('spinner-sunburst');
         }
-        $scope.year_selector = response.filters.year_selector;
-        $scope.currency_selector = response.filters.currency_selector;
-        $scope.type_selector = response.filters.type_selector;
-        $scope.company_selector = response.filters.company_selector;
+        if (response && response.filters) {
+          $scope.year_selector = response.filters.year_selector;
+          $scope.currency_selector = response.filters.currency_selector;
+          $scope.type_selector = response.filters.type_selector;
+          $scope.company_selector = response.filters.company_selector;
+        }
       }, function (error) {
       });
     };
