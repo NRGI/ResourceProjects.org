@@ -1050,7 +1050,7 @@ foreignObject:hover {
   }
 }
 @supports (-ms-ime-align:auto) {
-  thead {
+  .panel-collapse thead {
     display: block;
   }
 }
