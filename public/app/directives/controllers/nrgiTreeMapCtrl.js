@@ -246,7 +246,7 @@ angular
                 .attr("y", function(d) { return y(d.y); })
                 .attr("width", function(d) { return x(d.x + d.dx) - x(d.x); })
                 .attr("height", function(d) { return y(d.y + d.dy) - y(d.y); })
-                .style("background", function(d) { return d.parent ? color(d.name) : null; });
+                .style("fill", function(d) { return d.parent ? color(d.name) : null; });
         }
 
         function foreign(foreign){ /* added */

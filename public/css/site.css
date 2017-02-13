@@ -1049,3 +1049,8 @@ foreignObject:hover {
     background-image: url("fullscreen@2x.png");
   }
 }
+@supports (-ms-ime-align:auto) {
+  thead {
+    display: block;
+  }
+}

@@ -870,68 +870,6 @@ angular.module('app').controller('nrgiProfileCtrl', [
       });
     };
   }
-]);angular.module('app').controller('nrgiSourceAdminCreateCtrl', [
-  '$scope',
-  '$location',
-  'nrgiNotifier',
-  'nrgiIdentitySrvc',
-  'nrgiProjectsSrvc',
-  'nrgiSourcesMethodSrvc',
-  function ($scope, $location, nrgiNotifier, nrgiIdentitySrvc, nrgiProjectsSrvc, nrgiSourcesMethodSrvc) {
-    var user = [];
-    angular.extend(user, nrgiIdentitySrvc.currentUser);
-    $scope.source = [];
-    $scope.sourceCreate = function () {
-      $scope.source.create_author = user._id;
-      nrgiSourcesMethodSrvc.createSource($scope.source).then(function () {
-        nrgiNotifier.notify('Source created!');
-        $location.path('/admin/source-admin');
-      }, function (reason) {
-        nrgiNotifier.error(reason);
-      });
-    };
-  }
-]);angular.module('app').controller('nrgiSourceAdminCtrl', [
-  '$scope',
-  'nrgiSourcesSrvc',
-  function ($scope, nrgiSourcesSrvc) {
-    nrgiSourcesSrvc.query({
-      skip: 0,
-      limit: 0
-    }, function (response) {
-      $scope.sources = response.data;
-    });
-  }
-]);angular.module('app').controller('nrgiSourceAdminUpdateCtrl', [
-  '$scope',
-  '$routeParams',
-  '$location',
-  'nrgiNotifier',
-  'nrgiProjectsSrvc',
-  'nrgiSourcesMethodSrvc',
-  'nrgiSourcesSrvc',
-  function ($scope, $routeParams, $location, nrgiNotifier, nrgiProjectsSrvc, nrgiSourcesMethodSrvc, nrgiSourcesSrvc) {
-    $scope.source = [];
-    $scope.source = nrgiSourcesSrvc.get({ _id: $routeParams.id });
-    $scope.sourceUpdate = function () {
-      $scope.source.retrieve_date = new Date();
-      nrgiSourcesMethodSrvc.updateSource($scope.source).then(function () {
-        nrgiNotifier.notify('Source has been updated');
-        $location.path('/admin/source-admin');
-      }, function (reason) {
-        nrgiNotifier.error(reason);
-      });
-    };
-    $scope.sourceDelete = function () {
-      var source_deletion = $scope.source._id;
-      nrgiSourcesMethodSrvc.deleteSource(source_deletion).then(function () {
-        nrgiNotifier.notify('Source has been deleted');
-        $location.path('/admin/source-admin');
-      }, function (reason) {
-        nrgiNotifier.error(reason);
-      });
-    };
-  }
 ]);angular.module('app').controller('nrgiSourceTypeAdminCreateCtrl', [
   '$scope',
   '$location',
@@ -1053,6 +991,68 @@ angular.module('app').controller('nrgiProfileCtrl', [
       nrgiSourceTypesMethodSrvc.deleteSourceType(source_deletion).then(function () {
         nrgiNotifier.notify('Source Type has been deleted');
         $location.path('/admin/sourceType-admin');
+      }, function (reason) {
+        nrgiNotifier.error(reason);
+      });
+    };
+  }
+]);angular.module('app').controller('nrgiSourceAdminCreateCtrl', [
+  '$scope',
+  '$location',
+  'nrgiNotifier',
+  'nrgiIdentitySrvc',
+  'nrgiProjectsSrvc',
+  'nrgiSourcesMethodSrvc',
+  function ($scope, $location, nrgiNotifier, nrgiIdentitySrvc, nrgiProjectsSrvc, nrgiSourcesMethodSrvc) {
+    var user = [];
+    angular.extend(user, nrgiIdentitySrvc.currentUser);
+    $scope.source = [];
+    $scope.sourceCreate = function () {
+      $scope.source.create_author = user._id;
+      nrgiSourcesMethodSrvc.createSource($scope.source).then(function () {
+        nrgiNotifier.notify('Source created!');
+        $location.path('/admin/source-admin');
+      }, function (reason) {
+        nrgiNotifier.error(reason);
+      });
+    };
+  }
+]);angular.module('app').controller('nrgiSourceAdminCtrl', [
+  '$scope',
+  'nrgiSourcesSrvc',
+  function ($scope, nrgiSourcesSrvc) {
+    nrgiSourcesSrvc.query({
+      skip: 0,
+      limit: 0
+    }, function (response) {
+      $scope.sources = response.data;
+    });
+  }
+]);angular.module('app').controller('nrgiSourceAdminUpdateCtrl', [
+  '$scope',
+  '$routeParams',
+  '$location',
+  'nrgiNotifier',
+  'nrgiProjectsSrvc',
+  'nrgiSourcesMethodSrvc',
+  'nrgiSourcesSrvc',
+  function ($scope, $routeParams, $location, nrgiNotifier, nrgiProjectsSrvc, nrgiSourcesMethodSrvc, nrgiSourcesSrvc) {
+    $scope.source = [];
+    $scope.source = nrgiSourcesSrvc.get({ _id: $routeParams.id });
+    $scope.sourceUpdate = function () {
+      $scope.source.retrieve_date = new Date();
+      nrgiSourcesMethodSrvc.updateSource($scope.source).then(function () {
+        nrgiNotifier.notify('Source has been updated');
+        $location.path('/admin/source-admin');
+      }, function (reason) {
+        nrgiNotifier.error(reason);
+      });
+    };
+    $scope.sourceDelete = function () {
+      var source_deletion = $scope.source._id;
+      nrgiSourcesMethodSrvc.deleteSource(source_deletion).then(function () {
+        nrgiNotifier.notify('Source has been deleted');
+        $location.path('/admin/source-admin');
       }, function (reason) {
         nrgiNotifier.error(reason);
       });
@@ -4051,7 +4051,7 @@ angular.module('app').controller('nrgiTreeMapCtrl', [
         return x(d.x + d.dx) - x(d.x);
       }).attr('height', function (d) {
         return y(d.y + d.dy) - y(d.y);
-      }).style('background', function (d) {
+      }).style('fill', function (d) {
         return d.parent ? color(d.name) : null;
       });
     }
@@ -5801,6 +5801,78 @@ angular.module('app').controller('nrgiSiteListCtrl', [
     };
   }
 ]);'use strict';
+angular.module('app').controller('nrgiSourceTypeDetailCtrl', [
+  '$scope',
+  'nrgiSourceTypesSrvc',
+  '$routeParams',
+  function ($scope, nrgiSourceTypesSrvc, $routeParams) {
+    nrgiSourceTypesSrvc.get({ _id: $routeParams.id }, function (success) {
+      $scope.source_type = success.sourceTypes;
+    });
+  }
+]);'use strict';
+angular.module('app').controller('nrgiSourceTypeListCtrl', [
+  '$scope',
+  'nrgiAuthSrvc',
+  'nrgiIdentitySrvc',
+  'nrgiSourceTypesSrvc',
+  '$rootScope',
+  function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiSourceTypesSrvc, $rootScope) {
+    var limit = 50, currentPage = 0, totalPages = 0;
+    $scope.count = 0;
+    $scope.field = false;
+    $scope.busy = false;
+    $scope.csv_source_types = [];
+    var fields = [
+        'source_type_name',
+        'source_type_authority',
+        'project_count'
+      ];
+    var header_projects = [
+        'Source',
+        'Type',
+        'Projects',
+        'Countries'
+      ];
+    $scope.getHeaderSourceTypes = function () {
+      return header_projects;
+    };
+    $scope.createDownloadList = function (sourceTypes) {
+      angular.forEach(sourceTypes, function (source_type, key) {
+        $scope.csv_source_types[key] = [];
+        angular.forEach(fields, function (field) {
+          $scope.csv_source_types[key].push(source_type[field]);
+        });
+      });
+    };
+    nrgiSourceTypesSrvc.query({
+      skip: currentPage * limit,
+      limit: limit
+    }, function (response) {
+      $scope.count = response.count;
+      $scope.sourceTypes = response.data;
+      totalPages = Math.ceil(response.count / limit);
+      currentPage = currentPage + 1;
+      $scope.createDownloadList($scope.sourceTypes);
+    });
+    $scope.loadMore = function () {
+      if ($scope.busy)
+        return;
+      $scope.busy = true;
+      if (currentPage < totalPages) {
+        nrgiSourceTypesSrvc.query({
+          skip: currentPage * limit,
+          limit: limit
+        }, function (response) {
+          $scope.sourceTypes = _.union($scope.sourceTypes, response.data);
+          currentPage = currentPage + 1;
+          $scope.busy = false;
+          $scope.createDownloadList($scope.sourceTypes);
+        });
+      }
+    };
+  }
+]);'use strict';
 angular.module('app').controller('nrgiSourceDetailCtrl', [
   '$scope',
   'nrgiAuthSrvc',
@@ -5917,78 +5989,6 @@ angular.module('app').controller('nrgiSourceListCtrl', [
           currentPage = currentPage + 1;
           $scope.busy = false;
           $scope.createDownloadList($scope.sources);
-        });
-      }
-    };
-  }
-]);'use strict';
-angular.module('app').controller('nrgiSourceTypeDetailCtrl', [
-  '$scope',
-  'nrgiSourceTypesSrvc',
-  '$routeParams',
-  function ($scope, nrgiSourceTypesSrvc, $routeParams) {
-    nrgiSourceTypesSrvc.get({ _id: $routeParams.id }, function (success) {
-      $scope.source_type = success.sourceTypes;
-    });
-  }
-]);'use strict';
-angular.module('app').controller('nrgiSourceTypeListCtrl', [
-  '$scope',
-  'nrgiAuthSrvc',
-  'nrgiIdentitySrvc',
-  'nrgiSourceTypesSrvc',
-  '$rootScope',
-  function ($scope, nrgiAuthSrvc, nrgiIdentitySrvc, nrgiSourceTypesSrvc, $rootScope) {
-    var limit = 50, currentPage = 0, totalPages = 0;
-    $scope.count = 0;
-    $scope.field = false;
-    $scope.busy = false;
-    $scope.csv_source_types = [];
-    var fields = [
-        'source_type_name',
-        'source_type_authority',
-        'project_count'
-      ];
-    var header_projects = [
-        'Source',
-        'Type',
-        'Projects',
-        'Countries'
-      ];
-    $scope.getHeaderSourceTypes = function () {
-      return header_projects;
-    };
-    $scope.createDownloadList = function (sourceTypes) {
-      angular.forEach(sourceTypes, function (source_type, key) {
-        $scope.csv_source_types[key] = [];
-        angular.forEach(fields, function (field) {
-          $scope.csv_source_types[key].push(source_type[field]);
-        });
-      });
-    };
-    nrgiSourceTypesSrvc.query({
-      skip: currentPage * limit,
-      limit: limit
-    }, function (response) {
-      $scope.count = response.count;
-      $scope.sourceTypes = response.data;
-      totalPages = Math.ceil(response.count / limit);
-      currentPage = currentPage + 1;
-      $scope.createDownloadList($scope.sourceTypes);
-    });
-    $scope.loadMore = function () {
-      if ($scope.busy)
-        return;
-      $scope.busy = true;
-      if (currentPage < totalPages) {
-        nrgiSourceTypesSrvc.query({
-          skip: currentPage * limit,
-          limit: limit
-        }, function (response) {
-          $scope.sourceTypes = _.union($scope.sourceTypes, response.data);
-          currentPage = currentPage + 1;
-          $scope.busy = false;
-          $scope.createDownloadList($scope.sourceTypes);
         });
       }
     };
@@ -7051,43 +7051,6 @@ angular.module('app').factory('nrgiDatasetMethodSrvc', [
       }
     };
   }
-]);angular.module('app').factory('nrgiSourcesMethodSrvc', [
-  '$q',
-  'nrgiSourcesSrvc',
-  function ($q, nrgiSourcesSrvc) {
-    return {
-      createSource: function (new_source_data) {
-        var new_source = new nrgiSourcesSrvc(new_source_data);
-        var dfd = $q.defer();
-        new_source.$save().then(function () {
-          dfd.resolve();
-        }, function (response) {
-          dfd.reject(response.data.reason);
-        });
-        return dfd.promise;
-      },
-      updateSource: function (new_source_data) {
-        var dfd = $q.defer();
-        new_source_data.$update().then(function () {
-          dfd.resolve();
-        }, function (response) {
-          dfd.reject(response.data.reason);
-        });
-        return dfd.promise;
-      },
-      deleteSource: function (source_deletion) {
-        var dfd = $q.defer();
-        var delete_ID = new nrgiSourcesSrvc();
-        delete_ID.id = source_deletion;
-        delete_ID.$delete().then(function () {
-          dfd.resolve();
-        }, function (response) {
-          dfd.reject(response.data.reason);
-        });
-        return dfd.promise;
-      }
-    };
-  }
 ]);angular.module('app').factory('nrgiSourceTypesMethodSrvc', [
   '$q',
   'nrgiSourceTypesSrvc',
@@ -7116,6 +7079,43 @@ angular.module('app').factory('nrgiDatasetMethodSrvc', [
         var dfd = $q.defer();
         var delete_ID = new nrgiSourceTypesSrvc();
         delete_ID.id = sourceType_deletion;
+        delete_ID.$delete().then(function () {
+          dfd.resolve();
+        }, function (response) {
+          dfd.reject(response.data.reason);
+        });
+        return dfd.promise;
+      }
+    };
+  }
+]);angular.module('app').factory('nrgiSourcesMethodSrvc', [
+  '$q',
+  'nrgiSourcesSrvc',
+  function ($q, nrgiSourcesSrvc) {
+    return {
+      createSource: function (new_source_data) {
+        var new_source = new nrgiSourcesSrvc(new_source_data);
+        var dfd = $q.defer();
+        new_source.$save().then(function () {
+          dfd.resolve();
+        }, function (response) {
+          dfd.reject(response.data.reason);
+        });
+        return dfd.promise;
+      },
+      updateSource: function (new_source_data) {
+        var dfd = $q.defer();
+        new_source_data.$update().then(function () {
+          dfd.resolve();
+        }, function (response) {
+          dfd.reject(response.data.reason);
+        });
+        return dfd.promise;
+      },
+      deleteSource: function (source_deletion) {
+        var dfd = $q.defer();
+        var delete_ID = new nrgiSourcesSrvc();
+        delete_ID.id = source_deletion;
         delete_ID.$delete().then(function () {
           dfd.resolve();
         }, function (response) {
@@ -7946,26 +7946,6 @@ angular.module('app').factory('nrgiSitesSrvc', [
     return SiteResource;
   }
 ]);'use strict';
-angular.module('app').factory('nrgiSourcesSrvc', [
-  '$resource',
-  function ($resource) {
-    var SourceResource = $resource('/api/sources/:limit/:skip/:_id', {
-        _id: '@id',
-        limit: '@limit',
-        skip: '@skip'
-      }, {
-        query: {
-          method: 'GET',
-          isArray: false
-        },
-        update: {
-          method: 'PUT',
-          isArray: false
-        }
-      });
-    return SourceResource;
-  }
-]);'use strict';
 angular.module('app').factory('nrgiSourceTypesSrvc', [
   '$resource',
   function ($resource) {
@@ -7984,6 +7964,26 @@ angular.module('app').factory('nrgiSourceTypesSrvc', [
         }
       });
     return SourceTypeResource;
+  }
+]);'use strict';
+angular.module('app').factory('nrgiSourcesSrvc', [
+  '$resource',
+  function ($resource) {
+    var SourceResource = $resource('/api/sources/:limit/:skip/:_id', {
+        _id: '@id',
+        limit: '@limit',
+        skip: '@skip'
+      }, {
+        query: {
+          method: 'GET',
+          isArray: false
+        },
+        update: {
+          method: 'PUT',
+          isArray: false
+        }
+      });
+    return SourceResource;
   }
 ]);'use strict';
 angular.module('app').factory('nrgiPaymentsSrvc', [
