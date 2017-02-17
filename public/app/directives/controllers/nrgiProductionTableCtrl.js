@@ -71,7 +71,9 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
     };
 
     $scope.loadProductionsCSV = function () {
+
         nrgiCSV.setCsv(fields, $scope.production)
+
         return nrgiCSV.getResult()
     };
 
@@ -84,7 +86,7 @@ angular.module('app').controller('nrgiProductionTableCtrl', function ($scope,nrg
                 type: $scope.type, skip: 0, limit: 5000000
             }, function (data) {
                 $scope.production = data.production
-                $scope.busy = true;
+                $scope.busy = true
                 setTimeout(function () {angular.element(document.getElementById("loadProductionCSV")).trigger('click');}, 0)
             })
         }
