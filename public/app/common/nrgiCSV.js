@@ -55,9 +55,9 @@ angular.module('app')
                              csv[key].push(id);
                          }
                          if(field == 'production_commodity'){
-                             if (p[field] && p[field].name) {
+                             if (p[field] && p[field].commodity_name) {
                                  commodityName = '';
-                                 commodityName = p[field].name.toString();
+                                 commodityName = p[field].commodity_name.toString();
                                  commodityName = commodityName.charAt(0).toUpperCase() + commodityName.substr(1);
                                  csv[key].push(commodityName);
                              }else{
