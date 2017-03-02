@@ -9,10 +9,12 @@ angular
         $scope.expression = '';
         $scope.count = 0;
         $scope.busy = true;
+
         var headerProject = [];
         var fields = [];
         var limit = 50,
             currentPage = 0;
+
         var headers = [{name: 'Project ID', status: true, field: 'project_id'},
             {name: 'Name', status: true, field: 'proj_name'},
             {name: 'Country', status: $scope.country, field: 'proj_country'},
@@ -33,6 +35,7 @@ angular
         };
 
         usSpinnerService.spin('spinner-project');
+
         $scope.$watch('id', function (value) {
             if ($scope.type == 'country' && value == undefined || $scope.type == 'company' && value == undefined || $scope.type == 'concession' && value == undefined) {
                 usSpinnerService.stop('spinner-project');

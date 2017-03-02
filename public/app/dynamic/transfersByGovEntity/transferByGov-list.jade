@@ -4,6 +4,21 @@
             h1 Payments by Recipient
                 = ' '
                 small(ng-if="count") {{count}}
+        div.col-md-6(ng-if="transfers.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-click="getAllTransfers()"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Payments by Recipient CSV
+            button(
+            class='hidden'
+            id='loadTransfersCSV'
+            ng-csv="csv_transfers"
+            csv-header="getHeaderTransfers()"
+            filename="transfers.csv")
 
     .row.top-padding-med
         .col-lg-12
@@ -107,15 +122,3 @@
                     td.transfer_currency {{transfer.transfer_unit}}
                     td.transfer_value {{transfer.transfer_value | currency:"":0}}
     div(ng-if='transfer_count>499' infinite-scroll='loadMore()' infinite-scroll-distance='3')
-    div(ng-if='transfer_count<499' infinite-scroll='load_all()' infinite-scroll-distance='3')
-    div(ng-if="transfers.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden='true')
-            span
-                |  Download:
-                =' '
-                a(
-                href=""
-                ng-csv="csv_transfers"
-                csv-header="getHeaderTransfers()"
-                filename="transfers.csv") Payments by Recipient CSV

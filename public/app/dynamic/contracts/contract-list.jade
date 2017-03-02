@@ -4,6 +4,21 @@
             h1 Contracts
                 = ' '
                 small(ng-if="count") {{count}}
+        div.col-md-8(ng-if="contracts.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-click="getAllContracts()"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Contracts CSV
+            button(
+            class='hidden'
+            id='loadContractsCSV'
+            ng-csv="csv_contracts"
+            csv-header="getHeaderContracts()"
+            filename="allContracts.csv")
 
     table#contracts.table.table-striped.table-fixed-header(
     about='http://resourceprojects.org/contracts'
@@ -51,13 +66,3 @@
                 td.text-center.contract_projects: span {{contract.fields}}
 
     div(ng-if='contracts.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
-    div(ng-if="contracts.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download:
-            =' '
-            a(
-            href=""
-            ng-csv="csv_contracts"
-            csv-header="getHeaderContracts()"
-            filename="allContracts.csv") Contracts CSV

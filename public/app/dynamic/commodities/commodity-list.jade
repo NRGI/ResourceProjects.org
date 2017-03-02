@@ -2,6 +2,23 @@
     .row.top-padding-med.bottom-padding-med
         .col-md-4
             h1 Commodities
+                = ' '
+                small(ng-if="count") {{count}}
+        div.col-md-8(ng-if="commodities.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-click="getAllCommodities()"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Commodities CSV
+            button(
+            class='hidden'
+            id='loadCommoditiesCSV'
+            ng-csv="csv_commodities"
+            csv-header="getHeaderCommodities()"
+            filename="allCommodities.csv")
 
     table#commodities.table.table-striped.table-fixed-header(ts-wrapper)
         thead.header
@@ -20,13 +37,3 @@
                 td.commodity_projects {{commodity.projects}}
 
     div(ng-if='commodities.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
-    div(ng-if="commodities.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download:
-            =' '
-            a(
-            href=""
-            ng-csv="csv_commodities"
-            csv-header="getHeaderCommodities()"
-            filename="allCommoditiesList.csv") Commodities CSV

@@ -10,20 +10,36 @@ angular.module('app')
         $filter
     ) {
 
+        var fields = ['concession_name', 'concession_country', 'commodity_type', 'concession_commodity', 'concession_status', 'project_count', 'site_count', 'field_count', 'transfer_count', 'production_count'];
+        var header_concessions = ['Name', 'Country', 'Commodity Type', 'Commodity', 'Status', 'Projects', 'Sites', 'Fields', 'Payment records', 'Production records'];
+        var country_name, status,timestamp, commodity_type,commodity_name,str;
+        var com = ', ';
         var limit = 50,
             currentPage = 0,
             totalPages = 0;
 
         $scope.count =0;
         $scope.busy = false;
-
-        var country_name, status,timestamp, commodity_type,commodity_name,str;
-        var com = ', ';
         $scope.csv_concessions = [];
-        var fields = ['concession_name', 'concession_country', 'commodity_type', 'concession_commodity', 'concession_status', 'project_count', 'site_count', 'field_count', 'transfer_count', 'production_count'];
-        var header_concessions = ['Name', 'Country', 'Commodity Type', 'Commodity', 'Status', 'Projects', 'Sites', 'Fields', 'Payment records', 'Production records'];
-        $scope.getHeaderConcessions = function () {
-            return header_concessions
+
+        nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.concessions = response.concessions;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.getAllConcessions = function () {
+            if ($scope.count < 50 || $scope.concessions.length === $scope.count) {
+                $scope.createDownloadList($scope.concessions);
+                setTimeout(function () {angular.element(document.getElementById("loadConcessionsCSV")).trigger('click');},0)
+            } else {
+                nrgiConcessionsSrvc.query({skip: 0, limit: $scope.count}, function (response) {
+                    $scope.concessions = response.concessions;
+                    $scope.createDownloadList($scope.concessions);
+                    setTimeout(function () {angular.element(document.getElementById("loadConcessionsCSV")).trigger('click');},0)
+                });
+            }
         };
 
         $scope.createDownloadList = function (concessions) {
@@ -129,23 +145,18 @@ angular.module('app')
             });
         };
 
-        nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.concessions = response.concessions;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.concessions);
-        });
+        $scope.getHeaderConcessions = function () {
+            return header_concessions
+        };
 
         $scope.loadMore = function() {
-            if ($scope.busy) return;
+            if ($scope.busy || $scope.concessions.length === $scope.count) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiConcessionsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
                     $scope.concessions = _.union($scope.concessions, response.concessions);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.concessions);
                 });
             }
         };

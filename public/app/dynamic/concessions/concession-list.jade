@@ -1,8 +1,25 @@
 .container
     .row.top-padding-med.bottom-padding-med
-        h1 Concessions
-            = ' '
-            small(ng-if="count") {{count}}
+        .col-md-4
+            h1 Concessions
+                = ' '
+                small(ng-if="count") {{count}}
+        div.col-md-8(ng-if="concessions.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-click="getAllConcessions()"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Concessions CSV
+            button(
+            class='hidden'
+            id='loadConcessionsCSV'
+            ng-csv="csv_concessions"
+            csv-header="getHeaderConcessions()"
+            filename="allConcessions.csv")
+
 
     table#concessions.table.table-striped.table-fixed-header(about='http://resourceprojects.org/contracts'
     ts-wrapper)
@@ -63,13 +80,3 @@
                 td.text-center.concession_production {{concession.production_count}}
 
     div(ng-if='concessions.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
-    div(ng-if="concessions.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download:
-            =' '
-            a(
-            href=""
-            ng-csv="csv_concessions"
-            csv-header="getHeaderConcessions()"
-            filename="allConcessions.csv") Concessions CSV

@@ -11,20 +11,37 @@ angular.module('app')
         $filter
     ) {
 
+        var fields = ['proj_id', 'proj_name', 'verified', 'proj_country', 'proj_commodity_type', 'proj_commodity', 'proj_status', 'company_count', 'transfer_count', 'production_count'];
+        var header_projects = ['Project ID', 'Name', 'Verified Project', 'Country', 'Type', 'Commodity', 'Status', 'Companies', 'Payments', 'Production'];
+        var country_name, str, proj_commodity_type, commodity_name, companyName, timestamp, status, com =', ';
         var limit = 50,
             currentPage = 0,
             totalPages = 0;
 
         $scope.count =0;
         $scope.busy = false;
-
-        var country_name, str, proj_commodity_type, commodity_name, timestamp, status, com =', ';
         $scope.csv_projects = [];
-        var fields = ['proj_id', 'proj_name', 'verified', 'proj_country', 'proj_commodity_type', 'proj_commodity', 'proj_status', 'company_count', 'transfer_count', 'production_count'];
-        var header_projects = ['Project ID', 'Name', 'Verified Project', 'Country', 'Type', 'Commodity', 'Status', 'Companies', 'Payments', 'Production'];
-        $scope.getHeaderProjects = function () {
-            return header_projects
+
+        nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.projects = response.projects;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.getAllProjects = function () {
+            if ($scope.count < 50 || $scope.projects.length === $scope.count) {
+                $scope.createDownloadList($scope.projects);
+                setTimeout(function () {angular.element(document.getElementById("loadProjectsCSV")).trigger('click');},0)
+            } else {
+                nrgiProjectsSrvc.query({skip: 0, limit: $scope.count}, function (response) {
+                    $scope.projects = response.projects;
+                    $scope.createDownloadList($scope.projects);
+                    setTimeout(function () {angular.element(document.getElementById("loadProjectsCSV")).trigger('click');},0)
+                });
+            }
         };
+
         $scope.createDownloadList = function (projects) {
             angular.forEach(projects, function (project, key) {
                 $scope.csv_projects[key] = [];
@@ -119,7 +136,7 @@ angular.module('app')
                             if (proj_status[project[field].length-1] != undefined) {
                                 status = proj_status[project[field].length-1].string.toString();
                                 status = status.charAt(0).toUpperCase() + status.substr(1);
-                                timestamp = $filter('date')(status[project[field].length-1].timestamp,'MM/dd/yyyy @ h:mma');
+                                timestamp = $filter('date')(proj_status[project[field].length-1].timestamp,'MM/dd/yyyy @ h:mma');
                                 str = status + '(true at '+timestamp+')';
                                 $scope.csv_projects[key].push(str);
                             } else {
@@ -129,29 +146,44 @@ angular.module('app')
                             $scope.csv_projects[key].push('')
                         }
                     }
-                    if(field != 'verified' && field != 'proj_country' && field != 'proj_commodity_type' && field != 'proj_commodity' && field != 'proj_status') {
+                    if (field == 'company_count') {
+                        if (project[field] < 3) {
+                            str = '';
+                            angular.forEach(project.companies, function (company, i) {
+                                if (company != undefined) {
+                                    companyName = company.company_name.toString();
+                                    companyName = companyName.charAt(0).toUpperCase() + companyName.substr(1);
+                                }
+                                if (i != project.companies.length - 1) {
+                                    str = str + companyName + com;
+                                } else {
+                                    str = str + companyName;
+                                }
+                            });
+                            $scope.csv_projects[key].push(str)
+                        } else {
+                            $scope.csv_projects[key].push(project[field])
+                        }
+                    }
+                    if(field != 'verified' && field != 'proj_country' && field != 'proj_commodity_type' && field != 'proj_commodity' && field != 'proj_status' && field != 'company_count') {
                         $scope.csv_projects[key].push(project[field])
                     }
                 })
             });
         };
 
-        nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.projects = response.projects;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.projects);
-        });
+        $scope.getHeaderProjects = function () {
+            return header_projects
+        };
+
         $scope.loadMore = function() {
-            if ($scope.busy) return;
+            if ($scope.busy || $scope.projects.length === $scope.count) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiProjectsSrvc.query({skip: currentPage*limit, limit: limit, record_type: $scope.record_type}, function (response) {
                     $scope.projects = _.union($scope.projects, response.projects);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.projects);
                 });
             }
         };

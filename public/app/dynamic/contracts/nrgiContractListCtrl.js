@@ -9,21 +9,37 @@ angular.module('app')
         $sce,
         nrgiContractsSrvc
     ) {
+
+        var fields = ['contract_id', 'rc_info', 'contract_type', 'commodity_type', 'commodity', 'projects', 'sites', 'fields'];
+        var header_contracts = ['RC-ID', 'Country', 'Contract Type', 'Commodity Type', 'Commodity', 'Projects', 'Sites', 'Fields'];
+        var contract_country, contract_type, commodity_type,commodity_name,str;
+        var com = ', ';
         var limit = 50,
             currentPage = 0,
             totalPages = 0;
-            //_ = $rootScope._;
 
         $scope.count =0;
         $scope.busy = false;
-
-        var contract_country, contract_type, commodity_type,commodity_name,str;
-        var com = ', ';
         $scope.csv_contracts = [];
-        var fields = ['contract_id', 'rc_info', 'contract_type', 'commodity_type', 'commodity', 'projects', 'sites', 'fields'];
-        var header_contracts = ['RC-ID', 'Country', 'Contract Type', 'Commodity Type', 'Commodity', 'Projects', 'Sites', 'Fields'];
-        $scope.getHeaderContracts = function () {
-            return header_contracts
+
+        nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.count;
+            $scope.contracts = response.data;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.getAllContracts = function () {
+            if ($scope.count < 50 || $scope.contracts.length === $scope.count) {
+                $scope.createDownloadList($scope.contracts);
+                setTimeout(function () {angular.element(document.getElementById("loadContractsCSV")).trigger('click');},0)
+            } else {
+                nrgiContractsSrvc.query({skip: 0, limit: $scope.count}, function (response) {
+                    $scope.contracts = response.contracts;
+                    $scope.createDownloadList($scope.contracts);
+                    setTimeout(function () {angular.element(document.getElementById("loadContractsCSV")).trigger('click');},0)
+                });
+            }
         };
 
         $scope.createDownloadList = function (contracts) {
@@ -127,23 +143,18 @@ angular.module('app')
             });
         };
 
-        nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.count;
-            $scope.contracts = response.data;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.contracts);
-        });
+        $scope.getHeaderContracts = function () {
+            return header_contracts
+        };
 
         $scope.loadMore = function() {
-            if ($scope.busy) return;
+            if ($scope.busy || $scope.contracts.length === $scope.count) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiContractsSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
                     $scope.contracts = _.union($scope.contracts, response.data);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.contracts);
                 });
             }
         };

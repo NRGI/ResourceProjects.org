@@ -4,13 +4,21 @@
             h1 Projects
                 = ' '
                 small(ng-if="count") {{count}}
-        //.col-md-5
-        //.col-md-3
-        //    .btn-group(
-        //    role='group'
-        //    aria-label='...')
-        //        button.btn.btn-secondary.pull-xs-right(type='button')
-        //            a(href='/projects/map') Map View
+        div.col-md-8(ng-if="projects.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-click="getAllProjects()"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Projects CSV
+            button(
+            class='hidden'
+            id='loadProjectsCSV'
+            ng-csv="csv_projects"
+            csv-header="getHeaderProjects()"
+            filename="allProjects.csv")
 
     .row.top-padding-med
         table#projects.table.table-striped.table-fixed-header(
@@ -79,13 +87,4 @@
                     td.text-center.proj_transfer_count {{project.transfer_count}}
                     td.text-center.proj_transfer_count {{project.production_count}}
     div(ng-if='projects.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
-    div(ng-if="projects.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download:
-            =' '
-            a(
-            href=""
-            ng-csv="csv_projects"
-            csv-header="getHeaderProjects()"
-            filename="allProjects.csv") Projects CSV
+

@@ -1,14 +1,25 @@
 .container
     .row.top-padding-med.bottom-padding-med
-        .col-md-6
+        .col-md-4
             h1 Companies
                 = ' '
                 small(ng-if="count") {{count}}
-        .col-md-6
-        //.col-md-3
-        //    .btn-group(role='group', aria-label='...')
-        //        button.btn.btn-default.pull-right(type='button')
-        //            a(href='/groups') View Company Groups
+        div.col-md-8(ng-if="companies.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-click="getAllCompanies()"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Companies CSV
+            button(
+            class='hidden'
+            id='loadCompaniesCSV'
+            ng-csv="csv_companies"
+            csv-header="getHeaderCompanies()"
+            filename="allCompanies.csv")
+
 
     .row
         .col-md-12
@@ -47,13 +58,3 @@
                         td.text-center.company_transfers {{company.transfer_count}}
 
     div(ng-if='companies.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='1')
-    div(ng-if="companies.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download:
-            =' '
-            a(
-            href=""
-            ng-csv="csv_companies"
-            csv-header="getHeaderCompanies()"
-            filename="allCompanies.csv") Companies CSV

@@ -10,14 +10,17 @@ angular.module('app')
         $location,
         $filter
     ) {
+
+        var fields = ['site_name', 'site_country', 'site_commodity_type', 'site_commodity','site_status', 'company_count', 'project_count', 'concession_count', 'transfer_count', 'production_count'];
+        var header_projects = ['Name', 'Country', 'Commodity Type', 'Commodity', 'Status', 'Companies', 'Projects', 'Concessions', 'Payments', 'Production'];
+        var country_name, str, commodity_type, commodity_name, timestamp, status, com =', ';
         var limit = 50,
             currentPage = 0,
             totalPages = 0;
-            //_ = $rootScope._;
 
         $scope.count =0;
-        $scope.field = false;
         $scope.busy = false;
+        $scope.csv_file = [];
 
         if ($location.path()=='/sites') {
             $scope.field =false;
@@ -31,12 +34,24 @@ angular.module('app')
             $scope.header = 'Fields';
         }
 
-        var country_name, str, commodity_type, commodity_name, timestamp, status, com =', ';
-        $scope.csv_file = [];
-        var fields = ['site_name', 'site_country', 'site_commodity_type', 'site_commodity','site_status', 'company_count', 'project_count', 'concession_count', 'transfer_count', 'production_count'];
-        var header_projects = ['Name', 'Country', 'Commodity Type', 'Commodity', 'Status', 'Companies', 'Projects', 'Concessions', 'Payments', 'Production'];
-        $scope.getHeader = function () {
-            return header_projects
+        nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
+            $scope.count = response.count;
+            $scope.sites = response.sites;
+            totalPages = Math.ceil(response.count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.getAllSites = function () {
+            if ($scope.count < 50 || $scope.sites.length === $scope.count) {
+                $scope.createDownloadList($scope.sites);
+                setTimeout(function () {angular.element(document.getElementById("loadSitesCSV")).trigger('click');},0)
+            } else {
+                nrgiSitesSrvc.query({skip: 0, limit: $scope.count, field: $scope.field}, function (response) {
+                    $scope.sites = response.sites;
+                    $scope.createDownloadList($scope.sites);
+                    setTimeout(function () {angular.element(document.getElementById("loadSitesCSV")).trigger('click');},0)
+                });
+            }
         };
 
         $scope.createDownloadList = function (sites) {
@@ -141,23 +156,18 @@ angular.module('app')
             });
         };
 
-        nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
-            $scope.count = response.count;
-            $scope.sites = response.sites;
-            totalPages = Math.ceil(response.count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.sites);
-        });
+        $scope.getHeader = function () {
+            return header_projects
+        };
 
         $scope.loadMore = function() {
-            if ($scope.busy) return;
+            if ($scope.busy || $scope.sites.length === $scope.count) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiSitesSrvc.query({skip: currentPage*limit, limit: limit, field: $scope.field}, function (response) {
                     $scope.sites = _.union($scope.sites, response.sites);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.sites);
                 });
             }
         };

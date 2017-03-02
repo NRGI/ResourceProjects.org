@@ -33,7 +33,7 @@ exports.getSources = function(req, res) {
 	});
 
 	function sourceCount(callback) {
-		Source.find({}).count().exec(function(err, sourcesCount) {
+		Source.find(req.query).count().exec(function(err, sourcesCount) {
 			if (err) {
 				data.errorList = errors.errorFunction(err,'Sources');
 				return res.send(data);

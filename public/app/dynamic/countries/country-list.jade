@@ -4,6 +4,17 @@
             h1 Countries
                 = ' '
                 small(ng-if="count") {{count}}
+        div.col-md-8(ng-if="countries.length>0")
+            button.btn.btn-secondary.pull-right.download(
+            type='button'
+            ng-csv="csv_countries"
+            csv-header="getHeaderCountries()"
+            filename="allCountries.csv"
+            )
+                span.glyphicon.glyphicon-download(aria-hidden="true")
+                span  Download
+                =' '
+                span Countries CSV
 
     table#countries.table.table-striped.table-fixed-header(
     about='http://resourceprojects.org/country'
@@ -37,16 +48,3 @@
                 td.text-center.country_sites {{country.site_count}}
                 td.text-center.country_fields {{country.field_count}}
                 td.text-center.country_concessions {{country.concession_count}}
-                //td.text-center.country_productions {{country.production_count}}
-
-    //div(ng-if='countries.length>49' infinite-scroll='loadMore()' infinite-scroll-distance='20')
-    div(ng-if="countries.length>0")
-        .download
-            span.glyphicon.glyphicon-download(aria-hidden="true")
-            span  Download:
-            =' '
-            a(
-            href=""
-            ng-csv="csv_countries"
-            csv-header="getHeaderCountries()"
-            filename="allCountries.csv") Countries CSV

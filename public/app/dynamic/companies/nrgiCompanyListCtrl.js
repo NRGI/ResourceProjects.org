@@ -8,21 +8,37 @@ angular.module('app')
         nrgiIdentitySrvc,
         nrgiCompaniesSrvc
     ) {
+
+        var fields = ['company_name', 'company_groups', 'project_count', 'site_count', 'field_count', 'transfer_count'];
+        var header_companies = ['Company', 'Group(s)', 'Projects', 'Sites', 'Fields', 'Payments'];
+        var company_group_name, str;
+        var com = ', ';
         var limit = 50,
             currentPage = 0,
             totalPages = 0;
-            //_ = $rootScope._;
 
         $scope.count =0;
         $scope.busy = false;
-
-        var company_group_name, str;
-        var com = ', ';
         $scope.csv_companies = [];
-        var fields = ['company_name', 'company_groups', 'project_count', 'site_count', 'field_count', 'transfer_count'];
-        var header_companies = ['Company', 'Group(s)', 'Projects', 'Sites', 'Fields', 'Payments'];
-        $scope.getHeaderCompanies = function () {
-            return header_companies
+
+        nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
+            $scope.count = response.company_count;
+            $scope.companies = response.companies;
+            totalPages = Math.ceil(response.company_count / limit);
+            currentPage = currentPage + 1;
+        });
+
+        $scope.getAllCompanies = function () {
+            if ($scope.count < 50 || $scope.companies.length === $scope.count) {
+                $scope.createDownloadList($scope.companies);
+                setTimeout(function () {angular.element(document.getElementById("loadCompaniesCSV")).trigger('click');},0)
+            } else {
+                nrgiCompaniesSrvc.query({skip: 0, limit: $scope.count}, function (response) {
+                    $scope.companies = response.companies;
+                    $scope.createDownloadList($scope.companies);
+                    setTimeout(function () {angular.element(document.getElementById("loadCompaniesCSV")).trigger('click');},0)
+                });
+            }
         };
 
         $scope.createDownloadList = function (companies) {
@@ -56,23 +72,18 @@ angular.module('app')
             });
         };
 
-        nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
-            $scope.count = response.company_count;
-            $scope.companies = response.companies;
-            totalPages = Math.ceil(response.company_count / limit);
-            currentPage = currentPage + 1;
-            $scope.createDownloadList($scope.companies);
-        });
+        $scope.getHeaderCompanies = function () {
+            return header_companies
+        };
 
         $scope.loadMore = function() {
-            if ($scope.busy) return;
+            if ($scope.busy || $scope.companies.length === $scope.count) return;
             $scope.busy = true;
             if(currentPage < totalPages) {
                 nrgiCompaniesSrvc.query({skip: currentPage*limit, limit: limit}, function (response) {
                     $scope.companies = _.union($scope.companies, response.companies);
                     currentPage = currentPage + 1;
                     $scope.busy = false;
-                    $scope.createDownloadList($scope.companies);
                 });
             }
         };
