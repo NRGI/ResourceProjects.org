@@ -19,6 +19,7 @@ angular.module('app')
             totalPages = 0;
 
         $scope.count =0;
+        $scope.field = false;
         $scope.busy = false;
         $scope.csv_file = [];
 
