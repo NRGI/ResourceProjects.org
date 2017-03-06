@@ -86,14 +86,16 @@ exports.getContractTable = function(req, res){
             if (contract_len > 0) {
                 _.each(company.contracts_link, function (contract) {
                     request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
-                        var body = JSON.parse(body);
                         ++contract_counter;
-                        company.contracts.push({
-                            _id: contract._id,
-                            contract_name: body.name,
-                            contract_country: body.country,
-                            contract_commodity: body.resource
-                        });
+                        if(body) {
+                            var body = JSON.parse(body);
+                            company.contracts.push({
+                                _id: contract._id,
+                                contract_name: body.name,
+                                contract_country: body.country,
+                                contract_commodity: body.resource
+                            });
+                        }
 
                         if (contract_counter == contract_len) {
                             callback(null, company);
@@ -140,28 +142,32 @@ exports.getContractTable = function(req, res){
             company.contracts = [];
             if(getContract==true) {
                 request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
-                    var body = JSON.parse(body);
-                    var contract_counter = 0;
-                    var contract_len = body.results.length;
-                    if(contract_len>0) {
-                        _.each(body.results, function (contract) {
-                            ++contract_counter;
-                            company.contracts.push({
-                                _id: contract.open_contracting_id,
-                                id: '',
-                                contract_name: contract.name,
-                                contract_country: {
-                                    code: contract.country_code,
-                                    name: []
-                                },
-                                contract_commodity: contract.resource,
-                                companies: 0
+                    if(body) {
+                        var body = JSON.parse(body);
+                        var contract_counter = 0;
+                        var contract_len = body.results.length;
+                        if (contract_len > 0) {
+                            _.each(body.results, function (contract) {
+                                ++contract_counter;
+                                company.contracts.push({
+                                    _id: contract.open_contracting_id,
+                                    id: '',
+                                    contract_name: contract.name,
+                                    contract_country: {
+                                        code: contract.country_code,
+                                        name: []
+                                    },
+                                    contract_commodity: contract.resource,
+                                    companies: 0
+                                });
+                                if (contract_counter == contract_len) {
+                                    callback(null, company);
+                                }
                             });
-                            if (contract_counter == contract_len) {
-                                callback(null, company);
-                            }
-                        });
-                    }else {
+                        } else {
+                            callback(null, company);
+                        }
+                    } else {
                         callback(null, company);
                     }
                 });
@@ -395,16 +401,17 @@ exports.getContractTable = function(req, res){
             if (contract_len > 0) {
                 _.each(contracts, function (contract) {
                     request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
-                        var body = JSON.parse(body);
                         ++contract_counter;
-                        company.contracts.push({
-                            contract_id: contract.contract_id,
-                            _id: contract._id,
-                            contract_name: body.name,
-                            contract_country: body.country,
-                            contract_commodity: body.resource
-                        });
-
+                        if (body) {
+                            var body = JSON.parse(body);
+                            company.contracts.push({
+                                contract_id: contract.contract_id,
+                                _id: contract._id,
+                                contract_name: body.name,
+                                contract_country: body.country,
+                                contract_commodity: body.resource
+                            });
+                        }
                         if (contract_counter == contract_len) {
                             callback(null, company);
                         }
