@@ -204,17 +204,19 @@ exports.getContractByID = function(req, res) {
             });
     }
     function getContractRCData(contract, callback) {
-        request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
+        request('http://api.resourcecontracts.org/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
             contract.rc_info = [];
             contract.commodities=[];
-            var body = JSON.parse(body);
-            contract.rc_info = {
-                contract_name: body.name,
-                contract_country: body.country,
-                contract_commodity: body.resource,
-                contract_type: body.contract_type,
-                open_contracting_id: body.open_contracting_id
-            };
+            if (body && body.name) {
+                var body = JSON.parse(body);
+                contract.rc_info = {
+                    contract_name: body.name,
+                    contract_country: body.country,
+                    contract_commodity: body.resource,
+                    contract_type: body.contract_type,
+                    open_contracting_id: body.open_contracting_id
+                };
+            }
             if (body.resource != undefined) {
                 var commodity = body.resource;
                 commodity.map(function (name) {

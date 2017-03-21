@@ -47,7 +47,7 @@ data-target="#contracts")
                     a(href='/country/{{contract.contract_country.code}}')
                         span(ng-bind-html="contract.contract_country.name|sanitize")
                 td.contract_commodity_name(ng-if="commodity==true")
-                    text(
+                    span(
                     ng-if="contract.commodity.length>0"
                     ng-repeat='commodity in contract.commodity')
                         a(href='/commodity/{{commodity.commodity_id}}')

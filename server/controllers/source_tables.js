@@ -20,7 +20,8 @@ exports.getSourceTable = function(req, res){
     var linkCounter, linkLen, companiesLen, companiesCounter;
     var type = req.params.type;
     var queries=[];
-    var data={}; var projId=[];
+    var data={};
+    var projId=[];
     var companies =[];
     data.sources = [];
     data.errorList =[];
@@ -108,8 +109,9 @@ exports.getSourceTable = function(req, res){
                                     callback(null,  data);
                                 }
                             }
+                            callback(null, data);
                         });
-                }else if(modelsCounter==modelsLen){
+                } else if (modelsCounter==modelsLen) {
                     callback(null, data);
                 }
             });
@@ -443,6 +445,8 @@ exports.getSourceTable = function(req, res){
     }
     function getGroupLinkedCompanies(data,callback) {
         if(type=='group') {
+            var source = [];
+            data.companies=[];
             Link.find(queries)
                 .populate('source company_group')
                 .deepPopulate('source.source_type_id company_group.company_group_record_established.source_type_id')
@@ -457,19 +461,26 @@ exports.getSourceTable = function(req, res){
                             _.each(links, function (link) {
                                 ++linkCounter;
                                 if (link.source != null) {
-                                    data.sources.push(link.company_group.company_group_record_established);
-                                    data.sources.push(link.source);
+                                    source.push(link.company_group.company_group_record_established);
+                                    source.push(link.source);
                                 }
                                 if (link.company != undefined) {
-                                    companies.push({_id: link.company});
+                                    data.companies.push({_id: link.company});
                                 }
                                 if (linkLen == linkCounter) {
-                                    var uniques = _.map(_.groupBy(companies, function (doc) {
+                                    var uniques = _.map(_.groupBy(source, function (doc) {
                                         return doc._id;
                                     }), function (grouped) {
                                         return grouped[0];
                                     });
                                     companies.sources = uniques;
+                                    var unique_company = _.map(_.groupBy(data.companies, function (doc) {
+                                        return doc._id;
+                                    }), function (grouped) {
+                                        return grouped[0];
+                                    });
+                                    data.sources = uniques;
+                                    data.companies = unique_company;
                                     callback(null, data);
                                 }
                             })
@@ -485,17 +496,18 @@ exports.getSourceTable = function(req, res){
     }
     function getGroupLinkedProjects(data,callback) {
         if(type=='group') {
-            if(companies.length>0) {
-                companiesLen = companies.length;
+            if(data.companies.length>0) {
+                companiesLen = data.companies.length;
                 companiesCounter = 0;
-                _.each(companies, function (company) {
+
+                _.each(data.companies, function (company) {
                     if(company._id!=undefined){
                         Link.find({company: company._id})
                             .populate('source company')
                             .deepPopulate('source.source_type_id company.company_established_source.source_type_id')
                             .exec(function (err, links) {
+                                ++companiesCounter;
                                 if (err) {
-                                    ++companiesCounter;
                                     data.errorList = errors.errorFunction(err, 'Source');
                                     if (companiesCounter == companiesLen) {
                                         var uniques = _.map(_.groupBy(data.sources, function (doc) {
@@ -519,7 +531,7 @@ exports.getSourceTable = function(req, res){
                                                 data.sources.push(link.company.company_established_source);
                                             }
                                             if (linkLen == linkCounter && companiesCounter == companiesLen) {
-                                                var uniques = _.map(_.groupBy(project.sources, function (doc) {
+                                                var uniques = _.map(_.groupBy(data.sources, function (doc) {
                                                     if (doc && doc._id) {
                                                         return doc._id;
                                                     }
@@ -529,11 +541,9 @@ exports.getSourceTable = function(req, res){
                                                 data.sources = uniques;
                                                 callback(null, data);
                                             }
-
                                         })
                                     } else {
                                         data.errorList.push({type: 'Source', message: 'source not found'})
-                                        ++companiesCounter;
                                         if (companiesCounter == companiesLen) {
                                             var uniques = _.map(_.groupBy(data.sources, function (doc) {
                                                 if (doc && doc._id) {

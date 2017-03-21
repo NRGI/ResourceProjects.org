@@ -17,8 +17,10 @@ var Project 		= require('mongoose').model('Project'),
 
 exports.getContractTable = function(req, res){
     var link_counter, link_len,companies_len,companies_counter;
-    var company ={};var commodity=[],errorList=[];
-    company.contracts_link=[];
+    var company = {};
+    var commodity = [];
+    var errorList = [];
+    company.contracts_link = [];
     var type = req.params.type;
     var query='';
     if(type=='company') { query = {company:req.params.id, entities:"contract"}}
@@ -85,7 +87,7 @@ exports.getContractTable = function(req, res){
             var contract_len = company.contracts_link.length;
             if (contract_len > 0) {
                 _.each(company.contracts_link, function (contract) {
-                    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract._id + '/metadata', function (err, res, body) {
+                    request('http://api.resourcecontracts.org/contract/' + contract._id + '/metadata', function (err, res, body) {
                         ++contract_counter;
                         if(body) {
                             var body = JSON.parse(body);
@@ -136,12 +138,13 @@ exports.getContractTable = function(req, res){
                 }
             }
             if(type == 'country'){
-                contract_query = 'country=' + req.params.id;
+                var id = req.params.id.toLowerCase();
+                contract_query = 'country_code=' + id;
                 getContract=true;
             }
             company.contracts = [];
             if(getContract==true) {
-                request('http://rc-api-stage.elasticbeanstalk.com/api/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
+                request('http://api.resourcecontracts.org/contracts/search?group=metadata&' + contract_query, function (err, res, body) {
                     if(body) {
                         var body = JSON.parse(body);
                         var contract_counter = 0;
@@ -240,7 +243,7 @@ exports.getContractTable = function(req, res){
         }
     }
     function getCommodityCompaniesCount(company, errorList, callback) {
-        if (type == 'commodity'||type == 'country') {
+        if (type == 'commodity'|| type == 'country') {
             var _ids = _.pluck(company.contracts, 'id');
             if(_ids) {
                 Link.aggregate([
@@ -275,7 +278,7 @@ exports.getContractTable = function(req, res){
         }
     }
     function getContractCommodity(company, errorList, callback) {
-        if (type != 'commodity'&&type!='group'&&type != 'country') {
+        if (type != 'commodity'&&type!='group') {
             var contract_len = company.contracts.length;
             var contract_counter = 0;
             if (contract_len > 0) {
@@ -381,7 +384,7 @@ exports.getContractTable = function(req, res){
 
                                     })
                                 } else {
-                                    callback(null, company);
+                                    callback(null, contract);
                                 }
                             });
                     }
@@ -400,7 +403,7 @@ exports.getContractTable = function(req, res){
             var contract_len = contracts.length;
             if (contract_len > 0) {
                 _.each(contracts, function (contract) {
-                    request('http://rc-api-stage.elasticbeanstalk.com/api/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
+                    request('http://api.resourcecontracts.org/contract/' + contract.contract_id + '/metadata', function (err, res, body) {
                         ++contract_counter;
                         if (body) {
                             var body = JSON.parse(body);

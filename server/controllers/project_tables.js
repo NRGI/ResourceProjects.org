@@ -226,17 +226,18 @@ exports.getProjectTable = function(req, res){
         }
     }
     function getGroupLinkedCompanies(projects,callback) {
-        if(type=='group') {
+        if(type == 'group') {
             Link.find(query)
                 .exec(function (err, links) {
                     if (links.length>0) {
+                        company.links = [];
                         link_len = links.length;
                         link_counter = 0;
                         _.each(links, function (link) {
                             ++link_counter;
-                            company.push({_id:link.company});
+                            company.links.push({_id:link.company});
                             if (link_len == link_counter) {
-                                company = _.map(_.groupBy(company,function(doc){
+                                company.links = _.map(_.groupBy(company.links,function(doc){
                                     return doc._id;
                                 }),function(grouped){
                                     return grouped[0];
@@ -254,7 +255,7 @@ exports.getProjectTable = function(req, res){
     }
     function getGroupLinkedProjects(projects, callback) {
         if(type=='group') {
-            var companies = company;
+            var companies = company.links;
             if(companies.length>0) {
                 companies_len = companies.length;
                 companies_counter = 0;

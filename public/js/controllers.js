@@ -5754,6 +5754,7 @@ angular.module('app').controller('nrgiSiteListCtrl', [
     var country_name, str, commodity_type, commodity_name, timestamp, status, com = ', ';
     var limit = 50, currentPage = 0, totalPages = 0;
     $scope.count = 0;
+    $scope.field = false;
     $scope.busy = false;
     $scope.csv_file = [];
     if ($location.path() == '/sites') {

@@ -16,6 +16,7 @@ var Project 		= require('mongoose').model('Project'),
 
 
 exports.getSiteFieldTable = function(req, res){
+    console.log(req.params)
 
     var id = mongoose.Types.ObjectId(req.params.id);
     var link_counter, link_len, companies_len,companies_counter;
@@ -299,8 +300,8 @@ exports.getSiteFieldTable = function(req, res){
                         .populate('site commodity country')
                         .deepPopulate('site.site_country.country site.site_commodity.commodity')
                         .exec(function (err, links) {
+                            ++companies_counter
                             if (err) {
-                                ++companies_counter;
                                 data.errorList = errors.errorFunction(err, type + ' site not found');
                                 if (companies_counter == companies_len) {
                                     data.sites = _.map(_.groupBy(data.sites, function (doc) {
@@ -311,7 +312,6 @@ exports.getSiteFieldTable = function(req, res){
                                     callback(null, data);
                                 }
                             } else {
-                                ++companies_counter;
                                 if (links.length > 0) {
                                     link_len = links.length;
                                     link_counter = 0;
@@ -325,7 +325,6 @@ exports.getSiteFieldTable = function(req, res){
                                             site_country: link.site.site_country,
                                             site_commodity: link.site.site_commodity
                                         });
-
                                         if (link_len == link_counter && companies_counter == companies_len) {
                                             data.sites = _.map(_.groupBy(data.sites, function (doc) {
                                                 return doc._id;
@@ -337,13 +336,12 @@ exports.getSiteFieldTable = function(req, res){
 
                                     })
                                 } else {
-                                    ++companies_counter;
                                     if (companies_counter == companies_len) {
                                         data.sites = _.map(_.groupBy(data.sites, function (doc) {
                                             return doc._id;
                                         }), function (grouped) {
                                             return grouped[0];
-                                        })
+                                        });
                                         callback(null, data);
                                     }
                                 }
