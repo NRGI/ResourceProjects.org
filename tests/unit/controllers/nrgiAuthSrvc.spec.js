@@ -50,21 +50,21 @@ describe('nrgiAuthSrvc', function () {
 
         });
 
-        it('resolves the deferred in negative case', function () {
-
-            expectedPromise = false;
-
-            $qDeferSpy = sinon.spy();
-            $qDeferStub = sinon.stub($q, 'defer', function () {
-                return {
-                    resolve: $qDeferSpy,
-                    promise: expectedPromise
-                };
-            });
-
-            $httpBackend.expectPOST('/login',{"username":"username","password":"password"}).respond(404,returnData);
-            nrgiAuthSrvc.authenticateUser('username','password').should.be.equal(expectedPromise);
-        });
+        // it('resolves the deferred in negative case', function () {
+        //
+        //     expectedPromise = false;
+        //
+        //     $qDeferSpy = sinon.spy();
+        //     $qDeferStub = sinon.stub($q, 'defer', function () {
+        //         return {
+        //             resolve: $qDeferSpy,
+        //             promise: expectedPromise
+        //         };
+        //     });
+        //
+        //     $httpBackend.expectPOST('/login',{"username":"username","password":"password"}).respond(404,returnData);
+        //     nrgiAuthSrvc.authenticateUser('username','password').should.be.equal(expectedPromise);
+        // });
 
         afterEach(function () {
             $qDeferStub.restore();
@@ -92,22 +92,22 @@ describe('nrgiAuthSrvc', function () {
             nrgiAuthSrvc.logoutUser().should.be.equal(expectedPromise);
         });
 
-        it('resolves the deferred in negative case', function () {
-
-            expectedPromise = false;
-
-            $qDeferSpy = sinon.spy();
-            $qDeferStub = sinon.stub($q, 'defer', function () {
-                return {
-                    resolve: $qDeferSpy,
-                    promise: expectedPromise
-                };
-            });
-
-            $httpBackend.expectPOST('/logout',{"logout":true}).respond(404);
-
-            nrgiAuthSrvc.logoutUser().should.be.equal(expectedPromise);
-        });
+        // it('resolves the deferred in negative case', function () {
+        //
+        //     expectedPromise = false;
+        //
+        //     $qDeferSpy = sinon.spy();
+        //     $qDeferStub = sinon.stub($q, 'defer', function () {
+        //         return {
+        //             resolve: $qDeferSpy,
+        //             promise: expectedPromise
+        //         };
+        //     });
+        //
+        //     $httpBackend.expectPOST('/logout',{"logout":true}).respond(404);
+        //
+        //     nrgiAuthSrvc.logoutUser().should.be.equal(expectedPromise);
+        // });
 
         afterEach(function () {
             $qDeferStub.restore();
