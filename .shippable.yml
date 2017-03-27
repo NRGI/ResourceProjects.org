@@ -8,6 +8,7 @@ branches:
     - staging
     - master
     - dev
+    - fix-phantom-build-failure
 
 env:
   global:
