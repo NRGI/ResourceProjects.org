@@ -66,11 +66,6 @@ describe('nrgiAuthSrvc', function () {
             nrgiAuthSrvc.authenticateUser('username','password').should.be.equal(expectedPromise);
         });
 
-        afterEach(function () {
-            $qDeferStub.restore();
-            $httpBackend.flush();
-        });
-
     });
 
     describe('#logoutUser', function () {
@@ -107,11 +102,6 @@ describe('nrgiAuthSrvc', function () {
             $httpBackend.expectPOST('/logout',{"logout":true}).respond(404);
 
             nrgiAuthSrvc.logoutUser().should.be.equal(expectedPromise);
-        });
-
-        afterEach(function () {
-            $qDeferStub.restore();
-            $httpBackend.flush();
         });
 
     });
