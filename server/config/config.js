@@ -10,7 +10,7 @@ module.exports 	= {
     },
     staging : {
         baseUrl: 'http://staging.resourceprojects.org',
-        db: '@resource-projects-staging-shard-00-00-vayfs.mongodb.net:27017,resource-projects-staging-shard-00-01-vayfs.mongodb.net:27017,resource-projects-staging-shard-00-02-vayfs.mongodb.net:27017/rp_dev?ssl=true&authSource=admin&retryWrites=true',
+        db: '@resource-projects-shard-00-00-vayfs.mongodb.net:27017,resource-projects-shard-00-01-vayfs.mongodb.net:27017,resource-projects-shard-00-02-vayfs.mongodb.net:27017/rp_dev?ssl=true&replicaSet=resource-projects-shard-0&authSource=admin',
         rootPath: rootPath,
         port: process.env.PORT || 80
     },
