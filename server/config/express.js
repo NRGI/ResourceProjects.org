@@ -1,94 +1,98 @@
 'use strict';
-var assert              = require('assert'),
-    bodyParser 		    = require('body-parser'),
-    cookieParser 	    = require('cookie-parser'),
-    express 		    = require('express'),
-    fs                  = require('fs'),
-    logger 			    = require('morgan'),
-    mongoose 		    = require('mongoose'),
-    passport 		    = require('passport'),
-    session 		    = require('express-session'),
-    MongoStore          = require('connect-mongo')(session),
-    stylus 			    = require('stylus'),
-    linkModel           = require('../models/Links'),
-    aliasModel          = require('../models/Aliases'),
-    commodityModel      = require('../models/Commodities'),
-    companyGroupModel   = require('../models/CompanyGroups'),
-    countryModel        = require('../models/Countries'),
-    sourceModel 	    = require('../models/Sources'),
-    userModel 		    = require('../models/Users'),
-    actionModel 		= require('../models/Actions'),
-    importSourceModel   = require('../models/ImportSources'),
-    datasetModel 		= require('../models/Datasets'),
-    duplicateModel 		= require('../models/Duplicates'),
-    companyModel        = require('../models/Companies'),
-    concessionModel 	= require('../models/Concessions'),
-    contractModel 	    = require('../models/Contracts'),
-    projectModel        = require('../models/Projects'),
-    sourceTypeModel     = require('../models/SourceTypes'),
-    siteModel           = require('../models/Sites'),
-    transferModel       = require('../models/Transfers'),
-    productionModel     = require('../models/Production'),
-    aboutPageModel     = require('../models/AboutPage'),
-    glossaryPage     = require('../models/GlossaryPage'),
-    landingPage     = require('../models/LandingPage'),
-    model_load          = ['Facts'],
-    SESSION_SECRET  	= "whatever you want";
+var assert = require('assert'),
+    bodyParser = require('body-parser'),
+    cookieParser = require('cookie-parser'),
+    express = require('express'),
+    fs = require('fs'),
+    logger = require('morgan'),
+    mongoose = require('mongoose'),
+    passport = require('passport'),
+    session = require('express-session'),
+    MongoStore = require('connect-mongo')(session),
+    stylus = require('stylus'),
+    linkModel = require('../models/Links'),
+    aliasModel = require('../models/Aliases'),
+    commodityModel = require('../models/Commodities'),
+    companyGroupModel = require('../models/CompanyGroups'),
+    countryModel = require('../models/Countries'),
+    sourceModel = require('../models/Sources'),
+    userModel = require('../models/Users'),
+    actionModel = require('../models/Actions'),
+    importSourceModel = require('../models/ImportSources'),
+    datasetModel = require('../models/Datasets'),
+    duplicateModel = require('../models/Duplicates'),
+    companyModel = require('../models/Companies'),
+    concessionModel = require('../models/Concessions'),
+    contractModel = require('../models/Contracts'),
+    projectModel = require('../models/Projects'),
+    sourceTypeModel = require('../models/SourceTypes'),
+    siteModel = require('../models/Sites'),
+    transferModel = require('../models/Transfers'),
+    productionModel = require('../models/Production'),
+    aboutPageModel = require('../models/AboutPage'),
+    glossaryPage = require('../models/GlossaryPage'),
+    landingPage = require('../models/LandingPage'),
+    model_load = ['Facts'],
+    SESSION_SECRET = "whatever you want";
 
-model_load.forEach(function(model_name) {
+model_load.forEach(function (model_name) {
     require('../models/' + model_name);
 });
 
-module.exports = function(app, config, user, pass, env) {
-	// function for use by stylus middleware
-	function compile(str, path) {
-		return stylus(str).set('filename', path);
-	}
-	// set up view engine
-	app.set('views', config.rootPath + '/server/views');
-	app.set('view engine', 'jade');
+module.exports = function (app, config, user, pass, env) {
+    // function for use by stylus middleware
+    function compile(str, path) {
+        return stylus(str).set('filename', path);
+    }
+
+    // set up view engine
+    app.set('views', config.rootPath + '/server/views');
+    app.set('view engine', 'jade');
 
     // set up logger
-	app.use(logger('dev'));
+    app.use(logger('dev'));
 
     // authentication cofigs
-	app.use(cookieParser());
+    app.use(cookieParser());
     app.use(bodyParser.urlencoded({
         extended: true,
         limit: '50mb'
     }));
     app.use(bodyParser.json({limit: '50mb'}));
 
+    mongoose.Promise = global.Promise;
     //Mongoose connection
     if (env === 'local') {
         mongoose.connect(config.db);
     } else {
-        var ca = [fs.readFileSync(__dirname + "/certs/servercert.crt")];
         var options = {
-            mongos: {
-                ssl: true,
-                sslValidate: true,
-                sslCA: ca,
-                poolSize: 10000,
-                socketOptions: {
-                    keepAlive: 120,
-                    connectTimeoutMS: 10000,
-                    socketTimeoutMS: 60000
-                }
-            }
+            mongos: null
         };
+        if (env == 'production') {
+            var options = {
+                mongos: {
+                    ssl: true,
+                    poolSize: 10000,
+                    socketOptions: {
+                        keepAlive: 120,
+                        connectTimeoutMS: 10000,
+                        socketTimeoutMS: 60000
+                    }
+                }
+            };
+        }
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
 
-        mongoose.connection.on('connecting', function() {
-           console.log('Mongo connection connecting.');
+        mongoose.connection.on('connecting', function () {
+            console.log('Mongo connection connecting.');
         });
-        mongoose.connection.on('connected', function() {
+        mongoose.connection.on('connected', function () {
             console.log('Mongo connection connected.');
         });
-        mongoose.connection.on('close', function() {
+        mongoose.connection.on('close', function () {
             console.log('Mongo connection closed.');
         });
-        mongoose.connection.on('disconnected', function() {
+        mongoose.connection.on('disconnected', function () {
             console.log('Mongo connection disconnected.Triggering manual reconnect.');
 
             mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
@@ -126,27 +130,28 @@ module.exports = function(app, config, user, pass, env) {
     aboutPageModel.createDefaultAboutPage();
     transferModel.getInitTransferCount();
     userModel.createDefaultUsers();
-    
+
     //Connection session
     app.use(session({
         secret: SESSION_SECRET,
         store: new MongoStore({
             mongooseConnection: db,
             autoRemove: 'native',
-            touchAfter: 120}),
+            touchAfter: 120
+        }),
         touchAfter: 120,
         resave: true,
         saveUninitialized: true
     }));
-	app.use(passport.initialize());
-	app.use(passport.session());
+    app.use(passport.initialize());
+    app.use(passport.session());
 
-	// stylus middleware implementation - routes to anything in public directory
-	app.use(stylus.middleware(
-	{
-		src: config.rootPath + '/public',
-		compile: compile
-    }
+    // stylus middleware implementation - routes to anything in public directory
+    app.use(stylus.middleware(
+        {
+            src: config.rootPath + '/public',
+            compile: compile
+        }
     ));
     app.use(express.static(config.rootPath + '/public'));
 }
