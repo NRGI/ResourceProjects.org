@@ -68,19 +68,7 @@ module.exports = function (app, config, user, pass, env) {
         var options = {
             mongos: null
         };
-        if (env == 'production') {
-            var options = {
-                mongos: {
-                    ssl: true,
-                    poolSize: 10000,
-                    socketOptions: {
-                        keepAlive: 120,
-                        connectTimeoutMS: 10000,
-                        socketTimeoutMS: 60000
-                    }
-                }
-            };
-        }
+
         mongoose.connect('mongodb://' + user + ':' + pass + config.db, options);
 
         mongoose.connection.on('connecting', function () {
